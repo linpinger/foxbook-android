@@ -10,6 +10,7 @@ import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,6 +20,7 @@ public class Activity_ShowPage extends Activity {
 
 	private int foxfrom = 0 ;  // 1=DB, 2=search 
 	private TextView tv ;
+	private ScrollView sv;
 	private int pageid = 0 ;
 	private String pagetext = "暂缺" ;
 	private String pagename = "" ;
@@ -29,6 +31,7 @@ public class Activity_ShowPage extends Activity {
 		setContentView(R.layout.activity_showpage);
 
 		tv = (TextView) findViewById(R.id.tv_page);
+		sv = (ScrollView) findViewById(R.id.scrollView1);
 		
 		Intent itt = getIntent();
 		foxfrom = itt.getIntExtra("iam", 0);       // 必需 表明数据从哪来的
@@ -91,6 +94,8 @@ public class Activity_ShowPage extends Activity {
 			pagetext = pp.get("content");
 			tv.setText(pagetext.replace("\n", "\n　　"));
 			pageid = Integer.valueOf(pp.get("id"));
+//			sv.smoothScrollTo(0, 0);
+			sv.scrollTo(0, 0);
 			break;
 		case R.id.show_next: // 下一页
 			Map<String,String> nn = FoxDB.getOneRow("select id as id, name as name, url as url, content as content from page where id > " + pageid + " and content is not null order by bookid, id limit 1");
@@ -102,6 +107,9 @@ public class Activity_ShowPage extends Activity {
 			pagetext = nn.get("content");
 			tv.setText(pagetext.replace("\n", "\n　　"));
 			pageid = Integer.valueOf(nn.get("id"));
+			
+//			sv.smoothScrollTo(0, 0);
+			sv.scrollTo(0, 0);
 			break;
 		}
 		return super.onOptionsItemSelected(item);
