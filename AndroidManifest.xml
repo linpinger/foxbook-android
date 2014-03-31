@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.linpinger.foxbook"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="16" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/book"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name=".Activity_BookList"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".Activity_Main"
+            android:label="测试主界面" >
+        </activity>
+        <activity
+            android:name=".Activity_SearchBook"
+            android:label="搜索到目录页按按钮 预 预览"
+            android:windowSoftInputMode="adjustUnspecified|stateHidden" >
+        </activity>
+        <activity
+            android:name=".Activity_PageList"
+            android:label="测试列表" >
+        </activity>
+               <activity
+            android:name=".Activity_AllPageList"
+            android:label="所有列表" >
+        </activity>
+        
+        <activity
+            android:name=".Activity_ShowPage"
+            android:label="查看内容" >
+        </activity>
+        <activity
+            android:name=".Activity_BookInfo"
+            android:label="编辑书籍信息"
+            android:windowSoftInputMode="adjustUnspecified|stateHidden" >
+        </activity>
+        
+    </application>
+
+</manifest>

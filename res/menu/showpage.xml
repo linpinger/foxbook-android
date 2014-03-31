@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/show_prev"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:icon="@android:drawable/ic_media_previous"
+        android:title="上一章"/>
+    <item
+        android:id="@+id/show_next"
+        android:orderInCategory="101"
+        android:showAsAction="always"
+        android:icon="@android:drawable/ic_media_next"
+        android:title="下一章"/>
+
+</menu>

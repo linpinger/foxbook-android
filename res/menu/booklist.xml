@@ -1,0 +1,55 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/action_updateall"
+        android:icon="@android:drawable/ic_popup_sync"
+        android:showAsAction="always"
+        android:title="更新"/>
+    <item
+        android:id="@+id/action_allpagelist"
+        android:icon="@android:drawable/ic_menu_view"
+        android:showAsAction="always"
+        android:title="所有章节"/>
+    <!-- showAsAction="ifRoom|withText" -->
+    <item
+        android:id="@+id/action_switchdb"
+        android:title="切换数据库"/>
+    <!--
+        android:icon="@android:drawable/ic_menu_rotate"
+        android:showAsAction="ifRoom"    -->
+    <item
+        android:id="@+id/action_sortbook_asc"
+        android:title="按页数顺序排列"/>
+    <!-- android:icon="@android:drawable/ic_menu_sort_alphabetically" -->
+
+    <item
+        android:id="@+id/action_sortbook_desc"
+        android:title="按页数倒序排列"/>
+    <!-- android:icon="@android:drawable/ic_menu_sort_by_size" -->
+    <item
+        android:id="@+id/action_regen_pageid"
+        android:title="重新生成页面ID"/>
+    <!-- android:icon="@android:drawable/ic_menu_set_as" -->
+    <item
+        android:id="@+id/action_searchbook"
+        android:title="搜索小说"/>
+    <!-- android:icon="@android:drawable/ic_menu_search" -->
+    <item
+        android:id="@+id/action_vacuum"
+        android:title="缩小数据库"/>
+    <!-- android:icon="@android:drawable/ic_menu_manage" -->
+    <item
+        android:id="@+id/action_refresh"
+        android:title="刷新列表"/>
+    <!-- android:icon="@android:drawable/ic_menu_mapmode" -->
+    <item
+        android:id="@+id/action_isonline"
+        android:title="测试是否有网络"/>
+    <!-- android:icon="@android:drawable/ic_menu_compass" -->
+    <item
+        android:id="@+id/action_all2umd"
+        android:orderInCategory="100"
+        android:title="全部转为UMD"/>
+    <!-- android:icon="@android:drawable/ic_menu_agenda" -->
+
+</menu>
