@@ -7,11 +7,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,10 +28,11 @@ public class Activity_ShowPage extends Activity {
 	private String pagetext = "暂缺" ;
 	private String pagename = "" ;
 	private String pageurl = "" ;
-	private int mScreenWidth, mScreenHeight;// 屏幕分辨率
 	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+//		Settings.System.putInt(this.getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, 180000); // 设置超时时间 3分钟
+//		getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); // 永远亮着
 		setContentView(R.layout.activity_showpage);
 
 		tv = (TextView) findViewById(R.id.tv_page);
@@ -80,7 +82,6 @@ public class Activity_ShowPage extends Activity {
 			@Override
 			public void onClick(View arg0) { // 单击滚屏
 				// TODO Auto-generated method stub
-//				sv.scrollBy(0, sv.getMeasuredHeight());
 				sv.smoothScrollBy(0, sv.getMeasuredHeight() - 30);
 			}
 		});
