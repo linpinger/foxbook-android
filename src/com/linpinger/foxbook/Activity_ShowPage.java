@@ -10,6 +10,8 @@ import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,6 +27,7 @@ public class Activity_ShowPage extends Activity {
 	private String pagetext = "暂缺" ;
 	private String pagename = "" ;
 	private String pageurl = "" ;
+	private int mScreenWidth, mScreenHeight;// 屏幕分辨率
 	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -73,6 +76,14 @@ public class Activity_ShowPage extends Activity {
 			setTitle("下载中...");
 			new Thread(down_page).start();
 		}
+		tv.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View arg0) { // 单击滚屏
+				// TODO Auto-generated method stub
+//				sv.scrollBy(0, sv.getMeasuredHeight());
+				sv.smoothScrollBy(0, sv.getMeasuredHeight() - 30);
+			}
+		});
 	}
 
 	@Override
