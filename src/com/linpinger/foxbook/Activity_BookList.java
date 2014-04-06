@@ -205,10 +205,12 @@ public class Activity_BookList extends ListActivity {
 									int which) {
 								switch (which) {
 								case 0:
+									upchacount = 0 ;
 									new Thread(new UpdateBook(lcID, lcName, true)).start();
 									foxtip("正在更新: " + lcName);
 									break;
 								case 1:
+									upchacount = 0 ;
 									new Thread(new UpdateBook(lcID, lcName, false)).start();
 									foxtip("正在更新目录: " + lcName);
 									break;
@@ -286,6 +288,8 @@ public class Activity_BookList extends ListActivity {
 					refresh_BookList(); // 刷新LV中的数据
 					if (upthreadcount <1 ){
 						setTitle("全部更新完毕，新章节数: " + upchacount);
+					} else {
+						setTitle("剩余线程: " + upthreadcount);
 					}
 				}
 			}
