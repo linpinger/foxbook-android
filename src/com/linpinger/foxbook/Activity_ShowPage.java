@@ -7,12 +7,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.WindowManager;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -96,29 +94,44 @@ public class Activity_ShowPage extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作
 		switch (item.getItemId()) {
 		case R.id.show_prev: // 上一页
-			Map<String,String> pp = FoxDB.getOneRow("select id as id, name as name, url as url, content as content from page where id < " + pageid + " and content is not null order by bookid, id limit 1");
-			if ( null == pp.get("name") ) {
-				foxtip("亲，没有上一页了");
-				break;
+			if ( 0 == pageid ) {
+				foxtip("亲，ID 为 0");
+				break ;
 			}
-			
-			setTitle(pp.get("name") + " : " + pp.get("url") );
+			Map<String,String> pp ;
+			pp = FoxDB.getOneRow("select id as id, name as name, url as url, content as content from page where id < " + pageid + " and bookid in (select bookid from page where id = " + pageid + ") and content is not null order by id desc limit 1");
+			if ( null == pp.get("id") ) {
+				pp = FoxDB.getOneRow("select id as id, name as name, url as url, content as content from page where id < " + pageid + " and content is not null order by bookid, id limit 1");
+				if ( null == pp.get("name") ) {
+					foxtip("亲，没有上一页了");
+					break;
+				}
+			}
+			pageid = Integer.valueOf(pp.get("id"));
+			setTitle(pageid + " : " + pp.get("name") + " : " + pp.get("url") );
 			pagetext = pp.get("content");
 			tv.setText(pagetext.replace("\n", "\n　　"));
-			pageid = Integer.valueOf(pp.get("id"));
 //			sv.smoothScrollTo(0, 0);
 			sv.scrollTo(0, 0);
 			break;
 		case R.id.show_next: // 下一页
-			Map<String,String> nn = FoxDB.getOneRow("select id as id, name as name, url as url, content as content from page where id > " + pageid + " and content is not null order by bookid, id limit 1");
-			if ( null == nn.get("name") ) {
-				foxtip("亲，没有下一页了");
-				break;
+			if ( 0 == pageid ) {
+				foxtip("亲，ID 为 0");
+				break ;
 			}
-			setTitle(nn.get("name") + " : " + nn.get("url") );
+			Map<String,String> nn;
+			nn = FoxDB.getOneRow("select id as id, name as name, url as url, content as content from page where id > " + pageid + " and bookid in (select bookid from page where id = " + pageid + ") and content is not null limit 1");
+			if ( null == nn.get("id") ) {
+				nn = FoxDB.getOneRow("select id as id, name as name, url as url, content as content from page where id > " + pageid + " and content is not null order by bookid, id limit 1");
+				if ( null == nn.get("name") ) {
+					foxtip("亲，没有下一页了");
+					break;
+				}
+			}
+			pageid = Integer.valueOf(nn.get("id"));
+			setTitle(pageid + " : " + nn.get("name") + " : " + nn.get("url") );
 			pagetext = nn.get("content");
 			tv.setText(pagetext.replace("\n", "\n　　"));
-			pageid = Integer.valueOf(nn.get("id"));
 			
 //			sv.smoothScrollTo(0, 0);
 			sv.scrollTo(0, 0);
