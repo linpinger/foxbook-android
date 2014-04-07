@@ -9,8 +9,10 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,6 +28,7 @@ public class Activity_ShowPage extends Activity {
 	private String pagetext = "暂缺" ;
 	private String pagename = "" ;
 	private String pageurl = "" ;
+	private float cX, cY ; // 点击textView的坐标
 	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -76,11 +79,27 @@ public class Activity_ShowPage extends Activity {
 			setTitle("下载中...");
 			new Thread(down_page).start();
 		}
+
 		tv.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View arg0) { // 单击滚屏
 				// TODO Auto-generated method stub
-				sv.smoothScrollBy(0, sv.getMeasuredHeight() - 30);
+				int vy = getWindowManager().getDefaultDisplay().getHeight(); // 屏幕高度
+				if ( cY <= vy / 3 ) { // 小于1/3屏 上一页
+					sv.smoothScrollBy(0, 30 - sv.getMeasuredHeight());
+				} else {
+					sv.smoothScrollBy(0, sv.getMeasuredHeight() - 30);
+				}
+			}
+		});
+		
+		tv.setOnTouchListener(new OnTouchListener(){ // 触摸事件
+			@Override
+			public boolean onTouch(View arg0, MotionEvent arg1) {
+//				if ( arg1.getAction() == MotionEvent.ACTION_DOWN )
+				cY = arg1.getRawY(); // 获取的坐标给click使用
+//				cX = arg1.getRawX();
+				return false;
 			}
 		});
 	}
