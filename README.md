@@ -6,7 +6,7 @@
 
 **作者:** 爱尔兰之狐(linpinger)
 
-**邮箱:** <a href="mailto:linpinger@gmail.com">linpinger@gmail.com</a>
+**邮箱:** <mailto:linpinger@gmail.com>
 
 **主页:** <http://linpinger.github.io>
 
@@ -21,6 +21,11 @@
 -   [源码工程](https://github.com/linpinger/foxbook-android)
 
 -   [APK文件](https://github.com/linpinger/foxbook-android/releases/download/TestUse/FoxBook.apk)
+
+**工程中包含的其他文件:**
+- 生成UMD格式电子书调用umd-builder JAVA版 <http://code.google.com/p/umd-builder/>
+- 阅读页面的羊皮纸背景来自: iReaderV1.5.0.1.apk
+- 程序图标来自: <http://findicons.com/icon/93370/emblem_library?id=274277> Icon Pack: Human-O2 Designer: schollidesign
 
 
 **更新日志:**
