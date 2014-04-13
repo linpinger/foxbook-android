@@ -1,10 +1,13 @@
 package com.linpinger.foxbook;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -28,6 +31,28 @@ import android.util.Log;
 
 public class FoxBookLib {
 	
+	public static void all2txt() { // 所有书籍转为txt
+		String txtPath = "/sdcard/fox.txt";
+		String sContent = "" ;
+		List<Map<String, Object>> data = FoxDB.getUMDArray();
+		Iterator<Map<String, Object>> itr = data.iterator();
+		while (itr.hasNext()) {
+			HashMap<String, Object> mm = (HashMap<String, Object>) itr.next();
+			sContent = sContent + (String) mm.get("title") + "\n\n" + (String) mm.get("content") + "\n\n\n" ;
+		}
+
+		try {
+			BufferedWriter bw1 = new BufferedWriter(new FileWriter(txtPath, false));
+			bw1.write(sContent);
+			bw1.flush();
+			bw1.close();
+		} catch (IOException e) {
+			e.toString();
+//			e.printStackTrace();
+		}
+	}
+	
+
 	public static void all2umd() { // 所有书籍转为umd
 		String umdPath = "/sdcard/fox.umd";
 		Umd umd = new Umd();

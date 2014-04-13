@@ -51,5 +51,8 @@
         android:orderInCategory="100"
         android:title="全部转为UMD"/>
     <!-- android:icon="@android:drawable/ic_menu_agenda" -->
-
+    <item
+        android:id="@+id/action_all2txt"
+        android:orderInCategory="100"
+        android:title="全部转为Txt"/>
 </menu>

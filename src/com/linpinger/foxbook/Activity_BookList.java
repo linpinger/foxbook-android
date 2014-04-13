@@ -411,6 +411,19 @@ public class Activity_BookList extends ListActivity {
 				}
 			}).start();
 			break;
+		case R.id.action_all2txt:
+			setTitle("开始转换成TXT...");
+			(new Thread(){
+				public void run(){
+					FoxBookLib.all2txt();
+					Message msg = Message.obtain();
+					msg.what = IS_MSG;
+					msg.obj = "全部转换完毕: /sdcard/fox.txt";
+					handler.sendMessage(msg);
+				}
+			}).start();
+			break;
+
 		}
 		return super.onOptionsItemSelected(item);
 	}
