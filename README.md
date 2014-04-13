@@ -2,13 +2,13 @@
 
 **名称:** FoxBook
 
-**功能:** 狐狸的小说下载阅读及转换工具(下载小说站小说，制作为umd格式)
+**功能:** 狐狸的小说下载阅读及转换工具(下载小说站小说，制作为umd,txt格式)
 
 **作者:** 爱尔兰之狐(linpinger)
 
 **邮箱:** <mailto:linpinger@gmail.com>
 
-**主页:** <http://linpinger.github.io>
+**主页:** <http://linpinger.github.io?s=FoxBook-Android_MD>
 
 **缘起:** 用别人写的工具，总感觉不能随心所欲，于是自己写个下载管理工具，基本能用，基本满意
 
@@ -30,5 +30,6 @@
 
 **更新日志:**
 
+- 2014-04-13: 菜单添加生成txt功能，路径 /sdcard/fox.txt
 - 2014-04-07: 发布Android版，和FoxBook共用同一数据库文件，放在sdcard根目录
 - ...: 懒得写了，就这样吧
