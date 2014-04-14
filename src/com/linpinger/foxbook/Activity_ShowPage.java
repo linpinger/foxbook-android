@@ -147,10 +147,11 @@ public class Activity_ShowPage extends Activity {
 					break;
 				}
 			}
+			
 			pageid = Integer.valueOf(nn.get("id"));
 			setTitle(pageid + " : " + nn.get("name") + " : " + nn.get("url") );
 			pagetext = nn.get("content");
-			tv.setText(pagetext.replace("\n", "\n　　"));
+			tv.setText("　　" + pagetext.replace("\n", "\n　　"));
 			
 //			sv.smoothScrollTo(0, 0);
 			sv.scrollTo(0, 0);
