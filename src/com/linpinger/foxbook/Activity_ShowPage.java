@@ -52,7 +52,7 @@ public class Activity_ShowPage extends Activity {
 				Bundle data = msg.getData();
 				pagetext = data.getString("text");
 				
-				tv.setText(pagetext.replace("\n", "\n　　"));
+				tv.setText("　　" + pagetext.replace("\n", "\n　　"));
 			}
 		};
 
@@ -73,7 +73,7 @@ public class Activity_ShowPage extends Activity {
 			pageid =  itt.getIntExtra("chapter_id", 0);
 			pagetext = FoxDB.getOneCell("select Content from page where id = " + pageid + " and Content is not null" );
 	 
-			tv.setText(pagetext.replace("\n", "\n　　"));
+			tv.setText("　　" + pagetext.replace("\n", "\n　　"));
 		} 
 		if ( FROM_NET == foxfrom ){ // NET
 			setTitle("和墮嶄...");
@@ -129,7 +129,7 @@ public class Activity_ShowPage extends Activity {
 			pageid = Integer.valueOf(pp.get("id"));
 			setTitle(pageid + " : " + pp.get("name") + " : " + pp.get("url") );
 			pagetext = pp.get("content");
-			tv.setText(pagetext.replace("\n", "\n　　"));
+			tv.setText("　　" + pagetext.replace("\n", "\n　　"));
 //			sv.smoothScrollTo(0, 0);
 			sv.scrollTo(0, 0);
 			break;

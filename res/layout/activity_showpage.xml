@@ -19,7 +19,7 @@
             android:layout_marginLeft="6sp"
             android:layout_marginRight="6sp"
             android:textSize="19sp"
-            android:lineSpacingMultiplier="1.3"
+            android:lineSpacingMultiplier="1.25"
              android:text="内容..." />
     </ScrollView>
 

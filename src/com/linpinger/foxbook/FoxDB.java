@@ -36,7 +36,7 @@ public class FoxDB {
 				} else {
 					item.put("title", cursor.getString(0));
 				}
-				item.put("content", cursor.getString(1).replace("\n", "\n　　"));
+				item.put("content", "　　" + cursor.getString(1).replace("\n", "\n　　"));
 				data.add(item);
 			} while (cursor.moveToNext());
 		}
