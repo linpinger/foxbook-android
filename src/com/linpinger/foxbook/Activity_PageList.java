@@ -239,6 +239,7 @@ public class Activity_PageList extends ListActivity {
 	public boolean onCreateOptionsMenu(Menu menu) { // 菜单初始化
 		menu.add(0, 1, 1, "删除所有章节");
 		menu.add(0, 2, 2, "删除所有章节且不修改DelList");
+		menu.add(0, 3, 3, "添加本书");
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -255,6 +256,24 @@ public class Activity_PageList extends ListActivity {
 			foxtip("已删除");
 			setResult(RESULT_OK, (new Intent()).setAction("已清空某书并没有写入已删除列表"));
 			finish();
+			break;
+		case 3:
+			if ( FROM_NET == foxfrom ) {
+				if ( null != bookurl && "" != bookname ) {
+					int nBookID = 0 ;
+					// 新增入数据库，并获取返回bookid
+					nBookID = FoxDB.insertbook(bookname, bookurl);
+					if ( nBookID < 1 )
+						break ;
+					Intent itti = new Intent(Activity_PageList.this, Activity_BookInfo.class);
+					itti.putExtra("bookid", nBookID);
+					startActivity(itti);
+					setResult(RESULT_OK, (new Intent()).setAction("返回列表"));
+					finish();
+				} else {
+					setTitle("信息不完整@新增 : " + bookname + " <" + bookurl + ">");
+				}
+			}
 			break;
 		}
 		return super.onOptionsItemSelected(item);

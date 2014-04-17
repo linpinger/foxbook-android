@@ -4,7 +4,6 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -172,10 +171,51 @@ public class FoxBookLib {
 		}
 	}
 	
+	public static List<Map<String, Object>> getSearchEngineHref(String html, String KeyWord) {
+//		String KeyWord = "三界血歌" ;
+		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(64);
+		Map<String, Object> item;
 
+		html = html.replace("\t", "");
+		html = html.replace("\r", "");
+		html = html.replace("\n", "");
+		html = html.replaceAll("(?i)<!--[^>]+-->", "") ;
+		html = html.replace("<em>", "");
+		html = html.replace("</em>", "");
+		html = html.replace("<b>", "");
+		html = html.replace("</b>", "");
+		html = html.replace("<strong>", "");
+		html = html.replace("</strong>", "");
+
+
+		// 获取链接 并存入结构中
+		Matcher mat = Pattern.compile("(?smi)href *= *[\"']?([^>\"']+)[\"']?[^>]*> *([^<]+)<").matcher(html);
+		while ( mat.find() ) {
+			if ( 2 == mat.groupCount() ) {
+// 				System.out.println(mat.group(1) + "|" + mat.group(2)) ;
+				if ( mat.group(1).length() < 5 ) {
+						continue ;
+				}
+				if ( mat.group(1).indexOf("http") < 0 ) {
+						continue ;
+				}
+				if ( mat.group(2).indexOf(KeyWord) < 0 ) {
+						continue ; 
+				}
+
+				item = new HashMap<String, Object>();
+				item.put("url", mat.group(1));
+				item.put("name", mat.group(2));
+				data.add(item);
+			}
+		}
+
+		return data ;
+	}
+	
 	@SuppressLint("UseSparseArrays")
 	public static List<Map<String, Object>> tocHref(String html, int lastNpage) {
-		List<Map<String, Object>> ldata = new ArrayList<Map<String, Object>>( 100);
+		List<Map<String, Object>> ldata = new ArrayList<Map<String, Object>>(100);
 		Map<String, Object> item;
 		int nowurllen = 0;
 		Map<Integer, Integer> lencount = new HashMap<Integer, Integer>();
@@ -418,7 +458,7 @@ public static String downhtml(String inURL) {
 		String html = "";
 		html = new String(buf, "gbk");
 
-		if (html.matches("(?smi).*<meta[^>]*charset=(utf8|utf-8).*")) {
+		if (html.matches("(?smi).*<meta[^>]*charset=[\"]?(utf8|utf-8)[\"]?.*")) {
 			// Log.i("Fox", "Guess encoding is UTF8");
 			html = new String(buf, "utf-8");
 		}

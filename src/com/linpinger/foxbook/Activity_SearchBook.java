@@ -11,7 +11,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
-import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.KeyEvent;
@@ -25,7 +26,7 @@ public class Activity_SearchBook extends Activity {
 	private WebView wv;
 	private EditText et;
 	private Button btn_search, btn_pre, btn_add;
-	private CheckBox ckShowAll;
+	private boolean bShowAll = false ;
 	
 	private String book_name = "";
 	private String book_url = "";
@@ -44,7 +45,6 @@ public class Activity_SearchBook extends Activity {
 		btn_search = (Button) findViewById(R.id.button1);
 		btn_pre = (Button) findViewById(R.id.button2);
 		btn_add = (Button) findViewById(R.id.button3);
-		ckShowAll = (CheckBox) findViewById(R.id.checkBox1);
 		
 //		wv.loadUrl("about:blank");
 //		wv.loadDataWithBaseURL("http://www.autohotkey.net/~linpinger/index.html?s=FoxBook_Android", "用法说明:", "text/html", "utf-8", "");
@@ -85,7 +85,7 @@ public class Activity_SearchBook extends Activity {
 				intent.putExtra("bookurl", book_url);
 				intent.putExtra("bookname", book_name);
 				intent.putExtra("html", html);
-				intent.putExtra("bShowAll", ckShowAll.isChecked());
+				intent.putExtra("bShowAll", bShowAll);
 
 				startActivity(intent);
 			}
@@ -177,5 +177,25 @@ public class Activity_SearchBook extends Activity {
 	 * 
 	 * protected void onResume() { super.onResume(); }
 	 */
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) { // 创建菜单
+		getMenuInflater().inflate(R.menu.search, menu);
+		return true;
+	}
+	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作
+		switch (item.getItemId()) {
+		case R.id.sm_bShowAll: // 预览显示所有条目
+			bShowAll = ! item.isChecked() ;
+			item.setChecked(bShowAll);
+			break;
+		case R.id.sm_QuickSearchSouGou: // 快搜:搜狗
+			Intent intent = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
+			book_name = et.getText().toString();
+			intent.putExtra("bookname", book_name);
+			startActivity(intent);
+			break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
 
 }

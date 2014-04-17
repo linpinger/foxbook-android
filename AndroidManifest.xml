@@ -36,6 +36,11 @@
             android:windowSoftInputMode="adjustUnspecified|stateHidden" >
         </activity>
         <activity
+            android:name=".Activity_QuickSearch"
+            android:label="非浏览器控件搜索" >
+        </activity>
+        
+        <activity
             android:name=".Activity_PageList"
             android:label="测试列表" >
         </activity>
