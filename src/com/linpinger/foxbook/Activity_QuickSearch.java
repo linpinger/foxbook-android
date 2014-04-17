@@ -31,6 +31,8 @@ public class Activity_QuickSearch extends ListActivity {
 	
 	private static int FROM_NET = 2 ; 
 	
+	private int SE_TYPE = 1; // 搜索引擎
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) { // 入口
 		super.onCreate(savedInstanceState);
@@ -40,6 +42,7 @@ public class Activity_QuickSearch extends ListActivity {
 		
 		Intent itt = getIntent();
 		book_name = itt.getStringExtra("bookname"); // 必需
+		SE_TYPE = itt.getIntExtra("searchengine", 1) ;
 		
 		setTitle("搜索: " + book_name);
 		
@@ -50,13 +53,23 @@ public class Activity_QuickSearch extends ListActivity {
 		
 		init_LV_item_click() ; // 初始化 单击 条目 的行为
 		
-		String gbURL = "" ;
+		String seURL = "" ;
 		try {
-			gbURL = "http://www.sogou.com/web?query=" + URLEncoder.encode(book_name, "GB2312") + "&num=50" ;
+			switch (SE_TYPE) { // 1:sogou 2:bing 3:yahoo
+			case 1:
+				seURL = "http://www.sogou.com/web?query=" + URLEncoder.encode(book_name, "GB2312") + "&num=50" ;
+				break;
+			case 2:
+				seURL = "http://www.sogou.com/web?query=" + URLEncoder.encode(book_name, "GB2312") + "&num=50" ;
+				break;
+			case 3:
+				seURL = "http://cn.bing.com/search?q=" + URLEncoder.encode(book_name, "UTF-8") ;
+				break;
+			}
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		new Thread(new DownTOC(gbURL)).start();
+		new Thread(new DownTOC(seURL)).start();
 	}
 	
 	private void init_LV_item_click() { // 初始化 单击 条目 的行为

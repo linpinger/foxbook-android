@@ -189,11 +189,28 @@ public class Activity_SearchBook extends Activity {
 			item.setChecked(bShowAll);
 			break;
 		case R.id.sm_QuickSearchSouGou: // ¿ìËÑ:ËÑ¹·
-			Intent intent = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
 			book_name = et.getText().toString();
+			Intent intent = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
 			intent.putExtra("bookname", book_name);
+			intent.putExtra("searchengine", 1);
 			startActivity(intent);
 			break;
+		case R.id.sm_QuickSearchBing:  // ¿ìËÑ:Bing
+			book_name = et.getText().toString();
+			Intent itb = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
+			itb.putExtra("bookname", book_name);
+			itb.putExtra("searchengine", 2);
+			startActivity(itb);
+			break;
+/*
+		case R.id.sm_QuickSearchYahoo:  // ¿ìËÑ:ÑÅ»¢
+			book_name = et.getText().toString();
+			Intent ityh = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
+			ityh.putExtra("bookname", book_name);
+			ityh.putExtra("searchengine", 3);
+			startActivity(ityh);
+			break;
+*/
 		}
 		return super.onOptionsItemSelected(item);
 	}
