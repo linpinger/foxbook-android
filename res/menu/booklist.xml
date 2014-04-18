@@ -16,7 +16,8 @@
         android:title="切换数据库"/>
     <!--
         android:icon="@android:drawable/ic_menu_rotate"
-        android:showAsAction="ifRoom"    -->
+        android:showAsAction="ifRoom"
+    -->
     <item
         android:id="@+id/action_sortbook_asc"
         android:title="按页数顺序排列"/>
@@ -42,9 +43,8 @@
         android:id="@+id/action_refresh"
         android:title="刷新列表"/>
     <!-- android:icon="@android:drawable/ic_menu_mapmode" -->
-    <item
-        android:id="@+id/action_isonline"
-        android:title="测试是否有网络"/>
+
+
     <!-- android:icon="@android:drawable/ic_menu_compass" -->
     <item
         android:id="@+id/action_all2umd"
@@ -55,4 +55,5 @@
         android:id="@+id/action_all2txt"
         android:orderInCategory="100"
         android:title="全部转为Txt"/>
+
 </menu>

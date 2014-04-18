@@ -350,13 +350,6 @@ public class Activity_BookList extends ListActivity {
 			refresh_BookList(); // 刷新LV中的数据
 			foxtip("ListView已刷新");
 			break;
-		case R.id.action_isonline:
-			if (FoxAndroidLib.isConnect(getApplicationContext())) {
-				foxtip("有网络");
-			} else {
-				foxtip("无网络");
-			}
-			break;
 		case R.id.action_searchbook:
 			Intent intent = new Intent(Activity_BookList.this,
 					Activity_SearchBook.class);
