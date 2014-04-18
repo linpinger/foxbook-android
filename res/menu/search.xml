@@ -3,19 +3,17 @@
 
     <!--
         android:icon="@android:drawable/ic_popup_sync"
-        android:showAsAction="always"
+        android:showAsAction="always"
     -->
     <item
         android:id="@+id/sm_QuickSearchSouGou"
         android:title="快速搜索:搜狗"/>
     <item
+        android:id="@+id/sm_QuickSearchYahoo"
+        android:title="快速搜索:雅虎"/>
+    <item
         android:id="@+id/sm_QuickSearchBing"
         android:title="快速搜索:Bing"/>
-    <!--
-    <item
-        android:id="@+id/sm_QuickSearchYahoo"
-        android:title="快速搜索:雅虎"/>
-    -->
     <item
         android:id="@+id/sm_bShowAll"
         android:checkable="true"

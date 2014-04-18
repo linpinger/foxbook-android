@@ -414,6 +414,9 @@ public static String downhtml(String inURL) {
 	try {
 		url = new URL(inURL) ;
 		conn = (HttpURLConnection) url.openConnection();
+//		conn.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)");
+		conn.setRequestProperty("User-Agent", "Java/1.6.0_55"); // Android自带头部和IE8头部会导致yahoo搜索结果链接为追踪链接
+		conn.setRequestProperty("Accept", "*/*");
 		conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
 		conn.setConnectTimeout(5000);
 		conn.connect();

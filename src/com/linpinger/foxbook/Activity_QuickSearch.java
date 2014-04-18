@@ -55,12 +55,12 @@ public class Activity_QuickSearch extends ListActivity {
 		
 		String seURL = "" ;
 		try {
-			switch (SE_TYPE) { // 1:sogou 2:bing 3:yahoo
+			switch (SE_TYPE) { // 1:sogou 2:yahoo 3:bing
 			case 1:
 				seURL = "http://www.sogou.com/web?query=" + URLEncoder.encode(book_name, "GB2312") + "&num=50" ;
 				break;
 			case 2:
-				seURL = "http://www.sogou.com/web?query=" + URLEncoder.encode(book_name, "GB2312") + "&num=50" ;
+				seURL = "http://search.yahoo.com/search?n=40&p=" + URLEncoder.encode(book_name, "UTF-8") ;
 				break;
 			case 3:
 				seURL = "http://cn.bing.com/search?q=" + URLEncoder.encode(book_name, "UTF-8") ;

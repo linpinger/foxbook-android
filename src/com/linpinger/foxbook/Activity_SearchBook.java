@@ -199,18 +199,18 @@ public class Activity_SearchBook extends Activity {
 			book_name = et.getText().toString();
 			Intent itb = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
 			itb.putExtra("bookname", book_name);
-			itb.putExtra("searchengine", 2);
+			itb.putExtra("searchengine", 3);
 			startActivity(itb);
 			break;
-/*
+
 		case R.id.sm_QuickSearchYahoo:  // ¿ìËÑ:ÑÅ»¢
 			book_name = et.getText().toString();
 			Intent ityh = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
 			ityh.putExtra("bookname", book_name);
-			ityh.putExtra("searchengine", 3);
+			ityh.putExtra("searchengine", 2);
 			startActivity(ityh);
 			break;
-*/
+
 		}
 		return super.onOptionsItemSelected(item);
 	}
