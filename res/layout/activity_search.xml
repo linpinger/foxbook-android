@@ -14,7 +14,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
-            android:ems="7"
+            android:ems="8"
             android:hint="书名" >
 
             <requestFocus />
@@ -27,31 +27,13 @@
             android:layout_toRightOf="@+id/editText1"
             android:text="搜" />
 
-<!-- 
-        <CheckBox
-            android:id="@+id/checkBox1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/button2"
-            android:layout_alignTop="@+id/button2"
-            android:layout_toLeftOf="@+id/button2"
-            android:text="所有" />
--->
+
         <Button
             android:id="@+id/button2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/button3"
-            android:layout_alignTop="@+id/button3"
-            android:layout_toLeftOf="@+id/button3"
-            android:text="预" />
-        
-        <Button
-            android:id="@+id/button3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:text="加" />
+            android:text="预" />
     </RelativeLayout>
 
     <WebView

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/pm_Add"
+        android:icon="@android:drawable/ic_input_add"
+        android:showAsAction="always|withText"
+        android:title="添加本书"/>
+    <item
+        android:id="@+id/pm_cleanBook"
+        android:icon="@android:drawable/ic_menu_delete"
+        android:showAsAction="ifRoom|withText"
+        android:title="删除所有章节"/>
+    <item
+        android:id="@+id/pm_cleanBookND"
+        android:icon="@android:drawable/ic_menu_delete"
+        android:showAsAction="ifRoom|withText"
+        android:title="删除所有章节且不修改DelList"/>
+
+</menu>

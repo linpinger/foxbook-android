@@ -3,21 +3,18 @@
     <item
         android:id="@+id/action_updateall"
         android:icon="@android:drawable/ic_popup_sync"
-        android:showAsAction="always"
+        android:showAsAction="always|withText"
         android:title="更新"/>
     <item
         android:id="@+id/action_allpagelist"
         android:icon="@android:drawable/ic_menu_view"
-        android:showAsAction="always"
+        android:showAsAction="always|withText"
         android:title="所有章节"/>
-    <!-- showAsAction="ifRoom|withText" -->
-    <item
+     <item
         android:id="@+id/action_switchdb"
-        android:title="切换数据库"/>
-    <!--
         android:icon="@android:drawable/ic_menu_rotate"
-        android:showAsAction="ifRoom"
-    -->
+        android:showAsAction="never|withText"
+        android:title="切换数据库"/>
     <item
         android:id="@+id/action_sortbook_asc"
         android:title="按页数顺序排列"/>
@@ -48,12 +45,10 @@
     <!-- android:icon="@android:drawable/ic_menu_compass" -->
     <item
         android:id="@+id/action_all2umd"
-        android:orderInCategory="100"
         android:title="全部转为UMD"/>
     <!-- android:icon="@android:drawable/ic_menu_agenda" -->
     <item
         android:id="@+id/action_all2txt"
-        android:orderInCategory="100"
-        android:title="全部转为Txt"/>
+        android:title="全部转为TXT"/>
 
 </menu>

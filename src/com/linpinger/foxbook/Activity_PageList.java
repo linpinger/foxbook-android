@@ -233,28 +233,27 @@ public class Activity_PageList extends ListActivity {
 		init_LV_item_Long_click() ; // 初始化 长击 条目 的行为
 	}
 
-	public boolean onCreateOptionsMenu(Menu menu) { // 菜单初始化
-		menu.add(0, 1, 1, "删除所有章节");
-		menu.add(0, 2, 2, "删除所有章节且不修改DelList");
-		menu.add(0, 3, 3, "添加本书");
-		return super.onCreateOptionsMenu(menu);
+
+	public boolean onCreateOptionsMenu(Menu menu) { // 创建菜单
+		getMenuInflater().inflate(R.menu.pagelist, menu);
+		return true;
 	}
 
 	public boolean onOptionsItemSelected(MenuItem item) { // 响应菜单
 		switch (item.getItemId()) {
-		case 1:
+		case R.id.pm_cleanBook:
 			FoxDB.delete_Book_All_Pages(bookid, true);
 			foxtip("已删除并更新记录");
 			setResult(RESULT_OK, (new Intent()).setAction("已清空某书并写入已删除列表"));
 			finish();
 			break;
-		case 2:
+		case R.id.pm_cleanBookND:
 			FoxDB.delete_Book_All_Pages(bookid, false);
 			foxtip("已删除");
 			setResult(RESULT_OK, (new Intent()).setAction("已清空某书并没有写入已删除列表"));
 			finish();
 			break;
-		case 3:
+		case R.id.pm_Add:
 			if ( FROM_NET == foxfrom ) {
 				if ( null != bookurl && "" != bookname ) {
 					int nBookID = 0 ;

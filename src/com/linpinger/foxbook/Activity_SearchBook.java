@@ -24,7 +24,7 @@ public class Activity_SearchBook extends Activity {
 	private long mExitTime ;
 	private WebView wv;
 	private EditText et;
-	private Button btn_search, btn_pre, btn_add;
+	private Button btn_search, btn_pre ;
 	private boolean bShowAll = false ;
 	
 	private String book_name = "";
@@ -44,7 +44,6 @@ public class Activity_SearchBook extends Activity {
 		wv = (WebView) findViewById(R.id.webView1);
 		btn_search = (Button) findViewById(R.id.button1);
 		btn_pre = (Button) findViewById(R.id.button2);
-		btn_add = (Button) findViewById(R.id.button3);
 		
 //		wv.loadUrl("about:blank");
 //		wv.loadDataWithBaseURL("http://www.autohotkey.net/~linpinger/index.html?s=FoxBook_Android", "用法说明:", "text/html", "utf-8", "");
@@ -125,28 +124,6 @@ public class Activity_SearchBook extends Activity {
 						setTitle("下载目录 : " + book_name + " <" + book_url + ">");
 						new Thread(downHTML).start();
 					}
-				}
-			}
-		});
-	
-		btn_add.setOnClickListener(new OnClickListener() { // 添加按钮
-			public void onClick(View v) {
-				book_url = wv.getUrl();
-				if ( null != book_url && "" != book_name ) {
-					int nBookID = 0 ;
-					// 新增入数据库，并获取返回bookid
-					nBookID = FoxDB.insertbook(book_name, book_url);
-					if ( nBookID < 1 )
-						return ;
-					Intent itti = new Intent(
-							Activity_SearchBook.this,
-							Activity_BookInfo.class);
-					itti.putExtra("bookid", nBookID);
-					startActivity(itti);
-					setResult(RESULT_OK, (new Intent()).setAction("返回列表"));
-					finish();
-				} else {
-					setTitle("信息不完整@新增 : " + book_name + " <" + book_url + ">");
 				}
 			}
 		});

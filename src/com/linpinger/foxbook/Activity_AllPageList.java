@@ -84,22 +84,51 @@ public class Activity_AllPageList extends ListActivity {
 
 				// builder.setIcon(R.drawable.ic_launcher);
 				builder.setTitle("操作:" + lcName);
-				builder.setItems(new String[] { "删除本章", "删除本章并不写入Dellist" },
+				builder.setItems(new String[] { "删除本章", "删除本章并不写入Dellist", "删除本章及以上", "删除本章及以下" },
 						new DialogInterface.OnClickListener() {
 
 							public void onClick(DialogInterface dialog,  int which) {
 								switch (which) {
 								case 0:
 									FoxDB.delete_Pages(lcID, true);
-									Toast.makeText(getApplicationContext(), "已删除并记录: " + lcName, Toast.LENGTH_SHORT).show();
+									foxtip("已删除并记录: " + lcName);
 									data.remove(longclickpos); // 位置可能不太靠谱
 									adapter.notifyDataSetChanged();
 									break;
 								case 1:
 									FoxDB.delete_Pages(lcID, false);
-									Toast.makeText(getApplicationContext(), "已删除: " + lcName, Toast.LENGTH_SHORT).show();
+									foxtip("已删除: " + lcName);
 									data.remove(longclickpos);
 									adapter.notifyDataSetChanged();
+									break;
+								case 2:
+									HashMap<String, Object> nHMa ;
+									Integer nIDa;
+									for ( int i = 0; i<=longclickpos; ++i) { // 删除数据库记录
+										nHMa = (HashMap<String, Object>) data.get(i);
+										nIDa = (Integer) nHMa.get("id");
+										FoxDB.delete_Pages(nIDa, true);
+									}
+									for ( int i = 0; i<=longclickpos; ++i) { // 删除数据结构
+										data.remove(0);
+									}
+									adapter.notifyDataSetChanged(); // 通知变更
+									foxtip("已删除并记录: <= " + lcName);
+									break;
+								case 3:
+									HashMap<String, Object> nHMb ;
+									Integer nIDb;
+									int datasiza = data.size();
+									for ( int i = longclickpos; i<datasiza; ++i) { // 删除数据库记录
+										nHMb = (HashMap<String, Object>) data.get(i);
+										nIDb = (Integer) nHMb.get("id");
+										FoxDB.delete_Pages(nIDb, true);
+									}
+									for ( int i = longclickpos; i<datasiza; ++i) {
+										data.remove(longclickpos);
+									}
+									adapter.notifyDataSetChanged();
+									foxtip("已删除并记录: >= " + lcName);
 									break;
 								}
 							}
@@ -137,4 +166,7 @@ lv_pagelist.setOnItemLongClickListener(longlistener);
 		return super.onKeyDown(keyCoder, event);
 	}
 
+	private void foxtip(String sinfo) { // Toast消息
+		Toast.makeText(getApplicationContext(), sinfo, Toast.LENGTH_SHORT).show();
+	}
 }
