@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 import android.view.Menu;
@@ -30,9 +29,10 @@ public class Activity_SearchBook extends Activity {
 	
 	private String book_name = "";
 	private String book_url = "";
-	private static int FROM_DB = 1 ;
-	private static int FROM_NET = 2 ; 
+//	private final int FROM_DB = 1 ;
+	private final int FROM_NET = 2 ; 
 
+	private static Handler handler;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -65,17 +65,16 @@ public class Activity_SearchBook extends Activity {
 					wv.loadUrl("http://www.sogou.com/web?query=" + gbURL
 							+ "&num=50");
 				} catch (UnsupportedEncodingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					e.toString();
 				}
 
 			}
 
 		});
 
-		final Handler handler = new Handler() {
-			public void handleMessage(Message msg) {
-				super.handleMessage(msg);
+		handler = new Handler(new Handler.Callback() {
+			public boolean handleMessage(Message msg) {
+//				super.handleMessage(msg);
 				Bundle data = msg.getData();
 				String html = data.getString("html");
 
@@ -88,10 +87,11 @@ public class Activity_SearchBook extends Activity {
 				intent.putExtra("bShowAll", bShowAll);
 
 				startActivity(intent);
+				return false;
 			}
-		};
+		});
 
-		final Runnable runnable = new Runnable() {
+		final Runnable downHTML = new Runnable() {
 			@Override
 			public void run() {
 				String html = FoxBookLib.downhtml(book_url);
@@ -109,7 +109,7 @@ public class Activity_SearchBook extends Activity {
 				book_url = wv.getUrl();
 				if ( null != book_url ) {
 					setTitle("下载目录 : " + book_name + " <" + book_url + ">");
-					new Thread(runnable).start();
+					new Thread(downHTML).start();
 				} else {
 					book_url = "";
 					Intent itt = getIntent();
@@ -123,7 +123,7 @@ public class Activity_SearchBook extends Activity {
 							book_name = "";
 						}
 						setTitle("下载目录 : " + book_name + " <" + book_url + ">");
-						new Thread(runnable).start();
+						new Thread(downHTML).start();
 					}
 				}
 			}

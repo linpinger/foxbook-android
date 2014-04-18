@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -34,20 +33,19 @@ public class Activity_BookList extends ListActivity {
 	List<Map<String, Object>> data;
 	String lcURL, lcName; // long click 的变量
 	Integer lcCount, lcID;
-	private Handler handler;
-	private static int IS_MSG = 1;
-	private static int IS_NEWPAGE = 2;
-	private static int IS_REFRESHLIST = 3;
-	private static int IS_REGENID = 4;
-	private static int FROM_DB = 1;
-	private static int FROM_NET = 2;
+	private static Handler handler;
+	private final int IS_MSG = 1;
+	private final int IS_NEWPAGE = 2;
+	private final int IS_REFRESHLIST = 3;
+	private final int IS_REGENID = 4;
+	private final int FROM_DB = 1;
+	private final int FROM_NET = 2;
 	private long mExitTime;
 	private int anowID, aisEnd; // 全部更新里面使用的变量
 	private String anowName;
 	private int upthreadcount; // 更新书籍计数
 	private int upchacount;    // 新增章节计数
 
-	@SuppressLint("DefaultLocale")
 	public class UpdateBook implements Runnable { // 后台线程更新书
 		private int bookid;
 		private String bookname;
@@ -85,10 +83,9 @@ public class Activity_BookList extends ListActivity {
 			ArrayList<HashMap<String, Object>> newPages = new ArrayList<HashMap<String, Object>>();
 			Iterator<Map<String, Object>> itr = xx.iterator();
 			while (itr.hasNext()) {
-				HashMap<String, Object> mm = (HashMap<String, Object>) itr
-						.next();
+				HashMap<String, Object> mm = (HashMap<String, Object>) itr.next();
 				nowURL = (String) mm.get("url");
-				if (!existList.contains(nowURL.toLowerCase() + "|")) { // 新章节
+				if ( ! existList.contains(nowURL.toLowerCase() + "|") ) { // 新章节
 					newPages.add(mm);
 				}
 			}
@@ -148,9 +145,7 @@ public class Activity_BookList extends ListActivity {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3) {
-				@SuppressWarnings("unchecked")
-				Map<String, Object> chapinfo = (HashMap<String, Object>) arg0
-						.getItemAtPosition(arg2);
+				HashMap<String, Object> chapinfo = (HashMap<String, Object>) arg0.getItemAtPosition(arg2);
 				String tmpurl = (String) chapinfo.get("url");
 				String tmpname = (String) chapinfo.get("name");
 				Integer tmpcount = Integer.parseInt((String) chapinfo
@@ -183,11 +178,10 @@ public class Activity_BookList extends ListActivity {
 	private void init_LV_item_Long_click() { // 初始化 长击 条目 的行为
 		final Builder builder = new AlertDialog.Builder(this);
 		OnItemLongClickListener longlistener = new OnItemLongClickListener() {
+			@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 			public boolean onItemLongClick(AdapterView<?> parent, View view,
 					int position, long id) {
-				@SuppressWarnings("unchecked")
-				Map<String, Object> chapinfol = (HashMap<String, Object>) parent
-						.getItemAtPosition(position);
+				HashMap<String, Object> chapinfol = (HashMap<String, Object>) parent.getItemAtPosition(position);
 				lcURL = (String) chapinfol.get("url");
 				lcName = (String) chapinfol.get("name");
 				lcCount = Integer.parseInt((String) chapinfol.get("count"));
@@ -199,8 +193,6 @@ public class Activity_BookList extends ListActivity {
 				builder.setItems(new String[] { "更新本书", "更新本书目录", "在线查看", "编辑本书信息",
 						"删除本书", "复制书名", "复制URL" },
 						new DialogInterface.OnClickListener() {
-							@SuppressWarnings("deprecation")
-							@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 							public void onClick(DialogInterface dialog,
 									int which) {
 								switch (which) {
@@ -268,22 +260,21 @@ public class Activity_BookList extends ListActivity {
 	}
 
 	private void init_handler() { // 初始化一个handler 用于处理后台线程的消息
-		handler = new Handler() {
-			public void handleMessage(Message msg) {
-				// super.handleMessage(msg);
-				if (msg.what == IS_MSG) {
+		handler = new Handler(new Handler.Callback() {
+			public boolean handleMessage(Message msg) {
+				switch (msg.what) {
+				case IS_MSG:
 					setTitle((String)msg.obj);
-					//foxtip((String) msg.obj);
-				}
-				if ( msg.what == IS_NEWPAGE ) {
+					break;
+				case IS_NEWPAGE:
 					upchacount += (Integer) msg.arg1;
 					setTitle((String) msg.obj);
-				}
-				if ( msg.what == IS_REGENID ) {
+					break;
+				case IS_REGENID :
 					refresh_BookList(); // 刷新LV中的数据
 					foxtip((String) msg.obj);
-				}
-				if (msg.what == IS_REFRESHLIST) {
+					break;
+				case IS_REFRESHLIST:
 					--upthreadcount;
 					refresh_BookList(); // 刷新LV中的数据
 					if (upthreadcount <1 ){
@@ -291,9 +282,11 @@ public class Activity_BookList extends ListActivity {
 					} else {
 						setTitle("剩余线程: " + upthreadcount);
 					}
+					break;
 				}
+				return false;
 			}
-		};
+		});
 	}
 
 	public void onCreate(Bundle savedInstanceState) {
@@ -364,7 +357,6 @@ public class Activity_BookList extends ListActivity {
 			foxtip("开始生成ID...");
 			(new Thread(){ public void run(){
 					FoxDB.regenID(1);
-//					refresh_BookList();
 					Message msg = Message.obtain();
 					msg.what = IS_REGENID;
 					msg.obj = "已按页面页数顺序重排好书籍";
@@ -375,7 +367,6 @@ public class Activity_BookList extends ListActivity {
 			foxtip("开始生成ID...");
 			(new Thread(){ public void run(){
 				FoxDB.regenID(2);
-//				refresh_BookList();
 				Message msg = Message.obtain();
 				msg.what = IS_REGENID;
 				msg.obj = "已按页面页数倒序重排好书籍";

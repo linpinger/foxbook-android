@@ -26,12 +26,12 @@ import com.ray.tools.umd.builder.UmdChapters;
 import com.ray.tools.umd.builder.UmdHeader;
 
 import android.annotation.SuppressLint;
-import android.util.Log;
+import android.os.Environment;
 
 public class FoxBookLib {
 	
 	public static void all2txt() { // 所有书籍转为txt
-		String txtPath = "/sdcard/fox.txt";
+		String txtPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "fox.txt";
 		String sContent = "" ;
 		List<Map<String, Object>> data = FoxDB.getUMDArray();
 		Iterator<Map<String, Object>> itr = data.iterator();
@@ -53,7 +53,7 @@ public class FoxBookLib {
 	
 
 	public static void all2umd() { // 所有书籍转为umd
-		String umdPath = "/sdcard/fox.umd";
+		String umdPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "fox.umd";
 		Umd umd = new Umd();
 		
 		UmdHeader uh = umd.getHeader(); // 设置书籍信息
@@ -213,12 +213,13 @@ public class FoxBookLib {
 		return data ;
 	}
 	
+
 	@SuppressLint("UseSparseArrays")
 	public static List<Map<String, Object>> tocHref(String html, int lastNpage) {
 		List<Map<String, Object>> ldata = new ArrayList<Map<String, Object>>(100);
 		Map<String, Object> item;
 		int nowurllen = 0;
-		Map<Integer, Integer> lencount = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> lencount = new HashMap<Integer, Integer>();
 
 		// 有些变态网站没有body标签，而java没找到 body 时， 会遍历整个网页，速度很慢
 		
@@ -257,8 +258,7 @@ public class FoxBookLib {
 		int maxurllen = 0;
 		Iterator<Entry<Integer, Integer>>  iter = lencount.entrySet().iterator();
 		while (iter.hasNext()) {
-			@SuppressWarnings("rawtypes")
-			Map.Entry entry = (Map.Entry) iter.next();
+			Entry<Integer, Integer> entry = iter.next();
 			Object key = entry.getKey();
 			Object val = entry.getValue();
 			if (maxurllencount < (Integer) val) {
@@ -386,13 +386,9 @@ public class FoxBookLib {
 		// 处理正文中的<img标签，可以将代码放在这里，典型例子:无错
 
 		// 特殊网站处理可以放在这里
-		// stringreplace, html, html, <144, 《144, A ;
 		// 144书院的这个会导致下面正则将正文也删掉了，已使用正则修复
-		html = html.replaceAll("(?smi)<span[^>]*>.*?</span>", ""); // 删除<span>里面是混淆字符，;
-																	// 针对
-																	// 纵横中文混淆字符，以及大家读结尾标签，一般都没有span标签
-		html = html.replaceAll("(?smi)<[^<>]+>", ""); // 这是最后一步，调试时可先注释: 删除
-														// html标签,改进型，防止正文有不成对的<
+		html = html.replaceAll("(?smi)<span[^>]*>.*?</span>", ""); // 删除<span>里面是混淆字符， 针对 纵横中文混淆字符，以及大家读结尾标签，一般都没有span标签
+		html = html.replaceAll("(?smi)<[^<>]+>", ""); // 这是最后一步，调试时可先注释: 删除 html标签,改进型，防止正文有不成对的<
 
 		return html;
 	}
@@ -414,7 +410,6 @@ public static String downhtml(String inURL) {
 	try {
 		url = new URL(inURL) ;
 		conn = (HttpURLConnection) url.openConnection();
-//		conn.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)");
 		conn.setRequestProperty("User-Agent", "Java/1.6.0_55"); // Android自带头部和IE8头部会导致yahoo搜索结果链接为追踪链接
 		conn.setRequestProperty("Accept", "*/*");
 		conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
@@ -430,14 +425,13 @@ public static String downhtml(String inURL) {
 			bGZDate = false ;
 		} else {
 			bGZDate = true ;
-		//	System.out.println(ce.get(0)) ;
 		}
 
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-		byte[] buffer = new byte[5120];
+		byte[] buffer = new byte[8192];
 		int len = 0;
 
-		if ( bGZDate ) { //Gzip
+		if ( bGZDate ) { // Gzip
 			InputStream in = conn.getInputStream();
 			GZIPInputStream gzin = new GZIPInputStream(in);
 			while ((len = gzin.read(buffer)) != -1) {
@@ -455,14 +449,12 @@ public static String downhtml(String inURL) {
 
 		byte[] buf = outStream.toByteArray();
 		outStream.close();
-
 		
 		// 探测编码
 		String html = "";
 		html = new String(buf, "gbk");
 
 		if (html.matches("(?smi).*<meta[^>]*charset=[\"]?(utf8|utf-8)[\"]?.*")) {
-			// Log.i("Fox", "Guess encoding is UTF8");
 			html = new String(buf, "utf-8");
 		}
 		return html;
@@ -472,57 +464,5 @@ public static String downhtml(String inURL) {
 	}
 }
 
-/*
-public static String downhtml(String inURL) {
-	// 下载网页 到数组
-	byte[] buf = null;
-	try {
-		buf = getUrlFileData(inURL);
-	} catch (Exception e) {
-		e.printStackTrace();
-	} finally {
-		if ( null == buf) {
-			return "";
-		}
-	}
-
-	// 探测编码
-	String html = "";
-	try {
-		html = new String(buf, "gbk");
-
-		if (html.matches("(?smi).*<meta[^>]*charset=(utf8|utf-8).*")) {
-			// Log.i("Fox", "Guess encoding is UTF8");
-			html = new String(buf, "utf-8");
-		}
-	} catch (UnsupportedEncodingException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
-	return html;
-
-}
-
-// 获取链接地址文件的byte数据
-private static byte[] getUrlFileData(String fileUrl) throws Exception {
-	URL url = new URL(fileUrl);
-	HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
-	
-//	httpConn.setConnectTimeout(5000);
-	httpConn.connect();
-	
-	InputStream cin = httpConn.getInputStream();
-	ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-	byte[] buffer = new byte[1024];
-	int len = 0;
-	while ((len = cin.read(buffer)) != -1) {
-		outStream.write(buffer, 0, len);
-	}
-	cin.close();
-	byte[] fileData = outStream.toByteArray();
-	outStream.close();
-	return fileData;
-}
-*/
 
 } // 类结束

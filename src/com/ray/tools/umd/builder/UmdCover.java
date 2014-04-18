@@ -32,8 +32,8 @@ import com.sun.image.codec.jpeg.JPEGImageEncoder;
  */
 public class UmdCover {
 	
-	private static int DEFAULT_COVER_WIDTH = 120;
-	private static int DEFAULT_COVER_HEIGHT = 160;
+//	private static int DEFAULT_COVER_WIDTH = 120;
+//	private static int DEFAULT_COVER_HEIGHT = 160;
 	
 	private byte[] coverData;
 

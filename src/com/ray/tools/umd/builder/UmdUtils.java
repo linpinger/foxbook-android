@@ -42,6 +42,7 @@ public class UmdUtils {
 			BufferedOutputStream bos = new BufferedOutputStream(fos);
 			bos.write(content);
 			bos.flush();
+			bos.close();
 		} finally {
 			fos.close();
 		}

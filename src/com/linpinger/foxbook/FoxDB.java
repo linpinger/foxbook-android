@@ -11,10 +11,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
-import android.util.Log;
 
 public class FoxDB {
-	// private static String dbpath = "/sdcard/FoxBook.db3";
 	private static String dbpath = Environment.getExternalStorageDirectory()
 			.getPath() + File.separator + "FoxBook.db3";
 	private static int dbNum = 1 ;

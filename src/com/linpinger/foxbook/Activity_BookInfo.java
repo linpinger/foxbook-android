@@ -17,8 +17,7 @@ public class Activity_BookInfo extends Activity {
 	private TextView tv_bid;
 	private EditText edt_bname, edt_qdid, edt_burl, edt_delurl;
 	
-	private int bookid ; //, qidianid;
-//	private String bookname, bookurl, bookdellist;
+	private int bookid ;
 	
 	private void init_controls() { // 初始化各控件
 		btn_save = (Button) findViewById(R.id.btn_save);
@@ -29,7 +28,6 @@ public class Activity_BookInfo extends Activity {
 		edt_delurl = (EditText) findViewById(R.id.edt_delurl);
 	}
 	
-	@Override
 	public void onCreate(Bundle savedInstanceState) { // 界面初始化
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_bookinfo);

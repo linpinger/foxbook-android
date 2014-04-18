@@ -14,7 +14,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -91,10 +90,8 @@ public class Activity_PageList extends ListActivity {
 		final Builder builder = new AlertDialog.Builder(this);
 		OnItemLongClickListener longlistener = new OnItemLongClickListener() {
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-				@SuppressWarnings("unchecked")
 				Map<String, Object> chapinfol = (HashMap<String, Object>) parent.getItemAtPosition(position);
 				longclickpos = position ; // base 0
-//				Log.e("FoxPos", String.valueOf(longclickpos) + "  " + String.valueOf(data.size()));
 
 				if ( foxfrom == FROM_NET ) { // 从网络下载临时的条目没有ID
 					foxtip("从网络下载临时的条目没有ID");
