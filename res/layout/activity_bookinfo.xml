@@ -25,6 +25,13 @@
         </EditText>
 
         <EditText
+            android:id="@+id/edt_isend"
+            android:layout_toLeftOf="@+id/edt_qdid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+        </EditText>
+
+        <EditText
             android:id="@+id/edt_qdid"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
