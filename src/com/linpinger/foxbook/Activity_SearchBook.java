@@ -9,6 +9,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,7 +25,8 @@ public class Activity_SearchBook extends Activity {
 	private long mExitTime ;
 	private WebView wv;
 	private EditText et;
-	private Button btn_search, btn_pre ;
+	private ImageButton btn_search;
+	private Button btn_pre ;
 	private boolean bShowAll = false ;
 	
 	private String book_name = "";
@@ -42,7 +44,7 @@ public class Activity_SearchBook extends Activity {
 		
 		et = (EditText) findViewById(R.id.editText1);
 		wv = (WebView) findViewById(R.id.webView1);
-		btn_search = (Button) findViewById(R.id.button1);
+		btn_search = (ImageButton) findViewById(R.id.button1);
 		btn_pre = (Button) findViewById(R.id.button2);
 		
 //		wv.loadUrl("about:blank");

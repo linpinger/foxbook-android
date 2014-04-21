@@ -20,11 +20,12 @@
             <requestFocus />
         </EditText>
 
-        <Button
+        <ImageButton
             android:id="@+id/button1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@+id/editText1"
+            android:src="@android:drawable/ic_menu_search"
             android:text="搜" />
 
 
