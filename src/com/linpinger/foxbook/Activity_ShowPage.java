@@ -4,6 +4,7 @@ import java.util.Map;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -29,6 +30,10 @@ public class Activity_ShowPage extends Activity {
 	private String pagename = "" ;
 	private String pageurl = "" ;
 	private float cX, cY ; // 点击textView的坐标
+	public static final String FOXSETTING = "FOXSETTING";
+	float sp_fontsize = 19; // 字体大小
+	SharedPreferences settings;
+	SharedPreferences.Editor editor;
 	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -38,6 +43,13 @@ public class Activity_ShowPage extends Activity {
 
 		tv = (TextView) findViewById(R.id.tv_page);
 		sv = (ScrollView) findViewById(R.id.scrollView1);
+		
+		// 获取设置，并设置字体大小
+        settings = getSharedPreferences(FOXSETTING, 0);
+        editor = settings.edit();
+		sp_fontsize = settings.getFloat("ShowPage_FontSize", sp_fontsize);
+		tv.setTextSize(sp_fontsize);
+
 		
 		Intent itt = getIntent();
 		foxfrom = itt.getIntExtra("iam", 0);       // 必需 表明数据从哪来的
@@ -156,7 +168,18 @@ public class Activity_ShowPage extends Activity {
 //			sv.smoothScrollTo(0, 0);
 			sv.scrollTo(0, 0);
 			break;
-		}
+		case R.id.sp_set_size_up: // 增大字体
+			++sp_fontsize;
+			tv.setTextSize(sp_fontsize);
+			editor.putFloat("ShowPage_FontSize", sp_fontsize);
+			editor.commit();
+			break;
+		case R.id.sp_set_size_down: // 减小字体
+			--sp_fontsize;
+			tv.setTextSize(sp_fontsize);
+			editor.putFloat("ShowPage_FontSize", sp_fontsize);
+			editor.commit();
+			break;		}
 		return super.onOptionsItemSelected(item);
 	}
 	

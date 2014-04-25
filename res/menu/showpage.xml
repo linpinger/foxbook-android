@@ -13,5 +13,11 @@
         android:showAsAction="always"
         android:icon="@android:drawable/ic_media_next"
         android:title="下一章"/>
+    <item
+        android:id="@+id/sp_set_size_up"
+        android:title="字体增大"/>
+        <item
+        android:id="@+id/sp_set_size_down"
+        android:title="字体减小"/>
 
 </menu>

@@ -58,6 +58,8 @@ public final class R {
         public static final int sm_QuickSearchSouGou=0x7f09001d;
         public static final int sm_QuickSearchYahoo=0x7f09001e;
         public static final int sm_bShowAll=0x7f090020;
+        public static final int sp_set_size_down=0x7f090024;
+        public static final int sp_set_size_up=0x7f090023;
         public static final int tvCount=0x7f09000e;
         public static final int tvName=0x7f09000d;
         public static final int tv_bid=0x7f090000;
