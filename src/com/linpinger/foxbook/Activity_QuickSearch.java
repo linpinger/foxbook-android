@@ -25,9 +25,14 @@ public class Activity_QuickSearch extends ListActivity {
 	private Handler handler;
 	private static int IS_REFRESH = 5 ;
 	
+	private final int SE_SOGOU = 1 ;
+	private final int SE_YAHOO = 2 ;
+	private final int SE_BING = 3 ;
+	private final int SE_EASOU = 11 ;
+	private final int SE_ZSSQ = 12 ;
+	
 	private String book_name = "" ;
 	private String book_url = "" ;
-	private String html = "";
 	
 	private static int FROM_NET = 2 ; 
 	
@@ -46,7 +51,7 @@ public class Activity_QuickSearch extends ListActivity {
 		
 		setTitle("搜索: " + book_name);
 		
-		data = new ArrayList<Map<String, Object>>(64);
+		data = new ArrayList<Map<String, Object>>(10);
 		renderListView();
 		
 		init_handler() ; // 初始化一个handler 用于处理后台线程的消息
@@ -55,15 +60,21 @@ public class Activity_QuickSearch extends ListActivity {
 		
 		String seURL = "" ;
 		try {
-			switch (SE_TYPE) { // 1:sogou 2:yahoo 3:bing
-			case 1:
+			switch (SE_TYPE) { // 1:sogou 2:yahoo 3:bing  11:easou 12:追书神器
+			case SE_SOGOU:
 				seURL = "http://www.sogou.com/web?query=" + URLEncoder.encode(book_name, "GB2312") + "&num=50" ;
 				break;
-			case 2:
+			case SE_YAHOO:
 				seURL = "http://search.yahoo.com/search?n=40&p=" + URLEncoder.encode(book_name, "UTF-8") ;
 				break;
-			case 3:
+			case SE_BING:
 				seURL = "http://cn.bing.com/search?q=" + URLEncoder.encode(book_name, "UTF-8") ;
+				break;
+			case SE_EASOU:
+				seURL = site_easou.getUrlSE(book_name);
+				break;
+			case SE_ZSSQ:
+				seURL = site_zssq.getUrlSE(book_name);
 				break;
 			}
 		} catch (UnsupportedEncodingException e) {
@@ -84,6 +95,7 @@ public class Activity_QuickSearch extends ListActivity {
 				intent.putExtra("bookurl", book_url);
 				intent.putExtra("bookname", book_name);
 				intent.putExtra("bShowAll", false);
+				intent.putExtra("searchengine", SE_TYPE);
 				startActivity(intent);
 			}
 		};
@@ -99,11 +111,32 @@ public class Activity_QuickSearch extends ListActivity {
 		}
 		@Override
 		public void run() {
-			String html = FoxBookLib.downhtml(this.bookurl);
-	        Message msg = Message.obtain();
-	        msg.what = IS_REFRESH;
-	        msg.obj = html;
-	        handler.sendMessage(msg);
+			switch(SE_TYPE) {
+			case SE_EASOU:
+				String sJson = FoxBookLib.downhtml(this.bookurl, "utf-8");
+				bookurl = site_easou.getUrlSL(site_easou.json2IDs(sJson, 1));
+				sJson = FoxBookLib.downhtml(bookurl, "utf-8");
+					Message msge = Message.obtain();
+					msge.what = IS_REFRESH;
+					msge.obj = sJson;
+					handler.sendMessage(msge);
+				break;
+			case SE_ZSSQ :
+				String json = FoxBookLib.downhtml(this.bookurl, "utf-8");
+				bookurl = site_zssq.getUrlSL(site_zssq.json2BookID(json));
+				json = FoxBookLib.downhtml(bookurl, "utf-8");
+			        Message msgz = Message.obtain();
+			        msgz.what = IS_REFRESH;
+			        msgz.obj = json;
+			        handler.sendMessage(msgz);
+				break;
+			default :
+				String html = FoxBookLib.downhtml(this.bookurl);
+					Message msgD = Message.obtain();
+					msgD.what = IS_REFRESH;
+					msgD.obj = html;
+					handler.sendMessage(msgD);
+			}
 		}
 	}
 
@@ -118,10 +151,17 @@ public class Activity_QuickSearch extends ListActivity {
 		handler = new Handler() {
 			public void handleMessage(Message msg) {
 				if ( msg.what == IS_REFRESH ) { // 下载完毕
-					html = (String)msg.obj;
-//					Log.e("XX1", html);
-					data = FoxBookLib.getSearchEngineHref(html, book_name); // 搜索引擎网页分析放在这里
-					
+					String sHTTP = (String)msg.obj;				
+					switch(SE_TYPE) {
+					case SE_EASOU:
+						data = site_easou.json2SiteList(sHTTP) ;
+						break;
+					case SE_ZSSQ :
+						data = site_zssq.json2SiteList(sHTTP) ;
+						break;
+					default :
+						data = FoxBookLib.getSearchEngineHref(sHTTP, book_name); // 搜索引擎网页分析放在这里
+					}
 					renderListView();
 				}
 			}

@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -35,6 +36,13 @@ public class Activity_ShowPage extends Activity {
 	SharedPreferences settings;
 	SharedPreferences.Editor editor;
 	
+	private final int IS_REFRESH = 5 ;
+	
+	private int SE_TYPE = 1; // 搜索引擎
+	private final int SE_EASOU = 11 ;
+	private final int SE_ZSSQ = 12 ;
+
+	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 //		Settings.System.putInt(this.getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, 180000); // 设置超时时间 3分钟
@@ -55,28 +63,42 @@ public class Activity_ShowPage extends Activity {
 		foxfrom = itt.getIntExtra("iam", 0);       // 必需 表明数据从哪来的
 		pagename = itt.getStringExtra("chapter_name");
 		pageurl = itt.getStringExtra("chapter_url");
+		SE_TYPE = itt.getIntExtra("searchengine", 1) ; // 给出搜索引擎类型
 
 		setTitle(pagename + " : " + pageurl );
 
 		final Handler handler = new Handler() {
 			public void handleMessage(Message msg) {
-				super.handleMessage(msg);
-				Bundle data = msg.getData();
-				pagetext = data.getString("text");
-				
-				tv.setText("　　" + pagetext.replace("\n", "\n　　"));
+				String sText = (String)msg.obj;
+				if ( msg.what == IS_REFRESH ) {
+					tv.setText("　　" + sText.replace("\n", "\n　　"));
+					setTitle(pagename + " : " + pageurl );
+					if ( sText.length() < 9 ) {
+						tv.setText("　　啊噢，可能处理的时候出现问题了哦\n\nURL: " + pageurl + "\nPageName: " + pagename + "\nContent:" + sText );
+					}
+				}
 			}
 		};
 
 		final Runnable down_page = new Runnable() {
 			@Override
 			public void run() {
-				String text = FoxBookLib.updatepage(-1, pageurl) ;
-		
-				Message msg = new Message();
-				Bundle data = new Bundle();
-				data.putString("text", text); 
-				msg.setData(data);
+				String text = "";
+				switch(SE_TYPE) {
+				case SE_EASOU : // 处理easou搜索书籍，返回书籍地址
+					text = FoxBookLib.downhtml(pageurl, "utf-8");
+					text = site_easou.json2Text(text);
+					break;
+				case SE_ZSSQ:
+					text = FoxBookLib.downhtml(pageurl, "utf-8");
+					text = site_zssq.json2Text(text);
+					break;
+				default:
+					text = FoxBookLib.updatepage(-1, pageurl) ;
+				}
+				Message msg = Message.obtain();
+				msg.what = IS_REFRESH;
+				msg.obj = text;
 				handler.sendMessage(msg);
 			}
 		};
@@ -183,6 +205,18 @@ public class Activity_ShowPage extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 	
+	public boolean onKeyDown(int keyCoder, KeyEvent event) { // 按退出键
+		if ( keyCoder == KeyEvent.KEYCODE_VOLUME_UP ) {
+			sv.smoothScrollBy(0, 30 - sv.getMeasuredHeight());
+			return true;
+		}
+		if ( keyCoder == KeyEvent.KEYCODE_VOLUME_DOWN ) {
+			sv.smoothScrollBy(0, sv.getMeasuredHeight() - 30);
+			return true;
+		}
+		return super.onKeyDown(keyCoder, event);
+	}
+
 	private void foxtip(String sinfo) { // Toast消息
 		Toast.makeText(getApplicationContext(), sinfo, Toast.LENGTH_SHORT).show();
 	}

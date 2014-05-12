@@ -34,26 +34,55 @@ public class Activity_PageList extends ListActivity {
 
 	private static int IS_UPDATEPAGE = 88;
 	private static int IS_DOWNTOC = 5;
+	private final int IS_DOWNEASOU = 11;
+	private final int IS_DOWNZSSQ = 12;
+	
+	private String easou_gid_nid = "";
 	private static int FROM_DB = 1 ;
 	private static int FROM_NET = 2 ; 
 	private int foxfrom = 0; // 1=DB, 2=search
 	private String bookurl = "";
 	private String bookname = "";
-	private String html = "";
  	private boolean bShowAll = false;
 	private int bookid = 0 ;
 	private String lcURL, lcName;
 	private Integer lcID;
 	private int longclickpos = 0;
+	
+	private int SE_TYPE = 1; // 搜索引擎
+	private final int SE_EASOU = 11 ;
+	private final int SE_ZSSQ = 12 ;
+
+	
 
 	public class DownTOC implements Runnable { // 后台线程下载网页
 		@Override
 		public void run() {
-			String html = FoxBookLib.downhtml(bookurl);
-	        Message msg = Message.obtain();
-	        msg.what = IS_DOWNTOC;
-	        msg.obj = html;
-	        handler.sendMessage(msg);
+			switch(SE_TYPE) {
+			case SE_EASOU : // 处理easou搜索书籍，返回书籍地址
+				String sJson = FoxBookLib.downhtml(site_easou.getUrlSE(bookname), "utf-8");
+				easou_gid_nid = site_easou.json2IDs(sJson,0);
+				bookurl = site_easou.getUrlToc(easou_gid_nid);
+				sJson = FoxBookLib.downhtml(bookurl, "utf-8");
+					Message msge = Message.obtain();
+					msge.what = IS_DOWNEASOU;
+					msge.obj = sJson;
+					handler.sendMessage(msge);
+				break;
+			case SE_ZSSQ:
+				String sJson2 = FoxBookLib.downhtml(bookurl, "utf-8") ;
+				Message msg2 = Message.obtain();
+				msg2.what = IS_DOWNZSSQ;
+				msg2.obj = sJson2;
+				handler.sendMessage(msg2);
+				break;
+			default:
+				String html = FoxBookLib.downhtml(bookurl);
+					Message msg = Message.obtain();
+					msg.what = IS_DOWNTOC;
+					msg.obj = html;
+					handler.sendMessage(msg);
+			}
 		}
 	}
 
@@ -80,6 +109,7 @@ public class Activity_PageList extends ListActivity {
 				intent.putExtra("chapter_id", tmpid);
 				intent.putExtra("chapter_name", tmpname);
 				intent.putExtra("chapter_url", FoxBookLib.getFullURL(bookurl, tmpurl));
+				intent.putExtra("searchengine", SE_TYPE);
 				startActivity(intent);
 			}
 		};
@@ -180,15 +210,23 @@ public class Activity_PageList extends ListActivity {
 	private void init_handler() { // 初始化一个handler 用于处理后台线程的消息
 		handler = new Handler() {
 			public void handleMessage(Message msg) {
+				String sHTTP = (String)msg.obj;
 				if ( msg.what == IS_UPDATEPAGE ) { // 更新章节完毕
 					setTitle("节更新完毕 : " + lcName);
 				}
+				if ( msg.what == IS_DOWNEASOU ) { // 处理easou json
+					data = site_easou.json2PageList(sHTTP, easou_gid_nid, 16);
+					renderListView();
+				}
+				if ( msg.what == IS_DOWNZSSQ ) {
+					data = site_zssq.json2PageList(sHTTP, 16);
+					renderListView();
+				}
 				if ( msg.what == IS_DOWNTOC ) { // 下载目录完毕
-					html = (String)msg.obj;
 					if ( bShowAll ) {
-						data = FoxBookLib.tocHref(html, 0);
+						data = FoxBookLib.tocHref(sHTTP, 0);
 					} else {
-						data = FoxBookLib.tocHref(html, 16);
+						data = FoxBookLib.tocHref(sHTTP, 16);
 					}
 					renderListView();
 				}
@@ -209,16 +247,17 @@ public class Activity_PageList extends ListActivity {
 		bookurl = itt.getStringExtra("bookurl"); // 必需
 		bookname = itt.getStringExtra("bookname"); // 必需
 		bShowAll = itt.getBooleanExtra("bShowAll", false);
+		SE_TYPE = itt.getIntExtra("searchengine", 1) ; // 给出搜索引擎类型
 
 		setTitle(bookname + " : " + bookurl);
 
 		init_handler() ; // 初始化一个handler 用于处理后台线程的消息
  
 		if ( FROM_NET == foxfrom ) {
-			html = itt.getStringExtra("html");
+			String html = itt.getStringExtra("html");
 			if (null == html) { // 没传入自己下载
-				html = "";
 				new Thread(new DownTOC()).start();
+				html = "";
 			}
 			data = FoxBookLib.tocHref(html, 16);
 		}

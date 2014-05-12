@@ -45,6 +45,10 @@ public class Activity_BookList extends ListActivity {
 	private String anowName;
 	private int upthreadcount; // 更新书籍计数
 	private int upchacount;    // 新增章节计数
+	
+//	private final int SITE_EASOU = 11 ;
+	private final int SITE_ZSSQ = 12 ;
+
 
 	public class UpdateBook implements Runnable { // 后台线程更新书
 		private int bookid;
@@ -70,12 +74,24 @@ public class Activity_BookList extends ListActivity {
 			msg.obj = bookname + ": 正在下载目录页";
 			handler.sendMessage(msg);
 
-			String html = FoxBookLib.downhtml(bookurl); // 下载url
-
-			if (existList.length() > 1024) {
-				xx = FoxBookLib.tocHref(html, 55); // 分析获取 list 最后55章
-			} else {
-				xx = FoxBookLib.tocHref(html, 0); // 分析获取 list 所有章节
+			int site_type = 0 ;
+			if ( bookurl.indexOf("zhuishushenqi.com") > -1 ) {
+				site_type = SITE_ZSSQ ;
+			}
+			
+			String html = "";
+			switch(site_type) {
+			case SITE_ZSSQ:
+				html = FoxBookLib.downhtml(bookurl, "utf-8"); // 下载json
+				xx = site_zssq.json2PageList(html, 0, 1); // 更新模式
+				break;
+			default:
+				html = FoxBookLib.downhtml(bookurl); // 下载url
+				if (existList.length() > 1024) {
+					xx = FoxBookLib.tocHref(html, 55); // 分析获取 list 最后55章
+				} else {
+					xx = FoxBookLib.tocHref(html, 0); // 分析获取 list 所有章节
+				}
 			}
 
 			// 比较得到新章节
@@ -191,7 +207,7 @@ public class Activity_BookList extends ListActivity {
 				// builder.setIcon(R.drawable.ic_launcher);
 				builder.setTitle("操作:" + lcName);
 				builder.setItems(new String[] { "更新本书", "更新本书目录", "在线查看", "编辑本书信息",
-						"删除本书", "复制书名", "复制URL" },
+						"删除本书", "复制书名", "搜索:搜狗", "搜索:宜搜", "搜索:追书神器" },
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog,
 									int which) {
@@ -232,10 +248,23 @@ public class Activity_BookList extends ListActivity {
 									cbm.setText(lcName);
 									foxtip("已复制到剪贴板:" + lcName);
 									break;
-								case 6:
-									ClipboardManager cbm2 = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-									cbm2.setText(lcURL);
-									foxtip("已复制到剪贴板:" + lcURL);
+								case 6: //sougou
+									Intent intent7 = new Intent(Activity_BookList.this, Activity_QuickSearch.class);
+									intent7.putExtra("bookname", lcName);
+									intent7.putExtra("searchengine", 1);
+									startActivity(intent7);
+									break;
+								case 7: //easou
+									Intent intent8 = new Intent(Activity_BookList.this, Activity_QuickSearch.class);
+									intent8.putExtra("bookname", lcName);
+									intent8.putExtra("searchengine", 11);
+									startActivity(intent8);
+									break;
+								case 8: //追书神器
+									Intent intent9 = new Intent(Activity_BookList.this, Activity_QuickSearch.class);
+									intent9.putExtra("bookname", lcName);
+									intent9.putExtra("searchengine", 12);
+									startActivity(intent9);
 									break;
 								}
 							}

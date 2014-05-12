@@ -27,9 +27,11 @@ import com.ray.tools.umd.builder.UmdHeader;
 
 import android.annotation.SuppressLint;
 import android.os.Environment;
+import android.util.Log;
 
 public class FoxBookLib {
 	
+
 	public static void all2txt() { // 所有书籍转为txt
 		String txtPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "fox.txt";
 		String sContent = "" ;
@@ -141,7 +143,20 @@ public class FoxBookLib {
 	public static void updatepage(int pageid) {
 		Map<String, String> xx = FoxDB.getOneRow("select book.url as bu,page.url as pu from book,page where page.id=" + String.valueOf(pageid) + " and  book.id in (select bookid from page where id=" + String.valueOf(pageid) + ")");
 		String fullPageURL = getFullURL(xx.get("bu"),xx.get("pu"));		// 获取bookurl, pageurl 合成得到url
-		updatepage(pageid, fullPageURL) ;
+
+		int site_type = 0 ; // 特殊页面处理
+		if ( xx.get("bu").indexOf("zhuishushenqi.com") > -1 ) {
+			site_type = 12 ;
+		}
+		switch(site_type) {
+		case 12:
+			String json = downhtml(site_zssq.getUrlPage(xx.get("pu")), "utf-8"); // 下载json
+			FoxDB.setPageContent(pageid, site_zssq.json2Text(json)); // 写入数据库
+			break;
+		default:
+			updatepage(pageid, fullPageURL) ;
+		}
+
 	}
 	
 	public static String updatepage(int pageid, String pageFullURL) {
@@ -403,8 +418,11 @@ public class FoxBookLib {
 		return allURL;
 	}
 
+	public static String downhtml(String inURL) {
+		return downhtml(inURL, "");
+	}
 
-public static String downhtml(String inURL) {
+public static String downhtml(String inURL, String foxArg) {
 	URL url ;
 	HttpURLConnection conn;
 	try {
@@ -450,12 +468,14 @@ public static String downhtml(String inURL) {
 		byte[] buf = outStream.toByteArray();
 		outStream.close();
 		
-		// 探测编码
 		String html = "";
-		html = new String(buf, "gbk");
-
-		if (html.matches("(?smi).*<meta[^>]*charset=[\"]?(utf8|utf-8)[\"]?.*")) {
-			html = new String(buf, "utf-8");
+		if ( foxArg == "" ) {
+			html = new String(buf, "gbk");
+			if (html.matches("(?smi).*<meta[^>]*charset=[\"]?(utf8|utf-8)[\"]?.*")) { // 探测编码
+				html = new String(buf, "utf-8");
+			}
+		} else {
+			html = new String(buf, foxArg);
 		}
 		return html;
 	} catch ( Exception e ) { // 错误 是神马
