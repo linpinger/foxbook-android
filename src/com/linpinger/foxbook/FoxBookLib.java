@@ -27,7 +27,6 @@ import com.ray.tools.umd.builder.UmdHeader;
 
 import android.annotation.SuppressLint;
 import android.os.Environment;
-import android.util.Log;
 
 public class FoxBookLib {
 	
@@ -160,21 +159,24 @@ public class FoxBookLib {
 	}
 	
 	public static String updatepage(int pageid, String pageFullURL) {
-		String html = downhtml(pageFullURL); // 下载url
-		
+		String html = "" ;	
 		// 针对起点文本,特殊处理
 		if ( pageFullURL.contains(".qidian.com") ) {
-			String scriptURL = "" ;
-			// <script src='http://files.qidian.com/Author6/3094349/51689782.txt'  charset='GB2312'></script>
-			Matcher mat = Pattern.compile("(?smi)(http://files[^\"']*.txt)").matcher(html);
+			Matcher mat = Pattern.compile("(?i)/([0-9]+),([0-9]+).aspx").matcher(pageFullURL);
+			String bid = "";
+			String cid = "";
 			while (mat.find()) {
-				if (1 == mat.groupCount()) {
-					scriptURL = mat.group(1);
-				}
+				bid = mat.group(1);
+				cid = mat.group(2);
 			}
-			html = downhtml(scriptURL);
+			String nURL = "http://files.qidian.com/Author" + ( 1 + ( Integer.valueOf(bid) % 8 ) ) + "/" + bid + "/" + cid + ".txt"  ;
+			html = downhtml(nURL);
 			html = html.replace("document.write('", "");
-			html = html.replace("<a href=http://www.qidian.com>起点中文网 www.qidian.com 欢迎广大书友光临阅读，最新、最快、最火的连载作品尽在起点原创！</a><a>手机用户请到m.qidian.com阅读。</a>');", "");
+			html = html.replace("<a href=http://www.qidian.com>起点中文网 www.qidian.com 欢迎广大书友光临阅读，最新、最快、最火的连载作品尽在起点原创！</a>", "");
+			html = html.replace("<a>手机用户请到m.qidian.com阅读。</a>');", "");
+			html = html.replace("');", "");
+		} else {
+			html = downhtml(pageFullURL); // 下载url
 		}
 		
 		String text = pagetext(html);   	// 分析得到text
