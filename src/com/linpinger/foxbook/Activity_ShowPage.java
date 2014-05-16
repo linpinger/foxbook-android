@@ -26,6 +26,7 @@ public class Activity_ShowPage extends Activity {
 	private int foxfrom = 0 ;  // 1=DB, 2=search 
 	private TextView tv ;
 	private ScrollView sv;
+	private int bookid = 0 ; // 翻页时使用
 	private int pageid = 0 ;
 	private String pagetext = "暂缺" ;
 	private String pagename = "" ;
@@ -105,7 +106,11 @@ public class Activity_ShowPage extends Activity {
 		
 		if ( FROM_DB == foxfrom ){ // DB
 			pageid =  itt.getIntExtra("chapter_id", 0);
-			pagetext = FoxDB.getOneCell("select Content from page where id = " + pageid + " and Content is not null" );
+			
+//			pagetext = FoxDB.getOneCell("select Content from page where id = " + pageid + " and Content is not null" );
+			Map<String,String> infox = FoxDB.getOneRow("select bookid as bid, Content as cc from page where id = " + pageid + " and Content is not null");
+			pagetext = infox.get("cc") ;
+			bookid = Integer.valueOf(infox.get("bid")); // 翻页使用
 	 
 			tv.setText("　　" + pagetext.replace("\n", "\n　　"));
 		} 
@@ -152,15 +157,16 @@ public class Activity_ShowPage extends Activity {
 				break ;
 			}
 			Map<String,String> pp ;
-			pp = FoxDB.getOneRow("select id as id, name as name, url as url, content as content from page where id < " + pageid + " and bookid in (select bookid from page where id = " + pageid + ") and content is not null order by id desc limit 1");
+			pp = FoxDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where id < " + pageid + " and bookid = " + bookid + " and content is not null order by id desc limit 1"); // 本书内的上一章
 			if ( null == pp.get("id") ) {
-				pp = FoxDB.getOneRow("select id as id, name as name, url as url, content as content from page where id < " + pageid + " and content is not null order by bookid, id limit 1");
+				pp = FoxDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where bookid < " + bookid + " and content is not null order by bookid desc, id limit 1");
 				if ( null == pp.get("name") ) {
 					foxtip("亲，没有上一页了");
 					break;
 				}
 			}
 			pageid = Integer.valueOf(pp.get("id"));
+			bookid = Integer.valueOf(pp.get("bid"));
 			setTitle(pageid + " : " + pp.get("name") + " : " + pp.get("url") );
 			pagetext = pp.get("content");
 			tv.setText("　　" + pagetext.replace("\n", "\n　　"));
@@ -173,9 +179,9 @@ public class Activity_ShowPage extends Activity {
 				break ;
 			}
 			Map<String,String> nn;
-			nn = FoxDB.getOneRow("select id as id, name as name, url as url, content as content from page where id > " + pageid + " and bookid in (select bookid from page where id = " + pageid + ") and content is not null limit 1");
+			nn = FoxDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where id > " + pageid + " and bookid = " + bookid + " and content is not null limit 1"); // 本书内的下一章
 			if ( null == nn.get("id") ) {
-				nn = FoxDB.getOneRow("select id as id, name as name, url as url, content as content from page where id > " + pageid + " and content is not null order by bookid, id limit 1");
+				nn = FoxDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where bookid > " + bookid + " and content is not null order by bookid, id limit 1");
 				if ( null == nn.get("name") ) {
 					foxtip("亲，没有下一页了");
 					break;
@@ -183,6 +189,7 @@ public class Activity_ShowPage extends Activity {
 			}
 			
 			pageid = Integer.valueOf(nn.get("id"));
+			bookid = Integer.valueOf(nn.get("bid"));
 			setTitle(pageid + " : " + nn.get("name") + " : " + nn.get("url") );
 			pagetext = nn.get("content");
 			tv.setText("　　" + pagetext.replace("\n", "\n　　"));
