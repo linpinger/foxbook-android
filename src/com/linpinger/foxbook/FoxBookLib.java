@@ -91,95 +91,47 @@ public class FoxBookLib {
         }
 	}
 	
-	/*
-	public static int updatebook(int bookid) {
-		List<Map<String, Object>> xx ;
-		String bookurl = FoxDB.getOneCell("select url from book where id=" + String.valueOf(bookid)); // 获取 url
-		String existList = FoxDB.getPageListStr(bookid); //得到旧 list
-		existList = existList.toLowerCase();
-		Log.e("FoxLib1", bookurl);
-		String html = downhtml(bookurl); // 下载url
-		Log.e("FoxLib2", String.valueOf(html.length()));
-
-		if ( existList.length() > 1024 ) {
-			xx = tocHref(html, 55);	// 分析获取 list 最后55章
-		} else {
-			xx = tocHref(html, 0);	// 分析获取 list 所有章节
-		}
-		
-		// 比较得到新章节
-		String nowURL ;
-		ArrayList<HashMap<String, Object>> newPages = new ArrayList<HashMap<String, Object>>();
-		Iterator<Map<String, Object>> itr = xx.iterator();
-		while (itr.hasNext()) {
-			HashMap<String, Object> mm = (HashMap<String, Object>) itr.next();
-			nowURL = (String) mm.get("url");
-			if ( ! existList.contains(nowURL.toLowerCase() + "|") ) { // 新章节
-				Log.e("FoxLib3", "new : " + nowURL);
-				newPages.add(mm);
-			}
-		}
-		FoxDB.inserNewPages(newPages, bookid); // 添加到数据库
-		
-//		Log.e("FoxLib3.5", "xxx");
-		// 循环更新页面
-		List<Map<String, Object>> nbl = FoxDB.getBookNewPages(bookid);
-//		Log.e("FoxLib3.5", "yyy");
-		Iterator<Map<String, Object>> itrz = nbl.iterator();
-		Integer nowpageid = 0 ;
-		while (itrz.hasNext()) {
-			HashMap<String, Object> nn = (HashMap<String, Object>) itrz.next();
-			nowURL = (String) nn.get("url");
-			nowpageid = (Integer) nn.get("id");
-			Log.e("FoxLib4", "updatepage id : " + String.valueOf(nowpageid));
-			updatepage(nowpageid);
-		}
-		Log.e("FoxLib5", "end : newpagecount: " + String.valueOf(newPages.size()));
-		return newPages.size() ;
-	}
-	*/
 	
 	public static void updatepage(int pageid) {
 		Map<String, String> xx = FoxDB.getOneRow("select book.url as bu,page.url as pu from book,page where page.id=" + String.valueOf(pageid) + " and  book.id in (select bookid from page where id=" + String.valueOf(pageid) + ")");
 		String fullPageURL = getFullURL(xx.get("bu"),xx.get("pu"));		// 获取bookurl, pageurl 合成得到url
 
-		int site_type = 0 ; // 特殊页面处理
-		if ( xx.get("bu").indexOf("zhuishushenqi.com") > -1 ) {
-			site_type = 12 ;
-		}
-		switch(site_type) {
-		case 12:
-			String json = downhtml(site_zssq.getUrlPage(xx.get("pu")), "utf-8"); // 下载json
-			FoxDB.setPageContent(pageid, site_zssq.json2Text(json)); // 写入数据库
-			break;
-		default:
-			updatepage(pageid, fullPageURL) ;
-		}
-
+		updatepage(pageid, fullPageURL) ;
 	}
 	
 	public static String updatepage(int pageid, String pageFullURL) {
-		String html = "" ;	
-		// 针对起点文本,特殊处理
-		if ( pageFullURL.contains(".qidian.com") ) {
-			Matcher mat = Pattern.compile("(?i)/([0-9]+),([0-9]+).aspx").matcher(pageFullURL);
-			String bid = "";
-			String cid = "";
-			while (mat.find()) {
-				bid = mat.group(1);
-				cid = mat.group(2);
-			}
-			String nURL = "http://files.qidian.com/Author" + ( 1 + ( Integer.valueOf(bid) % 8 ) ) + "/" + bid + "/" + cid + ".txt"  ;
-			html = downhtml(nURL);
-			html = html.replace("document.write('", "");
-			html = html.replace("<a href=http://www.qidian.com>起点中文网 www.qidian.com 欢迎广大书友光临阅读，最新、最快、最火的连载作品尽在起点原创！</a>", "");
-			html = html.replace("<a>手机用户请到m.qidian.com阅读。</a>');", "");
-			html = html.replace("');", "");
-		} else {
-			html = downhtml(pageFullURL); // 下载url
+		String text = "";
+		String html = "" ;
+		int site_type = 0 ; // 特殊页面处理 
+
+		if ( pageFullURL.contains("zhuishushenqi.com") ) { site_type = 12 ; }
+		if ( pageFullURL.contains(".qidian.com") ) { site_type = 99 ; }
+		switch(site_type) {
+			case 12:
+				String json = downhtml(site_zssq.getUrlPage(pageFullURL), "utf-8"); // 下载json
+				text = site_zssq.json2Text(json);
+				break;
+			case 99:
+				Matcher mat = Pattern.compile("(?i)/([0-9]+),([0-9]+).aspx").matcher(pageFullURL);
+				String bid = "";
+				String cid = "";
+				while (mat.find()) {
+					bid = mat.group(1);
+					cid = mat.group(2);
+				}
+				String nURL = "http://files.qidian.com/Author" + ( 1 + ( Integer.valueOf(bid) % 8 ) ) + "/" + bid + "/" + cid + ".txt"  ;
+				html = downhtml(nURL);
+				html = html.replace("document.write('", "");
+				html = html.replace("<a href=http://www.qidian.com>起点中文网 www.qidian.com 欢迎广大书友光临阅读，最新、最快、最火的连载作品尽在起点原创！</a>", "");
+				html = html.replace("<a>手机用户请到m.qidian.com阅读。</a>');", "");
+				html = html.replace("');", "");
+				text = pagetext(html);   	// 分析得到text
+				break;
+			default:
+				html = downhtml(pageFullURL); // 下载url
+				text = pagetext(html);   	// 分析得到text
 		}
-		
-		String text = pagetext(html);   	// 分析得到text
+
 		if ( pageid > 0 ) { // 当pageid小于0时不写入数据库，主要用于在线查看
 			FoxDB.setPageContent(pageid, text); // 写入数据库
 			return String.valueOf(0);

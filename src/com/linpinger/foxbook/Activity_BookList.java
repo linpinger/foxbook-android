@@ -29,6 +29,10 @@ import android.view.MenuItem;
 import android.view.View;
 
 public class Activity_BookList extends ListActivity {
+	
+	public int downThread = 9 ;  // 页面下载任务线程数
+	public int leftThread = downThread ;
+
 	ListView lv_booklist;
 	List<Map<String, Object>> data;
 	String lcURL, lcName; // long click 的变量
@@ -48,6 +52,43 @@ public class Activity_BookList extends ListActivity {
 	
 //	private final int SITE_EASOU = 11 ;
 	private final int SITE_ZSSQ = 12 ;
+
+	public class FoxTaskDownPage implements Runnable { // 多线程任务更新页面列表
+		List<Map<String, Object>> taskList;
+		public FoxTaskDownPage(List<Map<String, Object>> iTaskList) {
+			this.taskList = iTaskList ;
+		}
+		public void run() {
+			Message msg;
+			String thName = Thread.currentThread().getName();
+			Iterator<Map<String, Object>> itr = taskList.iterator();
+			HashMap<String, Object> mm ;
+			int nowID ;
+			String nowURL ;
+			int locCount = 0 ;
+			int allCount = taskList.size();
+			while (itr.hasNext()) {
+				++ locCount ;
+				mm = (HashMap<String, Object>) itr.next();
+				nowID = (Integer) mm.get("id");
+				nowURL = (String) mm.get("url");
+
+				FoxBookLib.updatepage(nowID, nowURL);
+				
+				msg = Message.obtain();
+				msg.what = IS_MSG;
+				msg.obj = leftThread + ":" + thName + ":" + locCount + " / " + allCount ;
+				handler.sendMessage(msg);
+			}
+			--leftThread;
+			if ( 0 == leftThread ) { // 所有线程更新完毕
+				msg = Message.obtain();
+				msg.what = IS_MSG;
+				msg.obj = "已更新完所有空白章节>25" ;
+				handler.sendMessage(msg);
+			}
+		}
+	}
 
 
 	public class UpdateBook implements Runnable { // 后台线程更新书
@@ -113,7 +154,9 @@ public class Activity_BookList extends ListActivity {
 				msg.obj = bookname + ": 无新章节";
 				handler.sendMessage(msg);
 				handler.sendEmptyMessage(IS_REFRESHLIST); // 更新完毕，通知刷新
-				return;
+				if ( ! bDownPage ) { //添加这个主要想在有空白章节时更新一下
+					return;
+				}
 			} else {
 				msg = Message.obtain();
 				msg.what = IS_NEWPAGE;
@@ -122,30 +165,63 @@ public class Activity_BookList extends ListActivity {
 				handler.sendMessage(msg);
 			}
 
-			FoxDB.inserNewPages(newPages, bookid); // 添加到数据库
+			if ( newpagecount > 0 ) {
+				FoxDB.inserNewPages(newPages, bookid); // 添加到数据库
+			}
+			
 
 			if (bDownPage) {
-			// 循环更新页面
 			List<Map<String, Object>> nbl = FoxDB.getBookNewPages(bookid);
+			int cTask = nbl.size() ; // 总任务数
+			
+			if ( cTask > 25 ) { // 当新章节数大于 25章就采用多任务下载模式
+				int nBaseCount = cTask / downThread ; //每线程基础任务数
+				int nLeftCount = cTask % downThread ; //剩余任务数
+				int aList[] = new int[downThread] ; // 每个线程中的任务数
+
+				for ( int i = 0; i < downThread; i++ ) {  // 分配任务数
+					if ( i < nLeftCount ) {
+						aList[i] = nBaseCount + 1 ;
+					} else {
+						aList[i] = nBaseCount ;
+					}
+				}
+
+				List<Map<String, Object>> subList ;
+				int startPoint = 0 ;
+				for ( int i = 0; i < downThread; i++ ) {
+					if ( aList[i] == 0 ) { // 这种情况出现在总任务比线程少的情况下
+						--leftThread ;
+						continue ;
+					}
+					subList = new ArrayList<Map<String, Object>>(aList[i]);
+					for ( int n = startPoint; n < startPoint + aList[i]; n++ ) {
+						subList.add((HashMap<String, Object>)nbl.get(n));
+					}
+					(new Thread(new FoxTaskDownPage(subList), "T" + i)).start() ;
+
+					startPoint += aList[i] ;
+				}
+			} else {
+			// 单线程循环更新页面
 			Iterator<Map<String, Object>> itrz = nbl.iterator();
 			Integer nowpageid = 0;
 			int nowCount = 0;
 			while (itrz.hasNext()) {
-				HashMap<String, Object> nn = (HashMap<String, Object>) itrz
-						.next();
+				HashMap<String, Object> nn = (HashMap<String, Object>) itrz.next();
 				nowURL = (String) nn.get("url");
 				nowpageid = (Integer) nn.get("id");
 
 				++nowCount;
 				msg = Message.obtain();
 				msg.what = IS_MSG;
-				msg.obj = bookname + ": 下载章节: " + String.valueOf(nowCount)
-						+ " / " + String.valueOf(newpagecount);
+				msg.obj = bookname + ": 下载章节: " + nowCount + " / " + newpagecount ;
 				handler.sendMessage(msg);
 
 				FoxBookLib.updatepage(nowpageid);
 			}
-			}
+			} // 单线程更新
+			} // bDownPage
 
 			msg = Message.obtain();
 			msg.what = IS_MSG;

@@ -1,6 +1,7 @@
 package com.linpinger.foxbook;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -191,27 +192,32 @@ public class FoxDB {
 	}
 
 	public static List<Map<String, Object>> getBookNewPages(int bookid) { // 获取数据库中新增的章节
-		List<Map<String, Object>> xx = new ArrayList<Map<String, Object>>(10);
+		List<Map<String, Object>> xx = new ArrayList<Map<String, Object>>(100);
 		Map<String, Object> item;
 
-		SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(
-				new File(dbpath), null);
-		Cursor cursor = db.rawQuery("select id,url from page where ( bookid="
+		SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(new File(dbpath), null);
+		
+		URL bookURL;
+		try {
+			bookURL = new URL(getOneCell("select url from book where id = " + bookid, db));
+		
+			Cursor cursor = db.rawQuery("select id,url from page where ( bookid="
 				+ String.valueOf(bookid)
-				+ " ) and ( (content isnull) or ( length(content) < 5 ) )",
+				+ " ) and ( (content is null) or ( length(content) < 9 ) )",
 				null);
-		if (cursor.moveToFirst()) {
-			do {
-				item = new HashMap<String, Object>();
-				item.put("id", cursor.getInt(0));
-				item.put("url", cursor.getString(1));
-				// Log.e("FoxDB2", "new : " + cursor.getString(1));
-				xx.add(item);
-			} while (cursor.moveToNext());
+			if (cursor.moveToFirst()) {
+				do {
+					item = new HashMap<String, Object>();
+					item.put("id", cursor.getInt(0));
+					item.put("url", (new URL(bookURL, cursor.getString(1))).toString());
+					xx.add(item);
+				} while (cursor.moveToNext());
+			}
+			cursor.close();
+		} catch (Exception e) {
+			e.toString();
 		}
-		cursor.close();
 		db.close();
-
 		return xx;
 	}
 	

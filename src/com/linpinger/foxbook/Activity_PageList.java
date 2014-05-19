@@ -212,7 +212,7 @@ public class Activity_PageList extends ListActivity {
 			public void handleMessage(Message msg) {
 				String sHTTP = (String)msg.obj;
 				if ( msg.what == IS_UPDATEPAGE ) { // 更新章节完毕
-					setTitle("节更新完毕 : " + lcName);
+					setTitle("更新完毕 : " + lcName);
 				}
 				if ( msg.what == IS_DOWNEASOU ) { // 处理easou json
 					data = site_easou.json2PageList(sHTTP, easou_gid_nid, 16);

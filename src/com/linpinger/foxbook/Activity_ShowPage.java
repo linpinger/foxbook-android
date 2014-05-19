@@ -106,12 +106,15 @@ public class Activity_ShowPage extends Activity {
 		
 		if ( FROM_DB == foxfrom ){ // DB
 			pageid =  itt.getIntExtra("chapter_id", 0);
-			
 //			pagetext = FoxDB.getOneCell("select Content from page where id = " + pageid + " and Content is not null" );
 			Map<String,String> infox = FoxDB.getOneRow("select bookid as bid, Content as cc from page where id = " + pageid + " and Content is not null");
 			pagetext = infox.get("cc") ;
-			bookid = Integer.valueOf(infox.get("bid")); // 翻页使用
-	 
+
+			if ( null == pagetext  ) {
+				pagetext = "本章节内容还没下载，请回到列表，更新本书或本章节" ;
+			} else {
+				bookid = Integer.valueOf(infox.get("bid")); // 翻页使用
+			}
 			tv.setText("　　" + pagetext.replace("\n", "\n　　"));
 		} 
 		if ( FROM_NET == foxfrom ){ // NET
