@@ -375,9 +375,9 @@ public class FoxBookLib {
 	//获取网络文件，转存到outPath中，outPath需要带文件后缀名
 	public static void saveHTTPFile(String inURL,String outPath) {
 		File toFile = new File(outPath);
-		if ( toFile.exists() ) { return; }
+		if ( toFile.exists() ) { toFile.delete(); }
 		try {
-			toFile.createNewFile();
+//			toFile.createNewFile();
 			FileOutputStream outImgStream = new FileOutputStream(toFile);
 			outImgStream.write(downHTTP(inURL));
 			outImgStream.close();

@@ -19,7 +19,7 @@ public class FoxUpdatePkg {
 		int newVer = Integer.valueOf((String)remoteVer.get("date")); // 远程日期
 		String newURL = (String)remoteVer.get("url");
 		int oldVer = getVersion(mContext); // 本程序日期
-		if ( newVer > oldVer ) { return 0 ; }
+		if ( newVer <= oldVer ) { return 0 ; }
 		if ( newURL == "" ) {
 			FoxBookLib.saveHTTPFile(urlAPK, "/sdcard/FoxBook.apk");
 		} else {
