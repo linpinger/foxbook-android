@@ -372,71 +372,92 @@ public class FoxBookLib {
 		return allURL;
 	}
 
+	//获取网络文件，转存到outPath中，outPath需要带文件后缀名
+	public static void saveHTTPFile(String inURL,String outPath) {
+		File toFile = new File(outPath);
+		if ( toFile.exists() ) { return; }
+		try {
+			toFile.createNewFile();
+			FileOutputStream outImgStream = new FileOutputStream(toFile);
+			outImgStream.write(downHTTP(inURL));
+			outImgStream.close();
+		} catch ( Exception e ) {
+			e.toString();
+		}
+	}
+
 	public static String downhtml(String inURL) {
 		return downhtml(inURL, "");
 	}
 
-public static String downhtml(String inURL, String foxArg) {
-	URL url ;
-	HttpURLConnection conn;
-	try {
-		url = new URL(inURL) ;
-		conn = (HttpURLConnection) url.openConnection();
-		conn.setRequestProperty("User-Agent", "Java/1.6.0_55"); // Android自带头部和IE8头部会导致yahoo搜索结果链接为追踪链接
-		conn.setRequestProperty("Accept", "*/*");
-		conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
-		conn.setConnectTimeout(5000);
-		conn.connect();
-
-		
-		// 判断返回的是否是gzip数据
-		boolean bGZDate = false ;
-		Map<String,List<String>> rh = conn.getHeaderFields();
-		List<String> ce = rh.get("Content-Encoding") ;
-		if ( null == ce ) { // 不是gzip数据
-			bGZDate = false ;
-		} else {
-			bGZDate = true ;
-		}
-
-		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-		byte[] buffer = new byte[8192];
-		int len = 0;
-
-		if ( bGZDate ) { // Gzip
-			InputStream in = conn.getInputStream();
-			GZIPInputStream gzin = new GZIPInputStream(in);
-			while ((len = gzin.read(buffer)) != -1) {
-				outStream.write(buffer, 0, len);
+	public static String downhtml(String inURL, String pageCharSet) {
+		byte[] buf = downHTTP(inURL) ;
+		if ( buf == null ) { return ""; }
+		try {
+			String html = "";
+			if ( pageCharSet == "" ) {
+				html = new String(buf, "gbk");
+				if ( html.matches("(?smi).*<meta[^>]*charset=[\"]?(utf8|utf-8)[\"]?.*") ) { // 探测编码
+					html = new String(buf, "utf-8");
+				}
+			} else {
+				html = new String(buf, pageCharSet);
 			}
-			gzin.close();
-			in.close();
-		} else {
-			InputStream in = conn.getInputStream();
-			while ((len = in.read(buffer)) != -1) {
-				outStream.write(buffer, 0, len);
-			}
-			in.close();
+			return html;
+		} catch ( Exception e ) { // 错误 是神马
+//			e.toString() ;
+			return "" ;
 		}
-
-		byte[] buf = outStream.toByteArray();
-		outStream.close();
-		
-		String html = "";
-		if ( foxArg == "" ) {
-			html = new String(buf, "gbk");
-			if (html.matches("(?smi).*<meta[^>]*charset=[\"]?(utf8|utf-8)[\"]?.*")) { // 探测编码
-				html = new String(buf, "utf-8");
-			}
-		} else {
-			html = new String(buf, foxArg);
-		}
-		return html;
-	} catch ( Exception e ) { // 错误 是神马
-//		e.toString() ;
-		return "" ;
 	}
-}
+
+	public static byte[] downHTTP(String inURL) {
+		byte[] buf = null ;
+		try {
+			URL url = new URL(inURL) ;
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestProperty("User-Agent", "Java/1.6.0_55"); // Android自带头部和IE8头部会导致yahoo搜索结果链接为追踪链接
+			conn.setRequestProperty("Accept", "*/*");
+			conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
+			conn.setConnectTimeout(5000);
+			conn.connect();
+			
+			// 判断返回的是否是gzip数据
+			boolean bGZDate = false ;
+			Map<String,List<String>> rh = conn.getHeaderFields();
+			List<String> ce = rh.get("Content-Encoding") ;
+			if ( null == ce ) { // 不是gzip数据
+				bGZDate = false ;
+			} else {
+				bGZDate = true ;
+			}
+	
+			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+			byte[] buffer = new byte[8192];
+			int len = 0;
+	
+			if ( bGZDate ) { // Gzip
+				InputStream in = conn.getInputStream();
+				GZIPInputStream gzin = new GZIPInputStream(in);
+				while ((len = gzin.read(buffer)) != -1) {
+					outStream.write(buffer, 0, len);
+				}
+				gzin.close();
+				in.close();
+			} else {
+				InputStream in = conn.getInputStream();
+				while ((len = in.read(buffer)) != -1) {
+					outStream.write(buffer, 0, len);
+				}
+				in.close();
+			}
+	
+			buf = outStream.toByteArray();
+			outStream.close();
+		} catch ( Exception e ) { // 错误 是神马
+			e.toString() ;
+		}
+		return buf;
+	}
 
 
 } // 类结束

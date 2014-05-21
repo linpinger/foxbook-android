@@ -40,6 +40,9 @@
         android:id="@+id/action_refresh"
         android:title="刷新列表"/>
     <!-- android:icon="@android:drawable/ic_menu_mapmode" -->
+    <item
+        android:id="@+id/action_updatepkg"
+        android:title="更新本软件"/>
 
 
     <!-- android:icon="@android:drawable/ic_menu_compass" -->

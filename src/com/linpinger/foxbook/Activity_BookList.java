@@ -13,6 +13,7 @@ import android.app.ListActivity;
 import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -511,6 +512,24 @@ public class Activity_BookList extends ListActivity {
 					handler.sendMessage(msg);
 				}
 			}).start();
+			break;
+		case R.id.action_updatepkg:
+//			Uri uri = Uri.parse("http://linpinger.qiniudn.com/FoxBook.apk");  
+//			Intent downloadIntent = new Intent(Intent.ACTION_VIEW, uri);  
+//			startActivity(downloadIntent); 
+			setTitle("开始更新版本...");
+			(new Thread(){
+				public void run(){
+					int newver = new FoxUpdatePkg(getApplicationContext()).FoxCheckUpdate() ;
+					String ftmpskf = "";
+					if ( newver > 0 ) { ftmpskf = newver + ":" ; }
+					Message msg = Message.obtain();
+					msg.what = IS_MSG;
+					msg.obj = ftmpskf + "更新完毕";
+					handler.sendMessage(msg);
+				}
+			}).start();
+
 			break;
 
 		}

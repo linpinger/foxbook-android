@@ -20,7 +20,7 @@
 
 -   [源码工程](https://github.com/linpinger/foxbook-android)
 
--   [APK文件](https://github.com/linpinger/foxbook-android/releases/download/TestUse/FoxBook.apk)
+-   [APK文件](http://linpinger.qiniudn.com/FoxBook.apk)
 
 **工程中包含的其他文件:**
 - 生成UMD格式电子书调用umd-builder JAVA版 <http://code.google.com/p/umd-builder/>
@@ -30,6 +30,7 @@
 
 **更新日志:**
 
+- 2014-05-21: 添加: 在线更新菜单，程序放到 七牛 上
 - 2014-05-19: 添加: 9线程多任务下载空白章节(当数量大于25时) 修正: 一些小问题
 - 2014-05-16: 修正: 显示页面上一页，下一页和所有章节的连贯性修正
 - 2014-05-13: 修正: qidian 章节txt 的地址算法: Author N = 1 + bookid % 8

@@ -28,8 +28,8 @@ public final class R {
         public static final int parchment_paper=0x7f020001;
     }
     public static final class id {
-        public static final int action_all2txt=0x7f090019;
-        public static final int action_all2umd=0x7f090018;
+        public static final int action_all2txt=0x7f09001a;
+        public static final int action_all2umd=0x7f090019;
         public static final int action_allpagelist=0x7f090010;
         public static final int action_refresh=0x7f090017;
         public static final int action_regen_pageid=0x7f090014;
@@ -38,6 +38,7 @@ public final class R {
         public static final int action_sortbook_desc=0x7f090013;
         public static final int action_switchdb=0x7f090011;
         public static final int action_updateall=0x7f09000f;
+        public static final int action_updatepkg=0x7f090018;
         public static final int action_vacuum=0x7f090016;
         public static final int btn_save=0x7f090005;
         public static final int button1=0x7f090009;
@@ -48,18 +49,18 @@ public final class R {
         public static final int edt_delurl=0x7f090007;
         public static final int edt_isend=0x7f090002;
         public static final int edt_qdid=0x7f090003;
-        public static final int pm_Add=0x7f09001a;
-        public static final int pm_cleanBook=0x7f09001b;
-        public static final int pm_cleanBookND=0x7f09001c;
+        public static final int pm_Add=0x7f09001b;
+        public static final int pm_cleanBook=0x7f09001c;
+        public static final int pm_cleanBookND=0x7f09001d;
         public static final int scrollView1=0x7f090006;
-        public static final int show_next=0x7f090022;
-        public static final int show_prev=0x7f090021;
-        public static final int sm_QuickSearchBing=0x7f09001f;
-        public static final int sm_QuickSearchSouGou=0x7f09001d;
-        public static final int sm_QuickSearchYahoo=0x7f09001e;
-        public static final int sm_bShowAll=0x7f090020;
-        public static final int sp_set_size_down=0x7f090024;
-        public static final int sp_set_size_up=0x7f090023;
+        public static final int show_next=0x7f090023;
+        public static final int show_prev=0x7f090022;
+        public static final int sm_QuickSearchBing=0x7f090020;
+        public static final int sm_QuickSearchSouGou=0x7f09001e;
+        public static final int sm_QuickSearchYahoo=0x7f09001f;
+        public static final int sm_bShowAll=0x7f090021;
+        public static final int sp_set_size_down=0x7f090025;
+        public static final int sp_set_size_up=0x7f090024;
         public static final int tvCount=0x7f09000e;
         public static final int tvName=0x7f09000d;
         public static final int tv_bid=0x7f090000;
