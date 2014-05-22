@@ -12,8 +12,10 @@ import java.math.BigInteger;
 public class FoxUpdatePkg {
 	private Context mContext;
 	private String apkPATH = "/sdcard/FoxBook.apk" ;
-	private String urlVersion = "http://linpinger.qiniudn.com/version";
-	private String urlAPK = "http://linpinger.qiniudn.com/FoxBook.apk";
+	private String urlVersion = "http://linpinger.github.io/bin/foxbook-android/version";
+	private String urlAPK = "http://linpinger.github.io/bin/foxbook-android/FoxBook.apk";
+//	private String urlVersion = "http://linpinger.qiniudn.com/version";
+//	private String urlAPK = "http://linpinger.qiniudn.com/FoxBook.apk";
 	
 	public FoxUpdatePkg(Context context) {
 		this.mContext = context;
