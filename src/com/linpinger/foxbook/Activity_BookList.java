@@ -1,5 +1,6 @@
 package com.linpinger.foxbook;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -43,6 +44,7 @@ public class Activity_BookList extends ListActivity {
 	private final int IS_NEWPAGE = 2;
 	private final int IS_REFRESHLIST = 3;
 	private final int IS_REGENID = 4;
+	private final int IS_NEWVER = 5;
 	private final int FROM_DB = 1;
 	private final int FROM_NET = 2;
 	private long mExitTime;
@@ -389,6 +391,18 @@ public class Activity_BookList extends ListActivity {
 						setTitle("剩余线程: " + upthreadcount);
 					}
 					break;
+				case IS_NEWVER:
+					setTitle((String)msg.obj);
+
+					try {
+						Intent i = new Intent(Intent.ACTION_VIEW);
+						i.setDataAndType(Uri.fromFile(new File("/sdcard/FoxBook.apk")), "application/vnd.android.package-archive"); 
+						startActivity(i);
+					} catch(Exception e) {
+						e.toString();
+					}
+
+					break;
 				}
 				return false;
 			}
@@ -514,18 +528,18 @@ public class Activity_BookList extends ListActivity {
 			}).start();
 			break;
 		case R.id.action_updatepkg:
-//			Uri uri = Uri.parse("http://linpinger.qiniudn.com/FoxBook.apk");  
-//			Intent downloadIntent = new Intent(Intent.ACTION_VIEW, uri);  
-//			startActivity(downloadIntent); 
 			setTitle("开始更新版本...");
 			(new Thread(){
 				public void run(){
 					int newver = new FoxUpdatePkg(getApplicationContext()).FoxCheckUpdate() ;
-					String ftmpskf = "";
-					if ( newver > 0 ) { ftmpskf = newver + ":" ; }
 					Message msg = Message.obtain();
-					msg.what = IS_MSG;
-					msg.obj = ftmpskf + "更新完毕";
+					if ( newver > 0 ) {
+						msg.what = IS_NEWVER;
+						msg.obj = newver + ":新版本" ;
+					} else {
+						msg.what = IS_MSG;
+						msg.obj = "无新版本" ;
+					}
 					handler.sendMessage(msg);
 				}
 			}).start();
