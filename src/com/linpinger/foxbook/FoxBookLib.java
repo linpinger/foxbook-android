@@ -108,7 +108,7 @@ public class FoxBookLib {
 		if ( pageFullURL.contains(".qidian.com") ) { site_type = 99 ; }
 		switch(site_type) {
 			case 12:
-				String json = downhtml(site_zssq.getUrlPage(pageFullURL), "utf-8"); // 下载json
+				String json = downhtml(pageFullURL, "utf-8"); // 下载json
 				text = site_zssq.json2Text(json);
 				break;
 			case 99:
@@ -364,6 +364,9 @@ public class FoxBookLib {
 
 	public static String getFullURL(String sbaseurl, String suburl) { // 获取完整路径
 		String allURL = "" ;
+		if ( sbaseurl.contains("zhuishushenqi.com") ) {     // 对于这种非正常合成URL需处理一下 http://xxx.com/fskd/http://wwe.comvs.fs
+			return site_zssq.getUrlPage(suburl) ;
+		}
 		try {
 			allURL = (new URL(new URL(sbaseurl), suburl)).toString();
 		} catch (MalformedURLException e) {

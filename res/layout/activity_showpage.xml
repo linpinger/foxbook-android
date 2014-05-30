@@ -16,8 +16,8 @@
             android:id="@+id/tv_page"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="6sp"
-            android:layout_marginRight="6sp"
+            android:layout_marginLeft="5sp"
+            android:layout_marginRight="5sp"
             android:textSize="19sp"
             android:lineSpacingMultiplier="1.25"
              android:text="内容..." />

@@ -197,10 +197,8 @@ public class FoxDB {
 
 		SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(new File(dbpath), null);
 		
-		URL bookURL;
+		String bookurl = getOneCell("select url from book where id = " + bookid, db);
 		try {
-			bookURL = new URL(getOneCell("select url from book where id = " + bookid, db));
-		
 			Cursor cursor = db.rawQuery("select id,url from page where ( bookid="
 				+ String.valueOf(bookid)
 				+ " ) and ( (content is null) or ( length(content) < 9 ) )",
@@ -209,7 +207,7 @@ public class FoxDB {
 				do {
 					item = new HashMap<String, Object>();
 					item.put("id", cursor.getInt(0));
-					item.put("url", (new URL(bookURL, cursor.getString(1))).toString());
+					item.put("url", FoxBookLib.getFullURL(bookurl,cursor.getString(1)));
 					xx.add(item);
 				} while (cursor.moveToNext());
 			}
