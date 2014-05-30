@@ -386,7 +386,7 @@ public class Activity_BookList extends ListActivity {
 					--upthreadcount;
 					refresh_BookList(); // 刷新LV中的数据
 					if (upthreadcount <1 ){
-						setTitle("新章节数: " + upchacount + "，全部更新完毕");
+						setTitle("共 " + upchacount + " 新章节，全部更新完毕");
 					} else {
 						setTitle("剩余线程: " + upthreadcount);
 					}
