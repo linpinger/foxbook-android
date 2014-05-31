@@ -1,7 +1,6 @@
 package com.linpinger.foxbook;
 
 import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -332,17 +331,7 @@ public class FoxDB {
 	}
 
 	private static String getPageListStr_Del(int bookid, SQLiteDatabase db) { // 私有:  获取 已删除 url,name 列表
-		String dellist = "";
-		// 获取旧删除列表
-		Cursor cursor = db.rawQuery("select DelURL from book where id = "
-				+ String.valueOf(bookid), null);
-		if (cursor.moveToFirst()) {
-			do {
-				dellist = cursor.getString(0);
-			} while (cursor.moveToNext());
-		}
-		cursor.close();
-		return dellist.replace("\n\n", "\n");
+		return getOneCell("select DelURL from book where id = " + bookid, db).replace("\n\n", "\n");
 	}
 
 	private static String getPageListStr_notDel(int bookid, SQLiteDatabase db) { // 私有: 获取 未删除url,name列表
@@ -411,6 +400,7 @@ public class FoxDB {
 			} while (cursor.moveToNext());
 		}
 		cursor.close();
+		if ( null == outStr ) { outStr = ""; }
 		return outStr;
 	}
 

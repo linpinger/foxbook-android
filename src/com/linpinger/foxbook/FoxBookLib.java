@@ -104,8 +104,9 @@ public class FoxBookLib {
 		String html = "" ;
 		int site_type = 0 ; // 特殊页面处理 
 
-		if ( pageFullURL.contains("zhuishushenqi.com") ) { site_type = 12 ; }
 		if ( pageFullURL.contains(".qidian.com") ) { site_type = 99 ; }
+		if ( pageFullURL.contains("zhuishushenqi.com") ) { site_type = 12 ; } // 这个得放在qidian后面，因为有时候zssq地址会包含起点的url
+
 		switch(site_type) {
 			case 12:
 				String json = downhtml(pageFullURL, "utf-8"); // 下载json
