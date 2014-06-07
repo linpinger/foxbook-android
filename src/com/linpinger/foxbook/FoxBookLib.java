@@ -366,7 +366,11 @@ public class FoxBookLib {
 	public static String getFullURL(String sbaseurl, String suburl) { // 获取完整路径
 		String allURL = "" ;
 		if ( sbaseurl.contains("zhuishushenqi.com") ) {     // 对于这种非正常合成URL需处理一下 http://xxx.com/fskd/http://wwe.comvs.fs
-			return site_zssq.getUrlPage(suburl) ;
+			if (suburl.contains("zhuishushenqi.com")) {
+				return suburl;
+			} else {
+				return site_zssq.getUrlPage(suburl) ;
+			}
 		}
 		try {
 			allURL = (new URL(new URL(sbaseurl), suburl)).toString();
@@ -419,7 +423,7 @@ public class FoxBookLib {
 		try {
 			URL url = new URL(inURL) ;
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestProperty("User-Agent", "Java/1.6.0_55"); // Android自带头部和IE8头部会导致yahoo搜索结果链接为追踪链接
+			conn.setRequestProperty("User-Agent", "ZhuiShuShenQi/2.14 Java/1.6.0_55"); // Android自带头部和IE8头部会导致yahoo搜索结果链接为追踪链接
 			conn.setRequestProperty("Accept", "*/*");
 			conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
 			conn.setConnectTimeout(5000);
