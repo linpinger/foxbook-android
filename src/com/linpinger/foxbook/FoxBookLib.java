@@ -226,9 +226,9 @@ public class FoxBookLib {
 		// 遍历hashmap lencount 获取最多的url长度
 		int maxurllencount = 0;
 		int maxurllen = 0;
-		Iterator<Entry<Integer, Integer>>  iter = lencount.entrySet().iterator();
+		Iterator iter = lencount.entrySet().iterator();
 		while (iter.hasNext()) {
-			Entry<Integer, Integer> entry = iter.next();
+			Map.Entry entry = (Map.Entry) iter.next();
 			Object key = entry.getKey();
 			Object val = entry.getValue();
 			if (maxurllencount < (Integer) val) {
@@ -256,23 +256,21 @@ public class FoxBookLib {
 			}
 		}
 
-		if ( lastNpage > 0 ) { // 显示部分
+		if ( lastNpage > 0 ) { // 截取后一部分
 			int chaptercount = od.size();
 			if (chaptercount > lastNpage) {
 				int startnum = chaptercount - lastNpage;
-				List<Map<String, Object>> odn = new ArrayList<Map<String, Object>>(
-						100);
-				Map<String, Object> oin;
-				// 筛选符合条件的链接
+				// 筛选符合数量的链接
+				List<Map<String, Object>> odn = new ArrayList<Map<String, Object>>(100);
 				Iterator<Map<String, Object>> itr1 = od.iterator();
 				int ncountx = 0;
 				while (itr1.hasNext()) {
-					oin = (HashMap<String, Object>) itr1.next();
 					++ncountx;
-					if (ncountx < startnum) {
+					if (ncountx <= startnum) {
+						itr1.next();
 						continue;
 					} else {
-						odn.add(oin);
+						odn.add(itr1.next());
 					}
 				}
 				return odn;

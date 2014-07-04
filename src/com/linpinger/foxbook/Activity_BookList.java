@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -127,16 +129,83 @@ public class Activity_BookList extends ListActivity {
 			switch(site_type) {
 			case SITE_ZSSQ:
 				html = FoxBookLib.downhtml(bookurl, "utf-8"); // 下载json
-				xx = site_zssq.json2PageList(html, 0, 1); // 更新模式
+				if (existList.length() > 3) {
+					xx = site_zssq.json2PageList(html, 55, 1); // 更新模式  最后55章
+				} else {
+					xx = site_zssq.json2PageList(html, 0, 1); // 更新模式
+				}
 				break;
 			default:
 				html = FoxBookLib.downhtml(bookurl); // 下载url
-				if (existList.length() > 1024) {
+				if (existList.length() > 3) {
 					xx = FoxBookLib.tocHref(html, 55); // 分析获取 list 最后55章
 				} else {
 					xx = FoxBookLib.tocHref(html, 0); // 分析获取 list 所有章节
 				}
 			}
+
+			int xxSize = xx.size();
+		if ( existList.contains("起止=") ) { // 根据 起止 过滤一下 xx
+//			((ArrayList)xx).trimToSize();
+			Matcher mat = Pattern.compile("(?i)起止=([0-9-]+),([0-9-]+)").matcher(existList);
+			int qz_1 = 0; int qz_2 = 0;
+			while (mat.find()) {
+				qz_1 = Integer.valueOf(mat.group(1));
+				qz_2 = Integer.valueOf(mat.group(2));
+			}
+
+// System.out.println("size: " + xxSize + " - " + qz_2 + " + " + qz_1);
+
+			List<Map<String, Object>> nXX = new ArrayList<Map<String, Object>>(30);
+			// 下面的初始值及判断顺序最好不要随便变动
+			int sIdx = 0 ;
+			int eIdx = xxSize ;
+			int leftIdx = 0 ;
+			if ( qz_2 > 0 ) {
+				sIdx = qz_2 ;
+				leftIdx = eIdx - sIdx ;
+			}
+			if ( qz_1 < 0 ) {
+				eIdx = eIdx + qz_1 ;
+				leftIdx = leftIdx + qz_1;
+			}
+			if (leftIdx > 0 ) {
+				int nSIdx = 0 ;
+				for ( int i=0; i <leftIdx; i++ ) {
+					nSIdx = sIdx + i ;
+					nXX.add(xx.get(nSIdx)) ;
+				}
+				xx = nXX ;
+			} else { // 章节数量为负
+				if ( 55 == xxSize ) {
+					String jj[] = existList.split("\n") ;
+					if ( jj.length > 2 ) { // 截取已删除记录中第一条之后的记录，如果新章节>55可能会悲剧
+						String sToBeComp = jj[jj.length - 2] ;
+						List<Map<String, Object>> nX2 = new ArrayList<Map<String, Object>>(30);
+						Iterator itr=xx.iterator();
+						String nowurl = "";
+						boolean bFillArray = false;
+						while( itr.hasNext()) {
+							HashMap<String, Object> mm = (HashMap<String, Object>)itr.next();
+							nowurl = mm.get("url").toString() ;
+							if ( sToBeComp.contains(nowurl) ) {
+								bFillArray = true ;
+								nX2.add(mm) ;
+							} else {
+								if ( bFillArray ) {
+									nX2.add(mm) ;
+								}
+							}
+						}
+						xx = nX2 ;
+					} else {
+		System.out.println("error: jj < 2 : " + jj.length);
+					}
+				} else {  // 下面放的代码是没有新章节的处理方法
+					return ;
+				}
+			}
+		}
 
 			// 比较得到新章节
 			String nowURL;

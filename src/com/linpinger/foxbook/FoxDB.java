@@ -310,10 +310,12 @@ public class FoxDB {
 	public static synchronized void setPageContent(int pageid, String text) { // 修改指定章节的内容
 		SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(
 				new File(dbpath), null);
+		String aNow = (new java.text.SimpleDateFormat("yyyyMMddHHmmss")).format(new java.util.Date()) ;
 		ContentValues args = new ContentValues();
 		args.put("CharCount", text.length());
 		args.put("Mark", "text");
 		args.put("Content", text);
+		args.put("DownTime", aNow);
 		db.update("page", args, "id=" + String.valueOf(pageid), null);
 		db.close();
 	}
