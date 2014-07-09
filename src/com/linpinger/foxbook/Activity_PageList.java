@@ -36,6 +36,7 @@ public class Activity_PageList extends ListActivity {
 	private static int IS_DOWNTOC = 5;
 	private final int IS_DOWNEASOU = 11;
 	private final int IS_DOWNZSSQ = 12;
+	private final int IS_DOWNKUAIDU = 13;
 	
 	private String easou_gid_nid = "";
 	private static int FROM_DB = 1 ;
@@ -52,6 +53,7 @@ public class Activity_PageList extends ListActivity {
 	private int SE_TYPE = 1; // 搜索引擎
 	private final int SE_EASOU = 11 ;
 	private final int SE_ZSSQ = 12 ;
+	private final int SE_KUAIDU = 13 ;
 
 	
 
@@ -75,6 +77,16 @@ public class Activity_PageList extends ListActivity {
 				msg2.what = IS_DOWNZSSQ;
 				msg2.obj = sJson2;
 				handler.sendMessage(msg2);
+				break;
+			case SE_KUAIDU:
+				if ( ! bookurl.contains(".qreader.") ) { // 在booklist上搜索快读
+					bookurl = site_qreader.qreader_Search(bookname);
+				}
+				data = site_qreader.qreader_GetIndex(bookurl, 16, 1);
+				Message msg3 = Message.obtain();
+				msg3.what = IS_DOWNKUAIDU;
+				msg3.obj = data;
+				handler.sendMessage(msg3);
 				break;
 			default:
 				String html = FoxBookLib.downhtml(bookurl);
@@ -210,6 +222,11 @@ public class Activity_PageList extends ListActivity {
 	private void init_handler() { // 初始化一个handler 用于处理后台线程的消息
 		handler = new Handler() {
 			public void handleMessage(Message msg) {
+				if ( msg.what == IS_DOWNKUAIDU ) {
+					data = (List<Map<String, Object>>)msg.obj;
+					renderListView();
+					return ;
+				}
 				String sHTTP = (String)msg.obj;
 				if ( msg.what == IS_UPDATEPAGE ) { // 更新章节完毕
 					setTitle("更新完毕 : " + lcName);
@@ -222,6 +239,7 @@ public class Activity_PageList extends ListActivity {
 					data = site_zssq.json2PageList(sHTTP, 16);
 					renderListView();
 				}
+
 				if ( msg.what == IS_DOWNTOC ) { // 下载目录完毕
 					if ( bShowAll ) {
 						data = FoxBookLib.tocHref(sHTTP, 0);

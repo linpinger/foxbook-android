@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -105,12 +104,16 @@ public class FoxBookLib {
 		int site_type = 0 ; // 特殊页面处理 
 
 		if ( pageFullURL.contains(".qidian.com") ) { site_type = 99 ; }
+		if ( pageFullURL.contains(".qreader.") ) { site_type = 13 ; }
 		if ( pageFullURL.contains("zhuishushenqi.com") ) { site_type = 12 ; } // 这个得放在qidian后面，因为有时候zssq地址会包含起点的url
 
 		switch(site_type) {
 			case 12:
 				String json = downhtml(pageFullURL, "utf-8"); // 下载json
 				text = site_zssq.json2Text(json);
+				break;
+			case 13:
+				text = site_qreader.qreader_GetContent(pageFullURL);
 				break;
 			case 99:
 				Matcher mat = Pattern.compile("(?i)/([0-9]+),([0-9]+).aspx").matcher(pageFullURL);
@@ -385,7 +388,7 @@ public class FoxBookLib {
 		try {
 //			toFile.createNewFile();
 			FileOutputStream outImgStream = new FileOutputStream(toFile);
-			outImgStream.write(downHTTP(inURL));
+			outImgStream.write(downHTTP(inURL, "GET"));
 			outImgStream.close();
 		} catch ( Exception e ) {
 			e.toString();
@@ -395,9 +398,13 @@ public class FoxBookLib {
 	public static String downhtml(String inURL) {
 		return downhtml(inURL, "");
 	}
-
+	
 	public static String downhtml(String inURL, String pageCharSet) {
-		byte[] buf = downHTTP(inURL) ;
+		return downhtml(inURL, pageCharSet, "GET");
+	}
+
+	public static String downhtml(String inURL, String pageCharSet, String PostData) {
+		byte[] buf = downHTTP(inURL, PostData) ;
 		if ( buf == null ) { return ""; }
 		try {
 			String html = "";
@@ -416,16 +423,30 @@ public class FoxBookLib {
 		}
 	}
 
-	public static byte[] downHTTP(String inURL) {
+	public static byte[] downHTTP(String inURL, String PostData) {
 		byte[] buf = null ;
 		try {
 			URL url = new URL(inURL) ;
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			if ( "GET" != PostData ) {
+				System.out.println("I am Posting ...");
+				conn.setDoOutput(true);
+				conn.setRequestMethod("POST");
+				conn.setRequestProperty("Content-Type","text/plain; charset=UTF-8");
+//				conn.setInstanceFollowRedirects(true);
+			}
+
 			conn.setRequestProperty("User-Agent", "ZhuiShuShenQi/2.14 Java/1.6.0_55"); // Android自带头部和IE8头部会导致yahoo搜索结果链接为追踪链接
 			conn.setRequestProperty("Accept", "*/*");
 			conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
 			conn.setConnectTimeout(5000);
 			conn.connect();
+			
+			if ( "GET" != PostData ) {
+				conn.getOutputStream().write(PostData.getBytes("UTF-8"));
+				conn.getOutputStream().flush();
+				conn.getOutputStream().close();
+			}
 			
 			// 判断返回的是否是gzip数据
 			boolean bGZDate = false ;

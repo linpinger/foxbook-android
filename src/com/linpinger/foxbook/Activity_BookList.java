@@ -57,6 +57,7 @@ public class Activity_BookList extends ListActivity {
 	
 //	private final int SITE_EASOU = 11 ;
 	private final int SITE_ZSSQ = 12 ;
+	private final int SITE_KUAIDU = 13 ;
 
 	public class FoxTaskDownPage implements Runnable { // 多线程任务更新页面列表
 		List<Map<String, Object>> taskList;
@@ -124,9 +125,19 @@ public class Activity_BookList extends ListActivity {
 			if ( bookurl.indexOf("zhuishushenqi.com") > -1 ) {
 				site_type = SITE_ZSSQ ;
 			}
+			if ( bookurl.indexOf(".qreader.") > -1 ) {
+				site_type = SITE_KUAIDU ;
+			}
 			
 			String html = "";
 			switch(site_type) {
+			case SITE_KUAIDU:
+				if (existList.length() > 3) {
+					xx = site_qreader.qreader_GetIndex(bookurl, 55, 1); // 更新模式  最后55章
+				} else {
+					xx = site_qreader.qreader_GetIndex(bookurl, 0, 1); // 更新模式
+				}
+				break;
 			case SITE_ZSSQ:
 				html = FoxBookLib.downhtml(bookurl, "utf-8"); // 下载json
 				if (existList.length() > 3) {
@@ -355,7 +366,7 @@ public class Activity_BookList extends ListActivity {
 				// builder.setIcon(R.drawable.ic_launcher);
 				builder.setTitle("操作:" + lcName);
 				builder.setItems(new String[] { "更新本书", "更新本书目录", "在线查看", "编辑本书信息",
-						"删除本书", "复制书名", "搜索:搜狗", "搜索:宜搜", "搜索:追书神器" },
+						"删除本书", "复制书名", "搜索:搜狗", "搜索:宜搜", "搜索:快读", "搜索:追书神器" },
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog,
 									int which) {
@@ -370,13 +381,19 @@ public class Activity_BookList extends ListActivity {
 									new Thread(new UpdateBook(lcID, lcName, false)).start();
 									foxtip("正在更新目录: " + lcName);
 									break;
-								case 2:
+								case 2: // 在线查看
 									Intent intent = new Intent(
 											Activity_BookList.this,
 											Activity_PageList.class);
 									intent.putExtra("iam", FROM_NET);
 									intent.putExtra("bookurl", lcURL);
 									intent.putExtra("bookname", lcName);
+									if ( lcURL.indexOf("zhuishushenqi.com") > -1 ) {
+										intent.putExtra("searchengine", SITE_ZSSQ);
+									}
+									if ( lcURL.indexOf(".qreader.") > -1 ) {
+										intent.putExtra("searchengine", SITE_KUAIDU);
+									}
 									startActivity(intent);
 									break;
 								case 3:
@@ -408,7 +425,17 @@ public class Activity_BookList extends ListActivity {
 									intent8.putExtra("searchengine", 11);
 									startActivity(intent8);
 									break;
-								case 8: //追书神器
+								case 8:
+									Intent intent13 = new Intent(
+											Activity_BookList.this,
+											Activity_PageList.class);
+									intent13.putExtra("iam", FROM_NET);
+									intent13.putExtra("bookurl", lcURL);
+									intent13.putExtra("bookname", lcName);
+									intent13.putExtra("searchengine", SITE_KUAIDU);
+									startActivity(intent13);
+									break;
+								case 9: //追书神器
 									Intent intent9 = new Intent(Activity_BookList.this, Activity_QuickSearch.class);
 									intent9.putExtra("bookname", lcName);
 									intent9.putExtra("searchengine", 12);

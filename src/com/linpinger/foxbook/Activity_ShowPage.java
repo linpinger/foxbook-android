@@ -42,6 +42,7 @@ public class Activity_ShowPage extends Activity {
 	private int SE_TYPE = 1; // ËÑË÷ÒýÇæ
 	private final int SE_EASOU = 11 ;
 	private final int SE_ZSSQ = 12 ;
+	private final int SE_KUAIDU = 13 ;
 
 	
 	protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +94,9 @@ public class Activity_ShowPage extends Activity {
 				case SE_ZSSQ:
 					text = FoxBookLib.downhtml(pageurl, "utf-8");
 					text = site_zssq.json2Text(text);
+					break;
+				case SE_KUAIDU:
+					text = site_qreader.qreader_GetContent(pageurl);
 					break;
 				default:
 					text = FoxBookLib.updatepage(-1, pageurl) ;
