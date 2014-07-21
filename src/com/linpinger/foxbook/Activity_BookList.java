@@ -114,7 +114,6 @@ public class Activity_BookList extends ListActivity {
 			String bookurl = FoxDB.getOneCell("select url from book where id="
 					+ String.valueOf(bookid)); // 获取 url
 			String existList = FoxDB.getPageListStr(bookid); // 得到旧 list
-			existList = existList.toLowerCase();
 
 			Message msg = Message.obtain();
 			msg.what = IS_MSG;
@@ -155,80 +154,7 @@ public class Activity_BookList extends ListActivity {
 				}
 			}
 
-			int xxSize = xx.size();
-		if ( existList.contains("起止=") ) { // 根据 起止 过滤一下 xx
-//			((ArrayList)xx).trimToSize();
-			Matcher mat = Pattern.compile("(?i)起止=([0-9-]+),([0-9-]+)").matcher(existList);
-			int qz_1 = 0; int qz_2 = 0;
-			while (mat.find()) {
-				qz_1 = Integer.valueOf(mat.group(1));
-				qz_2 = Integer.valueOf(mat.group(2));
-			}
-
-// System.out.println("size: " + xxSize + " - " + qz_2 + " + " + qz_1);
-
-			List<Map<String, Object>> nXX = new ArrayList<Map<String, Object>>(30);
-			// 下面的初始值及判断顺序最好不要随便变动
-			int sIdx = 0 ;
-			int eIdx = xxSize ;
-			int leftIdx = 0 ;
-			if ( qz_2 > 0 ) {
-				sIdx = qz_2 ;
-				leftIdx = eIdx - sIdx ;
-			}
-			if ( qz_1 < 0 ) {
-				eIdx = eIdx + qz_1 ;
-				leftIdx = leftIdx + qz_1;
-			}
-			if (leftIdx > 0 ) {
-				int nSIdx = 0 ;
-				for ( int i=0; i <leftIdx; i++ ) {
-					nSIdx = sIdx + i ;
-					nXX.add(xx.get(nSIdx)) ;
-				}
-				xx = nXX ;
-			} else { // 章节数量为负
-				if ( 55 == xxSize ) {
-					String jj[] = existList.split("\n") ;
-					if ( jj.length > 2 ) { // 截取已删除记录中第一条之后的记录，如果新章节>55可能会悲剧
-						String sToBeComp = jj[jj.length - 2] ;
-						List<Map<String, Object>> nX2 = new ArrayList<Map<String, Object>>(30);
-						Iterator itr=xx.iterator();
-						String nowurl = "";
-						boolean bFillArray = false;
-						while( itr.hasNext()) {
-							HashMap<String, Object> mm = (HashMap<String, Object>)itr.next();
-							nowurl = mm.get("url").toString() ;
-							if ( sToBeComp.contains(nowurl) ) {
-								bFillArray = true ;
-								nX2.add(mm) ;
-							} else {
-								if ( bFillArray ) {
-									nX2.add(mm) ;
-								}
-							}
-						}
-						xx = nX2 ;
-					} else {
-		System.out.println("error: jj < 2 : " + jj.length);
-					}
-				} else {  // 下面放的代码是没有新章节的处理方法
-					return ;
-				}
-			}
-		}
-
-			// 比较得到新章节
-			String nowURL;
-			ArrayList<HashMap<String, Object>> newPages = new ArrayList<HashMap<String, Object>>();
-			Iterator<Map<String, Object>> itr = xx.iterator();
-			while (itr.hasNext()) {
-				HashMap<String, Object> mm = (HashMap<String, Object>) itr.next();
-				nowURL = (String) mm.get("url");
-				if ( ! existList.contains(nowURL.toLowerCase() + "|") ) { // 新章节
-					newPages.add(mm);
-				}
-			}
+			ArrayList<HashMap<String, Object>> newPages = (ArrayList<HashMap<String, Object>>)FoxBookLib.compare2GetNewPages(xx, existList) ;
 			int newpagecount = newPages.size(); // 新章节数，便于统计
 
 			if (newpagecount == 0) {
@@ -288,11 +214,12 @@ public class Activity_BookList extends ListActivity {
 			} else {
 			// 单线程循环更新页面
 			Iterator<Map<String, Object>> itrz = nbl.iterator();
+//			String nowURL = "";
 			Integer nowpageid = 0;
 			int nowCount = 0;
 			while (itrz.hasNext()) {
 				HashMap<String, Object> nn = (HashMap<String, Object>) itrz.next();
-				nowURL = (String) nn.get("url");
+//				nowURL = (String) nn.get("url");
 				nowpageid = (Integer) nn.get("id");
 
 				++nowCount;
