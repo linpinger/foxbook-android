@@ -240,6 +240,7 @@ public class FoxBookLib {
 				maxurllen = (Integer) key;
 			}
 		}
+		int maxurllensma = maxurllen - 1;
 		int maxurllenbig = maxurllen + 1;
 
 		List<Map<String, Object>> od = new ArrayList<Map<String, Object>>(100);
@@ -251,7 +252,7 @@ public class FoxBookLib {
 		while (itr.hasNext()) {
 			HashMap<String, Object> mm = (HashMap<String, Object>) itr.next();
 			nowlen = (Integer) mm.get("len");
-			if (maxurllen == nowlen || maxurllenbig == nowlen) {
+			if (maxurllensma == nowlen || maxurllen == nowlen || maxurllenbig == nowlen) {
 				oi = new HashMap<String, Object>();
 				oi.put("url", (String) mm.get("url"));
 				oi.put("name", (String) mm.get("name"));
