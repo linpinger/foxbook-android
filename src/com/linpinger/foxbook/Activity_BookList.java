@@ -6,9 +6,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -50,9 +47,7 @@ public class Activity_BookList extends ListActivity {
 	private final int FROM_DB = 1;
 	private final int FROM_NET = 2;
 	private long mExitTime;
-	private int anowID, aisEnd; // 全部更新里面使用的变量
-	private String anowName;
-	private int upthreadcount; // 更新书籍计数
+
 	private int upchacount;    // 新增章节计数
 	
 //	private final int SITE_EASOU = 11 ;
@@ -96,14 +91,57 @@ public class Activity_BookList extends ListActivity {
 		}
 	}
 
+	public class UpdateAllBook implements Runnable {
+		public void run() {
+			Message msg;
+			ArrayList<Thread> threadList = new ArrayList<Thread>(30);
+            Thread nowT;
+            
+        	int anowID, aisEnd; // 全部更新里面使用的变量
+        	String anowName, anowURL;
+        	
+			upchacount = 0 ;
+			Iterator<Map<String, Object>> itrl = data.iterator();
+			HashMap<String, Object> jj;
+			while (itrl.hasNext()) {
+				jj = (HashMap<String, Object>) itrl.next();
+				anowID = (Integer) jj.get("id");
+				anowURL = (String) jj.get("url");
+				anowName = (String) jj.get("name");
+				aisEnd = (Integer) jj.get("isend");
+				if (1 != aisEnd) {
+					nowT = new Thread(new UpdateBook(anowID, anowURL, anowName,true));
+					threadList.add(nowT);
+					nowT.start();
+				}
+			}
+			
+            Iterator<Thread> itrT = threadList.iterator();
+            while (itrT.hasNext()) {
+                nowT = (Thread) itrT.next();
+                try {
+                    nowT.join();
+                } catch (Exception ex) {
+                    System.out.println("等待线程错误: " + ex.toString());
+                }
+            }
+            
+			msg = Message.obtain();
+			msg.what = IS_MSG;
+			msg.obj = "共 " + upchacount + " 新章节，全部更新完毕" ;
+			handler.sendMessage(msg);
+		}
+	}
 
 	public class UpdateBook implements Runnable { // 后台线程更新书
 		private int bookid;
 		private String bookname;
+		private String bookurl ;
 		private boolean bDownPage = true;
 
-		UpdateBook(int inbookid, String inbookname, boolean bDownPage) {
+		UpdateBook(int inbookid, String inBookURL, String inbookname, boolean bDownPage) {
 			this.bookid = inbookid;
+			this.bookurl = inBookURL;
 			this.bookname = inbookname;
 			this.bDownPage = bDownPage;
 		}
@@ -111,8 +149,7 @@ public class Activity_BookList extends ListActivity {
 		@Override
 		public void run() {
 			List<Map<String, Object>> xx;
-			String bookurl = FoxDB.getOneCell("select url from book where id="
-					+ String.valueOf(bookid)); // 获取 url
+//			String bookurl = FoxDB.getOneCell("select url from book where id=" + String.valueOf(bookid)); // 获取 url
 			String existList = FoxDB.getPageListStr(bookid); // 得到旧 list
 
 			Message msg = Message.obtain();
@@ -300,12 +337,12 @@ public class Activity_BookList extends ListActivity {
 								switch (which) {
 								case 0:
 									upchacount = 0 ;
-									new Thread(new UpdateBook(lcID, lcName, true)).start();
+									new Thread(new UpdateBook(lcID, lcURL, lcName, true)).start();
 									foxtip("正在更新: " + lcName);
 									break;
 								case 1:
 									upchacount = 0 ;
-									new Thread(new UpdateBook(lcID, lcName, false)).start();
+									new Thread(new UpdateBook(lcID, lcURL, lcName, false)).start();
 									foxtip("正在更新目录: " + lcName);
 									break;
 								case 2: // 在线查看
@@ -406,13 +443,7 @@ public class Activity_BookList extends ListActivity {
 					foxtip((String) msg.obj);
 					break;
 				case IS_REFRESHLIST:
-					--upthreadcount;
 					refresh_BookList(); // 刷新LV中的数据
-					if (upthreadcount <1 ){
-						setTitle("共 " + upchacount + " 新章节，全部更新完毕");
-					} else {
-						setTitle("剩余线程: " + upthreadcount);
-					}
 					break;
 				case IS_NEWVER:
 					setTitle((String)msg.obj);
@@ -458,29 +489,16 @@ public class Activity_BookList extends ListActivity {
 	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作
 		switch (item.getItemId()) {
 		case R.id.action_updateall: // 更新所有
-			upthreadcount = 0;
-			upchacount = 0 ;
-			Iterator<Map<String, Object>> itrl = data.iterator();
-			HashMap<String, Object> jj;
-			while (itrl.hasNext()) {
-				jj = (HashMap<String, Object>) itrl.next();
-				anowID = (Integer) jj.get("id");
-				anowName = (String) jj.get("name");
-				aisEnd = (Integer) jj.get("isend");
-				if (1 != aisEnd) {
-					++ upthreadcount;
-					new Thread(new UpdateBook(anowID, anowName,true)).start();
-				}
-			}
+			new Thread(new UpdateAllBook()).start();
 			break;
 		case R.id.action_vacuum:
 			FoxDB.vacuumDB();
 			foxtip("数据库已缩小");
 			break;
 		case R.id.action_switchdb:
-			FoxDB.switchDB();
+			String nowPath = FoxDB.switchDB();
 			refresh_BookList(); // 刷新LV中的数据
-			foxtip("数据库已切换");
+			foxtip("切换到: " + nowPath);
 			break;
 		case R.id.action_refresh:
 			refresh_BookList(); // 刷新LV中的数据

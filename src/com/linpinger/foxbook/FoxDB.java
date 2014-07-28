@@ -1,6 +1,7 @@
 package com.linpinger.foxbook;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,7 +16,7 @@ import android.os.Environment;
 public class FoxDB {
 	private static String dbpath = Environment.getExternalStorageDirectory()
 			.getPath() + File.separator + "FoxBook.db3";
-	private static int dbNum = 1 ;
+	private static int nowDBnum = 1 ;
 
 	public static List<Map<String, Object>> getUMDArray(){
 		SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(new File(dbpath), null);
@@ -369,22 +370,47 @@ public class FoxDB {
 		db.execSQL("vacuum");
 		db.close();
 	}
-	public static void switchDB() { // 切换数据库路径
+	public static String switchDB() { // 切换数据库路径
 		String rootDir = Environment.getExternalStorageDirectory().getPath() + File.separator ;
-		switch (dbNum) {
-		case 1:
-			dbpath = rootDir + "FoxBook.db3.old";
-			dbNum = 2;
-			createDBIfNotExist();
-			break;
-		case 2:
-			dbpath = rootDir + "FoxBook.db3";
-			dbNum = 1;
-			createDBIfNotExist();
-			break;
-		}
+		ArrayList<String> dbList = getDBList(rootDir);
+		
+        int countDBs = dbList.size();
+        ++nowDBnum;
+        if ( nowDBnum >= countDBs ) {
+            nowDBnum = 0 ;
+        }
+        dbpath = dbList.get(nowDBnum) ;
+        createDBIfNotExist();
+        return dbpath;
 	}
 
+    public static ArrayList<String> getDBList(String DBDir) {
+        ArrayList<String> retList = new ArrayList<String>(9); // 最多9个路径，以后可以按需修改
+        retList.add(DBDir + "FoxBook.db3");
+
+        File xx = new File(DBDir);
+        File[] fff = xx.listFiles(new FileFilter() {
+            public boolean accept(File ff) {
+                if (ff.isFile()) {
+                    if (ff.toString().endsWith(".db3")) {
+                        if (ff.getName().equalsIgnoreCase("FoxBook.db3")) {
+                            return false;
+                        } else {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        });
+
+        int fc = fff.length;
+        for (int i = 0; i < fc; i++) {
+            retList.add(fff[i].getAbsolutePath());
+        }
+        return retList;
+    }
+    
 	public static String getOneCell(String inSQL) { // 获取一个cell
 		SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(
 				new File(dbpath), null);
