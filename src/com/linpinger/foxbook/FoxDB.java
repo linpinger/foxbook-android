@@ -16,7 +16,7 @@ import android.os.Environment;
 public class FoxDB {
 	private static String dbpath = Environment.getExternalStorageDirectory()
 			.getPath() + File.separator + "FoxBook.db3";
-	private static int nowDBnum = 1 ;
+	private static int nowDBnum = 0 ;
 
 	public static List<Map<String, Object>> getUMDArray(){
 		SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(new File(dbpath), null);
