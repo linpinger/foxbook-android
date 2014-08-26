@@ -28,18 +28,18 @@ public final class R {
         public static final int parchment_paper=0x7f020001;
     }
     public static final class id {
+        public static final int action_all2epub=0x7f090018;
         public static final int action_all2txt=0x7f09001a;
         public static final int action_all2umd=0x7f090019;
         public static final int action_allpagelist=0x7f090010;
-        public static final int action_refresh=0x7f090017;
-        public static final int action_regen_pageid=0x7f090014;
-        public static final int action_searchbook=0x7f090015;
-        public static final int action_sortbook_asc=0x7f090012;
-        public static final int action_sortbook_desc=0x7f090013;
+        public static final int action_isMemDB=0x7f090015;
+        public static final int action_refresh=0x7f090016;
+        public static final int action_searchbook=0x7f090014;
+        public static final int action_sortbook_asc=0x7f090013;
+        public static final int action_sortbook_desc=0x7f090012;
         public static final int action_switchdb=0x7f090011;
         public static final int action_updateall=0x7f09000f;
-        public static final int action_updatepkg=0x7f090018;
-        public static final int action_vacuum=0x7f090016;
+        public static final int action_updatepkg=0x7f090017;
         public static final int btn_save=0x7f090005;
         public static final int button1=0x7f090009;
         public static final int button2=0x7f09000a;

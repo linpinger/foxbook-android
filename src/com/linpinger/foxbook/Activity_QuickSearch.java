@@ -19,6 +19,7 @@ import android.widget.SimpleAdapter;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class Activity_QuickSearch extends ListActivity {
+	public static FoxMemDB oDB;
 	private ListView lv_sitelist ;
 	SimpleAdapter adapter;
 	private List<Map<String, Object>> data;
@@ -96,6 +97,7 @@ public class Activity_QuickSearch extends ListActivity {
 				intent.putExtra("bookname", book_name);
 				intent.putExtra("bShowAll", false);
 				intent.putExtra("searchengine", SE_TYPE);
+				Activity_PageList.oDB = oDB;
 				startActivity(intent);
 			}
 		};

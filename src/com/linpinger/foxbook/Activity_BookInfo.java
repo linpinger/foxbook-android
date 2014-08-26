@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 public class Activity_BookInfo extends Activity {
+	public static FoxMemDB oDB;
 	private Button btn_save;
 	private TextView tv_bid;
 	private EditText edt_bname, edt_isend, edt_qdid, edt_burl, edt_delurl;
@@ -39,7 +40,7 @@ public class Activity_BookInfo extends Activity {
 		
 		init_controls() ; // 初始化各控件
 		// 显示数据
-		Map<String,String> info = FoxDB.getOneRow("select name as bn, url as bu, isEnd as bend, qidianid as qid, delurl as list from book where id=" + bookid);
+		Map<String,String> info = oDB.getOneRow("select name as bn, url as bu, isEnd as bend, qidianid as qid, delurl as list from book where id=" + bookid);
 		tv_bid.setText(String.valueOf(bookid)) ;
 		edt_bname.setText(info.get("bn"));
 		edt_isend.setText(info.get("bend"));
@@ -56,7 +57,7 @@ public class Activity_BookInfo extends Activity {
 				cc.put("DelURL", edt_delurl.getText().toString());
 				cc.put("QiDianID", edt_qdid.getText().toString());
 				cc.put("isEnd", edt_isend.getText().toString());
-				FoxDB.update_cell("Book", cc, "id=" + bookid) ; // 修改单个字段
+				FoxMemDBHelper.update_cell("Book", cc, "id=" + bookid, oDB) ; // 修改单个字段
 				setResult(RESULT_OK, (new Intent()).setAction("已修改书籍信息"));
 				finish();
 			}

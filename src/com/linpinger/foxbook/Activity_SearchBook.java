@@ -22,6 +22,7 @@ import java.lang.String;
 import java.net.URLEncoder;
 
 public class Activity_SearchBook extends Activity {
+	public static FoxMemDB oDB;
 	private long mExitTime ;
 	private WebView wv;
 	private EditText et;
@@ -86,7 +87,7 @@ public class Activity_SearchBook extends Activity {
 				intent.putExtra("bookname", book_name);
 				intent.putExtra("html", html);
 				intent.putExtra("bShowAll", bShowAll);
-
+				Activity_PageList.oDB = oDB;
 				startActivity(intent);
 				return false;
 			}
@@ -172,6 +173,7 @@ public class Activity_SearchBook extends Activity {
 			Intent intent = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
 			intent.putExtra("bookname", book_name);
 			intent.putExtra("searchengine", 1);
+			Activity_QuickSearch.oDB = oDB;
 			startActivity(intent);
 			break;
 		case R.id.sm_QuickSearchBing:  // ¿ìËÑ:Bing
@@ -179,6 +181,7 @@ public class Activity_SearchBook extends Activity {
 			Intent itb = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
 			itb.putExtra("bookname", book_name);
 			itb.putExtra("searchengine", 3);
+			Activity_QuickSearch.oDB = oDB;
 			startActivity(itb);
 			break;
 
@@ -187,6 +190,7 @@ public class Activity_SearchBook extends Activity {
 			Intent ityh = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
 			ityh.putExtra("bookname", book_name);
 			ityh.putExtra("searchengine", 2);
+			Activity_QuickSearch.oDB = oDB;
 			startActivity(ityh);
 			break;
 

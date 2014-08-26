@@ -30,10 +30,10 @@ import android.os.Environment;
 public class FoxBookLib {
 	
 
-	public static void all2txt() { // 所有书籍转为txt
+	public static void all2txt(FoxMemDB db) { // 所有书籍转为txt
 		String txtPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "fox.txt";
 		String sContent = "" ;
-		List<Map<String, Object>> data = FoxDB.getUMDArray();
+		List<Map<String, Object>> data = FoxMemDBHelper.getEbookChaters(false, db);
 		Iterator<Map<String, Object>> itr = data.iterator();
 		while (itr.hasNext()) {
 			HashMap<String, Object> mm = (HashMap<String, Object>) itr.next();
@@ -51,13 +51,26 @@ public class FoxBookLib {
 		}
 	}
 	
+	public static void all2epub(FoxMemDB db) {// 所有书籍转为epub
+		String epubPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "fox.epub";
+		FoxEpub oEpub = new FoxEpub("FoxBook", epubPath);
+		
+		List<Map<String, Object>> data = FoxMemDBHelper.getEbookChaters(true, db);
+		Iterator<Map<String, Object>> itr = data.iterator();
+		HashMap<String, Object> mm;
+		while (itr.hasNext()) {
+			mm = (HashMap<String, Object>) itr.next();
+			oEpub.AddChapter((String)mm.get("title"), (String)mm.get("content"), -1);
+		}
+		oEpub.SaveTo();
+	}
 
-	public static void all2umd() { // 所有书籍转为umd
+	public static void all2umd(FoxMemDB db) { // 所有书籍转为umd
 		String umdPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "fox.umd";
 		Umd umd = new Umd();
 		
 		UmdHeader uh = umd.getHeader(); // 设置书籍信息
-		uh.setTitle("FoxBook所有章节");
+		uh.setTitle("FoxBook");
 		uh.setAuthor("爱尔兰之狐");
 		uh.setBookType("小说");
 		uh.setYear("2014");
@@ -68,7 +81,7 @@ public class FoxBookLib {
 
 		
 		UmdChapters  cha = umd.getChapters(); // 设置内容
-		List<Map<String, Object>> data = FoxDB.getUMDArray();
+		List<Map<String, Object>> data = FoxMemDBHelper.getEbookChaters(false, db);
 		Iterator<Map<String, Object>> itr = data.iterator();
 		while (itr.hasNext()) {
 			HashMap<String, Object> mm = (HashMap<String, Object>) itr.next();
@@ -91,14 +104,14 @@ public class FoxBookLib {
 	}
 	
 	
-	public static void updatepage(int pageid) {
-		Map<String, String> xx = FoxDB.getOneRow("select book.url as bu,page.url as pu from book,page where page.id=" + String.valueOf(pageid) + " and  book.id in (select bookid from page where id=" + String.valueOf(pageid) + ")");
+	public static void updatepage(int pageid, FoxMemDB db) {
+		Map<String, String> xx = db.getOneRow("select book.url as bu,page.url as pu from book,page where page.id=" + String.valueOf(pageid) + " and  book.id in (select bookid from page where id=" + String.valueOf(pageid) + ")");
 		String fullPageURL = getFullURL(xx.get("bu"),xx.get("pu"));		// 获取bookurl, pageurl 合成得到url
 
-		updatepage(pageid, fullPageURL) ;
+		updatepage(pageid, fullPageURL, db) ;
 	}
 	
-	public static String updatepage(int pageid, String pageFullURL) {
+	public static String updatepage(int pageid, String pageFullURL, FoxMemDB db) {
 		String text = "";
 		String html = "" ;
 		int site_type = 0 ; // 特殊页面处理 
@@ -137,7 +150,7 @@ public class FoxBookLib {
 		}
 
 		if ( pageid > 0 ) { // 当pageid小于0时不写入数据库，主要用于在线查看
-			FoxDB.setPageContent(pageid, text); // 写入数据库
+			FoxMemDBHelper.setPageContent(pageid, text,db); // 写入数据库
 			return String.valueOf(0);
 		} else {
 			return text;

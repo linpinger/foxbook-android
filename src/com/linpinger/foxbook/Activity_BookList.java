@@ -13,6 +13,7 @@ import android.app.ListActivity;
 import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ import android.view.View;
 
 public class Activity_BookList extends ListActivity {
 	
+	public FoxMemDB oDB  ; // 默认使用MemDB
 	public int downThread = 9 ;  // 页面下载任务线程数
 	public int leftThread = downThread ;
 
@@ -53,6 +55,13 @@ public class Activity_BookList extends ListActivity {
 //	private final int SITE_EASOU = 11 ;
 	private final int SITE_ZSSQ = 12 ;
 	private final int SITE_KUAIDU = 13 ;
+	
+	// 设置: isMemDB
+	SharedPreferences settings;
+	SharedPreferences.Editor editor;
+	public static final String FOXSETTING = "FOXSETTING";
+	private boolean isMemDB = true;
+
 
 	public class FoxTaskDownPage implements Runnable { // 多线程任务更新页面列表
 		List<Map<String, Object>> taskList;
@@ -74,7 +83,7 @@ public class Activity_BookList extends ListActivity {
 				nowID = (Integer) mm.get("id");
 				nowURL = (String) mm.get("url");
 
-				FoxBookLib.updatepage(nowID, nowURL);
+				FoxBookLib.updatepage(nowID, nowURL, oDB);
 				
 				msg = Message.obtain();
 				msg.what = IS_MSG;
@@ -150,7 +159,7 @@ public class Activity_BookList extends ListActivity {
 		public void run() {
 			List<Map<String, Object>> xx;
 //			String bookurl = FoxDB.getOneCell("select url from book where id=" + String.valueOf(bookid)); // 获取 url
-			String existList = FoxDB.getPageListStr(bookid); // 得到旧 list
+			String existList = FoxMemDBHelper.getPageListStr(bookid, oDB); // 得到旧 list
 
 			Message msg = Message.obtain();
 			msg.what = IS_MSG;
@@ -212,12 +221,12 @@ public class Activity_BookList extends ListActivity {
 			}
 
 			if ( newpagecount > 0 ) {
-				FoxDB.inserNewPages(newPages, bookid); // 添加到数据库
+				FoxMemDBHelper.inserNewPages(newPages, bookid, oDB); // 添加到数据库
 			}
 			
 
 			if (bDownPage) {
-			List<Map<String, Object>> nbl = FoxDB.getBookNewPages(bookid);
+			List<Map<String, Object>> nbl = FoxMemDBHelper.getBookNewPages(bookid, oDB);
 			int cTask = nbl.size() ; // 总任务数
 			
 			if ( cTask > 25 ) { // 当新章节数大于 25章就采用多任务下载模式
@@ -265,7 +274,7 @@ public class Activity_BookList extends ListActivity {
 				msg.obj = bookname + ": 下载章节: " + nowCount + " / " + newpagecount ;
 				handler.sendMessage(msg);
 
-				FoxBookLib.updatepage(nowpageid);
+				FoxBookLib.updatepage(nowpageid, oDB);
 			}
 			} // 单线程更新
 			} // bDownPage
@@ -299,6 +308,7 @@ public class Activity_BookList extends ListActivity {
 					intent.putExtra("bookurl", tmpurl);
 					intent.putExtra("bookname", tmpname);
 					intent.putExtra("bookid", tmpid);
+					Activity_PageList.oDB = oDB;
 					startActivityForResult(intent, 0);
 				}
 			}
@@ -358,6 +368,7 @@ public class Activity_BookList extends ListActivity {
 									if ( lcURL.indexOf(".qreader.") > -1 ) {
 										intent.putExtra("searchengine", SITE_KUAIDU);
 									}
+									Activity_PageList.oDB = oDB;
 									startActivity(intent);
 									break;
 								case 3:
@@ -365,10 +376,11 @@ public class Activity_BookList extends ListActivity {
 											Activity_BookList.this,
 											Activity_BookInfo.class);
 									itti.putExtra("bookid", lcID);
+									Activity_BookInfo.oDB = oDB;
 									startActivityForResult(itti, 0);
 									break;
 								case 4:
-									FoxDB.deleteBook(lcID);
+									FoxMemDBHelper.deleteBook(lcID, oDB);
 									refresh_BookList();
 									foxtip("已删除书:" + lcName);
 									break;
@@ -381,12 +393,14 @@ public class Activity_BookList extends ListActivity {
 									Intent intent7 = new Intent(Activity_BookList.this, Activity_QuickSearch.class);
 									intent7.putExtra("bookname", lcName);
 									intent7.putExtra("searchengine", 1);
+									Activity_QuickSearch.oDB = oDB;
 									startActivity(intent7);
 									break;
 								case 7: //easou
 									Intent intent8 = new Intent(Activity_BookList.this, Activity_QuickSearch.class);
 									intent8.putExtra("bookname", lcName);
 									intent8.putExtra("searchengine", 11);
+									Activity_QuickSearch.oDB = oDB;
 									startActivity(intent8);
 									break;
 								case 8:
@@ -397,12 +411,14 @@ public class Activity_BookList extends ListActivity {
 									intent13.putExtra("bookurl", lcURL);
 									intent13.putExtra("bookname", lcName);
 									intent13.putExtra("searchengine", SITE_KUAIDU);
+									Activity_PageList.oDB = oDB;
 									startActivity(intent13);
 									break;
 								case 9: //追书神器
 									Intent intent9 = new Intent(Activity_BookList.this, Activity_QuickSearch.class);
 									intent9.putExtra("bookname", lcName);
 									intent9.putExtra("searchengine", 12);
+									Activity_QuickSearch.oDB = oDB;
 									startActivity(intent9);
 									break;
 								}
@@ -418,7 +434,7 @@ public class Activity_BookList extends ListActivity {
 	}
 
 	private void refresh_BookList() { // 刷新LV中的数据
-		data = FoxDB.getBookList(); // 获取书籍列表
+		data = FoxMemDBHelper.getBookList(oDB); // 获取书籍列表
 		// 设置listview的Adapter
 		SimpleAdapter adapter = new SimpleAdapter(this, data,
 				R.layout.lv_item_booklist, new String[] { "name", "count" },
@@ -468,12 +484,17 @@ public class Activity_BookList extends ListActivity {
 		setContentView(R.layout.activity_booklist);
 		mExitTime = System.currentTimeMillis(); // 当前时间，便于两次退出
 
+		// 获取设置，是否使用内存数据库
+        settings = getSharedPreferences(FOXSETTING, 0);
+        editor = settings.edit();
+        this.isMemDB = settings.getBoolean("isMemDB", isMemDB);
+
+		oDB = new FoxMemDB(this.isMemDB) ; // 默认使用MemDB
+		
 		init_handler(); // 初始化一个handler 用于处理后台线程的消息
 
 		lv_booklist = getListView(); // 获取LV
 
-		FoxDB.createDBIfNotExist(); // 如果数据库不存在，创建表结构
-		
 		refresh_BookList(); // 刷新LV中的数据
 
 		init_LV_item_click(); // 初始化 单击 条目 的行为
@@ -483,6 +504,12 @@ public class Activity_BookList extends ListActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) { // 创建菜单
 		getMenuInflater().inflate(R.menu.booklist, menu);
+		int itemcount = menu.size();
+		for ( int i=0; i< itemcount; i++){
+			if ( menu.getItem(i).getItemId() == R.id.action_isMemDB ) {
+				menu.getItem(i).setChecked(this.isMemDB);
+			}
+		}
 		return true;
 	}
 
@@ -491,33 +518,39 @@ public class Activity_BookList extends ListActivity {
 		case R.id.action_updateall: // 更新所有
 			new Thread(new UpdateAllBook()).start();
 			break;
-		case R.id.action_vacuum:
-			FoxDB.vacuumDB();
-			foxtip("数据库已缩小");
-			break;
 		case R.id.action_switchdb:
-			String nowPath = FoxDB.switchDB();
-			refresh_BookList(); // 刷新LV中的数据
-			foxtip("切换到: " + nowPath);
+			this.setTitle("切换数据库");
+			(new Thread(){
+				public void run(){
+					String nowPath = oDB.switchMemDB();
+					Message msg = Message.obtain();
+					msg.what = IS_REGENID;
+					msg.obj = "已切换到: " + nowPath;
+					handler.sendMessage(msg);
+				}
+			}).start();
 			break;
 		case R.id.action_refresh:
 			refresh_BookList(); // 刷新LV中的数据
 			foxtip("ListView已刷新");
 			break;
-		case R.id.action_searchbook:
+		case R.id.action_searchbook:  // 打开搜索书籍
 			Intent intent = new Intent(Activity_BookList.this,
 					Activity_SearchBook.class);
+			Activity_SearchBook.oDB = oDB;
 			startActivityForResult(intent,0);
 			break;
-		case R.id.action_allpagelist:
+		case R.id.action_allpagelist:  // 所有章节
 			Intent ittall = new Intent(Activity_BookList.this, Activity_AllPageList.class);
 			ittall.putExtra("howmany", 0); // 显示多少章节
+			Activity_AllPageList.oDB = oDB;
 			startActivityForResult(ittall, 0);
 			break;
 		case R.id.action_sortbook_asc: // 顺序排序
-			foxtip("开始生成ID...");
+			this.setTitle("顺序排序");
 			(new Thread(){ public void run(){
-					FoxDB.regenID(1);
+					FoxMemDBHelper.regenID(1, oDB); // 顺序bookid
+					FoxMemDBHelper.regenID(9, oDB); // 重新生成页面ID
 					Message msg = Message.obtain();
 					msg.what = IS_REGENID;
 					msg.obj = "已按页面页数顺序重排好书籍";
@@ -525,30 +558,44 @@ public class Activity_BookList extends ListActivity {
 				} }).start();
 			break;
 		case R.id.action_sortbook_desc: // 倒序排序
-			foxtip("开始生成ID...");
+			this.setTitle("倒序排序");
 			(new Thread(){ public void run(){
-				FoxDB.regenID(2);
+				FoxMemDBHelper.regenID(2, oDB); // 倒序bookid
+				FoxMemDBHelper.regenID(9, oDB); // 重新生成页面ID
 				Message msg = Message.obtain();
 				msg.what = IS_REGENID;
 				msg.obj = "已按页面页数倒序重排好书籍";
 				handler.sendMessage(msg);
 			} }).start();
 			break;
-		case R.id.action_regen_pageid:  // 重排pageid
-			foxtip("开始生成ID...");
-			(new Thread(){ public void run(){
-				FoxDB.regenID(9);
-				Message msg = Message.obtain();
-				msg.what = IS_REGENID;
-				msg.obj = "已重排页面ID";
-				handler.sendMessage(msg);
-			} }).start();
+		case R.id.action_isMemDB:
+			isMemDB = ! item.isChecked() ;
+			item.setChecked(isMemDB);
+			editor.putBoolean("isMemDB", isMemDB);
+			editor.commit();
+			if (isMemDB) {
+				foxtip("切换到内存数据库模式，重启程序生效");
+			} else {
+				foxtip("切换到普通模式，重启程序生效");
+			}
+			break;
+		case R.id.action_all2epub:
+			setTitle("开始转换成EPUB...");
+			(new Thread(){
+				public void run(){
+					FoxBookLib.all2epub(oDB);
+					Message msg = Message.obtain();
+					msg.what = IS_MSG;
+					msg.obj = "全部转换完毕: /sdcard/fox.epub";
+					handler.sendMessage(msg);
+				}
+			}).start();
 			break;
 		case R.id.action_all2umd:
 			setTitle("开始转换成UMD...");
 			(new Thread(){
 				public void run(){
-					FoxBookLib.all2umd();
+					FoxBookLib.all2umd(oDB);
 					Message msg = Message.obtain();
 					msg.what = IS_MSG;
 					msg.obj = "全部转换完毕: /sdcard/fox.umd";
@@ -560,7 +607,7 @@ public class Activity_BookList extends ListActivity {
 			setTitle("开始转换成TXT...");
 			(new Thread(){
 				public void run(){
-					FoxBookLib.all2txt();
+					FoxBookLib.all2txt(oDB);
 					Message msg = Message.obtain();
 					msg.what = IS_MSG;
 					msg.obj = "全部转换完毕: /sdcard/fox.txt";
@@ -598,9 +645,12 @@ public class Activity_BookList extends ListActivity {
 	public boolean onKeyDown(int keyCoder, KeyEvent event) { // 按键响应
 		if (keyCoder == KeyEvent.KEYCODE_BACK) {
 			if ((System.currentTimeMillis() - mExitTime) > 2000) { // 两次退出键间隔
-				Toast.makeText(this, "再按一次返回键退出程序", Toast.LENGTH_SHORT).show();
+				foxtip("再按一次返回键退出程序");
 				mExitTime = System.currentTimeMillis();
 			} else {
+//				foxtip("退出中，正在保存数据库..."); // 显示不了
+				oDB.closeMemDB();
+				this.finish();
 				System.exit(0);
 			}
 			return true;

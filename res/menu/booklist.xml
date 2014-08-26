@@ -15,27 +15,29 @@
         android:icon="@android:drawable/ic_menu_rotate"
         android:showAsAction="never|withText"
         android:title="切换数据库"/>
-    <item
-        android:id="@+id/action_sortbook_asc"
-        android:title="按页数顺序排列"/>
-    <!-- android:icon="@android:drawable/ic_menu_sort_alphabetically" -->
 
     <item
         android:id="@+id/action_sortbook_desc"
         android:title="按页数倒序排列"/>
     <!-- android:icon="@android:drawable/ic_menu_sort_by_size" -->
-    <item
-        android:id="@+id/action_regen_pageid"
-        android:title="重新生成页面ID"/>
+
     <!-- android:icon="@android:drawable/ic_menu_set_as" -->
+        <item
+        android:id="@+id/action_sortbook_asc"
+        android:title="按页数顺序排列"/>
+    <!-- android:icon="@android:drawable/ic_menu_sort_alphabetically" -->
+    
     <item
         android:id="@+id/action_searchbook"
         android:title="搜索小说"/>
     <!-- android:icon="@android:drawable/ic_menu_search" -->
-    <item
-        android:id="@+id/action_vacuum"
-        android:title="缩小数据库"/>
     <!-- android:icon="@android:drawable/ic_menu_manage" -->
+    
+        <item
+        android:id="@+id/action_isMemDB"
+        android:checkable="true"
+        android:checked="true"
+        android:title="使用MemDB"/>
     <item
         android:id="@+id/action_refresh"
         android:title="刷新列表"/>
@@ -44,7 +46,9 @@
         android:id="@+id/action_updatepkg"
         android:title="更新本软件"/>
 
-
+    <item
+        android:id="@+id/action_all2epub"
+        android:title="全部转为EPUB"/>
     <!-- android:icon="@android:drawable/ic_menu_compass" -->
     <item
         android:id="@+id/action_all2umd"

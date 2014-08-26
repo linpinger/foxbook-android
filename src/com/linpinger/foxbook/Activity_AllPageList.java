@@ -20,6 +20,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 
 public class Activity_AllPageList extends ListActivity {
+	public static FoxMemDB oDB;
 	private List<Map<String, Object>> data;
 	private ListView lv_pagelist ;
 	
@@ -34,9 +35,9 @@ public class Activity_AllPageList extends ListActivity {
 
 	private void renderListView() { // 刷新LV
 		if ( 0 == howmany ) {
-			data = FoxDB.getPageList("order by bookid,id");
+			data = FoxMemDBHelper.getPageList("order by bookid,id", oDB);
 		} else {
-			data = FoxDB.getPageList("order by bookid,id limit "+ howmany);
+			data = FoxMemDBHelper.getPageList("order by bookid,id limit "+ howmany, oDB);
 		}
 		adapter = new SimpleAdapter(this, data,
 				android.R.layout.simple_list_item_1, new String[] { "name" },
@@ -53,7 +54,7 @@ public class Activity_AllPageList extends ListActivity {
 				String tmpname = (String) chapinfo.get("name");
 				Integer tmpid = (Integer) chapinfo.get("id");
 				Integer tmpbid = (Integer) chapinfo.get("bookid");
-				String bookurl = FoxDB.getOneCell("select url from book where id=" + tmpbid);
+				String bookurl = oDB.getOneCell("select url from book where id=" + tmpbid);
 
 				// setTitle(parent.getItemAtPosition(position).toString());
 				Intent intent = new Intent(Activity_AllPageList.this,
@@ -62,6 +63,7 @@ public class Activity_AllPageList extends ListActivity {
 				intent.putExtra("chapter_id", tmpid);
 				intent.putExtra("chapter_name", tmpname);
 				intent.putExtra("chapter_url", FoxBookLib.getFullURL(bookurl, tmpurl));
+				Activity_ShowPage.oDB = oDB;
 				startActivity(intent);
 			}
 		};
@@ -90,13 +92,13 @@ public class Activity_AllPageList extends ListActivity {
 							public void onClick(DialogInterface dialog,  int which) {
 								switch (which) {
 								case 0:
-									FoxDB.delete_Pages(lcID, true);
+									FoxMemDBHelper.delete_Pages(lcID, true, oDB);
 									foxtip("已删除并记录: " + lcName);
 									data.remove(longclickpos); // 位置可能不太靠谱
 									adapter.notifyDataSetChanged();
 									break;
 								case 1:
-									FoxDB.delete_Pages(lcID, false);
+									FoxMemDBHelper.delete_Pages(lcID, false, oDB);
 									foxtip("已删除: " + lcName);
 									data.remove(longclickpos);
 									adapter.notifyDataSetChanged();
@@ -107,7 +109,7 @@ public class Activity_AllPageList extends ListActivity {
 									for ( int i = 0; i<=longclickpos; ++i) { // 删除数据库记录
 										nHMa = (HashMap<String, Object>) data.get(i);
 										nIDa = (Integer) nHMa.get("id");
-										FoxDB.delete_Pages(nIDa, true);
+										FoxMemDBHelper.delete_Pages(nIDa, true, oDB);
 									}
 									for ( int i = 0; i<=longclickpos; ++i) { // 删除数据结构
 										data.remove(0);
@@ -122,7 +124,7 @@ public class Activity_AllPageList extends ListActivity {
 									for ( int i = longclickpos; i<datasiza; ++i) { // 删除数据库记录
 										nHMb = (HashMap<String, Object>) data.get(i);
 										nIDb = (Integer) nHMb.get("id");
-										FoxDB.delete_Pages(nIDb, true);
+										FoxMemDBHelper.delete_Pages(nIDb, true, oDB);
 									}
 									for ( int i = longclickpos; i<datasiza; ++i) {
 										data.remove(longclickpos);

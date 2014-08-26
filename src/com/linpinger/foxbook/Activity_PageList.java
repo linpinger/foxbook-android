@@ -26,6 +26,8 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 
 public class Activity_PageList extends ListActivity {
+	public static FoxMemDB oDB;
+	
 	private List<Map<String, Object>> data;
 	private ListView lv_pagelist ;
 	
@@ -122,6 +124,7 @@ public class Activity_PageList extends ListActivity {
 				intent.putExtra("chapter_name", tmpname);
 				intent.putExtra("chapter_url", FoxBookLib.getFullURL(bookurl, tmpurl));
 				intent.putExtra("searchengine", SE_TYPE);
+				Activity_ShowPage.oDB = oDB;
 				startActivity(intent);
 			}
 		};
@@ -154,19 +157,19 @@ public class Activity_PageList extends ListActivity {
 							public void onClick(DialogInterface dialog,	 int which) {
 								switch (which) {
 								case 0:
-									FoxDB.delete_Pages(lcID, true);
+									FoxMemDBHelper.delete_Pages(lcID, true, oDB);
 									data.remove(longclickpos); // 位置可能不太靠谱
 									adapter.notifyDataSetChanged();
 									foxtip("已删除并记录: " + lcName);
 									break;
 								case 1:
-									FoxDB.delete_Pages(lcID, false);
+									FoxMemDBHelper.delete_Pages(lcID, false, oDB);
 									data.remove(longclickpos);
 									adapter.notifyDataSetChanged();
 									foxtip("已删除: " + lcName);
 									break;
 								case 2:
-									FoxDB.delete_nowupdown_Pages(lcID, true, true);
+									FoxMemDBHelper.delete_nowupdown_Pages(lcID, true, true, oDB);
 									for ( int i = 0; i<=longclickpos; ++i) {
 										data.remove(0);
 									}
@@ -174,7 +177,7 @@ public class Activity_PageList extends ListActivity {
 									foxtip("已删除并记录: <= " + lcName);
 									break;
 								case 3:
-									FoxDB.delete_nowupdown_Pages(lcID, true, false);
+									FoxMemDBHelper.delete_nowupdown_Pages(lcID, true, false, oDB);
 									for ( int i = 0; i<=longclickpos; ++i) {
 										data.remove(0);
 									}
@@ -182,7 +185,7 @@ public class Activity_PageList extends ListActivity {
 									foxtip("已删除: <= " + lcName);
 									break;
 								case 4:
-									FoxDB.delete_nowupdown_Pages(lcID, false, true);
+									FoxMemDBHelper.delete_nowupdown_Pages(lcID, false, true, oDB);
 									int datasiza = data.size();
 									for ( int i = longclickpos; i<datasiza; ++i) {
 										data.remove(longclickpos);
@@ -191,7 +194,7 @@ public class Activity_PageList extends ListActivity {
 									foxtip("已删除并记录: >= " + lcName);
 									break;
 								case 5:
-									FoxDB.delete_nowupdown_Pages(lcID, false, false);
+									FoxMemDBHelper.delete_nowupdown_Pages(lcID, false, false, oDB);
 									int datasizb = data.size();
 									for ( int i = longclickpos; i<datasizb; ++i) {
 										data.remove(longclickpos);
@@ -203,7 +206,7 @@ public class Activity_PageList extends ListActivity {
 									setTitle("正在更新: " + lcName);
 									(new Thread(){
 										public void run(){
-											FoxBookLib.updatepage(lcID);
+											FoxBookLib.updatepage(lcID, oDB);
 									        handler.sendEmptyMessage(IS_UPDATEPAGE);
 										}
 									}).start();
@@ -281,7 +284,7 @@ public class Activity_PageList extends ListActivity {
 		}
 		if ( FROM_DB == foxfrom) { // DB
 			bookid = itt.getIntExtra("bookid", 0);
-			data = FoxDB.getPageList("where bookid=" + bookid); // 获取页面列表
+			data = FoxMemDBHelper.getPageList("where bookid=" + bookid, oDB); // 获取页面列表
 		}
 
 		renderListView();
@@ -299,13 +302,13 @@ public class Activity_PageList extends ListActivity {
 	public boolean onOptionsItemSelected(MenuItem item) { // 响应菜单
 		switch (item.getItemId()) {
 		case R.id.pm_cleanBook:
-			FoxDB.delete_Book_All_Pages(bookid, true);
+			FoxMemDBHelper.delete_Book_All_Pages(bookid, true, oDB);
 			foxtip("已删除并更新记录");
 			setResult(RESULT_OK, (new Intent()).setAction("已清空某书并写入已删除列表"));
 			finish();
 			break;
 		case R.id.pm_cleanBookND:
-			FoxDB.delete_Book_All_Pages(bookid, false);
+			FoxMemDBHelper.delete_Book_All_Pages(bookid, false, oDB);
 			foxtip("已删除");
 			setResult(RESULT_OK, (new Intent()).setAction("已清空某书并没有写入已删除列表"));
 			finish();
@@ -315,11 +318,12 @@ public class Activity_PageList extends ListActivity {
 				if ( null != bookurl && "" != bookname ) {
 					int nBookID = 0 ;
 					// 新增入数据库，并获取返回bookid
-					nBookID = FoxDB.insertbook(bookname, bookurl);
+					nBookID = FoxMemDBHelper.insertbook(bookname, bookurl, oDB);
 					if ( nBookID < 1 )
 						break ;
 					Intent itti = new Intent(Activity_PageList.this, Activity_BookInfo.class);
 					itti.putExtra("bookid", nBookID);
+					Activity_BookInfo.oDB = oDB;
 					startActivity(itti);
 					setResult(RESULT_OK, (new Intent()).setAction("返回列表"));
 					finish();

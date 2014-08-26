@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class Activity_ShowPage extends Activity {
+	public static FoxMemDB oDB;
 	private static int FROM_DB = 1 ;
 	private static int FROM_NET = 2 ; 
 
@@ -99,7 +100,7 @@ public class Activity_ShowPage extends Activity {
 					text = site_qreader.qreader_GetContent(pageurl);
 					break;
 				default:
-					text = FoxBookLib.updatepage(-1, pageurl) ;
+					text = FoxBookLib.updatepage(-1, pageurl, oDB) ;
 				}
 				Message msg = Message.obtain();
 				msg.what = IS_REFRESH;
@@ -111,7 +112,7 @@ public class Activity_ShowPage extends Activity {
 		if ( FROM_DB == foxfrom ){ // DB
 			pageid =  itt.getIntExtra("chapter_id", 0);
 //			pagetext = FoxDB.getOneCell("select Content from page where id = " + pageid + " and Content is not null" );
-			Map<String,String> infox = FoxDB.getOneRow("select bookid as bid, Content as cc from page where id = " + pageid + " and Content is not null");
+			Map<String,String> infox = oDB.getOneRow("select bookid as bid, Content as cc from page where id = " + pageid + " and Content is not null");
 			pagetext = infox.get("cc") ;
 
 			if ( null == pagetext  ) {
@@ -164,9 +165,9 @@ public class Activity_ShowPage extends Activity {
 				break ;
 			}
 			Map<String,String> pp ;
-			pp = FoxDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where id < " + pageid + " and bookid = " + bookid + " and content is not null order by id desc limit 1"); // 本书内的上一章
+			pp = oDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where id < " + pageid + " and bookid = " + bookid + " and content is not null order by id desc limit 1"); // 本书内的上一章
 			if ( null == pp.get("id") ) {
-				pp = FoxDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where bookid < " + bookid + " and content is not null order by bookid desc, id limit 1");
+				pp = oDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where bookid < " + bookid + " and content is not null order by bookid desc, id limit 1");
 				if ( null == pp.get("name") ) {
 					foxtip("亲，没有上一页了");
 					break;
@@ -186,9 +187,9 @@ public class Activity_ShowPage extends Activity {
 				break ;
 			}
 			Map<String,String> nn;
-			nn = FoxDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where id > " + pageid + " and bookid = " + bookid + " and content is not null limit 1"); // 本书内的下一章
+			nn = oDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where id > " + pageid + " and bookid = " + bookid + " and content is not null limit 1"); // 本书内的下一章
 			if ( null == nn.get("id") ) {
-				nn = FoxDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where bookid > " + bookid + " and content is not null order by bookid, id limit 1");
+				nn = oDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where bookid > " + bookid + " and content is not null order by bookid, id limit 1");
 				if ( null == nn.get("name") ) {
 					foxtip("亲，没有下一页了");
 					break;
