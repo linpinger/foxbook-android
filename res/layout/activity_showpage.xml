@@ -20,7 +20,7 @@
             android:layout_marginRight="5sp"
             android:textSize="19sp"
             android:lineSpacingMultiplier="1.25"
-             android:text="内容..." />
+             android:text="内容下载中..." />
     </ScrollView>
 
 </LinearLayout>

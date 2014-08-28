@@ -9,6 +9,6 @@
 		android:layout_height="wrap_content" />
 	<TextView android:id="@+id/android:empty"
 		android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:text="\n　数据还没显示出来么？等一下哈" />
+		android:layout_height="wrap_content" android:text="\n　　下载数据中...\n\n　　如果很长时间都木有反应，按返回健重试或换一个地址" />
     
 </LinearLayout>

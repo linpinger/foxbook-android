@@ -129,20 +129,13 @@ public class FoxBookLib {
 				text = site_qreader.qreader_GetContent(pageFullURL);
 				break;
 			case 99:
-				Matcher mat = Pattern.compile("(?i)/([0-9]+),([0-9]+).aspx").matcher(pageFullURL);
-				String bid = "";
-				String cid = "";
-				while (mat.find()) {
-					bid = mat.group(1);
-					cid = mat.group(2);
+				String nURL = site_qidian.qidian_toPageURL_FromPageInfoURL(pageFullURL) ;
+				if ( nURL.equalsIgnoreCase("") ) {
+					text = "" ;
+				} else {
+					html = downhtml(nURL);
+					text = site_qidian.qidian_getTextFromPageJS(html);
 				}
-				String nURL = "http://files.qidian.com/Author" + ( 1 + ( Integer.valueOf(bid) % 8 ) ) + "/" + bid + "/" + cid + ".txt"  ;
-				html = downhtml(nURL);
-				html = html.replace("document.write('", "");
-				html = html.replace("<a href=http://www.qidian.com>起点中文网 www.qidian.com 欢迎广大书友光临阅读，最新、最快、最火的连载作品尽在起点原创！</a>", "");
-				html = html.replace("<a>手机用户请到m.qidian.com阅读。</a>');", "");
-				html = html.replace("');", "");
-				text = pagetext(html);   	// 分析得到text
 				break;
 			default:
 				html = downhtml(pageFullURL); // 下载url

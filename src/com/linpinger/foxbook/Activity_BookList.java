@@ -339,18 +339,27 @@ public class Activity_BookList extends ListActivity {
 
 				// builder.setIcon(R.drawable.ic_launcher);
 				builder.setTitle("操作:" + lcName);
-				builder.setItems(new String[] { "更新本书", "更新本书目录", "在线查看", "编辑本书信息",
-						"删除本书", "复制书名", "搜索:搜狗", "搜索:宜搜", "搜索:快读", "搜索:追书神器" },
+				builder.setItems(new String[] { "更新本书",
+						"更新本书目录",
+						"在线查看",
+						"搜索:起点",
+						"搜索:搜狗",
+						"搜索:快读",
+						"搜索:追书神器",
+						"搜索:宜搜",
+						"编辑本书信息",
+						"复制书名",
+						"删除本书" },
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog,
 									int which) {
 								switch (which) {
-								case 0:
+								case 0:  // 更新本书
 									upchacount = 0 ;
 									new Thread(new UpdateBook(lcID, lcURL, lcName, true)).start();
 									foxtip("正在更新: " + lcName);
 									break;
-								case 1:
+								case 1: // 更新本书目录
 									upchacount = 0 ;
 									new Thread(new UpdateBook(lcID, lcURL, lcName, false)).start();
 									foxtip("正在更新目录: " + lcName);
@@ -371,39 +380,38 @@ public class Activity_BookList extends ListActivity {
 									Activity_PageList.oDB = oDB;
 									startActivity(intent);
 									break;
-								case 3:
-									Intent itti = new Intent(
-											Activity_BookList.this,
-											Activity_BookInfo.class);
-									itti.putExtra("bookid", lcID);
-									Activity_BookInfo.oDB = oDB;
-									startActivityForResult(itti, 0);
+								case 3: // 搜索:起点
+									String lcQidianID = oDB.getOneCell("select qidianid from book where id=" + lcID);
+									String lcQidianURL = "";
+									if ( lcQidianID.isEmpty() ) {
+						                String json = FoxBookLib.downhtml(site_qidian.qidian_getSearchURL_Mobile(lcName), "utf-8");
+						                List<Map<String, Object>> qds = site_qidian.json2BookList(json);
+						                if ( qds.get(0).get("name").toString().equalsIgnoreCase(lcName) ) { // 第一个结果就是目标书
+											lcQidianURL = qds.get(0).get("url").toString();
+						                }
+									} else { // 存在起点ID
+										lcQidianURL = site_qidian.qidian_getIndexURL_Desk(Integer.valueOf(lcQidianID)) ;
+									}
+									if ( ! lcQidianURL.isEmpty() ) {
+										Intent intentQD = new Intent(Activity_BookList.this, Activity_PageList.class);
+										intentQD.putExtra("iam", FROM_NET);
+										intentQD.putExtra("bookurl", lcQidianURL);
+										intentQD.putExtra("bookname", lcName);
+										intentQD.putExtra("searchengine", 1);
+										Activity_PageList.oDB = oDB;
+										startActivity(intentQD);
+									} else {
+										foxtip("在起点上未搜索到该书名");
+									}
 									break;
-								case 4:
-									FoxMemDBHelper.deleteBook(lcID, oDB);
-									refresh_BookList();
-									foxtip("已删除书:" + lcName);
-									break;
-								case 5:
-									ClipboardManager cbm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-									cbm.setText(lcName);
-									foxtip("已复制到剪贴板:" + lcName);
-									break;
-								case 6: //sougou
+								case 4: // 搜索:sougou
 									Intent intent7 = new Intent(Activity_BookList.this, Activity_QuickSearch.class);
 									intent7.putExtra("bookname", lcName);
 									intent7.putExtra("searchengine", 1);
 									Activity_QuickSearch.oDB = oDB;
 									startActivity(intent7);
 									break;
-								case 7: //easou
-									Intent intent8 = new Intent(Activity_BookList.this, Activity_QuickSearch.class);
-									intent8.putExtra("bookname", lcName);
-									intent8.putExtra("searchengine", 11);
-									Activity_QuickSearch.oDB = oDB;
-									startActivity(intent8);
-									break;
-								case 8:
+								case 5:  // 搜索:快读
 									Intent intent13 = new Intent(
 											Activity_BookList.this,
 											Activity_PageList.class);
@@ -414,12 +422,37 @@ public class Activity_BookList extends ListActivity {
 									Activity_PageList.oDB = oDB;
 									startActivity(intent13);
 									break;
-								case 9: //追书神器
+								case 6: // 搜索:追书神器
 									Intent intent9 = new Intent(Activity_BookList.this, Activity_QuickSearch.class);
 									intent9.putExtra("bookname", lcName);
 									intent9.putExtra("searchengine", 12);
 									Activity_QuickSearch.oDB = oDB;
 									startActivity(intent9);
+									break;
+								case 7: // 搜索:easou
+									Intent intent8 = new Intent(Activity_BookList.this, Activity_QuickSearch.class);
+									intent8.putExtra("bookname", lcName);
+									intent8.putExtra("searchengine", 11);
+									Activity_QuickSearch.oDB = oDB;
+									startActivity(intent8);
+									break;
+								case 8:  // 编辑本书信息
+									Intent itti = new Intent(
+											Activity_BookList.this,
+											Activity_BookInfo.class);
+									itti.putExtra("bookid", lcID);
+									Activity_BookInfo.oDB = oDB;
+									startActivityForResult(itti, 0);
+									break;
+								case 9:  // 复制书名
+									ClipboardManager cbm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+									cbm.setText(lcName);
+									foxtip("已复制到剪贴板:" + lcName);
+									break;
+								case 10: // 删除本书
+									FoxMemDBHelper.deleteBook(lcID, oDB);
+									refresh_BookList();
+									foxtip("已删除书:" + lcName);
 									break;
 								}
 							}
