@@ -60,7 +60,8 @@ public class Activity_BookList extends ListActivity {
 	SharedPreferences settings;
 	SharedPreferences.Editor editor;
 	public static final String FOXSETTING = "FOXSETTING";
-	private boolean isMemDB = true;
+	private boolean isMemDB = true;  // 是否是内存数据库
+	private boolean isIntDB = false;  // 是否是内部存储空间[还是SD卡]中保存数据库
 
 
 	public class FoxTaskDownPage implements Runnable { // 多线程任务更新页面列表
@@ -521,8 +522,9 @@ public class Activity_BookList extends ListActivity {
         settings = getSharedPreferences(FOXSETTING, 0);
         editor = settings.edit();
         this.isMemDB = settings.getBoolean("isMemDB", isMemDB);
+        this.isIntDB = settings.getBoolean("isIntDB", isIntDB);
 
-		oDB = new FoxMemDB(this.isMemDB) ; // 默认使用MemDB
+		oDB = new FoxMemDB(this.isMemDB, this.isIntDB, this.getApplicationContext()) ; // 默认使用MemDB
 		
 		init_handler(); // 初始化一个handler 用于处理后台线程的消息
 
@@ -539,8 +541,19 @@ public class Activity_BookList extends ListActivity {
 		getMenuInflater().inflate(R.menu.booklist, menu);
 		int itemcount = menu.size();
 		for ( int i=0; i< itemcount; i++){
-			if ( menu.getItem(i).getItemId() == R.id.action_isMemDB ) {
-				menu.getItem(i).setChecked(this.isMemDB);
+			switch (menu.getItem(i).getItemId()) {
+				case R.id.action_isMemDB:
+					menu.getItem(i).setChecked(this.isMemDB);
+					break;
+				case R.id.action_isIntDB:
+					menu.getItem(i).setChecked(this.isIntDB);
+					break;
+				case R.id.action_intDB2SD:
+					menu.getItem(i).setVisible(this.isIntDB);
+					break;
+				case R.id.action_SD2intDB:
+					menu.getItem(i).setVisible(this.isIntDB);
+					break;					
 			}
 		}
 		return true;
@@ -664,9 +677,48 @@ public class Activity_BookList extends ListActivity {
 					handler.sendMessage(msg);
 				}
 			}).start();
-
 			break;
-
+		case R.id.action_exitwithnosave:  // 不保存数据库退出
+			this.finish();
+			System.exit(0);
+			break;
+		case R.id.action_isIntDB:   // 是否使用内部存储
+			isIntDB = ! item.isChecked() ;
+			item.setChecked(isIntDB);
+			editor.putBoolean("isIntDB", isIntDB);
+			editor.commit();
+			if (isIntDB) {
+				foxtip("切换到内部存储数据库模式，重启程序生效");
+			} else {
+				foxtip("切换到SD卡数据库模式，重启程序生效");
+			}
+			break;
+		case R.id.action_intDB2SD:  // 内部存储->SD卡
+			setTitle("导出: 内部存储->SD卡...");
+			(new Thread(){
+				public void run(){
+					oDB.SD2Int(false);
+					Message msg = Message.obtain();
+					msg.what = IS_MSG;
+					msg.obj = "完毕导出: 内部存储->SD卡";
+					handler.sendMessage(msg);
+				}
+			}).start();
+			break;
+		case R.id.action_SD2intDB:  // SD卡->内部存储
+			foxtip("导入后会自动退出本程序");
+			setTitle("导入: SD卡->内部存储...");
+			(new Thread(){
+				public void run(){
+					oDB.SD2Int(true);
+					Message msg = Message.obtain();
+					msg.what = IS_MSG;
+					msg.obj = "完毕导入: SD卡->内部存储";
+					handler.sendMessage(msg);
+					System.exit(0); // 不保存退出
+				}
+			}).start();
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
