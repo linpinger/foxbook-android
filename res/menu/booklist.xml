@@ -4,21 +4,22 @@
         android:id="@+id/action_updateall"
         android:icon="@android:drawable/ic_popup_sync"
         android:showAsAction="always|withText"
-        android:title="更新"/>
+        android:title="更新所有"/>
     <item
         android:id="@+id/action_allpagelist"
         android:icon="@android:drawable/ic_menu_view"
         android:showAsAction="always|withText"
-        android:title="所有章节"/>
+        android:title="显示所有"/>
     <item
         android:id="@+id/action_switchdb"
         android:icon="@android:drawable/ic_menu_rotate"
-        android:showAsAction="never|withText"
+        android:showAsAction="ifRoom|withText"
         android:title="切换数据库"/>
     <item
         android:id="@+id/action_sortbook_desc"
-        android:title="按页数倒序排列"/>
-    <!-- android:icon="@android:drawable/ic_menu_sort_by_size" -->
+        android:icon="@android:drawable/ic_menu_sort_by_size"
+        android:title="按页数倒序排列" android:showAsAction="ifRoom|withText"/>
+    
 
 
     <!-- android:icon="@android:drawable/ic_menu_set_as" -->

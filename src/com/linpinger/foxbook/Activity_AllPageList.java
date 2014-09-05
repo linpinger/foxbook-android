@@ -133,6 +133,9 @@ public class Activity_AllPageList extends ListActivity {
 									foxtip("已删除并记录: >= " + lcName);
 									break;
 								}
+								if ( data.size() == 0 ) { // 当记录删除完后，结束本Activity
+									exitMe(); // 结束本Activity
+								}
 							}
 				});
 		builder.create().show();
@@ -147,6 +150,7 @@ lv_pagelist.setOnItemLongClickListener(longlistener);
 	public void onCreate(Bundle savedInstanceState) { // 入口
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_allpagelist);
+		
 		
 		lv_pagelist = getListView();
 		
@@ -170,5 +174,10 @@ lv_pagelist.setOnItemLongClickListener(longlistener);
 
 	private void foxtip(String sinfo) { // Toast消息
 		Toast.makeText(getApplicationContext(), sinfo, Toast.LENGTH_SHORT).show();
+	}
+
+	private void exitMe() { // 结束本Activity
+		setResult(RESULT_OK, (new Intent()).setAction("已清空所有列表"));
+		this.finish();
 	}
 }

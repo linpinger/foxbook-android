@@ -73,19 +73,13 @@ public class FoxMemDBHelper {
 			break;
 		}
 		
-		int nStartID = 99999 ;
-		if ( 9 == sortmode ) {
-			nStartID = 5 + Integer.valueOf(oDB.getOneCell("select max(id) from page"));
-		} else {
-			nStartID = 5 + Integer.valueOf(oDB.getOneCell("select max(id) from book"));
-		}
-		int nStartID1 = nStartID;
-		int nStartID2 = nStartID;
-		
 		// 获取id列表到数组中
 		SQLiteDatabase db = oDB.getDB();
 		Cursor cursor = db.rawQuery(sSQL, null);
 		int nRow = cursor.getCount();
+		if ( nRow == 0 ) {
+            return;
+        }
 		int [] ids = new int[nRow];
 		int i = 0 ;
 		if (cursor.moveToFirst()) {
@@ -94,7 +88,18 @@ public class FoxMemDBHelper {
 				++ i;
 			} while (cursor.moveToNext());
 		}
-		cursor.close();
+		cursor.close();	
+		
+		// 最大ID
+		int nStartID = 99999 ;
+		if ( 9 == sortmode ) {
+			nStartID = 5 + Integer.valueOf(oDB.getOneCell("select max(id) from page"));
+		} else {
+			nStartID = 5 + Integer.valueOf(oDB.getOneCell("select max(id) from book"));
+		}
+		int nStartID1 = nStartID;
+		int nStartID2 = nStartID;
+
 		
 		db.beginTransaction();// 开启事务
 		try {
