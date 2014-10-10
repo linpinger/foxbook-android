@@ -541,7 +541,7 @@ public class FoxBookLib {
                         boolean bFillArray = false;
                         while (itr.hasNext()) {
                             HashMap<String, Object> mm = (HashMap<String, Object>) itr.next();
-                            nowurl = mm.get("url").toString();
+                            nowurl = mm.get("url").toString().toLowerCase();
                             if (sToBeComp.contains(nowurl)) {
                                 bFillArray = true;
                                 nX2.add(mm);
