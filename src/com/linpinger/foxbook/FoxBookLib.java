@@ -178,6 +178,9 @@ public class FoxBookLib {
 				if ( mat.group(1).indexOf("http") < 0 ) {
 						continue ;
 				}
+                if (mat.group(1).indexOf("www.sogou.com/web") > 0) {
+                    continue;
+                }
 				if ( mat.group(2).indexOf(KeyWord) < 0 ) {
 						continue ; 
 				}
