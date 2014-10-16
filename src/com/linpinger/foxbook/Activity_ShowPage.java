@@ -74,7 +74,7 @@ public class Activity_ShowPage extends Activity {
 			public void handleMessage(Message msg) {
 				String sText = (String)msg.obj;
 				if ( msg.what == IS_REFRESH ) {
-					tv.setText("　　" + sText.replace("\n", "\n　　"));
+					tv.setText("　　" + sText.replace("\n", "\n　　") + "\n" + pagename);
 					setTitle(pagename + " : " + pageurl );
 					if ( sText.length() < 9 ) {
 						tv.setText("　　啊噢，可能处理的时候出现问题了哦\n\nURL: " + pageurl + "\nPageName: " + pagename + "\nContent:" + sText );
@@ -120,7 +120,7 @@ public class Activity_ShowPage extends Activity {
 			} else {
 				bookid = Integer.valueOf(infox.get("bid")); // 翻页使用
 			}
-			tv.setText("　　" + pagetext.replace("\n", "\n　　"));
+			tv.setText("　　" + pagetext.replace("\n", "\n　　") + "\n" + pagename);
 		} 
 		if ( FROM_NET == foxfrom ){ // NET
 			setTitle("下载中...");
@@ -177,7 +177,7 @@ public class Activity_ShowPage extends Activity {
 			bookid = Integer.valueOf(pp.get("bid"));
 			setTitle(pageid + " : " + pp.get("name") + " : " + pp.get("url") );
 			pagetext = pp.get("content");
-			tv.setText("　　" + pagetext.replace("\n", "\n　　"));
+			tv.setText("　　" + pagetext.replace("\n", "\n　　") + "\n" + pagename);
 //			sv.smoothScrollTo(0, 0);
 			sv.scrollTo(0, 0);
 			break;
@@ -200,7 +200,7 @@ public class Activity_ShowPage extends Activity {
 			bookid = Integer.valueOf(nn.get("bid"));
 			setTitle(pageid + " : " + nn.get("name") + " : " + nn.get("url") );
 			pagetext = nn.get("content");
-			tv.setText("　　" + pagetext.replace("\n", "\n　　"));
+			tv.setText("　　" + pagetext.replace("\n", "\n　　") + "\n" + pagename);
 			
 //			sv.smoothScrollTo(0, 0);
 			sv.scrollTo(0, 0);
