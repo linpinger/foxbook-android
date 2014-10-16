@@ -112,8 +112,9 @@ public class Activity_ShowPage extends Activity {
 		if ( FROM_DB == foxfrom ){ // DB
 			pageid =  itt.getIntExtra("chapter_id", 0);
 //			pagetext = FoxDB.getOneCell("select Content from page where id = " + pageid + " and Content is not null" );
-			Map<String,String> infox = oDB.getOneRow("select bookid as bid, Content as cc from page where id = " + pageid + " and Content is not null");
+			Map<String,String> infox = oDB.getOneRow("select bookid as bid, Content as cc, Name as naa from page where id = " + pageid + " and Content is not null");
 			pagetext = infox.get("cc") ;
+			pagename = infox.get("naa") ;
 
 			if ( null == pagetext  ) {
 				pagetext = "本章节内容还没下载，请回到列表，更新本书或本章节" ;
@@ -177,7 +178,7 @@ public class Activity_ShowPage extends Activity {
 			bookid = Integer.valueOf(pp.get("bid"));
 			setTitle(pageid + " : " + pp.get("name") + " : " + pp.get("url") );
 			pagetext = pp.get("content");
-			tv.setText("　　" + pagetext.replace("\n", "\n　　") + "\n" + pagename);
+			tv.setText("　　" + pagetext.replace("\n", "\n　　") + "\n" + pp.get("name"));
 //			sv.smoothScrollTo(0, 0);
 			sv.scrollTo(0, 0);
 			break;
@@ -200,7 +201,7 @@ public class Activity_ShowPage extends Activity {
 			bookid = Integer.valueOf(nn.get("bid"));
 			setTitle(pageid + " : " + nn.get("name") + " : " + nn.get("url") );
 			pagetext = nn.get("content");
-			tv.setText("　　" + pagetext.replace("\n", "\n　　") + "\n" + pagename);
+			tv.setText("　　" + pagetext.replace("\n", "\n　　") + "\n" + nn.get("name"));
 			
 //			sv.smoothScrollTo(0, 0);
 			sv.scrollTo(0, 0);
