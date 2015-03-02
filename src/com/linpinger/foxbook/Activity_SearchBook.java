@@ -1,8 +1,10 @@
 package com.linpinger.foxbook;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.webkit.WebView;
@@ -20,6 +22,8 @@ import android.view.KeyEvent;
 import java.io.UnsupportedEncodingException;
 import java.lang.String;
 import java.net.URLEncoder;
+import java.util.List;
+import java.util.Map;
 
 public class Activity_SearchBook extends Activity {
 	public static FoxMemDB oDB;
@@ -34,8 +38,27 @@ public class Activity_SearchBook extends Activity {
 	private String book_url = "";
 //	private final int FROM_DB = 1 ;
 	private final int FROM_NET = 2 ; 
-
+	
+	private final int IS_GETQIDIANURL = 8;
+	private final int IS_DOWNHTML = 5;
+	
 	private static Handler handler;
+
+	public class GetQidianURL implements Runnable {
+		@Override
+		public void run() {
+			String json = FoxBookLib.downhtml(site_qidian.qidian_getSearchURL_Mobile(book_name), "utf-8");
+            List<Map<String, Object>> qds = site_qidian.json2BookList(json);
+            if ( qds.get(0).get("name").toString().equalsIgnoreCase(book_name) ) { // 第一个结果就是目标书
+            	book_url = qds.get(0).get("url").toString();
+            }
+
+			Message msg = Message.obtain();
+			msg.what = IS_GETQIDIANURL;
+			msg.obj = book_url;
+			handler.sendMessage(msg);
+		}			
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -75,20 +98,36 @@ public class Activity_SearchBook extends Activity {
 		});
 
 		handler = new Handler(new Handler.Callback() {
+			@TargetApi(Build.VERSION_CODES.GINGERBREAD)
 			public boolean handleMessage(Message msg) {
-//				super.handleMessage(msg);
-				Bundle data = msg.getData();
-				String html = data.getString("html");
+				switch (msg.what) {
+					case IS_GETQIDIANURL:
+						String lcQidianURL = (String)msg.obj;
+						if ( ! lcQidianURL.isEmpty() ) {
+							Intent intentQD = new Intent(Activity_SearchBook.this, Activity_PageList.class);
+							intentQD.putExtra("iam", FROM_NET);
+							intentQD.putExtra("bookurl", lcQidianURL);
+							intentQD.putExtra("bookname", book_name);
+							intentQD.putExtra("searchengine", 1);
+							Activity_PageList.oDB = oDB;
+							startActivity(intentQD);
+						} else {
+							foxtip("在起点上未搜索到该书名");
+						}
+						break;
+					case IS_DOWNHTML:
+						String html = (String)msg.obj;
 
-				Intent intent = new Intent(Activity_SearchBook.this,
-						Activity_PageList.class);
-				intent.putExtra("iam", FROM_NET);
-				intent.putExtra("bookurl", book_url);
-				intent.putExtra("bookname", book_name);
-				intent.putExtra("html", html);
-				intent.putExtra("bShowAll", bShowAll);
-				Activity_PageList.oDB = oDB;
-				startActivity(intent);
+						Intent intent = new Intent(Activity_SearchBook.this, Activity_PageList.class);
+						intent.putExtra("iam", FROM_NET);
+						intent.putExtra("bookurl", book_url);
+						intent.putExtra("bookname", book_name);
+						intent.putExtra("html", html);
+						intent.putExtra("bShowAll", bShowAll);
+						Activity_PageList.oDB = oDB;
+						startActivity(intent);
+						break;
+				}
 				return false;
 			}
 		});
@@ -97,14 +136,15 @@ public class Activity_SearchBook extends Activity {
 			@Override
 			public void run() {
 				String html = FoxBookLib.downhtml(book_url);
-
-				Message msg = new Message();
-				Bundle data = new Bundle();
-				data.putString("html", html); // 显示网页代码
-				msg.setData(data);
+				
+				Message msg = Message.obtain();
+				msg.what = IS_DOWNHTML;
+				msg.obj = html;
 				handler.sendMessage(msg);
 			}
 		};
+		
+
 
 		btn_pre.setOnClickListener(new OnClickListener() { // 预览按钮
 			public void onClick(View v) {
@@ -162,11 +202,45 @@ public class Activity_SearchBook extends Activity {
 		getMenuInflater().inflate(R.menu.search, menu);
 		return true;
 	}
+
+
 	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作
 		switch (item.getItemId()) {
 		case R.id.sm_bShowAll: // 预览显示所有条目
 			bShowAll = ! item.isChecked() ;
 			item.setChecked(bShowAll);
+			break;
+		case R.id.sm_QuickSearchQidian: // 快搜:起点
+			book_name = et.getText().toString();
+			(new Thread(new GetQidianURL())).start() ;
+			break;
+		case R.id.sm_QuickSearchQreader: // 快搜:快读
+			book_name = et.getText().toString();
+			Intent intent13 = new Intent(
+					Activity_SearchBook.this,
+					Activity_PageList.class);
+			intent13.putExtra("iam", FROM_NET);
+			intent13.putExtra("bookurl", "http://linpinger.github.io/");
+			intent13.putExtra("bookname", book_name);
+			intent13.putExtra("searchengine", 13);
+			Activity_PageList.oDB = oDB;
+			startActivity(intent13);
+			break;
+		case R.id.sm_QuickSearchZhuiShuShenQi: // 快搜:追书神器
+			book_name = et.getText().toString();
+			Intent itzssq = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
+			itzssq.putExtra("bookname", book_name);
+			itzssq.putExtra("searchengine", 12);
+			Activity_QuickSearch.oDB = oDB;
+			startActivity(itzssq);
+			break;
+		case R.id.sm_QuickSearchEaSou: // 快搜:Easou
+			book_name = et.getText().toString();
+			Intent iteasou = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
+			iteasou.putExtra("bookname", book_name);
+			iteasou.putExtra("searchengine", 11);
+			Activity_QuickSearch.oDB = oDB;
+			startActivity(iteasou);
 			break;
 		case R.id.sm_QuickSearchSouGou: // 快搜:搜狗
 			book_name = et.getText().toString();
@@ -198,4 +272,7 @@ public class Activity_SearchBook extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 
+	private void foxtip(String sinfo) { // Toast消息
+		Toast.makeText(getApplicationContext(), sinfo, Toast.LENGTH_SHORT).show();
+	}
 }

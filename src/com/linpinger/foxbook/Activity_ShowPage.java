@@ -32,7 +32,7 @@ public class Activity_ShowPage extends Activity {
 	private String pagetext = "暂缺" ;
 	private String pagename = "" ;
 	private String pageurl = "" ;
-	private float cX, cY ; // 点击textView的坐标
+	private float cY = 0 ; // 点击textView的坐标
 	public static final String FOXSETTING = "FOXSETTING";
 	float sp_fontsize = 19; // 字体大小
 	SharedPreferences settings;
