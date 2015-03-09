@@ -101,14 +101,17 @@ public class site_qidian {
     * @param jsStr http://files.qidian.com/Author7/1939238/53927617.txt 中的内容
     * @return 文本，可直接写入数据库
     */
-    public static String qidian_getTextFromPageJS(String jsStr)
-   	{
-    	jsStr = jsStr.replace("document.write('", "");
-    	jsStr = jsStr.replace("<a>手机用户请到m.qidian.com阅读。</a>');", "");
-    	jsStr = jsStr.replace("<a href=http://www.qidian.com>起点中文网 www.qidian.com 欢迎广大书友光临阅读，最新、最快、最火的连载作品尽在起点原创！</a>", "");
-    	jsStr = jsStr.replace("');", "");
-    	jsStr = jsStr.replace("<p>", "\n");
-    	jsStr = jsStr.replace("　　", "");
-   		return jsStr;
-   	}
+    public static String qidian_getTextFromPageJS(String jsStr) {
+        jsStr = jsStr.replace("&lt;", "<");
+        jsStr = jsStr.replace("&gt;", ">");
+        jsStr = jsStr.replace("document.write('", "");
+        jsStr = jsStr.replace("<a>手机用户请到m.qidian.com阅读。</a>", "");
+        jsStr = jsStr.replace("<a href=http://www.qidian.com>起点中文网www.qidian.com欢迎广大书友光临阅读，最新、最快、最火的连载作品尽在起点原创！</a>", "");
+        jsStr = jsStr.replace("<a href=http://www.qidian.com>起点中文网 www.qidian.com 欢迎广大书友光临阅读，最新、最快、最火的连载作品尽在起点原创！</a>", "");
+        jsStr = jsStr.replace("');", "");
+        jsStr = jsStr.replace("<p>", "\n");
+        jsStr = jsStr.replace("　　", "");
+        return jsStr;
+    }
 }
+
