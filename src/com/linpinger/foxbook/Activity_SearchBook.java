@@ -98,12 +98,11 @@ public class Activity_SearchBook extends Activity {
 		});
 
 		handler = new Handler(new Handler.Callback() {
-			@TargetApi(Build.VERSION_CODES.GINGERBREAD)
 			public boolean handleMessage(Message msg) {
 				switch (msg.what) {
 					case IS_GETQIDIANURL:
 						String lcQidianURL = (String)msg.obj;
-						if ( ! lcQidianURL.isEmpty() ) {
+						if ( 0 != lcQidianURL.length() ) {
 							Intent intentQD = new Intent(Activity_SearchBook.this, Activity_PageList.class);
 							intentQD.putExtra("iam", FROM_NET);
 							intentQD.putExtra("bookurl", lcQidianURL);

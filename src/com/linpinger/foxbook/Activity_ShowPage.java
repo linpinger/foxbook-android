@@ -232,6 +232,17 @@ public class Activity_ShowPage extends Activity {
 		}
 		return super.onKeyDown(keyCoder, event);
 	}
+	
+	// 覆盖音量键，避免发出点击声音
+	public boolean onKeyUp(int keyCoder, KeyEvent event) { // 按退出键
+		if ( keyCoder == KeyEvent.KEYCODE_VOLUME_UP ) {
+			return true;
+		}
+		if ( keyCoder == KeyEvent.KEYCODE_VOLUME_DOWN ) {
+			return true;
+		}
+		return super.onKeyUp(keyCoder, event);
+	}
 
 	private void foxtip(String sinfo) { // Toast消息
 		Toast.makeText(getApplicationContext(), sinfo, Toast.LENGTH_SHORT).show();

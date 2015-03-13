@@ -384,7 +384,7 @@ public class Activity_BookList extends ListActivity {
 								case 3: // 搜索:起点
 									String lcQidianID = oDB.getOneCell("select qidianid from book where id=" + lcID);
 									String lcQidianURL = "";
-									if ( lcQidianID.isEmpty() ) {
+									if ( 0 == lcQidianID.length() ) {
 						                String json = FoxBookLib.downhtml(site_qidian.qidian_getSearchURL_Mobile(lcName), "utf-8");
 						                List<Map<String, Object>> qds = site_qidian.json2BookList(json);
 						                if ( qds.get(0).get("name").toString().equalsIgnoreCase(lcName) ) { // 第一个结果就是目标书
@@ -393,7 +393,7 @@ public class Activity_BookList extends ListActivity {
 									} else { // 存在起点ID
 										lcQidianURL = site_qidian.qidian_getIndexURL_Desk(Integer.valueOf(lcQidianID)) ;
 									}
-									if ( ! lcQidianURL.isEmpty() ) {
+									if ( 0 != lcQidianURL.length() ) {
 										Intent intentQD = new Intent(Activity_BookList.this, Activity_PageList.class);
 										intentQD.putExtra("iam", FROM_NET);
 										intentQD.putExtra("bookurl", lcQidianURL);
