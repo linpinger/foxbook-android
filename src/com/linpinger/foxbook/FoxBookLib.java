@@ -449,7 +449,9 @@ public class FoxBookLib {
 
 			conn.setRequestProperty("User-Agent", "ZhuiShuShenQi/2.14 Java/1.6.0_55"); // Android自带头部和IE8头部会导致yahoo搜索结果链接为追踪链接
 			conn.setRequestProperty("Accept", "*/*");
-			conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
+			if ( ! inURL.contains("files.qidian.com") ) { // 2015-4-16: qidian txt 默认下载.gz会造成使用cdn，然后出现故障
+				conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
+			}
 			conn.setConnectTimeout(5000);
 			conn.connect();
 			
