@@ -447,12 +447,17 @@ public class FoxBookLib {
 //				conn.setInstanceFollowRedirects(true);
 			}
 
-			conn.setRequestProperty("User-Agent", "ZhuiShuShenQi/2.14 Java/1.6.0_55"); // Android自带头部和IE8头部会导致yahoo搜索结果链接为追踪链接
+            if ( inURL.contains(".qqxs.") ) {
+            	conn.setRequestProperty("User-Agent", "ZhuiShuShenQi/3.26"); // 2015-10-27: qqxs使用加速宝，带Java的头会被和谐
+			} else {
+            	conn.setRequestProperty("User-Agent", "ZhuiShuShenQi/3.26 Java/1.6.0_55"); // Android自带头部和IE8头部会导致yahoo搜索结果链接为追踪链接
+			}
 			conn.setRequestProperty("Accept", "*/*");
 			if ( ! inURL.contains("files.qidian.com") ) { // 2015-4-16: qidian txt 默认下载.gz会造成使用cdn，然后出现故障
 				conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
 			}
 			conn.setConnectTimeout(5000);
+            conn.setReadTimeout(15000);    // 读取超时15s
 			conn.connect();
 			
 			if ( "GET" != PostData ) {
