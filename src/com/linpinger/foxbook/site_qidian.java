@@ -79,7 +79,7 @@ public class site_qidian {
     *
     * @param pageInfoURL 类似地址 /1939238,53927617.aspx
     * @return http://files.qidian.com/Author7/1939238/53927617.txt
-    */
+	* 过时函数
     public static String qidian_toPageURL_FromPageInfoURL(String pageInfoURL)
     {
 		Matcher mat = Pattern.compile("(?i)/([0-9]+),([0-9]+).aspx").matcher(pageInfoURL);
@@ -95,6 +95,26 @@ public class site_qidian {
 			return qidian_getPageURL(cid, bid);
 		}
     }
+    */
+
+    /**
+    * 日期: 2015-11-17
+    * @param html 类似 /b7zJ1_AnAJ41,Nw1qx8_dKSIex0RJOkJclQ2.aspx 的网页内容
+    * @return http://files.qidian.com/Author7/1939238/53927617.txt
+	*/
+	public static String qidian_toTxtURL_FromPageContent(String html)
+	{
+		Matcher mat = Pattern.compile("(?i)(http://files.qidian.com/.*/[0-9]*/[0-9]*.txt)").matcher(html);
+		String txtURL = "";
+		while (mat.find()) {
+			txtURL = mat.group(1);
+		}
+		if ( txtURL.equalsIgnoreCase("") ) {
+			return "" ;
+		} else {
+			return txtURL ;
+		}
+	}
     
     /**
     *
@@ -108,6 +128,7 @@ public class site_qidian {
         jsStr = jsStr.replace("<a>手机用户请到m.qidian.com阅读。</a>", "");
         jsStr = jsStr.replace("<a href=http://www.qidian.com>起点中文网www.qidian.com欢迎广大书友光临阅读，最新、最快、最火的连载作品尽在起点原创！</a>", "");
         jsStr = jsStr.replace("<a href=http://www.qidian.com>起点中文网 www.qidian.com 欢迎广大书友光临阅读，最新、最快、最火的连载作品尽在起点原创！</a>", "");
+        jsStr = jsStr.replace("<ahref=http://www.qidian.com>起点中文网www.qidian.com欢迎广大书友光临阅读，最新、最快、最火的连载作品尽在起点原创！</a>", "");
         jsStr = jsStr.replace("');", "");
         jsStr = jsStr.replace("<p>", "\n");
         jsStr = jsStr.replace("　　", "");
