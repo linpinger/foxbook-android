@@ -21,7 +21,7 @@
 -   [源码工程](https://github.com/linpinger/foxbook-android)
 
 -   [APK文件下载点1:github](http://linpinger.github.io/bin/foxbook-android/FoxBook.apk)
--   [APK文件下载点2:qiniu](http://linpinger.qiniudn.com/FoxBook.apk)
+-   [APK文件下载点2:baidu](http://pan.baidu.com/s/1bnqxdjL)
 
 **工程中包含的其他文件:**
 - 生成UMD格式电子书调用umd-builder JAVA版 <http://code.google.com/p/umd-builder/>
