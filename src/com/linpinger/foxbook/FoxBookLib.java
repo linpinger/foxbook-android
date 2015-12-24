@@ -214,12 +214,15 @@ public class FoxBookLib {
             html = html.replaceAll("(?smi).*?</head>(.*)", "$1"); // 获取正文
         }
         
-        if (html.indexOf("http://read.qidian.com/BookReader/") > -1) { // 处理起点页面
+        if (html.indexOf("http://read.qidian.com/BookReader/") > -1) { // 处理起点目录
             if (html.indexOf("vipreader.qidian.com/BookReader/") > -1) { // VIP
                 html = html.replaceAll("(?smi).*<div id=\"content\">(.*)VIP卷.*", "$1"); // 获取列表
             } else {
                 html = html.replaceAll("(?smi).*<div id=\"content\">(.*)<div class=\"book_opt\">.*", "$1"); // 获取列表
             }
+            html = html.replace("<a", "\n<a");
+            html = html.replaceAll("(?i)<a href.*?/Book/.*?>.*?</a>", ""); // 分卷阅读
+            html = html.replaceAll("(?i)<a href.*?/BookReader/vol.*?>.*?</a>", ""); // 分卷阅读
             html = html.replaceAll("(?smi)<span[^>]*>", ""); // 起点<a></a>之间有span标签
             html = html.replace("</span>", "");
         }
