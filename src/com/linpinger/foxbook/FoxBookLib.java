@@ -272,7 +272,7 @@ public class FoxBookLib {
         int ldataSize = ldata.size();
         int halfLink = (int) (ldataSize / 2);
 
-        int startDelRowNum = 0;      // 开始删除的行
+        int startDelRowNum = -9;      // 开始删除的行
         int endDelRowNum = 9 + ldataSize;  // 结束删除的行
         // 只找链接的一半，前半是找开始行，后半是找结束行
         // 找开始
@@ -289,7 +289,6 @@ public class FoxBookLib {
                 }
             }
         }
-//        System.out.println("startDelRowNum:" + startDelRowNum);
         // 找结束 nextLen means PrevLen here
         for (int nowIdx = ldataSize - 1; nowIdx > halfLink; nowIdx--) {
             nowLen = (Integer) (((HashMap<String, Object>) (ldata.get(nowIdx))).get("len"));
@@ -302,7 +301,7 @@ public class FoxBookLib {
                 }
             }
         }
-//        System.out.println("endDelRowNum:" + endDelRowNum + " ldataSize:" + ldataSize);
+//        System.out.println("startDelRowNum:" + startDelRowNum + " - endDelRowNum:" + endDelRowNum + " ldataSize:" + ldataSize);
 
         // 倒着删元素
         if (endDelRowNum < ldataSize) {
