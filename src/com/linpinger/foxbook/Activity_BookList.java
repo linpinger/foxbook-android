@@ -52,6 +52,7 @@ public class Activity_BookList extends ListActivity {
 
 	private int upchacount;    // 新增章节计数
 	
+	private final int SITE_QIDIAN_MOBILE = 16;
 //	private final int SITE_EASOU = 11 ;
 	private final int SITE_ZSSQ = 12 ;
 	private final int SITE_KUAIDU = 13 ;
@@ -174,6 +175,10 @@ public class Activity_BookList extends ListActivity {
 			if ( bookurl.indexOf(".qreader.") > -1 ) {
 				site_type = SITE_KUAIDU ;
 			}
+            if ( bookurl.indexOf("3g.if.qidian.com") > -1) {
+                site_type = SITE_QIDIAN_MOBILE ;
+            }
+
 			
 			String html = "";
 			switch(site_type) {
@@ -191,6 +196,10 @@ public class Activity_BookList extends ListActivity {
 				} else {
 					xx = site_zssq.json2PageList(html, 0, 1); // 更新模式
 				}
+				break;
+			case SITE_QIDIAN_MOBILE:
+				html = FoxBookLib.downhtml(bookurl, "utf-8");
+				xx = site_qidian.json2PageList(html);
 				break;
 			default:
 				html = FoxBookLib.downhtml(bookurl); // 下载url
@@ -344,7 +353,7 @@ public class Activity_BookList extends ListActivity {
 						"更新本书目录",
 						"在线查看",
 						"搜索:起点",
-						"搜索:搜狗",
+						"搜索:bing",
 						"搜索:快读",
 						"搜索:追书神器",
 						"搜索:宜搜",
@@ -391,24 +400,24 @@ public class Activity_BookList extends ListActivity {
 											lcQidianURL = qds.get(0).get("url").toString();
 						                }
 									} else { // 存在起点ID
-										lcQidianURL = site_qidian.qidian_getIndexURL_Desk(Integer.valueOf(lcQidianID)) ;
+										lcQidianURL = site_qidian.qidian_getIndexURL_Mobile(Integer.valueOf(lcQidianID)) ;
 									}
 									if ( 0 != lcQidianURL.length() ) {
 										Intent intentQD = new Intent(Activity_BookList.this, Activity_PageList.class);
 										intentQD.putExtra("iam", FROM_NET);
 										intentQD.putExtra("bookurl", lcQidianURL);
 										intentQD.putExtra("bookname", lcName);
-										intentQD.putExtra("searchengine", 1);
+										intentQD.putExtra("searchengine", SITE_QIDIAN_MOBILE);
 										Activity_PageList.oDB = oDB;
 										startActivity(intentQD);
 									} else {
 										foxtip("在起点上未搜索到该书名");
 									}
 									break;
-								case 4: // 搜索:sougou
+								case 4: // 搜索:bing
 									Intent intent7 = new Intent(Activity_BookList.this, Activity_QuickSearch.class);
 									intent7.putExtra("bookname", lcName);
-									intent7.putExtra("searchengine", 1);
+									intent7.putExtra("searchengine", 3);
 									Activity_QuickSearch.oDB = oDB;
 									startActivity(intent7);
 									break;

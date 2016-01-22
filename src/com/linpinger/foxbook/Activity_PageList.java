@@ -39,6 +39,7 @@ public class Activity_PageList extends ListActivity {
 	private final int IS_DOWNEASOU = 11;
 	private final int IS_DOWNZSSQ = 12;
 	private final int IS_DOWNKUAIDU = 13;
+	private final int IS_QIDIAN_MOBILE = 16;
 	
 	private String easou_gid_nid = "";
 	private static int FROM_DB = 1 ;
@@ -53,6 +54,7 @@ public class Activity_PageList extends ListActivity {
 	private int longclickpos = 0;
 	
 	private int SE_TYPE = 1; // 搜索引擎
+	private final int SITE_QIDIAN_MOBILE = 16;
 	private final int SE_EASOU = 11 ;
 	private final int SE_ZSSQ = 12 ;
 	private final int SE_KUAIDU = 13 ;
@@ -63,6 +65,13 @@ public class Activity_PageList extends ListActivity {
 		@Override
 		public void run() {
 			switch(SE_TYPE) {
+			case SITE_QIDIAN_MOBILE : // 起点手机版目录
+				String sJsonQDM = FoxBookLib.downhtml(bookurl, "utf-8") ;
+				Message msgQDM = Message.obtain();
+				msgQDM.what = IS_QIDIAN_MOBILE;
+				msgQDM.obj = sJsonQDM;
+				handler.sendMessage(msgQDM);
+				break;
 			case SE_EASOU : // 处理easou搜索书籍，返回书籍地址
 				String sJson = FoxBookLib.downhtml(site_easou.getUrlSE(bookname), "utf-8");
 				easou_gid_nid = site_easou.json2IDs(sJson,0);
@@ -242,7 +251,11 @@ public class Activity_PageList extends ListActivity {
 					data = site_zssq.json2PageList(sHTTP, 16);
 					renderListView();
 				}
-
+				if ( msg.what == IS_QIDIAN_MOBILE ) {
+					data = site_qidian.json2PageList(sHTTP);
+					renderListView();
+				}
+				
 				if ( msg.what == IS_DOWNTOC ) { // 下载目录完毕
 					if ( bShowAll ) {
 						data = FoxBookLib.tocHref(sHTTP, 0);

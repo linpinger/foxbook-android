@@ -19,10 +19,20 @@ import org.json.JSONObject;
  * @author guanli
  */
 public class site_qidian {
+    // 2015年桌面版改版后已失效
     public static String qidian_getIndexURL_Desk(int bookid) {
         return "http://read.qidian.com/BookReader/" + bookid + ".aspx";
     }
+    
+    // 移动版目录地址: 可以用来获取lastPageID后的更新，为0获取所有
+    public static String qidian_getIndexURL_Mobile(int bookid) {
+        return "http://3g.if.qidian.com/Client/IGetBookInfo.aspx?version=2&BookId=" + bookid + "&ChapterId=0";
+    }
 
+    public static String qidian_getIndexURL_Mobile(int bookid, int lastpageid) {
+        return "http://3g.if.qidian.com/Client/IGetBookInfo.aspx?version=2&BookId=" + bookid + "&ChapterId=" + lastpageid;
+    }
+  
     public static String qidian_getSearchURL_Mobile(String BookName) {
         String xx = "";
         try {
@@ -42,7 +52,30 @@ public class site_qidian {
             for (int i = 0; i < cList; i++) {
                 item = new HashMap<String, Object>();
                 item.put("name", slist.getJSONObject(i).getString("BookName"));
-                item.put("url", qidian_getIndexURL_Desk(slist.getJSONObject(i).getInt("BookId")));
+                item.put("url", qidian_getIndexURL_Mobile(slist.getJSONObject(i).getInt("BookId")));
+                data.add(item);
+            }
+        } catch (Exception e) {
+            e.toString();
+        }
+        return data;
+    }
+    
+    public static List<Map<String, Object>> json2PageList(String json) {
+        List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(55);
+        try {
+            Integer bookID = new JSONObject(json).getInt("BookId");
+            JSONArray slist = new JSONObject(json).getJSONArray("Chapters");
+            int cList = slist.length();
+            Map<String, Object> item;
+            
+            for (int i = 0; i < cList; i++) {
+                item = new HashMap<String, Object>();
+                item.put("name", slist.getJSONObject(i).getString("n"));
+                item.put("url", qidian_getPageURL(slist.getJSONObject(i).getInt("c"), bookID));
+                if (1 == slist.getJSONObject(i).getInt("v")) { // VIP章节
+                    break;
+                }
                 data.add(item);
             }
         } catch (Exception e) {
@@ -58,7 +91,13 @@ public class site_qidian {
      */
     public static int qidian_getBookID_FromURL(String iURL) {
         String sQDID = "";
-        Matcher m = Pattern.compile("(?i).*/([0-9]+)\\.").matcher(iURL);
+        String RE = "" ;
+        if ( iURL.contains("3g.if.qidian.com") ) {
+            RE = "(?i)BookId=([0-9]+)&" ; // http://3g.if.qidian.com/Client/IGetBookInfo.aspx?version=2&BookId=3530623&ChapterId=0
+        } else {
+            RE = "(?i).*/([0-9]+)\\." ; // http://read.qidian.com/BookReader/3059077.aspx
+        }
+        Matcher m = Pattern.compile(RE).matcher(iURL);
         while (m.find()) {
             sQDID = m.group(1);
         }
@@ -73,6 +112,9 @@ public class site_qidian {
     */
     public static String qidian_getPageURL(String pageid, String bookid) {
     	return "http://files.qidian.com/Author" + ( 1 + ( Integer.valueOf(bookid) % 8 ) ) + "/" + bookid + "/" + pageid + ".txt";
+    }
+    public static String qidian_getPageURL(int pageid, int bookid) {
+        return "http://files.qidian.com/Author" + (1 + (bookid % 8)) + "/" + bookid + "/" + pageid + ".txt";
     }
     
     /**
@@ -101,21 +143,20 @@ public class site_qidian {
     * 日期: 2015-11-17
     * @param html 类似 /b7zJ1_AnAJ41,Nw1qx8_dKSIex0RJOkJclQ2.aspx 的网页内容
     * @return http://files.qidian.com/Author7/1939238/53927617.txt
-	*/
-	public static String qidian_toTxtURL_FromPageContent(String html)
-	{
-		Matcher mat = Pattern.compile("(?i)(http://files.qidian.com/.*/[0-9]*/[0-9]*.txt)").matcher(html);
-		String txtURL = "";
-		while (mat.find()) {
-			txtURL = mat.group(1);
-		}
-		if ( txtURL.equalsIgnoreCase("") ) {
-			return "" ;
-		} else {
-			return txtURL ;
-		}
-	}
-    
+     */
+    public static String qidian_toTxtURL_FromPageContent(String html) {
+        Matcher mat = Pattern.compile("(?i)(http://files.qidian.com/.*/[0-9]*/[0-9]*.txt)").matcher(html);
+        String txtURL = "";
+        while (mat.find()) {
+            txtURL = mat.group(1);
+        }
+        if (txtURL.equalsIgnoreCase("")) {
+            return "";
+        } else {
+            return txtURL;
+        }
+    }
+
     /**
     *
     * @param jsStr http://files.qidian.com/Author7/1939238/53927617.txt 中的内容

@@ -14,7 +14,7 @@
     <item
         android:id="@+id/pm_cleanBookND"
         android:icon="@android:drawable/ic_menu_delete"
-        android:showAsAction="ifRoom|withText"
+        android:showAsAction="always|withText"
         android:title="删除所有章节且不修改DelList"/>
 
 </menu>

@@ -42,6 +42,8 @@ public class Activity_SearchBook extends Activity {
 	private final int IS_GETQIDIANURL = 8;
 	private final int IS_DOWNHTML = 5;
 	
+	private final int SITE_QIDIAN_MOBILE = 16;
+	
 	private static Handler handler;
 
 	public class GetQidianURL implements Runnable {
@@ -84,11 +86,8 @@ public class Activity_SearchBook extends Activity {
 		btn_search.setOnClickListener(new OnClickListener() { // 点击按钮搜索 // 需要转换编码
 			public void onClick(View v) {
 				book_name = et.getText().toString();
-				String gbURL;
 				try {
-					gbURL = URLEncoder.encode(book_name, "GB2312");
-					wv.loadUrl("http://www.sogou.com/web?query=" + gbURL
-							+ "&num=50");
+					wv.loadUrl("http://cn.bing.com/search?q=" + URLEncoder.encode(book_name, "UTF-8"));
 				} catch (UnsupportedEncodingException e) {
 					e.toString();
 				}
@@ -107,7 +106,7 @@ public class Activity_SearchBook extends Activity {
 							intentQD.putExtra("iam", FROM_NET);
 							intentQD.putExtra("bookurl", lcQidianURL);
 							intentQD.putExtra("bookname", book_name);
-							intentQD.putExtra("searchengine", 1);
+							intentQD.putExtra("searchengine", SITE_QIDIAN_MOBILE);
 							Activity_PageList.oDB = oDB;
 							startActivity(intentQD);
 						} else {

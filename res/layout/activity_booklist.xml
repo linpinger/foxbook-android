@@ -14,7 +14,7 @@
         android:id="@+id/android:empty"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="\n　亲是不是没有书咩，搜一本呗" />
+        android:text="\n　木有书咩，按菜单键，搜索一本呗" />
 
 
     

@@ -117,6 +117,9 @@ public class FoxBookLib {
 		int site_type = 0 ; // 特殊页面处理 
 
 		if ( pageFullURL.contains(".qidian.com") ) { site_type = 99 ; }
+		if ( pageFullURL.contains("files.qidian.com") ) {  // 起点手机站直接用txt地址好了
+            site_type = 16;
+        }
 		if ( pageFullURL.contains(".qreader.") ) { site_type = 13 ; }
 		if ( pageFullURL.contains("zhuishushenqi.com") ) { site_type = 12 ; } // 这个得放在qidian后面，因为有时候zssq地址会包含起点的url
 
@@ -127,6 +130,10 @@ public class FoxBookLib {
 				break;
 			case 13:
 				text = site_qreader.qreader_GetContent(pageFullURL);
+				break;
+			case 16:
+				html = downhtml(pageFullURL, "GBK"); // 下载json
+				text = site_qidian.qidian_getTextFromPageJS(html);
 				break;
 			case 99:
 //				String nURL = site_qidian.qidian_toPageURL_FromPageInfoURL(pageFullURL) ;

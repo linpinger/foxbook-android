@@ -11,6 +11,7 @@ public final class R {
     public static final class attr {
     }
     public static final class color {
+        public static final int ListView_background_color=0x7f040001;
         public static final int page_text_background_color=0x7f040000;
     }
     public static final class dimen {
@@ -60,13 +61,13 @@ public final class R {
         public static final int scrollView1=0x7f090006;
         public static final int show_next=0x7f09002c;
         public static final int show_prev=0x7f09002b;
-        public static final int sm_QuickSearchBing=0x7f090028;
-        public static final int sm_QuickSearchEaSou=0x7f090029;
+        public static final int sm_QuickSearchBing=0x7f090025;
+        public static final int sm_QuickSearchEaSou=0x7f090028;
         public static final int sm_QuickSearchQidian=0x7f090023;
-        public static final int sm_QuickSearchQreader=0x7f090025;
+        public static final int sm_QuickSearchQreader=0x7f090024;
         public static final int sm_QuickSearchSouGou=0x7f090026;
         public static final int sm_QuickSearchYahoo=0x7f090027;
-        public static final int sm_QuickSearchZhuiShuShenQi=0x7f090024;
+        public static final int sm_QuickSearchZhuiShuShenQi=0x7f090029;
         public static final int sm_bShowAll=0x7f09002a;
         public static final int sp_set_size_down=0x7f09002e;
         public static final int sp_set_size_up=0x7f09002d;

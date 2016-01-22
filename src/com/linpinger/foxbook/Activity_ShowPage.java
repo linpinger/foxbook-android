@@ -44,6 +44,7 @@ public class Activity_ShowPage extends Activity {
 	private final int SE_EASOU = 11 ;
 	private final int SE_ZSSQ = 12 ;
 	private final int SE_KUAIDU = 13 ;
+	private final int SITE_QIDIAN_MOBILE = 16;
 
 	
 	protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +99,10 @@ public class Activity_ShowPage extends Activity {
 					break;
 				case SE_KUAIDU:
 					text = site_qreader.qreader_GetContent(pageurl);
+					break;
+				case SITE_QIDIAN_MOBILE:
+					text = FoxBookLib.downhtml(pageurl, "GBK");
+					text = site_qidian.qidian_getTextFromPageJS(text);
 					break;
 				default:
 					text = FoxBookLib.updatepage(-1, pageurl, oDB) ;
