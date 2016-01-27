@@ -1,16 +1,65 @@
 package com.linpinger.foxbook;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 public class FoxMemDBHelper {
-
+	
+    public static String importQidianTxt(String txtPath, FoxMemDB oDB) {
+    	String txtContent = site_qidian.qidian_getTextFromPageJS(FoxBookLib.fileRead(txtPath, "GBK")) + "\r\n<end>\r\n" ;
+        
+		SQLiteDatabase db = oDB.getDB();
+		if ( ! txtContent.contains("更新时间") ) {
+			txtContent = FoxBookLib.fileRead(txtPath, "utf-8");
+        	db.execSQL("insert into page(bookid,name,content,CharCount) values(?,?,?,?)", new Object[] { "1", "非起点txt_UTF-8", txtContent, String.valueOf(txtContent.length()) });
+			txtContent = FoxBookLib.fileRead(txtPath, "GBK");
+        	db.execSQL("insert into page(bookid,name,content,CharCount) values(?,?,?,?)", new Object[] { "1", "非起点txt_GBK", txtContent, String.valueOf(txtContent.length()) });
+        	return "非起点Txt";
+        }
+    	
+    	File ttt = new File(txtPath);
+        
+        String sQidianid = ttt.getName().replace(".txt", ""); // 文件名
+        String sQidianURL = site_qidian.qidian_getIndexURL_Desk(Integer.valueOf(sQidianid)); // URL
+        String sBookName = sQidianid;
+        try {  // 第一行书名
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(txtPath), "GBK"));
+            sBookName =  br.readLine() ;
+            br.close();
+        } catch (Exception e) {
+            e.toString();
+        }
+        String sBookid = String.valueOf(insertbook(sBookName, sQidianURL, oDB)); // 新增书籍 并 获取id
+        
+        
+        
+		db.beginTransaction();// 开启事务
+		try {
+			Matcher mat = Pattern.compile("(?mi)^([^\\r\\n]+)[\\r\\n]{1,2}更新时间.*$[\\r\\n]{2,4}([^\\a]+?)(?=(^([^\\r\\n]+)[\\r\\n]{1,2}更新时间)|^<end>$)").matcher(txtContent);
+			while (mat.find()) {
+				db.execSQL("insert into page(bookid,name,content,CharCount) values(?,?,?,?)",
+						new Object[] { sBookid, mat.group(1), mat.group(2).replace("\n\n", "\n"), String.valueOf(mat.group(2).length()) });
+			}
+			db.setTransactionSuccessful();// 设置事务的标志为True
+		} finally {
+			db.endTransaction();// 结束事务,有两种情况：commit,rollback,
+			// 事务的提交或回滚是由事务的标志决定的,如果事务的标志为True，事务就会提交，否侧回滚,默认情况下事务的标志为False
+		}
+        return sBookName;
+    }
 
 	public static List<Map<String, Object>> getEbookChaters(boolean isHTMLOut, FoxMemDB db){
 		Cursor cursor = db.getDB().rawQuery("select page.name, page.content, book.name, book.id from book,page where book.id = page.bookid and page.content is not null order by page.bookid,page.id", null);

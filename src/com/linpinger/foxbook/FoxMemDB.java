@@ -34,6 +34,11 @@ public class FoxMemDB {
 		}
 		createMemDB(fDB);
 	}
+
+	FoxMemDB(Context ct) {  // 起点txt专用
+		this.isMemDB = true ;
+		createMemDB(new File("/xxxxxxxoooooooooo"));
+	}
 	
 	public SQLiteDatabase getDB() {
 		return db;
