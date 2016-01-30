@@ -26,16 +26,8 @@ public class Activity_QuickSearch extends ListActivity {
 	private Handler handler;
 	private static int IS_REFRESH = 5 ;
 	
-	private final int SE_SOGOU = 1 ;
-	private final int SE_YAHOO = 2 ;
-	private final int SE_BING = 3 ;
-	private final int SE_EASOU = 11 ;
-	private final int SE_ZSSQ = 12 ;
-	
 	private String book_name = "" ;
 	private String book_url = "" ;
-	
-	private static int FROM_NET = 2 ; 
 	
 	private int SE_TYPE = 1; // 搜索引擎
 	
@@ -62,19 +54,19 @@ public class Activity_QuickSearch extends ListActivity {
 		String seURL = "" ;
 		try {
 			switch (SE_TYPE) { // 1:sogou 2:yahoo 3:bing  11:easou 12:追书神器
-			case SE_SOGOU:
+			case FoxBookLib.SE_SOGOU:
 				seURL = "http://www.sogou.com/web?query=" + URLEncoder.encode(book_name, "GB2312") + "&num=50" ;
 				break;
-			case SE_YAHOO:
+			case FoxBookLib.SE_YAHOO:
 				seURL = "http://search.yahoo.com/search?n=40&p=" + URLEncoder.encode(book_name, "UTF-8") ;
 				break;
-			case SE_BING:
+			case FoxBookLib.SE_BING:
 				seURL = "http://cn.bing.com/search?q=" + URLEncoder.encode(book_name, "UTF-8") ;
 				break;
-			case SE_EASOU:
+			case FoxBookLib.SE_EASOU:
 				seURL = site_easou.getUrlSE(book_name);
 				break;
-			case SE_ZSSQ:
+			case FoxBookLib.SE_ZSSQ:
 				seURL = site_zssq.getUrlSE(book_name);
 				break;
 			}
@@ -92,7 +84,7 @@ public class Activity_QuickSearch extends ListActivity {
 				book_url = (String) chapinfo.get("url");
 				Intent intent = new Intent(Activity_QuickSearch.this,
 						Activity_PageList.class);
-				intent.putExtra("iam", FROM_NET);
+				intent.putExtra("iam", FoxBookLib.FROM_NET);
 				intent.putExtra("bookurl", book_url);
 				intent.putExtra("bookname", book_name);
 				intent.putExtra("bShowAll", false);
@@ -114,7 +106,7 @@ public class Activity_QuickSearch extends ListActivity {
 		@Override
 		public void run() {
 			switch(SE_TYPE) {
-			case SE_EASOU:
+			case FoxBookLib.SE_EASOU:
 				String sJson = FoxBookLib.downhtml(this.bookurl, "utf-8");
 				bookurl = site_easou.getUrlSL(site_easou.json2IDs(sJson, 1));
 				sJson = FoxBookLib.downhtml(bookurl, "utf-8");
@@ -123,7 +115,7 @@ public class Activity_QuickSearch extends ListActivity {
 					msge.obj = sJson;
 					handler.sendMessage(msge);
 				break;
-			case SE_ZSSQ :
+			case FoxBookLib.SE_ZSSQ :
 				String json = FoxBookLib.downhtml(this.bookurl, "utf-8");
 				bookurl = site_zssq.getUrlSL(site_zssq.json2BookID(json));
 				json = FoxBookLib.downhtml(bookurl, "utf-8");
@@ -155,10 +147,10 @@ public class Activity_QuickSearch extends ListActivity {
 				if ( msg.what == IS_REFRESH ) { // 下载完毕
 					String sHTTP = (String)msg.obj;				
 					switch(SE_TYPE) {
-					case SE_EASOU:
+					case FoxBookLib.SE_EASOU:
 						data = site_easou.json2SiteList(sHTTP) ;
 						break;
-					case SE_ZSSQ :
+					case FoxBookLib.SE_ZSSQ :
 						data = site_zssq.json2SiteList(sHTTP) ;
 						break;
 					default :

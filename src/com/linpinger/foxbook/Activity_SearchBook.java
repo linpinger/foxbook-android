@@ -1,10 +1,8 @@
 package com.linpinger.foxbook;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.webkit.WebView;
@@ -36,13 +34,9 @@ public class Activity_SearchBook extends Activity {
 	
 	private String book_name = "";
 	private String book_url = "";
-//	private final int FROM_DB = 1 ;
-	private final int FROM_NET = 2 ; 
 	
 	private final int IS_GETQIDIANURL = 8;
 	private final int IS_DOWNHTML = 5;
-	
-	private final int SITE_QIDIAN_MOBILE = 16;
 	
 	private static Handler handler;
 
@@ -103,10 +97,10 @@ public class Activity_SearchBook extends Activity {
 						String lcQidianURL = (String)msg.obj;
 						if ( 0 != lcQidianURL.length() ) {
 							Intent intentQD = new Intent(Activity_SearchBook.this, Activity_PageList.class);
-							intentQD.putExtra("iam", FROM_NET);
+							intentQD.putExtra("iam", FoxBookLib.FROM_NET);
 							intentQD.putExtra("bookurl", lcQidianURL);
 							intentQD.putExtra("bookname", book_name);
-							intentQD.putExtra("searchengine", SITE_QIDIAN_MOBILE);
+							intentQD.putExtra("searchengine", FoxBookLib.SE_QIDIAN_MOBILE);
 							Activity_PageList.oDB = oDB;
 							startActivity(intentQD);
 						} else {
@@ -117,7 +111,7 @@ public class Activity_SearchBook extends Activity {
 						String html = (String)msg.obj;
 
 						Intent intent = new Intent(Activity_SearchBook.this, Activity_PageList.class);
-						intent.putExtra("iam", FROM_NET);
+						intent.putExtra("iam", FoxBookLib.FROM_NET);
 						intent.putExtra("bookurl", book_url);
 						intent.putExtra("bookname", book_name);
 						intent.putExtra("html", html);
@@ -217,10 +211,10 @@ public class Activity_SearchBook extends Activity {
 			Intent intent13 = new Intent(
 					Activity_SearchBook.this,
 					Activity_PageList.class);
-			intent13.putExtra("iam", FROM_NET);
+			intent13.putExtra("iam", FoxBookLib.FROM_NET);
 			intent13.putExtra("bookurl", "http://linpinger.github.io/");
 			intent13.putExtra("bookname", book_name);
-			intent13.putExtra("searchengine", 13);
+			intent13.putExtra("searchengine", FoxBookLib.SE_QREADER);
 			Activity_PageList.oDB = oDB;
 			startActivity(intent13);
 			break;
@@ -228,7 +222,7 @@ public class Activity_SearchBook extends Activity {
 			book_name = et.getText().toString();
 			Intent itzssq = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
 			itzssq.putExtra("bookname", book_name);
-			itzssq.putExtra("searchengine", 12);
+			itzssq.putExtra("searchengine", FoxBookLib.SE_ZSSQ);
 			Activity_QuickSearch.oDB = oDB;
 			startActivity(itzssq);
 			break;
@@ -236,7 +230,7 @@ public class Activity_SearchBook extends Activity {
 			book_name = et.getText().toString();
 			Intent iteasou = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
 			iteasou.putExtra("bookname", book_name);
-			iteasou.putExtra("searchengine", 11);
+			iteasou.putExtra("searchengine", FoxBookLib.SE_EASOU);
 			Activity_QuickSearch.oDB = oDB;
 			startActivity(iteasou);
 			break;
@@ -244,7 +238,7 @@ public class Activity_SearchBook extends Activity {
 			book_name = et.getText().toString();
 			Intent intent = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
 			intent.putExtra("bookname", book_name);
-			intent.putExtra("searchengine", 1);
+			intent.putExtra("searchengine", FoxBookLib.SE_SOGOU);
 			Activity_QuickSearch.oDB = oDB;
 			startActivity(intent);
 			break;
@@ -252,7 +246,7 @@ public class Activity_SearchBook extends Activity {
 			book_name = et.getText().toString();
 			Intent itb = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
 			itb.putExtra("bookname", book_name);
-			itb.putExtra("searchengine", 3);
+			itb.putExtra("searchengine", FoxBookLib.SE_BING);
 			Activity_QuickSearch.oDB = oDB;
 			startActivity(itb);
 			break;
@@ -261,7 +255,7 @@ public class Activity_SearchBook extends Activity {
 			book_name = et.getText().toString();
 			Intent ityh = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
 			ityh.putExtra("bookname", book_name);
-			ityh.putExtra("searchengine", 2);
+			ityh.putExtra("searchengine", FoxBookLib.SE_YAHOO);
 			Activity_QuickSearch.oDB = oDB;
 			startActivity(ityh);
 			break;

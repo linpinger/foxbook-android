@@ -6,7 +6,6 @@ import java.util.Map;
 
 import android.app.ListActivity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -40,11 +39,11 @@ public class Activity_Qidian_Txt_List extends ListActivity {
 				// setTitle(parent.getItemAtPosition(position).toString());
 				Intent intent = new Intent(Activity_Qidian_Txt_List.this,
 						Activity_ShowPage.class);
-				intent.putExtra("iam", 1); // from DB
+				intent.putExtra("iam", FoxBookLib.FROM_DB); // from DB
 				intent.putExtra("chapter_id", tmpid);
 				intent.putExtra("chapter_name", tmpname);
 				intent.putExtra("chapter_url", tmpurl);
-				intent.putExtra("searchengine", 1); // SE
+				intent.putExtra("searchengine", FoxBookLib.SE_BING); // SE
 				Activity_ShowPage.oDB = oDB;
 				startActivity(intent);
 			}

@@ -42,8 +42,6 @@ public class Activity_PageList extends ListActivity {
 	private final int IS_QIDIAN_MOBILE = 16;
 	
 	private String easou_gid_nid = "";
-	private static int FROM_DB = 1 ;
-	private static int FROM_NET = 2 ; 
 	private int foxfrom = 0; // 1=DB, 2=search
 	private String bookurl = "";
 	private String bookname = "";
@@ -54,25 +52,20 @@ public class Activity_PageList extends ListActivity {
 	private int longclickpos = 0;
 	
 	private int SE_TYPE = 1; // 搜索引擎
-	private final int SITE_QIDIAN_MOBILE = 16;
-	private final int SE_EASOU = 11 ;
-	private final int SE_ZSSQ = 12 ;
-	private final int SE_KUAIDU = 13 ;
-
 	
 
 	public class DownTOC implements Runnable { // 后台线程下载网页
 		@Override
 		public void run() {
 			switch(SE_TYPE) {
-			case SITE_QIDIAN_MOBILE : // 起点手机版目录
+			case FoxBookLib.SE_QIDIAN_MOBILE : // 起点手机版目录
 				String sJsonQDM = FoxBookLib.downhtml(bookurl, "utf-8") ;
 				Message msgQDM = Message.obtain();
 				msgQDM.what = IS_QIDIAN_MOBILE;
 				msgQDM.obj = sJsonQDM;
 				handler.sendMessage(msgQDM);
 				break;
-			case SE_EASOU : // 处理easou搜索书籍，返回书籍地址
+			case FoxBookLib.SE_EASOU : // 处理easou搜索书籍，返回书籍地址
 				String sJson = FoxBookLib.downhtml(site_easou.getUrlSE(bookname), "utf-8");
 				easou_gid_nid = site_easou.json2IDs(sJson,0);
 				bookurl = site_easou.getUrlToc(easou_gid_nid);
@@ -82,14 +75,14 @@ public class Activity_PageList extends ListActivity {
 					msge.obj = sJson;
 					handler.sendMessage(msge);
 				break;
-			case SE_ZSSQ:
+			case FoxBookLib.SE_ZSSQ:
 				String sJson2 = FoxBookLib.downhtml(bookurl, "utf-8") ;
 				Message msg2 = Message.obtain();
 				msg2.what = IS_DOWNZSSQ;
 				msg2.obj = sJson2;
 				handler.sendMessage(msg2);
 				break;
-			case SE_KUAIDU:
+			case FoxBookLib.SE_QREADER:
 				if ( ! bookurl.contains(".qreader.") ) { // 在booklist上搜索快读
 					bookurl = site_qreader.qreader_Search(bookname);
 				}
@@ -147,7 +140,7 @@ public class Activity_PageList extends ListActivity {
 				Map<String, Object> chapinfol = (HashMap<String, Object>) parent.getItemAtPosition(position);
 				longclickpos = position ; // base 0
 
-				if ( foxfrom == FROM_NET ) { // 从网络下载临时的条目没有ID
+				if ( foxfrom == FoxBookLib.FROM_NET ) { // 从网络下载临时的条目没有ID
 					foxtip("从网络下载临时的条目没有ID");
 					return true;
 				}
@@ -287,7 +280,7 @@ public class Activity_PageList extends ListActivity {
 
 		init_handler() ; // 初始化一个handler 用于处理后台线程的消息
  
-		if ( FROM_NET == foxfrom ) {
+		if ( FoxBookLib.FROM_NET == foxfrom ) {
 			String html = itt.getStringExtra("html");
 			if (null == html) { // 没传入自己下载
 				new Thread(new DownTOC()).start();
@@ -295,7 +288,7 @@ public class Activity_PageList extends ListActivity {
 			}
 			data = FoxBookLib.tocHref(html, 16);
 		}
-		if ( FROM_DB == foxfrom) { // DB
+		if ( FoxBookLib.FROM_DB == foxfrom) { // DB
 			bookid = itt.getIntExtra("bookid", 0);
 			data = FoxMemDBHelper.getPageList("where bookid=" + bookid, oDB); // 获取页面列表
 		}
@@ -327,7 +320,7 @@ public class Activity_PageList extends ListActivity {
 			finish();
 			break;
 		case R.id.pm_Add:
-			if ( FROM_NET == foxfrom ) {
+			if ( FoxBookLib.FROM_NET == foxfrom ) {
 				if ( null != bookurl && "" != bookname ) {
 					int nBookID = 0 ;
 					// 新增入数据库，并获取返回bookid

@@ -46,16 +46,9 @@ public class Activity_BookList extends ListActivity {
 	private final int IS_REFRESHLIST = 3;
 	private final int IS_REGENID = 4;
 	private final int IS_NEWVER = 5;
-	private final int FROM_DB = 1;
-	private final int FROM_NET = 2;
 	private long mExitTime;
 
 	private int upchacount;    // 新增章节计数
-	
-	private final int SITE_QIDIAN_MOBILE = 16;
-//	private final int SITE_EASOU = 11 ;
-	private final int SITE_ZSSQ = 12 ;
-	private final int SITE_KUAIDU = 13 ;
 	
 	// 设置: isMemDB
 	SharedPreferences settings;
@@ -170,26 +163,26 @@ public class Activity_BookList extends ListActivity {
 
 			int site_type = 0 ;
 			if ( bookurl.indexOf("zhuishushenqi.com") > -1 ) {
-				site_type = SITE_ZSSQ ;
+				site_type = FoxBookLib.SITE_ZSSQ ;
 			}
 			if ( bookurl.indexOf(".qreader.") > -1 ) {
-				site_type = SITE_KUAIDU ;
+				site_type = FoxBookLib.SITE_QREADER ;
 			}
             if ( bookurl.indexOf("3g.if.qidian.com") > -1) {
-                site_type = SITE_QIDIAN_MOBILE ;
+                site_type = FoxBookLib.SITE_QIDIAN_MOBILE ;
             }
 
 			
 			String html = "";
 			switch(site_type) {
-			case SITE_KUAIDU:
+			case FoxBookLib.SITE_QREADER:
 				if (existList.length() > 3) {
 					xx = site_qreader.qreader_GetIndex(bookurl, 55, 1); // 更新模式  最后55章
 				} else {
 					xx = site_qreader.qreader_GetIndex(bookurl, 0, 1); // 更新模式
 				}
 				break;
-			case SITE_ZSSQ:
+			case FoxBookLib.SITE_ZSSQ:
 				html = FoxBookLib.downhtml(bookurl, "utf-8"); // 下载json
 				if (existList.length() > 3) {
 					xx = site_zssq.json2PageList(html, 55, 1); // 更新模式  最后55章
@@ -197,7 +190,7 @@ public class Activity_BookList extends ListActivity {
 					xx = site_zssq.json2PageList(html, 0, 1); // 更新模式
 				}
 				break;
-			case SITE_QIDIAN_MOBILE:
+			case FoxBookLib.SITE_QIDIAN_MOBILE:
 				html = FoxBookLib.downhtml(bookurl, "utf-8");
 				xx = site_qidian.json2PageList(html);
 				break;
@@ -314,7 +307,7 @@ public class Activity_BookList extends ListActivity {
 				if (tmpcount > 0) {
 					Intent intent = new Intent(Activity_BookList.this,
 							Activity_PageList.class);
-					intent.putExtra("iam", FROM_DB);
+					intent.putExtra("iam", FoxBookLib.FROM_DB);
 					intent.putExtra("bookurl", tmpurl);
 					intent.putExtra("bookname", tmpname);
 					intent.putExtra("bookid", tmpid);
@@ -378,14 +371,14 @@ public class Activity_BookList extends ListActivity {
 									Intent intent = new Intent(
 											Activity_BookList.this,
 											Activity_PageList.class);
-									intent.putExtra("iam", FROM_NET);
+									intent.putExtra("iam", FoxBookLib.FROM_NET);
 									intent.putExtra("bookurl", lcURL);
 									intent.putExtra("bookname", lcName);
 									if ( lcURL.indexOf("zhuishushenqi.com") > -1 ) {
-										intent.putExtra("searchengine", SITE_ZSSQ);
+										intent.putExtra("searchengine", FoxBookLib.SITE_ZSSQ);
 									}
 									if ( lcURL.indexOf(".qreader.") > -1 ) {
-										intent.putExtra("searchengine", SITE_KUAIDU);
+										intent.putExtra("searchengine", FoxBookLib.SITE_QREADER);
 									}
 									Activity_PageList.oDB = oDB;
 									startActivity(intent);
@@ -404,10 +397,10 @@ public class Activity_BookList extends ListActivity {
 									}
 									if ( 0 != lcQidianURL.length() ) {
 										Intent intentQD = new Intent(Activity_BookList.this, Activity_PageList.class);
-										intentQD.putExtra("iam", FROM_NET);
+										intentQD.putExtra("iam", FoxBookLib.FROM_NET);
 										intentQD.putExtra("bookurl", lcQidianURL);
 										intentQD.putExtra("bookname", lcName);
-										intentQD.putExtra("searchengine", SITE_QIDIAN_MOBILE);
+										intentQD.putExtra("searchengine", FoxBookLib.SE_QIDIAN_MOBILE);
 										Activity_PageList.oDB = oDB;
 										startActivity(intentQD);
 									} else {
@@ -417,32 +410,30 @@ public class Activity_BookList extends ListActivity {
 								case 4: // 搜索:bing
 									Intent intent7 = new Intent(Activity_BookList.this, Activity_QuickSearch.class);
 									intent7.putExtra("bookname", lcName);
-									intent7.putExtra("searchengine", 3);
+									intent7.putExtra("searchengine", FoxBookLib.SE_BING);
 									Activity_QuickSearch.oDB = oDB;
 									startActivity(intent7);
 									break;
 								case 5:  // 搜索:快读
-									Intent intent13 = new Intent(
-											Activity_BookList.this,
-											Activity_PageList.class);
-									intent13.putExtra("iam", FROM_NET);
+									Intent intent13 = new Intent(Activity_BookList.this, Activity_PageList.class);
+									intent13.putExtra("iam", FoxBookLib.FROM_NET);
 									intent13.putExtra("bookurl", lcURL);
 									intent13.putExtra("bookname", lcName);
-									intent13.putExtra("searchengine", SITE_KUAIDU);
+									intent13.putExtra("searchengine", FoxBookLib.SITE_QREADER);
 									Activity_PageList.oDB = oDB;
 									startActivity(intent13);
 									break;
 								case 6: // 搜索:追书神器
 									Intent intent9 = new Intent(Activity_BookList.this, Activity_QuickSearch.class);
 									intent9.putExtra("bookname", lcName);
-									intent9.putExtra("searchengine", 12);
+									intent9.putExtra("searchengine", FoxBookLib.SITE_ZSSQ);
 									Activity_QuickSearch.oDB = oDB;
 									startActivity(intent9);
 									break;
 								case 7: // 搜索:easou
 									Intent intent8 = new Intent(Activity_BookList.this, Activity_QuickSearch.class);
 									intent8.putExtra("bookname", lcName);
-									intent8.putExtra("searchengine", 11);
+									intent8.putExtra("searchengine", FoxBookLib.SITE_EASOU);
 									Activity_QuickSearch.oDB = oDB;
 									startActivity(intent8);
 									break;

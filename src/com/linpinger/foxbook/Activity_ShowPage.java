@@ -21,8 +21,6 @@ import android.widget.Toast;
 
 public class Activity_ShowPage extends Activity {
 	public static FoxMemDB oDB;
-	private static int FROM_DB = 1 ;
-	private static int FROM_NET = 2 ; 
 
 	private int foxfrom = 0 ;  // 1=DB, 2=search 
 	private TextView tv ;
@@ -41,11 +39,6 @@ public class Activity_ShowPage extends Activity {
 	private final int IS_REFRESH = 5 ;
 	
 	private int SE_TYPE = 1; // 搜索引擎
-	private final int SE_EASOU = 11 ;
-	private final int SE_ZSSQ = 12 ;
-	private final int SE_KUAIDU = 13 ;
-	private final int SITE_QIDIAN_MOBILE = 16;
-
 	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -89,18 +82,18 @@ public class Activity_ShowPage extends Activity {
 			public void run() {
 				String text = "";
 				switch(SE_TYPE) {
-				case SE_EASOU : // 处理easou搜索书籍，返回书籍地址
+				case FoxBookLib.SE_EASOU : // 处理easou搜索书籍，返回书籍地址
 					text = FoxBookLib.downhtml(pageurl, "utf-8");
 					text = site_easou.json2Text(text);
 					break;
-				case SE_ZSSQ:
+				case FoxBookLib.SE_ZSSQ:
 					text = FoxBookLib.downhtml(pageurl, "utf-8");
 					text = site_zssq.json2Text(text);
 					break;
-				case SE_KUAIDU:
+				case FoxBookLib.SE_QREADER:
 					text = site_qreader.qreader_GetContent(pageurl);
 					break;
-				case SITE_QIDIAN_MOBILE:
+				case FoxBookLib.SE_QIDIAN_MOBILE:
 					text = FoxBookLib.downhtml(pageurl, "GBK");
 					text = site_qidian.qidian_getTextFromPageJS(text);
 					break;
@@ -114,7 +107,7 @@ public class Activity_ShowPage extends Activity {
 			}
 		};
 		
-		if ( FROM_DB == foxfrom ){ // DB
+		if ( FoxBookLib.FROM_DB == foxfrom ){ // DB
 			pageid =  itt.getIntExtra("chapter_id", 0);
 //			pagetext = FoxDB.getOneCell("select Content from page where id = " + pageid + " and Content is not null" );
 			Map<String,String> infox = oDB.getOneRow("select bookid as bid, Content as cc, Name as naa from page where id = " + pageid + " and Content is not null");
@@ -128,7 +121,7 @@ public class Activity_ShowPage extends Activity {
 			}
 			tv.setText("　　" + pagetext.replace("\n", "\n　　") + "\n" + pagename);
 		} 
-		if ( FROM_NET == foxfrom ){ // NET
+		if ( FoxBookLib.FROM_NET == foxfrom ){ // NET
 			setTitle("下载中...");
 			new Thread(down_page).start();
 		}
@@ -136,7 +129,6 @@ public class Activity_ShowPage extends Activity {
 		tv.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View arg0) { // 单击滚屏
-				// TODO Auto-generated method stub
 				int vy = getWindowManager().getDefaultDisplay().getHeight(); // 屏幕高度
 				if ( cY <= vy / 3 ) { // 小于1/3屏 上一页
 					sv.smoothScrollBy(0, 30 - sv.getMeasuredHeight());

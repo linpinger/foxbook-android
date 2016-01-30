@@ -31,6 +31,25 @@ import android.annotation.SuppressLint;
 import android.os.Environment;
 
 public class FoxBookLib {
+	// 下面的常量是供各Activity使用的，它们会交换这些常量，并通过这些常量辨别网站类型
+	public static final int FROM_DB = 1;
+	public static final int FROM_NET = 2;
+	
+	public static final int SE_SOGOU = 1 ;
+	public static final int SE_YAHOO = 2 ;
+	public static final int SE_BING = 3 ;
+	
+	public static final int SE_EASOU = 11 ;
+	public static final int SE_ZSSQ = 12 ;
+	public static final int SE_QREADER = 13 ;
+	public static final int SE_QIDIAN_MOBILE = 16 ;
+
+	public static final int SITE_EASOU = 11 ;
+	public static final int SITE_ZSSQ = 12 ;
+	public static final int SITE_QREADER = 13 ; // 快读
+	public static final int SITE_QIDIAN_MOBILE = 16 ;  // 3g.if.qidian.com
+	
+
     public static String fileRead(String filePath, String encoding) {
         StringBuffer retStr = new StringBuffer(102400);
         try {
@@ -133,26 +152,23 @@ public class FoxBookLib {
 		int site_type = 0 ; // 特殊页面处理 
 
 		if ( pageFullURL.contains(".qidian.com") ) { site_type = 99 ; }
-		if ( pageFullURL.contains("files.qidian.com") ) {  // 起点手机站直接用txt地址好了
-            site_type = 16;
-        }
-		if ( pageFullURL.contains(".qreader.") ) { site_type = 13 ; }
-		if ( pageFullURL.contains("zhuishushenqi.com") ) { site_type = 12 ; } // 这个得放在qidian后面，因为有时候zssq地址会包含起点的url
+		if ( pageFullURL.contains("files.qidian.com") ) { site_type = 98; }   // 起点手机站直接用txt地址好了
+		if ( pageFullURL.contains(".qreader.") ) { site_type = SITE_QREADER ; }
+		if ( pageFullURL.contains("zhuishushenqi.com") ) { site_type = SITE_ZSSQ ; } // 这个得放在qidian后面，因为有时候zssq地址会包含起点的url
 
 		switch(site_type) {
-			case 12:
+			case SITE_ZSSQ:
 				String json = downhtml(pageFullURL, "utf-8"); // 下载json
 				text = site_zssq.json2Text(json);
 				break;
-			case 13:
+			case SITE_QREADER:
 				text = site_qreader.qreader_GetContent(pageFullURL);
 				break;
-			case 16:
+			case 98:
 				html = downhtml(pageFullURL, "GBK"); // 下载json
 				text = site_qidian.qidian_getTextFromPageJS(html);
 				break;
 			case 99:
-//				String nURL = site_qidian.qidian_toPageURL_FromPageInfoURL(pageFullURL) ;
 				String nURL = site_qidian.qidian_toTxtURL_FromPageContent(downhtml(pageFullURL)) ; // 2015-11-17: 起点地址变动，只能下载网页后再获取txt地址
 				if ( nURL.equalsIgnoreCase("") ) {
 					text = "" ;
@@ -174,8 +190,7 @@ public class FoxBookLib {
 		}
 	}
 	
-	public static List<Map<String, Object>> getSearchEngineHref(String html, String KeyWord) {
-//		String KeyWord = "三界血歌" ;
+	public static List<Map<String, Object>> getSearchEngineHref(String html, String KeyWord) { // String KeyWord = "三界血歌" ;
 		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(64);
 		Map<String, Object> item;
 
@@ -195,7 +210,6 @@ public class FoxBookLib {
 		Matcher mat = Pattern.compile("(?smi)href *= *[\"']?([^>\"']+)[\"']?[^>]*> *([^<]+)<").matcher(html);
 		while ( mat.find() ) {
 			if ( 2 == mat.groupCount() ) {
-// 				System.out.println(mat.group(1) + "|" + mat.group(2)) ;
 				if ( mat.group(1).length() < 5 ) {
 						continue ;
 				}

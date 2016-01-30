@@ -25,7 +25,6 @@ public class Activity_AllPageList extends ListActivity {
 	private ListView lv_pagelist ;
 	
 	private int howmany=0;
-	private int foxfrom = 1; // 1=DB, 2=search
 	
 	SimpleAdapter adapter;
 	
@@ -57,9 +56,8 @@ public class Activity_AllPageList extends ListActivity {
 				String bookurl = oDB.getOneCell("select url from book where id=" + tmpbid);
 
 				// setTitle(parent.getItemAtPosition(position).toString());
-				Intent intent = new Intent(Activity_AllPageList.this,
-						Activity_ShowPage.class);
-				intent.putExtra("iam", foxfrom);
+				Intent intent = new Intent(Activity_AllPageList.this, Activity_ShowPage.class);
+				intent.putExtra("iam", FoxBookLib.FROM_DB);
 				intent.putExtra("chapter_id", tmpid);
 				intent.putExtra("chapter_name", tmpname);
 				intent.putExtra("chapter_url", FoxBookLib.getFullURL(bookurl, tmpurl));
@@ -141,10 +139,9 @@ public class Activity_AllPageList extends ListActivity {
 		builder.create().show();
 		return true;
 	}
-
-};
-lv_pagelist.setOnItemLongClickListener(longlistener);
-	}
+  };
+  lv_pagelist.setOnItemLongClickListener(longlistener);
+}
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) { // Èë¿Ú
