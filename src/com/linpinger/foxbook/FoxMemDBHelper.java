@@ -61,8 +61,15 @@ public class FoxMemDBHelper {
         return sBookName;
     }
 
-	public static List<Map<String, Object>> getEbookChaters(boolean isHTMLOut, FoxMemDB db){
-		Cursor cursor = db.getDB().rawQuery("select page.name, page.content, book.name, book.id from book,page where book.id = page.bookid and page.content is not null order by page.bookid,page.id", null);
+    public static List<Map<String, Object>> getEbookChaters(boolean isHTMLOut, FoxMemDB db){
+    	return getEbookChaters(isHTMLOut, "all", db);
+    }
+	public static List<Map<String, Object>> getEbookChaters(boolean isHTMLOut, String iBookID, FoxMemDB db){
+		String addSQL = "" ;
+		if ( ! iBookID.equalsIgnoreCase("all") ) {
+			addSQL = " and page.bookid = " + iBookID ;
+		}
+		Cursor cursor = db.getDB().rawQuery("select page.name, page.content, book.name, book.id from book,page where book.id = page.bookid and page.content is not null " + addSQL + " order by page.bookid,page.id", null);
 		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(200);
 		Map<String, Object> item;
 		long preBookID = 0 ;
@@ -209,7 +216,7 @@ public class FoxMemDBHelper {
 	}
 
 	public static List<Map<String, Object>> getPageList(String sqlWhereStr, FoxMemDB db) { // 获取页面列表
-		String sql = "select name, ID, URL,Bookid from page " + sqlWhereStr ;
+		String sql = "select name, ID, URL,Bookid, length(content) from page " + sqlWhereStr ;
 		Cursor cursor = db.getDB().rawQuery(sql, null);
 
 		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(25);
@@ -221,6 +228,7 @@ public class FoxMemDBHelper {
 				item.put("id", cursor.getInt(1));
 				item.put("url", cursor.getString(2));
 				item.put("bookid", cursor.getInt(3));
+				item.put("count", cursor.getInt(4));
 				data.add(item);
 			} while (cursor.moveToNext());
 		}

@@ -35,6 +35,8 @@
     <!-- android:icon="@android:drawable/ic_menu_manage" -->
 
     <item android:id="@+id/action_exitwithnosave" android:title="不保存数据库退出"></item>
+    
+    <item android:id="@+id/action_foxhttpd" android:title="启动HTTP服务器" android:checkable="true" android:checked="false"></item>
 
     
     <item android:id="@+id/action_isMemDB" android:checkable="true" android:checked="true" android:title="使用MemDB" />

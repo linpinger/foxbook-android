@@ -65,10 +65,18 @@ public class FoxBookLib {
         return retStr.toString();
     }
 
-	public static void all2txt(FoxMemDB db) { // 所有书籍转为txt
+    public static String all2txt(FoxMemDB db) {
+    	return all2txt("all", db);
+    }
+	public static String all2txt(String iBookID, FoxMemDB db) { // 所有书籍转为txt
 		String txtPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "fox.txt";
 		String sContent = "" ;
-		List<Map<String, Object>> data = FoxMemDBHelper.getEbookChaters(false, db);
+		List<Map<String, Object>> data ;
+		if ( iBookID.equalsIgnoreCase("all") ) {
+			data = FoxMemDBHelper.getEbookChaters(false, db);
+		} else {
+			data = FoxMemDBHelper.getEbookChaters(false, iBookID, db);
+		}
 		Iterator<Map<String, Object>> itr = data.iterator();
 		while (itr.hasNext()) {
 			HashMap<String, Object> mm = (HashMap<String, Object>) itr.next();
@@ -84,6 +92,7 @@ public class FoxBookLib {
 			e.toString();
 //			e.printStackTrace();
 		}
+		return "/fox.txt"; // 给foxHTTPD当下载路径使用
 	}
 	
 	public static void all2epub(FoxMemDB db) {// 所有书籍转为epub

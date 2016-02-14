@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -36,6 +37,8 @@ public class Activity_BookList extends ListActivity {
 	public int downThread = 9 ;  // 页面下载任务线程数
 	public int leftThread = downThread ;
 
+	private FoxHTTPD foxHTTPD  = null;
+	
 	ListView lv_booklist;
 	List<Map<String, Object>> data;
 	String lcURL, lcName; // long click 的变量
@@ -682,6 +685,28 @@ public class Activity_BookList extends ListActivity {
 			this.finish();
 			System.exit(0);
 			break;
+		case R.id.action_foxhttpd: // 启动停止服务器
+			int nowListenPort = 8888 ;
+			String nowIP = FoxUpdatePkg.getLocalIpAddress();
+			boolean bStartIt = ! item.isChecked(); // 根据选项是否选中确定是否开启
+			if (bStartIt) {
+				try {
+					foxHTTPD = new FoxHTTPD(nowListenPort, new File("/sdcard/"));
+					foxHTTPD.oDB = oDB;
+					item.setChecked(bStartIt);
+					item.setTitle(nowIP + ":" + String.valueOf(nowListenPort) + " 已开");
+					foxtip(nowIP + ":" + String.valueOf(nowListenPort) + " 已开\n如要关闭，选择同一菜单");
+				} catch (Exception e) {
+					e.toString();
+				}
+			} else {
+				if (foxHTTPD != null) {
+					foxHTTPD.stop();
+					item.setChecked(bStartIt);
+					item.setTitle(nowIP + ":" + String.valueOf(nowListenPort) + " 已关");
+				}
+			}
+			break;
 		case R.id.action_isIntDB:   // 是否使用内部存储
 			isIntDB = ! item.isChecked() ;
 			item.setChecked(isIntDB);
@@ -735,6 +760,9 @@ public class Activity_BookList extends ListActivity {
 			} else {
 //				foxtip("退出中，正在保存数据库..."); // 显示不了
 				oDB.closeMemDB();
+				if (foxHTTPD != null) {
+					foxHTTPD.stop();
+				}
 				this.finish();
 				System.exit(0);
 			}
