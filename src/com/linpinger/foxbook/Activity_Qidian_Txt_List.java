@@ -1,5 +1,6 @@
 package com.linpinger.foxbook;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,8 @@ import java.util.Map;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -29,16 +32,14 @@ public class Activity_Qidian_Txt_List extends ListActivity {
 	
 	private void init_LV_item_click() { // 初始化 单击 条目 的行为
 		OnItemClickListener listener = new OnItemClickListener() {
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
+			@SuppressWarnings("unchecked")
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				Map<String, Object> chapinfo = (HashMap<String, Object>) parent.getItemAtPosition(position);
 				String tmpurl = (String) chapinfo.get("url");
 				String tmpname = (String) chapinfo.get("name");
 				Integer tmpid = (Integer) chapinfo.get("id");
 
-				// setTitle(parent.getItemAtPosition(position).toString());
-				Intent intent = new Intent(Activity_Qidian_Txt_List.this,
-						Activity_ShowPage.class);
+				Intent intent = new Intent(Activity_Qidian_Txt_List.this, Activity_ShowPage.class);
 				intent.putExtra("iam", FoxBookLib.FROM_DB); // from DB
 				intent.putExtra("chapter_id", tmpid);
 				intent.putExtra("chapter_name", tmpname);
@@ -57,12 +58,10 @@ public class Activity_Qidian_Txt_List extends ListActivity {
 		setContentView(R.layout.activity_qidian_txt_list);
 		lv_pagelist = getListView();
 		
-		// 获取传入的数据
+		// 获取传入的文件路径
 		Intent itt = getIntent();
-//		if ( itt.getScheme().equalsIgnoreCase("file") ) { // 处理txt文件的读取
 		String txtPath = itt.getData().getPath(); // 从intent获取txt路径
-		
-		oDB = new FoxMemDB(this.getApplicationContext()) ; // 创建内存数据库
+		oDB = new FoxMemDB(new File(txtPath.replace(".txt", "") + ".db3"), this.getApplicationContext()) ; // 创建内存数据库
 		String BookName = FoxMemDBHelper.importQidianTxt(txtPath, oDB); //导入txt到数据库
 			
 		foxtip("处理:" + txtPath);
@@ -76,5 +75,20 @@ public class Activity_Qidian_Txt_List extends ListActivity {
 	
 	private void foxtip(String sinfo) { // Toast消息
 		Toast.makeText(getApplicationContext(), sinfo, Toast.LENGTH_SHORT).show();
+	}
+
+	public boolean onCreateOptionsMenu(Menu menu) { // 创建菜单
+		getMenuInflater().inflate(R.menu.db3_txt_viewer, menu);
+		return true;
+	}
+	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作
+		switch (item.getItemId()) {
+		case R.id.action_save_exit:
+			oDB.closeMemDB();
+			this.finish();
+			System.exit(0);
+			break;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 }

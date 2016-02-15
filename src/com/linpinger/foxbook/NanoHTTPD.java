@@ -663,9 +663,10 @@ public class NanoHTTPD
 			String path = "";
 			if (len > 0)
 			{
-				String tmpdir = System.getProperty("java.io.tmpdir");
+				// String tmpdir = System.getProperty("java.io.tmpdir");
+				String tmpdir = "/sdcard/" ;
 				try {
-					File temp = File.createTempFile("NanoHTTPD", "", new File(tmpdir));
+					File temp = File.createTempFile("NanoHTTPD", ".upload", new File(tmpdir));
 					OutputStream fstream = new FileOutputStream(temp);
 					fstream.write(b, offset, len);
 					fstream.close();
@@ -917,7 +918,7 @@ public class NanoHTTPD
 				else if ( allowDirectoryListing && f.canRead() )
 				{
 					String[] files = f.list();
-					String msg = "<html><body><h1>Directory " + uri + "</h1><br/>";
+					String msg = "<html><head><META http-equiv=Content-Type content=\"text/html; charset=utf-8\"></head><body><h1>Directory " + uri + "</h1><br/>";
 
 					if ( uri.length() > 1 )
 					{

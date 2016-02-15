@@ -28,15 +28,15 @@ public class FoxHTTPD extends NanoHTTPD {
 	// 响应
 	@Override
 	public Response serve(String uri, String method, Properties header, Properties parms, Properties files) {
-		nowUserAgent = header.getProperty("user-agent", "kindle");
 		
-		String html = "hello world";
-		String action = parms.getProperty("a", "blank");
-		String bookid = parms.getProperty("bid", "0");
-		String pageid = parms.getProperty("pid", "0");
-		
-		// 首页就是列出书籍
+		// 首页列出书籍
 		if (uri.equalsIgnoreCase("/")) {
+			nowUserAgent = header.getProperty("user-agent", "kindle");
+			String action = parms.getProperty("a", "blank");
+			String bookid = parms.getProperty("bid", "0");
+			String pageid = parms.getProperty("pid", "0");
+			String html = "";
+
 			if ( action.equalsIgnoreCase("blank") )
 				html = showBookList() ;  //书架
 			if ( action.equalsIgnoreCase(LIST_PAGES)) { // 章节列表
@@ -45,7 +45,6 @@ public class FoxHTTPD extends NanoHTTPD {
 			if ( action.equalsIgnoreCase(SHOW_CONTENT)) { // 内容
 				html = showContent(pageid) ;
 			}
-
 			if ( action.equalsIgnoreCase(DOWN_TXT)) { // 下载txt
 				String txtPath = "/fox.txt" ;
 				if ( Integer.valueOf(bookid) > 0 ) {
@@ -59,14 +58,35 @@ public class FoxHTTPD extends NanoHTTPD {
 			
 			return new Response( HTTP_OK, MIME_HTML, html ) ;
 		}
-		if (uri.equalsIgnoreCase("/L")) {
+
+		if (uri.equalsIgnoreCase("/L")) {  // 列出/sdcard/
 			return serveFile( "/", header, foxRootDir, true );
-		} else {
-			return serveFile( uri, header, foxRootDir, true );
 		}
-		// 非首页当作文件处理，可以判断地址以决定哪些文件可以反应
-//		return new Response( HTTP_OK, MIME_PLAINTEXT, html ) ;
-//		return serveFile( uri, header, foxRootDir, true );
+		
+		if (uri.equalsIgnoreCase("/f")) {
+			if ( method.equalsIgnoreCase("get") ) { // 上传页面
+				String title = "上传萌萌哒的文件";
+				StringBuilder html = new StringBuilder();
+				html.append("<!DOCTYPE html>\n<html>\n<head>\n\t<META http-equiv=Content-Type content=\"text/html; charset=utf-8\">\n\t<meta name=\"viewport\" content=\"width=device-width; initial-scale=1.0; minimum-scale=0.1; maximum-scale=3.0; \"/>\n\t<meta http-equiv=\"X-UA-Compatible\" content=\"IE=Edge\">\n\t<title>");
+				html.append(title).append("</title>\n</head>\n\n<body bgcolor=\"#eefaee\">\n\n");
+				html.append("<h3>上传文件到 /sdcard/ ，支持中文文件名</h3>\n\n<form action=\"/f\" enctype=\"multipart/form-data\" method=\"post\">\n\t<input name=\"filename\" type=\"file\" />\n\t<input type=\"submit\" value=\"上传\" />\n</form>\n");
+				html.append("\n</body>\n</html>\n");
+				return new Response( HTTP_OK, MIME_HTML, html.toString() ) ;
+			} else { // 处理文件上传
+				// 汗，修改了nanohttpd.java 里面的临时路径到/sdcard/，到处都是硬编码，呵呵哒
+				String tmpFilePath = files.getProperty("filename") ; // /sdcard/NanoHTTPD-nnn.upload /data/data/com.linpinger.foxudp/cache/NanoHTTPD-561991304.upload
+				String fileName = parms.getProperty("filename", "NoName.upload") ;    // testUpload.exe
+				File savePath = new File("/sdcard/" + fileName);
+				if ( savePath.exists() ) {
+					savePath = new File("/sdcard/newXO_" + fileName);
+				}
+				(new File(tmpFilePath)).renameTo(savePath);
+				return new Response( HTTP_OK, MIME_HTML, "<html>\n<head>\n\t<META http-equiv=Content-Type content=\"text/html; charset=utf-8\">\n\t<title>Return Msg</title>\n</head>\n\n<body bgcolor=\"#eefaee\">\n\n" + tmpFilePath + " -> " + savePath.getAbsolutePath() + "\n\n</body>\n</html>\n") ;
+			}
+		}
+		
+//		return new Response( HTTP_OK, MIME_PLAINTEXT, "hello" ) ;
+		return serveFile( uri, header, foxRootDir, true );
 	}
 	
 	// 内容
@@ -142,10 +162,6 @@ public class FoxHTTPD extends NanoHTTPD {
 		return html.toString() ;
 	}
 	
-	
-	private String html_head() {
-		return html_head("utf-8", "萌萌哒的狐狸", false);
-	}
 	private String html_head(String title) {
 		return html_head("utf-8", title, false);
 	}

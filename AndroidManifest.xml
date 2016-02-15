@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.linpinger.foxbook"
     android:versionCode="5"
-    android:versionName="20160130" >
+    android:versionName="20160215" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -72,6 +72,20 @@
 				<data android:mimeType="*/*" />
 				<data android:host="*" />
 				<data android:pathPattern=".*.txt" />
+		     </intent-filter>
+        </activity>
+        <activity
+            android:name=".Activity_DB3_Viewer"
+            android:label="查看FoxBook数据库" >
+             <intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<data android:scheme="file" /> <!-- content -->
+				<data android:mimeType="*/*" />
+				<data android:host="*" />
+				<data android:pathPattern=".*.db3" />
+				<data android:pathPattern=".*.db3.old" />
 		     </intent-filter>
         </activity>
     </application>

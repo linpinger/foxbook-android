@@ -35,6 +35,7 @@ public class Activity_ShowPage extends Activity {
 	float sp_fontsize = 19; // 字体大小
 	SharedPreferences settings;
 	SharedPreferences.Editor editor;
+	private boolean isNextChapter = true;  // 翻页/翻屏
 	
 	private final int IS_REFRESH = 5 ;
 	
@@ -52,6 +53,7 @@ public class Activity_ShowPage extends Activity {
 		// 获取设置，并设置字体大小
         settings = getSharedPreferences(FOXSETTING, 0);
         editor = settings.edit();
+        isNextChapter = settings.getBoolean("isNextChapter", isNextChapter);
 		sp_fontsize = settings.getFloat("ShowPage_FontSize", sp_fontsize);
 		tv.setTextSize(sp_fontsize);
 
@@ -152,56 +154,72 @@ public class Activity_ShowPage extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) { // 创建菜单
 		getMenuInflater().inflate(R.menu.showpage, menu);
+		int itemcount = menu.size();
+		for ( int i=0; i< itemcount; i++){
+			switch (menu.getItem(i).getItemId()) {
+				case R.id.is_next_chapter:  // 翻章
+					menu.getItem(i).setChecked(isNextChapter);
+					break;
+			}
+		}
 		return true;
 	}
 
+	private void showPrevChapter() { // 上一章
+		if ( 0 == pageid ) {
+			foxtip("亲，ID 为 0");
+			return ;
+		}
+		Map<String,String> pp ;
+		pp = oDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where id < " + pageid + " and bookid = " + bookid + " and content is not null order by id desc limit 1"); // 本书内的上一章
+		if ( null == pp.get("id") ) {
+			pp = oDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where bookid < " + bookid + " and content is not null order by bookid desc, id limit 1");
+			if ( null == pp.get("name") ) {
+				foxtip("亲，没有上一页了");
+				return ;
+			}
+		}
+		pageid = Integer.valueOf(pp.get("id"));
+		bookid = Integer.valueOf(pp.get("bid"));
+		setTitle(pageid + " : " + pp.get("name") + " : " + pp.get("url") );
+		pagetext = pp.get("content");
+		tv.setText("　　" + pagetext.replace("\n", "\n　　") + "\n" + pp.get("name"));
+//		sv.smoothScrollTo(0, 0);
+		sv.scrollTo(0, 0);
+	}
+	
+	private void showNextChapter() { // 下一章
+		if ( 0 == pageid ) {
+			foxtip("亲，ID 为 0");
+			return ;
+		}
+		Map<String,String> nn;
+		nn = oDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where id > " + pageid + " and bookid = " + bookid + " and content is not null limit 1"); // 本书内的下一章
+		if ( null == nn.get("id") ) {
+			nn = oDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where bookid > " + bookid + " and content is not null order by bookid, id limit 1");
+			if ( null == nn.get("name") ) {
+				foxtip("亲，没有下一页了");
+				return ;
+			}
+		}
+		
+		pageid = Integer.valueOf(nn.get("id"));
+		bookid = Integer.valueOf(nn.get("bid"));
+		setTitle(pageid + " : " + nn.get("name") + " : " + nn.get("url") );
+		pagetext = nn.get("content");
+		tv.setText("　　" + pagetext.replace("\n", "\n　　") + "\n" + nn.get("name"));
+		
+//		sv.smoothScrollTo(0, 0);
+		sv.scrollTo(0, 0);
+	}
+	
 	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作
 		switch (item.getItemId()) {
-		case R.id.show_prev: // 上一页
-			if ( 0 == pageid ) {
-				foxtip("亲，ID 为 0");
-				break ;
-			}
-			Map<String,String> pp ;
-			pp = oDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where id < " + pageid + " and bookid = " + bookid + " and content is not null order by id desc limit 1"); // 本书内的上一章
-			if ( null == pp.get("id") ) {
-				pp = oDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where bookid < " + bookid + " and content is not null order by bookid desc, id limit 1");
-				if ( null == pp.get("name") ) {
-					foxtip("亲，没有上一页了");
-					break;
-				}
-			}
-			pageid = Integer.valueOf(pp.get("id"));
-			bookid = Integer.valueOf(pp.get("bid"));
-			setTitle(pageid + " : " + pp.get("name") + " : " + pp.get("url") );
-			pagetext = pp.get("content");
-			tv.setText("　　" + pagetext.replace("\n", "\n　　") + "\n" + pp.get("name"));
-//			sv.smoothScrollTo(0, 0);
-			sv.scrollTo(0, 0);
+		case R.id.show_prev:
+			showPrevChapter(); // 上一章
 			break;
-		case R.id.show_next: // 下一页
-			if ( 0 == pageid ) {
-				foxtip("亲，ID 为 0");
-				break ;
-			}
-			Map<String,String> nn;
-			nn = oDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where id > " + pageid + " and bookid = " + bookid + " and content is not null limit 1"); // 本书内的下一章
-			if ( null == nn.get("id") ) {
-				nn = oDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where bookid > " + bookid + " and content is not null order by bookid, id limit 1");
-				if ( null == nn.get("name") ) {
-					foxtip("亲，没有下一页了");
-					break;
-				}
-			}
-			
-			pageid = Integer.valueOf(nn.get("id"));
-			bookid = Integer.valueOf(nn.get("bid"));
-			setTitle(pageid + " : " + nn.get("name") + " : " + nn.get("url") );
-			pagetext = nn.get("content");
-			tv.setText("　　" + pagetext.replace("\n", "\n　　") + "\n" + nn.get("name"));
-			
-//			sv.smoothScrollTo(0, 0);
-			sv.scrollTo(0, 0);
+		case R.id.show_next:
+			showNextChapter() ; // 下一章
 			break;
 		case R.id.sp_set_size_up: // 增大字体
 			++sp_fontsize;
@@ -214,17 +232,37 @@ public class Activity_ShowPage extends Activity {
 			tv.setTextSize(sp_fontsize);
 			editor.putFloat("ShowPage_FontSize", sp_fontsize);
 			editor.commit();
-			break;		}
+			break;
+		case R.id.is_next_chapter:  // 默认翻章，取消则翻屏，和点击相同效果
+			isNextChapter = ! item.isChecked();
+			item.setChecked(isNextChapter);
+			editor.putBoolean("isNextChapter", isNextChapter);
+			editor.commit();
+			if (isNextChapter) {
+				foxtip("音量键现在是翻章模式");
+			} else {
+				foxtip("音量键现在是翻屏模式");
+			}
+			break;
+		}
 		return super.onOptionsItemSelected(item);
 	}
 	
 	public boolean onKeyDown(int keyCoder, KeyEvent event) { // 按退出键
 		if ( keyCoder == KeyEvent.KEYCODE_VOLUME_UP ) {
-			sv.smoothScrollBy(0, 30 - sv.getMeasuredHeight());
+			if ( isNextChapter ) {
+				showPrevChapter(); // 上一章
+			} else {
+				sv.smoothScrollBy(0, 30 - sv.getMeasuredHeight());
+			}
 			return true;
 		}
 		if ( keyCoder == KeyEvent.KEYCODE_VOLUME_DOWN ) {
-			sv.smoothScrollBy(0, sv.getMeasuredHeight() - 30);
+			if ( isNextChapter ) {
+				showNextChapter() ; // 下一章
+			} else {
+				sv.smoothScrollBy(0, sv.getMeasuredHeight() - 30);
+			}
 			return true;
 		}
 		return super.onKeyDown(keyCoder, event);

@@ -3,21 +3,26 @@
 
     <item
         android:id="@+id/show_prev"
+        android:icon="@android:drawable/ic_media_previous"
         android:orderInCategory="100"
         android:showAsAction="always"
-        android:icon="@android:drawable/ic_media_previous"
         android:title="上一章"/>
     <item
         android:id="@+id/show_next"
+        android:icon="@android:drawable/ic_media_next"
         android:orderInCategory="101"
         android:showAsAction="always"
-        android:icon="@android:drawable/ic_media_next"
         android:title="下一章"/>
     <item
         android:id="@+id/sp_set_size_up"
-        android:title="字体增大"/>
-        <item
+        android:title="增大字体"/>
+    <item
         android:id="@+id/sp_set_size_down"
-        android:title="字体减小"/>
+        android:title="减小字体"/>
+    <item
+        android:id="@+id/is_next_chapter"
+        android:checkable="true"
+        android:checked="true"
+        android:title="音量键:翻章/翻屏"/>
 
 </menu>

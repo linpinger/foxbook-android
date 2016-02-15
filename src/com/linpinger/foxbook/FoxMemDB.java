@@ -34,12 +34,14 @@ public class FoxMemDB {
 		}
 		createMemDB(fDB);
 	}
-
-	FoxMemDB(Context ct) {  // 起点txt专用
+	FoxMemDB(File DBFile, Context ct) { // 打开DB3/起点txt
+		this.cc = ct;
 		this.isMemDB = true ;
-		createMemDB(new File("/xxxxxxxoooooooooo"));
+		this.isIntDB = false;
+		this.fDB = DBFile;
+		createMemDB(fDB);
 	}
-	
+
 	public SQLiteDatabase getDB() {
 		return db;
 	}

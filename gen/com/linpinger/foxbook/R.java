@@ -41,6 +41,7 @@ public final class R {
         public static final int action_isIntDB=0x7f090018;
         public static final int action_isMemDB=0x7f090017;
         public static final int action_refresh=0x7f09001f;
+        public static final int action_save_exit=0x7f090021;
         public static final int action_searchbook=0x7f090014;
         public static final int action_sortbook_asc=0x7f090013;
         public static final int action_sortbook_desc=0x7f090012;
@@ -56,22 +57,23 @@ public final class R {
         public static final int edt_delurl=0x7f090007;
         public static final int edt_isend=0x7f090002;
         public static final int edt_qdid=0x7f090003;
-        public static final int pm_Add=0x7f090021;
-        public static final int pm_cleanBook=0x7f090022;
-        public static final int pm_cleanBookND=0x7f090023;
+        public static final int is_next_chapter=0x7f090031;
+        public static final int pm_Add=0x7f090022;
+        public static final int pm_cleanBook=0x7f090023;
+        public static final int pm_cleanBookND=0x7f090024;
         public static final int scrollView1=0x7f090006;
-        public static final int show_next=0x7f09002d;
-        public static final int show_prev=0x7f09002c;
-        public static final int sm_QuickSearchBing=0x7f090026;
-        public static final int sm_QuickSearchEaSou=0x7f090029;
-        public static final int sm_QuickSearchQidian=0x7f090024;
-        public static final int sm_QuickSearchQreader=0x7f090025;
-        public static final int sm_QuickSearchSouGou=0x7f090027;
-        public static final int sm_QuickSearchYahoo=0x7f090028;
-        public static final int sm_QuickSearchZhuiShuShenQi=0x7f09002a;
-        public static final int sm_bShowAll=0x7f09002b;
-        public static final int sp_set_size_down=0x7f09002f;
-        public static final int sp_set_size_up=0x7f09002e;
+        public static final int show_next=0x7f09002e;
+        public static final int show_prev=0x7f09002d;
+        public static final int sm_QuickSearchBing=0x7f090027;
+        public static final int sm_QuickSearchEaSou=0x7f09002a;
+        public static final int sm_QuickSearchQidian=0x7f090025;
+        public static final int sm_QuickSearchQreader=0x7f090026;
+        public static final int sm_QuickSearchSouGou=0x7f090028;
+        public static final int sm_QuickSearchYahoo=0x7f090029;
+        public static final int sm_QuickSearchZhuiShuShenQi=0x7f09002b;
+        public static final int sm_bShowAll=0x7f09002c;
+        public static final int sp_set_size_down=0x7f090030;
+        public static final int sp_set_size_up=0x7f09002f;
         public static final int tvCount=0x7f09000e;
         public static final int tvName=0x7f09000d;
         public static final int tv_bid=0x7f090000;
@@ -91,9 +93,10 @@ public final class R {
     }
     public static final class menu {
         public static final int booklist=0x7f080000;
-        public static final int pagelist=0x7f080001;
-        public static final int search=0x7f080002;
-        public static final int showpage=0x7f080003;
+        public static final int db3_txt_viewer=0x7f080001;
+        public static final int pagelist=0x7f080002;
+        public static final int search=0x7f080003;
+        public static final int showpage=0x7f080004;
     }
     public static final class string {
         public static final int app_name=0x7f060000;
