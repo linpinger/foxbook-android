@@ -4,13 +4,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -39,8 +43,8 @@ public class Activity_AllPageList extends ListActivity {
 			data = FoxMemDBHelper.getPageList("order by bookid,id limit "+ howmany, oDB);
 		}
 		adapter = new SimpleAdapter(this, data,
-				android.R.layout.simple_list_item_1, new String[] { "name" },
-				new int[] { android.R.id.text1 });
+				R.layout.lv_item_pagelist, new String[] { "name", "count" },
+				new int[] { R.id.tvName, R.id.tvCount });
 		lv_pagelist.setAdapter(adapter);
 	}
 
@@ -55,7 +59,8 @@ public class Activity_AllPageList extends ListActivity {
 				Integer tmpbid = (Integer) chapinfo.get("bookid");
 				String bookurl = oDB.getOneCell("select url from book where id=" + tmpbid);
 
-				// setTitle(parent.getItemAtPosition(position).toString());
+				setTitle(tmpname + " : " + tmpid);
+				
 				Intent intent = new Intent(Activity_AllPageList.this, Activity_ShowPage.class);
 				intent.putExtra("iam", FoxBookLib.FROM_DB);
 				intent.putExtra("chapter_id", tmpid);
@@ -143,11 +148,18 @@ public class Activity_AllPageList extends ListActivity {
   lv_pagelist.setOnItemLongClickListener(longlistener);
 }
 	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private void showHomeUp() {
+		getActionBar().setDisplayHomeAsUpEnabled(true);  // 标题栏中添加返回图标
+//		getActionBar().setDisplayShowHomeEnabled(false); // 隐藏程序图标
+	}		// 响应点击事件在onOptionsItemSelected的switch中加入 android.R.id.home   this.finish();
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) { // 入口
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_allpagelist);
+		setContentView(R.layout.activity_pagelist);
 		
+		showHomeUp();
 		
 		lv_pagelist = getListView();
 		
@@ -160,6 +172,29 @@ public class Activity_AllPageList extends ListActivity {
 		init_LV_item_Long_click() ; // 初始化 长击 条目 的行为
 	}
 
+	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作
+		switch (item.getItemId()) {
+		case android.R.id.home: // 返回图标
+			this.finish();
+			break;
+		case R.id.jumplist_tobottom:
+			lv_pagelist.setSelection(adapter.getCount() - 1);
+			break;
+		case R.id.jumplist_totop:
+			lv_pagelist.setSelection(0);
+			break;
+		case R.id.jumplist_tomiddle:
+			lv_pagelist.setSelection((int)( 0.5 * ( adapter.getCount() - 1 ) ));
+			break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
+	public boolean onCreateOptionsMenu(Menu menu) { // 创建菜单
+		getMenuInflater().inflate(R.menu.allpagelist, menu);
+		return true;
+	}
+	
 	public boolean onKeyDown(int keyCoder, KeyEvent event) { // 按键响应
 		if (keyCoder == KeyEvent.KEYCODE_BACK) {
 			setResult(RESULT_OK, (new Intent()).setAction("返回列表"));

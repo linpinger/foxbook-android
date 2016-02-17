@@ -1,10 +1,13 @@
 package com.linpinger.foxbook;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -30,7 +33,11 @@ public class Activity_SearchBook extends Activity {
 	private EditText et;
 	private ImageButton btn_search;
 	private Button btn_pre ;
-	private boolean bShowAll = false ;
+	
+	SharedPreferences settings;
+	SharedPreferences.Editor editor;
+	public static final String FOXSETTING = "FOXSETTING";
+	private boolean bShowAll = true ;
 	
 	private String book_name = "";
 	private String book_url = "";
@@ -56,11 +63,19 @@ public class Activity_SearchBook extends Activity {
 		}			
 	}
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private void showHomeUp() {
+		getActionBar().setDisplayHomeAsUpEnabled(true);  // 标题栏中添加返回图标
+//		getActionBar().setDisplayShowHomeEnabled(false); // 隐藏程序图标
+	}		// 响应点击事件在onOptionsItemSelected的switch中加入 android.R.id.home   this.finish();
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_search);
 		mExitTime = System.currentTimeMillis();
+		
+		showHomeUp();
 		
 		et = (EditText) findViewById(R.id.editText1);
 		wv = (WebView) findViewById(R.id.webView1);
@@ -76,6 +91,11 @@ public class Activity_SearchBook extends Activity {
 				return true;
 			}
 		});
+		
+		// 说明
+//		wv.getSettings().setDefaultTextEncodingName("UTF-8");
+		String html = "<!DOCTYPE html>\n<html>\n<head>\t<META http-equiv=Content-Type content=\"text/html; charset=utf-8\">\n<title>萌萌哒说明</title>\n</head>\n<body bgcolor=\"#eefaee\">\n<h2>说明:</h2>\n\n<h3>使用搜索引擎搜索:</h3>\n<ul>\n<li>输入要搜索的书名，按搜索按钮，然后在这里会显示搜索引擎结果</li>\n<li>点击链接直到目录页，然后按按钮“预”</li>\n</ul>\n\n<h3>使用快速搜索:</h3>\n<ul>\n<li>输入要搜索的书名</li>\n<li>按菜单键，在出来的菜单中选择一个搜索即可</li>\n</ul>\n\n<p>　如果出现列表正常的话，按加号添加书，之后按保存按钮</p>\n<p>　然后回到主界面即可看到新添加的书</p>\n\n</body>\n</html>" ;
+		wv.loadData(html, "text/html; charset=UTF-8", null);
 
 		btn_search.setOnClickListener(new OnClickListener() { // 点击按钮搜索 // 需要转换编码
 			public void onClick(View v) {
@@ -163,6 +183,10 @@ public class Activity_SearchBook extends Activity {
 			}
 		});
 		
+        settings = getSharedPreferences(FOXSETTING, 0);
+        editor = settings.edit();
+        this.bShowAll = settings.getBoolean("isShowAllList", bShowAll);
+
 	}
 
 	public boolean onKeyDown(int keyCoder, KeyEvent event) { // 按退出键
@@ -192,15 +216,28 @@ public class Activity_SearchBook extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) { // 创建菜单
 		getMenuInflater().inflate(R.menu.search, menu);
+		int itemcount = menu.size();
+		for ( int i=0; i< itemcount; i++){
+			switch (menu.getItem(i).getItemId()) {
+				case R.id.sm_bShowAll:
+					menu.getItem(i).setChecked(bShowAll);
+					break;
+			}
+		}
 		return true;
 	}
 
 
 	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作
 		switch (item.getItemId()) {
+		case android.R.id.home: // 返回图标
+			this.finish();
+			break;
 		case R.id.sm_bShowAll: // 预览显示所有条目
 			bShowAll = ! item.isChecked() ;
 			item.setChecked(bShowAll);
+			editor.putBoolean("isShowAllList", bShowAll);
+			editor.commit();
 			break;
 		case R.id.sm_QuickSearchQidian: // 快搜:起点
 			book_name = et.getText().toString();

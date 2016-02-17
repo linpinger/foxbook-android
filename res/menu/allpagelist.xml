@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/jumplist_tobottom"
+        android:icon="@android:drawable/stat_sys_download_done"
+        android:showAsAction="always|withText"
+        android:title="跳到表尾"/>
+    <item
+        android:id="@+id/jumplist_tomiddle"
+        android:showAsAction="ifRoom|withText"
+        android:title="表中"/>
+    <item
+        android:id="@+id/jumplist_totop"
+        android:showAsAction="ifRoom|withText"
+        android:title="表头"/>
+
+</menu>

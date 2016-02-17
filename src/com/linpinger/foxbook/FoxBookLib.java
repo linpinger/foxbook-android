@@ -222,13 +222,13 @@ public class FoxBookLib {
 				if ( mat.group(1).length() < 5 ) {
 						continue ;
 				}
-				if ( mat.group(1).indexOf("http") < 0 ) {
+				if ( ! mat.group(1).startsWith("http") ) {
 						continue ;
 				}
-                if (mat.group(1).indexOf("www.sogou.com/web") > 0) {
+                if ( mat.group(1).contains("www.sogou.com/web") ) {
                     continue;
                 }
-				if ( mat.group(2).indexOf(KeyWord) < 0 ) {
+				if ( ! mat.group(2).contains(KeyWord) ) {
 						continue ; 
 				}
 
@@ -260,7 +260,7 @@ public class FoxBookLib {
             html = html.replaceAll("(?smi).*?</head>(.*)", "$1"); // 获取正文
         }
         
-        if (html.indexOf("http://read.qidian.com/BookReader/") > -1) { // 处理起点目录
+        if ( html.contains("http://read.qidian.com/BookReader/") ) { // 处理起点目录
             html = html.replaceAll("(?smi).*<div id=\"content\">(.*)<div class=\"book_opt\">.*", "$1"); // 获取列表
 
             html = html.replace("\n", " ");

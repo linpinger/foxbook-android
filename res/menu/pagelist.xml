@@ -16,5 +16,18 @@
         android:icon="@android:drawable/ic_menu_delete"
         android:showAsAction="always|withText"
         android:title="删除所有章节且不修改DelList"/>
+    <item
+        android:id="@+id/jumplist_tobottom"
+        android:icon="@android:drawable/stat_sys_download_done"
+        android:showAsAction="ifRoom|withText"
+        android:title="跳到表尾"/>
+    <item
+        android:id="@+id/jumplist_tomiddle"
+        android:showAsAction="ifRoom|withText"
+        android:title="跳到表中"/>
+    <item
+        android:id="@+id/jumplist_totop"
+        android:showAsAction="ifRoom|withText"
+        android:title="跳到表头"/>
 
 </menu>

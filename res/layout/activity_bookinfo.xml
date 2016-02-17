@@ -10,32 +10,40 @@
 
         <TextView
             android:id="@+id/tv_bid"
+            android:hint="id"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/edt_bname"
             android:layout_alignParentLeft="true"
-            android:ems="2" />
+            android:ems="1" />
 
         <EditText
             android:id="@+id/edt_bname"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/tv_bid" >
+            android:layout_toLeftOf="@+id/edt_isend"
+            android:layout_toRightOf="@+id/tv_bid"
+            android:hint="书名" >
 
             <requestFocus />
         </EditText>
 
         <EditText
             android:id="@+id/edt_isend"
-            android:layout_toLeftOf="@+id/edt_qdid"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/edt_qdid"
+            android:hint="不更新"
+            android:inputType="numberDecimal" >
         </EditText>
 
         <EditText
             android:id="@+id/edt_qdid"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true" >
+            android:layout_alignParentRight="true"
+            android:hint="起点ID"
+            android:inputType="numberDecimal" >
         </EditText>
     </RelativeLayout>
 
@@ -47,7 +55,10 @@
             android:id="@+id/edt_burl"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true" >
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/btn_save"
+            android:hint="目录地址"
+            android:inputType="textUri" >
         </EditText>
 
         <Button
@@ -55,7 +66,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:ems="4"
             android:text="保存" />
     </RelativeLayout>
 
@@ -67,7 +77,8 @@
         <EditText
             android:id="@+id/edt_delurl"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" >
+            android:layout_height="match_parent"
+            android:hint="已删除列表" >
         </EditText>
     </ScrollView>
 

@@ -10,10 +10,10 @@
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:layout_toLeftOf="@+id/tvCount"
-        android:layout_marginLeft="18sp"
+        android:layout_marginLeft="9sp"
         android:layout_marginTop="18sp"
         android:layout_marginBottom="18sp"
-        android:textSize="20sp" />
+        android:textSize="18sp" />
 
     <TextView
         android:id="@+id/tvCount"
@@ -21,9 +21,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginRight="18sp"
+        android:layout_marginRight="9sp"
         android:layout_marginTop="18sp"
         android:layout_marginBottom="18sp"
-        android:textSize="20sp" />
+        android:textSize="18sp" />
 
 </RelativeLayout>

@@ -17,7 +17,7 @@ import android.widget.SimpleAdapter;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class Activity_Qidian_Txt_List extends ListActivity {
+public class Activity_Qidian_Txt_Viewer extends ListActivity {
 	private List<Map<String, Object>> data;
 	private ListView lv_pagelist ;
 	SimpleAdapter adapter;
@@ -25,8 +25,8 @@ public class Activity_Qidian_Txt_List extends ListActivity {
 	
 	private void renderListView() { // 刷新LV
 		adapter = new SimpleAdapter(this, data,
-				android.R.layout.simple_list_item_1, new String[] { "name" },
-				new int[] { android.R.id.text1 });
+				R.layout.lv_item_pagelist, new String[] { "name", "count" },
+				new int[] { R.id.tvName, R.id.tvCount });
 		lv_pagelist.setAdapter(adapter);
 	}
 	
@@ -39,7 +39,7 @@ public class Activity_Qidian_Txt_List extends ListActivity {
 				String tmpname = (String) chapinfo.get("name");
 				Integer tmpid = (Integer) chapinfo.get("id");
 
-				Intent intent = new Intent(Activity_Qidian_Txt_List.this, Activity_ShowPage.class);
+				Intent intent = new Intent(Activity_Qidian_Txt_Viewer.this, Activity_ShowPage.class);
 				intent.putExtra("iam", FoxBookLib.FROM_DB); // from DB
 				intent.putExtra("chapter_id", tmpid);
 				intent.putExtra("chapter_name", tmpname);
@@ -55,7 +55,7 @@ public class Activity_Qidian_Txt_List extends ListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) { // 入口
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_qidian_txt_list);
+		setContentView(R.layout.activity_qidian_txt_viewver);
 		lv_pagelist = getListView();
 		
 		// 获取传入的文件路径
@@ -78,7 +78,7 @@ public class Activity_Qidian_Txt_List extends ListActivity {
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu) { // 创建菜单
-		getMenuInflater().inflate(R.menu.db3_txt_viewer, menu);
+		getMenuInflater().inflate(R.menu.qidian_txt_viewer, menu);
 		return true;
 	}
 	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作

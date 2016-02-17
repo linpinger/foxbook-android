@@ -4,8 +4,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <!-- android:stackFromBottom="true" -->
-
     <ListView
         android:id="@+id/android:list"
         android:layout_width="match_parent"
@@ -15,7 +13,7 @@
         android:id="@+id/android:empty"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="\n　　处理数据中...\n\n　　如果很长时间都木有列表出现\n\n　　按返回键重试或换一个地址\n\n　　萌萌哒 ^_^"
+        android:text="\n　　处理起点txt文件中...\n\n　　如果很长时间木有列表出现，那表示这不是起点txt，不予处理\n\n　　萌萌哒 ^_^"
         android:textSize="16sp" />
 
 </LinearLayout>

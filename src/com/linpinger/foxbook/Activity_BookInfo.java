@@ -2,10 +2,13 @@ package com.linpinger.foxbook;
 
 import java.util.Map;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -30,9 +33,17 @@ public class Activity_BookInfo extends Activity {
 		edt_delurl = (EditText) findViewById(R.id.edt_delurl);
 	}
 	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private void showHomeUp() {
+		getActionBar().setDisplayHomeAsUpEnabled(true);  // 标题栏中添加返回图标
+//		getActionBar().setDisplayShowHomeEnabled(false); // 隐藏程序图标
+	}		// 响应点击事件在onOptionsItemSelected的switch中加入 android.R.id.home   this.finish();
+	
 	public void onCreate(Bundle savedInstanceState) { // 界面初始化
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_bookinfo);
+		
+		showHomeUp();
 		
 		// 通过intent获取数据
 		Intent itt = getIntent();
@@ -64,5 +75,13 @@ public class Activity_BookInfo extends Activity {
 		});
 
 	}
-
+	
+	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作
+		switch (item.getItemId()) {
+		case android.R.id.home: // 返回图标
+			this.finish();
+			break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
 }

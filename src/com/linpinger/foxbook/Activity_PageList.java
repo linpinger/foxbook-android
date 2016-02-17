@@ -45,7 +45,7 @@ public class Activity_PageList extends ListActivity {
 	private int foxfrom = 0; // 1=DB, 2=search
 	private String bookurl = "";
 	private String bookname = "";
- 	private boolean bShowAll = false;
+ 	private boolean bShowAll = true;
 	private int bookid = 0 ;
 	private String lcURL, lcName;
 	private Integer lcID;
@@ -103,10 +103,16 @@ public class Activity_PageList extends ListActivity {
 	}
 
 	private void renderListView() { // 刷新LV
-		adapter = new SimpleAdapter(this, data,
-				android.R.layout.simple_list_item_1, new String[] { "name" },
-				new int[] { android.R.id.text1 });
-		lv_pagelist.setAdapter(adapter);
+		if (FoxBookLib.FROM_DB == foxfrom) {
+			adapter = new SimpleAdapter(this, data, R.layout.lv_item_pagelist,
+					new String[] { "name", "count" }, new int[] { R.id.tvName, R.id.tvCount });
+			lv_pagelist.setAdapter(adapter);
+		} else {
+			adapter = new SimpleAdapter(this, data, android.R.layout.simple_list_item_1,
+					new String[] { "name" }, new int[] { android.R.id.text1 });
+			lv_pagelist.setAdapter(adapter);
+			lv_pagelist.setSelection(adapter.getCount() - 1); // 网络列表跳到尾部
+		}
 	}
 
 	private void init_LV_item_click() { // 初始化 单击 条目 的行为
@@ -261,11 +267,18 @@ public class Activity_PageList extends ListActivity {
 		};
 	}
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private void showHomeUp() {
+		getActionBar().setDisplayHomeAsUpEnabled(true);  // 标题栏中添加返回图标
+		getActionBar().setDisplayShowHomeEnabled(false); // 隐藏程序图标
+	}		// 响应点击事件在onOptionsItemSelected的switch中加入 android.R.id.home   this.finish();
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) { // 入口
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_pagelist);
 
+		showHomeUp();
 		lv_pagelist = getListView();
 
 		// 获取传入的数据
@@ -273,7 +286,7 @@ public class Activity_PageList extends ListActivity {
 		foxfrom = itt.getIntExtra("iam", 0); // 必需 表明数据从哪来的
 		bookurl = itt.getStringExtra("bookurl"); // 必需
 		bookname = itt.getStringExtra("bookname"); // 必需
-		bShowAll = itt.getBooleanExtra("bShowAll", false);
+		bShowAll = itt.getBooleanExtra("bShowAll", bShowAll);
 		SE_TYPE = itt.getIntExtra("searchengine", 1) ; // 给出搜索引擎类型
 
 		setTitle(bookname + " : " + bookurl);
@@ -302,11 +315,24 @@ public class Activity_PageList extends ListActivity {
 
 	public boolean onCreateOptionsMenu(Menu menu) { // 创建菜单
 		getMenuInflater().inflate(R.menu.pagelist, menu);
+		int itemcount = menu.size();
+		for ( int i=0; i< itemcount; i++){
+			switch (menu.getItem(i).getItemId()) {
+				case R.id.pm_Add:
+					if ( FoxBookLib.FROM_DB == foxfrom)  // 当是本地数据库时隐藏添加按钮
+						menu.getItem(i).setVisible(false);
+					break;
+			}
+		}
+
 		return true;
 	}
 
 	public boolean onOptionsItemSelected(MenuItem item) { // 响应菜单
 		switch (item.getItemId()) {
+		case android.R.id.home: // 返回图标
+			this.finish();
+			break;
 		case R.id.pm_cleanBook:
 			FoxMemDBHelper.delete_Book_All_Pages(bookid, true, oDB);
 			foxtip("已删除并更新记录");
@@ -338,6 +364,16 @@ public class Activity_PageList extends ListActivity {
 				}
 			}
 			break;
+		case R.id.jumplist_tobottom:
+			lv_pagelist.setSelection(adapter.getCount() - 1);
+			break;
+		case R.id.jumplist_totop:
+			lv_pagelist.setSelection(0);
+			break;
+		case R.id.jumplist_tomiddle:
+			lv_pagelist.setSelection((int)( 0.5 * ( adapter.getCount() - 1 ) ));
+			break;
+		
 		}
 		return super.onOptionsItemSelected(item);
 	}

@@ -2,9 +2,11 @@ package com.linpinger.foxbook;
 
 import java.util.Map;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -41,12 +43,20 @@ public class Activity_ShowPage extends Activity {
 	
 	private int SE_TYPE = 1; // 搜索引擎
 	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private void showHomeUp() {
+		getActionBar().setDisplayHomeAsUpEnabled(true);  // 标题栏中添加返回图标
+		getActionBar().setDisplayShowHomeEnabled(false); // 隐藏程序图标
+	}		// 响应点击事件在onOptionsItemSelected的switch中加入 android.R.id.home   this.finish();
+	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 //		Settings.System.putInt(this.getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, 180000); // 设置超时时间 3分钟
 //		getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); // 永远亮着
 		setContentView(R.layout.activity_showpage);
-
+		
+		showHomeUp();
+		
 		tv = (TextView) findViewById(R.id.tv_page);
 		sv = (ScrollView) findViewById(R.id.scrollView1);
 		
@@ -215,6 +225,9 @@ public class Activity_ShowPage extends Activity {
 	
 	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作
 		switch (item.getItemId()) {
+		case android.R.id.home: // 返回图标
+			this.finish();
+			break;
 		case R.id.show_prev:
 			showPrevChapter(); // 上一章
 			break;

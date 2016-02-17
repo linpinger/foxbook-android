@@ -7,8 +7,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.annotation.TargetApi;
 import android.app.ListActivity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -30,6 +32,12 @@ public class Activity_QuickSearch extends ListActivity {
 	private String book_url = "" ;
 	
 	private int SE_TYPE = 1; // 搜索引擎
+	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private void showHomeUp() {
+		getActionBar().setDisplayHomeAsUpEnabled(true);  // 标题栏中添加返回图标
+//		getActionBar().setDisplayShowHomeEnabled(false); // 隐藏程序图标
+	}		// 响应点击事件在onOptionsItemSelected的switch中加入 android.R.id.home   this.finish();
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) { // 入口
@@ -82,12 +90,11 @@ public class Activity_QuickSearch extends ListActivity {
 					int position, long id) {
 				Map<String, Object> chapinfo = (HashMap<String, Object>) parent.getItemAtPosition(position);
 				book_url = (String) chapinfo.get("url");
-				Intent intent = new Intent(Activity_QuickSearch.this,
-						Activity_PageList.class);
+				Intent intent = new Intent(Activity_QuickSearch.this, Activity_PageList.class);
 				intent.putExtra("iam", FoxBookLib.FROM_NET);
 				intent.putExtra("bookurl", book_url);
 				intent.putExtra("bookname", book_name);
-				intent.putExtra("bShowAll", false);
+				intent.putExtra("bShowAll", true);
 				intent.putExtra("searchengine", SE_TYPE);
 				Activity_PageList.oDB = oDB;
 				startActivity(intent);

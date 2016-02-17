@@ -11,6 +11,7 @@ import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.ListActivity;
+import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -38,6 +39,7 @@ public class Activity_BookList extends ListActivity {
 	public int leftThread = downThread ;
 
 	private FoxHTTPD foxHTTPD  = null;
+	private boolean bDB3FileFromIntent = false;  // 是否是通过文件关联进来的，会修改不保存数据库退出菜单功能
 	
 	ListView lv_booklist;
 	List<Map<String, Object>> data;
@@ -59,7 +61,7 @@ public class Activity_BookList extends ListActivity {
 	public static final String FOXSETTING = "FOXSETTING";
 	private boolean isMemDB = true;  // 是否是内存数据库
 	private boolean isIntDB = false;  // 是否是内部存储空间[还是SD卡]中保存数据库
-
+	private boolean isShowAllNetList = true; // 在线查看是否显示所有列表
 
 	public class FoxTaskDownPage implements Runnable { // 多线程任务更新页面列表
 		List<Map<String, Object>> taskList;
@@ -156,7 +158,6 @@ public class Activity_BookList extends ListActivity {
 		@Override
 		public void run() {
 			List<Map<String, Object>> xx;
-//			String bookurl = FoxDB.getOneCell("select url from book where id=" + String.valueOf(bookid)); // 获取 url
 			String existList = FoxMemDBHelper.getPageListStr(bookid, oDB); // 得到旧 list
 
 			Message msg = Message.obtain();
@@ -165,13 +166,13 @@ public class Activity_BookList extends ListActivity {
 			handler.sendMessage(msg);
 
 			int site_type = 0 ;
-			if ( bookurl.indexOf("zhuishushenqi.com") > -1 ) {
+			if ( bookurl.contains("zhuishushenqi.com") ) {
 				site_type = FoxBookLib.SITE_ZSSQ ;
 			}
-			if ( bookurl.indexOf(".qreader.") > -1 ) {
+			if ( bookurl.contains(".qreader.") ) {
 				site_type = FoxBookLib.SITE_QREADER ;
 			}
-            if ( bookurl.indexOf("3g.if.qidian.com") > -1) {
+            if ( bookurl.contains("3g.if.qidian.com") ) {
                 site_type = FoxBookLib.SITE_QIDIAN_MOBILE ;
             }
 
@@ -333,7 +334,6 @@ public class Activity_BookList extends ListActivity {
 	private void init_LV_item_Long_click() { // 初始化 长击 条目 的行为
 		final Builder builder = new AlertDialog.Builder(this);
 		OnItemLongClickListener longlistener = new OnItemLongClickListener() {
-			@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 			public boolean onItemLongClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				HashMap<String, Object> chapinfol = (HashMap<String, Object>) parent.getItemAtPosition(position);
@@ -375,12 +375,13 @@ public class Activity_BookList extends ListActivity {
 											Activity_BookList.this,
 											Activity_PageList.class);
 									intent.putExtra("iam", FoxBookLib.FROM_NET);
+									intent.putExtra("bShowAll", isShowAllNetList);
 									intent.putExtra("bookurl", lcURL);
 									intent.putExtra("bookname", lcName);
-									if ( lcURL.indexOf("zhuishushenqi.com") > -1 ) {
+									if ( lcURL.contains("zhuishushenqi.com") ) {
 										intent.putExtra("searchengine", FoxBookLib.SITE_ZSSQ);
 									}
-									if ( lcURL.indexOf(".qreader.") > -1 ) {
+									if ( lcURL.contains(".qreader.") ) {
 										intent.putExtra("searchengine", FoxBookLib.SITE_QREADER);
 									}
 									Activity_PageList.oDB = oDB;
@@ -449,14 +450,13 @@ public class Activity_BookList extends ListActivity {
 									startActivityForResult(itti, 0);
 									break;
 								case 9:  // 复制书名
-									ClipboardManager cbm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-									cbm.setText(lcName);
-									foxtip("已复制到剪贴板:" + lcName);
+									copyToClipboard(lcName);
+									foxtip("已复制到剪贴板: " + lcName);
 									break;
 								case 10: // 删除本书
 									FoxMemDBHelper.deleteBook(lcID, oDB);
 									refresh_BookList();
-									foxtip("已删除书:" + lcName);
+									foxtip("已删除: " + lcName);
 									break;
 								}
 							}
@@ -469,6 +469,7 @@ public class Activity_BookList extends ListActivity {
 		};
 		lv_booklist.setOnItemLongClickListener(longlistener);
 	}
+	
 
 	private void refresh_BookList() { // 刷新LV中的数据
 		data = FoxMemDBHelper.getBookList(oDB); // 获取书籍列表
@@ -521,14 +522,31 @@ public class Activity_BookList extends ListActivity {
 		setContentView(R.layout.activity_booklist);
 		mExitTime = System.currentTimeMillis(); // 当前时间，便于两次退出
 
+		// 获取传入的路径(关联db3文件)
+		String db3PathIn = "none" ;
+		try {
+			db3PathIn = getIntent().getData().getPath();
+		} catch (Exception e) {
+			e.toString();
+		}
+
 		// 获取设置，是否使用内存数据库
         settings = getSharedPreferences(FOXSETTING, 0);
         editor = settings.edit();
         this.isMemDB = settings.getBoolean("isMemDB", isMemDB);
         this.isIntDB = settings.getBoolean("isIntDB", isIntDB);
+        this.isShowAllNetList = settings.getBoolean("isShowAllList", isShowAllNetList);
 
-		oDB = new FoxMemDB(this.isMemDB, this.isIntDB, this.getApplicationContext()) ; // 默认使用MemDB
-		
+        if ( db3PathIn.equalsIgnoreCase("none")) {
+        	bDB3FileFromIntent = false;
+        	oDB = new FoxMemDB(this.isMemDB, this.isIntDB, this.getApplicationContext()) ; // 默认使用MemDB
+        } else {
+        	bDB3FileFromIntent = true;
+        	File inDB3File = new File(db3PathIn);
+        	oDB = new FoxMemDB(inDB3File, this.getApplicationContext()) ; // 打开DB3
+        	setTitle(inDB3File.getName());
+        	foxtip("注意:\n退出时不会保存数据库的修改哦\n如要保存修改，按菜单键并选择菜单");
+        }
 		init_handler(); // 初始化一个handler 用于处理后台线程的消息
 
 		lv_booklist = getListView(); // 获取LV
@@ -556,7 +574,17 @@ public class Activity_BookList extends ListActivity {
 					break;
 				case R.id.action_SD2intDB:
 					menu.getItem(i).setVisible(this.isIntDB);
-					break;					
+					break;
+				case R.id.action_exitwithnosave:
+					if ( bDB3FileFromIntent ) {
+						menu.getItem(i).setTitle("保存数据库并退出");
+					}
+					break;
+				case R.id.action_switchdb:
+					if ( bDB3FileFromIntent ) {
+						menu.getItem(i).setVisible(false);
+					}
+					break;
 			}
 		}
 		return true;
@@ -682,6 +710,9 @@ public class Activity_BookList extends ListActivity {
 			}).start();
 			break;
 		case R.id.action_exitwithnosave:  // 不保存数据库退出
+			if ( bDB3FileFromIntent ) { // 保存数据库并退出
+				beforeExitApp();
+			}
 			this.finish();
 			System.exit(0);
 			break;
@@ -758,10 +789,8 @@ public class Activity_BookList extends ListActivity {
 				foxtip("再按一次返回键退出程序");
 				mExitTime = System.currentTimeMillis();
 			} else {
-//				foxtip("退出中，正在保存数据库..."); // 显示不了
-				oDB.closeMemDB();
-				if (foxHTTPD != null) {
-					foxHTTPD.stop();
+				if ( ! bDB3FileFromIntent ) { // 不保存数据库并退出
+					beforeExitApp();
 				}
 				this.finish();
 				System.exit(0);
@@ -769,6 +798,16 @@ public class Activity_BookList extends ListActivity {
 			return true;
 		}
 		return super.onKeyDown(keyCoder, event);
+	}
+	private void beforeExitApp() {
+		oDB.closeMemDB();
+		if (foxHTTPD != null) {
+			foxHTTPD.stop();
+		}
+	}
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	public void copyToClipboard(String iText) {
+		((ClipboardManager) getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("hello", iText));
 	}
 
 }
