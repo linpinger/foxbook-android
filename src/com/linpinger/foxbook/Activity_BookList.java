@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -32,6 +33,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+@SuppressLint("SdCardPath")
 public class Activity_BookList extends ListActivity {
 	
 	public FoxMemDB oDB  ; // 默认使用MemDB
@@ -61,7 +63,6 @@ public class Activity_BookList extends ListActivity {
 	public static final String FOXSETTING = "FOXSETTING";
 	private boolean isMemDB = true;  // 是否是内存数据库
 	private boolean isIntDB = false;  // 是否是内部存储空间[还是SD卡]中保存数据库
-	private boolean isShowAllNetList = true; // 在线查看是否显示所有列表
 
 	public class FoxTaskDownPage implements Runnable { // 多线程任务更新页面列表
 		List<Map<String, Object>> taskList;
@@ -207,6 +208,7 @@ public class Activity_BookList extends ListActivity {
 				}
 			}
 
+			@SuppressWarnings("unchecked")
 			ArrayList<HashMap<String, Object>> newPages = (ArrayList<HashMap<String, Object>>)FoxBookLib.compare2GetNewPages(xx, existList) ;
 			int newpagecount = newPages.size(); // 新章节数，便于统计
 
@@ -298,13 +300,12 @@ public class Activity_BookList extends ListActivity {
 	private void init_LV_item_click() { // 初始化 单击 条目 的行为
 		OnItemClickListener listener = new OnItemClickListener() {
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-					long arg3) {
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+				@SuppressWarnings("unchecked")
 				HashMap<String, Object> chapinfo = (HashMap<String, Object>) arg0.getItemAtPosition(arg2);
 				String tmpurl = (String) chapinfo.get("url");
 				String tmpname = (String) chapinfo.get("name");
-				Integer tmpcount = Integer.parseInt((String) chapinfo
-						.get("count"));
+				Integer tmpcount = Integer.parseInt((String) chapinfo.get("count"));
 				Integer tmpid = (Integer) chapinfo.get("id");
 				setTitle(tmpname + " : " + tmpurl);
 
@@ -336,6 +337,7 @@ public class Activity_BookList extends ListActivity {
 		OnItemLongClickListener longlistener = new OnItemLongClickListener() {
 			public boolean onItemLongClick(AdapterView<?> parent, View view,
 					int position, long id) {
+				@SuppressWarnings("unchecked")
 				HashMap<String, Object> chapinfol = (HashMap<String, Object>) parent.getItemAtPosition(position);
 				lcURL = (String) chapinfol.get("url");
 				lcName = (String) chapinfol.get("name");
@@ -371,11 +373,8 @@ public class Activity_BookList extends ListActivity {
 									foxtip("正在更新目录: " + lcName);
 									break;
 								case 2: // 在线查看
-									Intent intent = new Intent(
-											Activity_BookList.this,
-											Activity_PageList.class);
+									Intent intent = new Intent(Activity_BookList.this, Activity_PageList.class);
 									intent.putExtra("iam", FoxBookLib.FROM_NET);
-									intent.putExtra("bShowAll", isShowAllNetList);
 									intent.putExtra("bookurl", lcURL);
 									intent.putExtra("bookname", lcName);
 									if ( lcURL.contains("zhuishushenqi.com") ) {
@@ -535,7 +534,6 @@ public class Activity_BookList extends ListActivity {
         editor = settings.edit();
         this.isMemDB = settings.getBoolean("isMemDB", isMemDB);
         this.isIntDB = settings.getBoolean("isIntDB", isIntDB);
-        this.isShowAllNetList = settings.getBoolean("isShowAllList", isShowAllNetList);
 
         if ( db3PathIn.equalsIgnoreCase("none")) {
         	bDB3FileFromIntent = false;
@@ -619,7 +617,6 @@ public class Activity_BookList extends ListActivity {
 			break;
 		case R.id.action_allpagelist:  // 所有章节
 			Intent ittall = new Intent(Activity_BookList.this, Activity_AllPageList.class);
-			ittall.putExtra("howmany", 0); // 显示多少章节
 			Activity_AllPageList.oDB = oDB;
 			startActivityForResult(ittall, 0);
 			break;
@@ -722,8 +719,7 @@ public class Activity_BookList extends ListActivity {
 			boolean bStartIt = ! item.isChecked(); // 根据选项是否选中确定是否开启
 			if (bStartIt) {
 				try {
-					foxHTTPD = new FoxHTTPD(nowListenPort, new File("/sdcard/"));
-					foxHTTPD.oDB = oDB;
+					foxHTTPD = new FoxHTTPD(nowListenPort, new File("/sdcard/"), oDB);
 					item.setChecked(bStartIt);
 					item.setTitle(nowIP + ":" + String.valueOf(nowListenPort) + " 已开");
 					foxtip(nowIP + ":" + String.valueOf(nowListenPort) + " 已开\n如要关闭，选择同一菜单");

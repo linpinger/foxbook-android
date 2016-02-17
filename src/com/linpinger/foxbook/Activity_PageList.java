@@ -45,7 +45,6 @@ public class Activity_PageList extends ListActivity {
 	private int foxfrom = 0; // 1=DB, 2=search
 	private String bookurl = "";
 	private String bookname = "";
- 	private boolean bShowAll = true;
 	private int bookid = 0 ;
 	private String lcURL, lcName;
 	private Integer lcID;
@@ -57,48 +56,38 @@ public class Activity_PageList extends ListActivity {
 	public class DownTOC implements Runnable { // 后台线程下载网页
 		@Override
 		public void run() {
+			Message msg = Message.obtain();
 			switch(SE_TYPE) {
 			case FoxBookLib.SE_QIDIAN_MOBILE : // 起点手机版目录
-				String sJsonQDM = FoxBookLib.downhtml(bookurl, "utf-8") ;
-				Message msgQDM = Message.obtain();
-				msgQDM.what = IS_QIDIAN_MOBILE;
-				msgQDM.obj = sJsonQDM;
-				handler.sendMessage(msgQDM);
+				msg.what = IS_QIDIAN_MOBILE;
+				msg.obj = FoxBookLib.downhtml(bookurl, "utf-8") ;
 				break;
 			case FoxBookLib.SE_EASOU : // 处理easou搜索书籍，返回书籍地址
 				String sJson = FoxBookLib.downhtml(site_easou.getUrlSE(bookname), "utf-8");
 				easou_gid_nid = site_easou.json2IDs(sJson,0);
 				bookurl = site_easou.getUrlToc(easou_gid_nid);
 				sJson = FoxBookLib.downhtml(bookurl, "utf-8");
-					Message msge = Message.obtain();
-					msge.what = IS_DOWNEASOU;
-					msge.obj = sJson;
-					handler.sendMessage(msge);
+				msg.what = IS_DOWNEASOU;
+				msg.obj = sJson;
 				break;
 			case FoxBookLib.SE_ZSSQ:
-				String sJson2 = FoxBookLib.downhtml(bookurl, "utf-8") ;
-				Message msg2 = Message.obtain();
-				msg2.what = IS_DOWNZSSQ;
-				msg2.obj = sJson2;
-				handler.sendMessage(msg2);
+				msg.what = IS_DOWNZSSQ;
+				msg.obj = FoxBookLib.downhtml(bookurl, "utf-8") ;
 				break;
 			case FoxBookLib.SE_QREADER:
 				if ( ! bookurl.contains(".qreader.") ) { // 在booklist上搜索快读
 					bookurl = site_qreader.qreader_Search(bookname);
 				}
-				data = site_qreader.qreader_GetIndex(bookurl, 16, 1);
-				Message msg3 = Message.obtain();
-				msg3.what = IS_DOWNKUAIDU;
-				msg3.obj = data;
-				handler.sendMessage(msg3);
+				data = site_qreader.qreader_GetIndex(bookurl, 0, 1); // 0 表示所有
+				msg.what = IS_DOWNKUAIDU;
+				msg.obj = data;
 				break;
 			default:
-				String html = FoxBookLib.downhtml(bookurl);
-					Message msg = Message.obtain();
-					msg.what = IS_DOWNTOC;
-					msg.obj = html;
-					handler.sendMessage(msg);
+				msg.what = IS_DOWNTOC;
+				msg.obj = FoxBookLib.downhtml(bookurl);
+				break;
 			}
+			handler.sendMessage(msg);
 		}
 	}
 
@@ -119,6 +108,7 @@ public class Activity_PageList extends ListActivity {
 		OnItemClickListener listener = new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
+				@SuppressWarnings("unchecked")
 				Map<String, Object> chapinfo = (HashMap<String, Object>) parent.getItemAtPosition(position);
 				String tmpurl = (String) chapinfo.get("url");
 				String tmpname = (String) chapinfo.get("name");
@@ -143,6 +133,7 @@ public class Activity_PageList extends ListActivity {
 		final Builder builder = new AlertDialog.Builder(this);
 		OnItemLongClickListener longlistener = new OnItemLongClickListener() {
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+				@SuppressWarnings("unchecked")
 				Map<String, Object> chapinfol = (HashMap<String, Object>) parent.getItemAtPosition(position);
 				longclickpos = position ; // base 0
 
@@ -243,11 +234,11 @@ public class Activity_PageList extends ListActivity {
 					setTitle("更新完毕 : " + lcName);
 				}
 				if ( msg.what == IS_DOWNEASOU ) { // 处理easou json
-					data = site_easou.json2PageList(sHTTP, easou_gid_nid, 16);
+					data = site_easou.json2PageList(sHTTP, easou_gid_nid, 0);
 					renderListView();
 				}
 				if ( msg.what == IS_DOWNZSSQ ) {
-					data = site_zssq.json2PageList(sHTTP, 16);
+					data = site_zssq.json2PageList(sHTTP, 0);
 					renderListView();
 				}
 				if ( msg.what == IS_QIDIAN_MOBILE ) {
@@ -256,11 +247,7 @@ public class Activity_PageList extends ListActivity {
 				}
 				
 				if ( msg.what == IS_DOWNTOC ) { // 下载目录完毕
-					if ( bShowAll ) {
-						data = FoxBookLib.tocHref(sHTTP, 0);
-					} else {
-						data = FoxBookLib.tocHref(sHTTP, 16);
-					}
+					data = FoxBookLib.tocHref(sHTTP, 0);
 					renderListView();
 				}
 			}
@@ -286,7 +273,6 @@ public class Activity_PageList extends ListActivity {
 		foxfrom = itt.getIntExtra("iam", 0); // 必需 表明数据从哪来的
 		bookurl = itt.getStringExtra("bookurl"); // 必需
 		bookname = itt.getStringExtra("bookname"); // 必需
-		bShowAll = itt.getBooleanExtra("bShowAll", bShowAll);
 		SE_TYPE = itt.getIntExtra("searchengine", 1) ; // 给出搜索引擎类型
 
 		setTitle(bookname + " : " + bookurl);
@@ -299,7 +285,7 @@ public class Activity_PageList extends ListActivity {
 				new Thread(new DownTOC()).start();
 				html = "";
 			}
-			data = FoxBookLib.tocHref(html, 16);
+			data = FoxBookLib.tocHref(html, 0);
 		}
 		if ( FoxBookLib.FROM_DB == foxfrom) { // DB
 			bookid = itt.getIntExtra("bookid", 0);
@@ -320,6 +306,11 @@ public class Activity_PageList extends ListActivity {
 			switch (menu.getItem(i).getItemId()) {
 				case R.id.pm_Add:
 					if ( FoxBookLib.FROM_DB == foxfrom)  // 当是本地数据库时隐藏添加按钮
+						menu.getItem(i).setVisible(false);
+					break;
+				case R.id.pm_cleanBook:
+				case R.id.pm_cleanBookND:
+					if ( FoxBookLib.FROM_NET == foxfrom ) // 当是网络时隐藏删除按钮
 						menu.getItem(i).setVisible(false);
 					break;
 			}

@@ -62,7 +62,7 @@ public class site_qidian {
     }
     
     public static List<Map<String, Object>> json2PageList(String json) {
-        List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(55);
+        List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(128);
         try {
             Integer bookID = new JSONObject(json).getInt("BookId");
             JSONArray slist = new JSONObject(json).getJSONArray("Chapters");

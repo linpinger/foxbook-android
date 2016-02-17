@@ -23,25 +23,20 @@ import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 
+// 2016-2-17: 本 Activity 只被 BookList 调用
 public class Activity_AllPageList extends ListActivity {
-	public static FoxMemDB oDB;
+	public static FoxMemDB oDB; // 被调用者修改
 	private List<Map<String, Object>> data;
 	private ListView lv_pagelist ;
-	
-	private int howmany=0;
-	
 	SimpleAdapter adapter;
 	
+	// 多层类中共享使用
 	private String lcURL, lcName;
 	private Integer lcID ;
 	private int longclickpos = 0;
 
 	private void renderListView() { // 刷新LV
-		if ( 0 == howmany ) {
-			data = FoxMemDBHelper.getPageList("order by bookid,id", oDB);
-		} else {
-			data = FoxMemDBHelper.getPageList("order by bookid,id limit "+ howmany, oDB);
-		}
+		data = FoxMemDBHelper.getPageList("order by bookid,id", oDB);
 		adapter = new SimpleAdapter(this, data,
 				R.layout.lv_item_pagelist, new String[] { "name", "count" },
 				new int[] { R.id.tvName, R.id.tvCount });
@@ -50,8 +45,8 @@ public class Activity_AllPageList extends ListActivity {
 
 	private void init_LV_item_click() { // 初始化 单击 条目 的行为
 		OnItemClickListener listener = new OnItemClickListener() {
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				@SuppressWarnings("unchecked")
 				Map<String, Object> chapinfo = (HashMap<String, Object>) parent.getItemAtPosition(position);
 				String tmpurl = (String) chapinfo.get("url");
 				String tmpname = (String) chapinfo.get("name");
@@ -163,10 +158,6 @@ public class Activity_AllPageList extends ListActivity {
 		
 		lv_pagelist = getListView();
 		
-		// 获取传入的数据
-		Intent itt = getIntent();
-		howmany = itt.getIntExtra("howmany", 0); // 必需 表明 显示多少条目, 0为所有
-
 		renderListView();
 		init_LV_item_click() ; // 初始化 单击 条目 的行为
 		init_LV_item_Long_click() ; // 初始化 长击 条目 的行为
@@ -176,6 +167,22 @@ public class Activity_AllPageList extends ListActivity {
 		switch (item.getItemId()) {
 		case android.R.id.home: // 返回图标
 			this.finish();
+			break;
+		case R.id.allpagelist_delete: // 删除所有章节
+			HashMap<String, Object> nHMb ;
+			Integer nIDb;
+			int datasiza = data.size();
+			for ( int i = 0; i<datasiza; ++i) { // 删除数据库记录
+				nHMb = (HashMap<String, Object>) data.get(i);
+				nIDb = (Integer) nHMb.get("id");
+				FoxMemDBHelper.delete_Pages(nIDb, true, oDB);
+			}
+			for ( int i = 0; i<datasiza; ++i) {
+				data.remove(0);
+			}
+			adapter.notifyDataSetChanged();
+			foxtip("已删除所有记录");
+			exitMe(); // 结束本Activity
 			break;
 		case R.id.jumplist_tobottom:
 			lv_pagelist.setSelection(adapter.getCount() - 1);

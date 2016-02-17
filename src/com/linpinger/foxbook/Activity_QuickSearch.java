@@ -94,7 +94,6 @@ public class Activity_QuickSearch extends ListActivity {
 				intent.putExtra("iam", FoxBookLib.FROM_NET);
 				intent.putExtra("bookurl", book_url);
 				intent.putExtra("bookname", book_name);
-				intent.putExtra("bShowAll", true);
 				intent.putExtra("searchengine", SE_TYPE);
 				Activity_PageList.oDB = oDB;
 				startActivity(intent);
@@ -112,32 +111,25 @@ public class Activity_QuickSearch extends ListActivity {
 		}
 		@Override
 		public void run() {
+			Message msg = Message.obtain();
 			switch(SE_TYPE) {
 			case FoxBookLib.SE_EASOU:
 				String sJson = FoxBookLib.downhtml(this.bookurl, "utf-8");
 				bookurl = site_easou.getUrlSL(site_easou.json2IDs(sJson, 1));
-				sJson = FoxBookLib.downhtml(bookurl, "utf-8");
-					Message msge = Message.obtain();
-					msge.what = IS_REFRESH;
-					msge.obj = sJson;
-					handler.sendMessage(msge);
+				msg.what = IS_REFRESH;
+				msg.obj = FoxBookLib.downhtml(bookurl, "utf-8");
 				break;
 			case FoxBookLib.SE_ZSSQ :
 				String json = FoxBookLib.downhtml(this.bookurl, "utf-8");
 				bookurl = site_zssq.getUrlSL(site_zssq.json2BookID(json));
-				json = FoxBookLib.downhtml(bookurl, "utf-8");
-			        Message msgz = Message.obtain();
-			        msgz.what = IS_REFRESH;
-			        msgz.obj = json;
-			        handler.sendMessage(msgz);
+				msg.what = IS_REFRESH;
+				msg.obj = FoxBookLib.downhtml(bookurl, "utf-8");
 				break;
 			default :
-				String html = FoxBookLib.downhtml(this.bookurl);
-					Message msgD = Message.obtain();
-					msgD.what = IS_REFRESH;
-					msgD.obj = html;
-					handler.sendMessage(msgD);
+				msg.what = IS_REFRESH;
+				msg.obj = FoxBookLib.downhtml(this.bookurl);
 			}
+			handler.sendMessage(msg);
 		}
 	}
 

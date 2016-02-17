@@ -39,7 +39,7 @@ public class site_zssq {
 			return json2PageList(json, cLast, 0);
 		}
 		public static List<Map<String, Object>> json2PageList(String json, int cLast, int FoxMod) { // 追书神器: in:json,最后多少页,是更新模式么  out:页面列表
-			List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(55);
+			List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(128);
 			try {
 				JSONArray slist = new JSONObject(json).getJSONArray("chapters");
 				int cList = slist.length();

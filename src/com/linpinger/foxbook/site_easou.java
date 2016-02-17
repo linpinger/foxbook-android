@@ -77,7 +77,7 @@ public class site_easou {
 			
 			int cList = slist.length();
 			int sNum = 0 ;
-			if ( cLast < cList ) { //显示最后几条
+			if ( cLast > 0 && cLast < cList ) { //显示最后几条
 				sNum = cList - cLast ;
 			}
 			Map<String, Object> item;

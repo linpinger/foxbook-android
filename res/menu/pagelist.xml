@@ -13,7 +13,7 @@
         android:title="删除所有章节"/>
     <item
         android:id="@+id/pm_cleanBookND"
-        android:icon="@android:drawable/ic_menu_delete"
+        android:icon="@android:drawable/ic_notification_clear_all"
         android:showAsAction="always|withText"
         android:title="删除所有章节且不修改DelList"/>
     <item
@@ -22,12 +22,12 @@
         android:showAsAction="ifRoom|withText"
         android:title="跳到表尾"/>
     <item
-        android:id="@+id/jumplist_tomiddle"
-        android:showAsAction="ifRoom|withText"
-        android:title="跳到表中"/>
-    <item
         android:id="@+id/jumplist_totop"
         android:showAsAction="ifRoom|withText"
         android:title="跳到表头"/>
-
+    <item
+        android:id="@+id/jumplist_tomiddle"
+        android:showAsAction="ifRoom|withText"
+        android:title="跳到表中"/>
+    
 </menu>

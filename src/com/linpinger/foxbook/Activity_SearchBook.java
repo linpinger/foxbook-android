@@ -7,7 +7,6 @@ import android.os.Message;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -34,10 +33,7 @@ public class Activity_SearchBook extends Activity {
 	private ImageButton btn_search;
 	private Button btn_pre ;
 	
-	SharedPreferences settings;
-	SharedPreferences.Editor editor;
 	public static final String FOXSETTING = "FOXSETTING";
-	private boolean bShowAll = true ;
 	
 	private String book_name = "";
 	private String book_url = "";
@@ -135,7 +131,6 @@ public class Activity_SearchBook extends Activity {
 						intent.putExtra("bookurl", book_url);
 						intent.putExtra("bookname", book_name);
 						intent.putExtra("html", html);
-						intent.putExtra("bShowAll", bShowAll);
 						Activity_PageList.oDB = oDB;
 						startActivity(intent);
 						break;
@@ -183,10 +178,6 @@ public class Activity_SearchBook extends Activity {
 			}
 		});
 		
-        settings = getSharedPreferences(FOXSETTING, 0);
-        editor = settings.edit();
-        this.bShowAll = settings.getBoolean("isShowAllList", bShowAll);
-
 	}
 
 	public boolean onKeyDown(int keyCoder, KeyEvent event) { // 按退出键
@@ -216,14 +207,6 @@ public class Activity_SearchBook extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) { // 创建菜单
 		getMenuInflater().inflate(R.menu.search, menu);
-		int itemcount = menu.size();
-		for ( int i=0; i< itemcount; i++){
-			switch (menu.getItem(i).getItemId()) {
-				case R.id.sm_bShowAll:
-					menu.getItem(i).setChecked(bShowAll);
-					break;
-			}
-		}
 		return true;
 	}
 
@@ -232,12 +215,6 @@ public class Activity_SearchBook extends Activity {
 		switch (item.getItemId()) {
 		case android.R.id.home: // 返回图标
 			this.finish();
-			break;
-		case R.id.sm_bShowAll: // 预览显示所有条目
-			bShowAll = ! item.isChecked() ;
-			item.setChecked(bShowAll);
-			editor.putBoolean("isShowAllList", bShowAll);
-			editor.commit();
 			break;
 		case R.id.sm_QuickSearchQidian: // 快搜:起点
 			book_name = et.getText().toString();

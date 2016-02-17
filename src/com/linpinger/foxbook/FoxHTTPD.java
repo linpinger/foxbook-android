@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Properties;
 
 public class FoxHTTPD extends NanoHTTPD {
-	public static FoxMemDB oDB;  // 被外部赋值
+	private FoxMemDB oDB;
 	private File foxRootDir ;  // nanohttpd 的那个变量是私有的，无法继承
 	private String nowUserAgent = "kindle" ;
 	private final String html_foot = "\n</body>\n</html>\n\n" ;
@@ -20,10 +20,12 @@ public class FoxHTTPD extends NanoHTTPD {
 //	private final String SHOW_ONLINE_CONTENT = "soc" ;
 	private final String DOWN_TXT = "dt" ;
 
-	public FoxHTTPD(int port, File wwwroot) throws IOException {
+	public FoxHTTPD(int port, File wwwroot, FoxMemDB iDB) throws IOException {
 		super(port, wwwroot);
 		this.foxRootDir = wwwroot;
+		this.oDB = iDB ;
 	}
+
 
 	// 响应
 	@Override
