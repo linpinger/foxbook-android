@@ -53,6 +53,7 @@ public class Activity_BookList extends ListActivity {
 	private final int IS_REFRESHLIST = 3;
 	private final int IS_REGENID = 4;
 	private final int IS_NEWVER = 5;
+	private boolean switchdbLock = false;
 	private long mExitTime;
 
 	private int upchacount;    // 新增章节计数
@@ -595,15 +596,21 @@ public class Activity_BookList extends ListActivity {
 			break;
 		case R.id.action_switchdb:
 			this.setTitle("切换数据库");
-			(new Thread(){
-				public void run(){
-					String nowPath = oDB.switchMemDB();
-					Message msg = Message.obtain();
-					msg.what = IS_REGENID;
-					msg.obj = "已切换到: " + nowPath;
-					handler.sendMessage(msg);
-				}
-			}).start();
+			if ( switchdbLock ) {
+				foxtip("还在切换中...");
+			} else {
+				(new Thread(){
+					public void run(){
+						switchdbLock = true;
+						String nowPath = oDB.switchMemDB();
+						switchdbLock = false;
+						Message msg = Message.obtain();
+						msg.what = IS_REGENID;
+						msg.obj = "已切换到:\n" + nowPath;
+						handler.sendMessage(msg);
+					}
+				}).start();
+			}
 			break;
 		case R.id.action_refresh:
 			refresh_BookList(); // 刷新LV中的数据
