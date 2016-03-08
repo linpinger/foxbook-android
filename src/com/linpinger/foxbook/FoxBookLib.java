@@ -7,10 +7,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -49,28 +49,15 @@ public class FoxBookLib {
 	public static final int SITE_QREADER = 13 ; // 快读
 	public static final int SITE_QIDIAN_MOBILE = 16 ;  // 3g.if.qidian.com
 	
-
-    public static String fileRead(String filePath, String encoding) {
-        StringBuffer retStr = new StringBuffer(102400);
-        try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), encoding));
-            String line = null;
-            while ((line = br.readLine()) != null) {
-                retStr.append(line).append("\n");
-            }
-            br.close();
-        } catch (Exception e) {
-            e.toString();
-        }
-        return retStr.toString();
-    }
-
     public static String all2txt(FoxMemDB db) {
     	return all2txt("all", db);
     }
 	public static String all2txt(String iBookID, FoxMemDB db) { // 所有书籍转为txt
 		String txtPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "fox.txt";
-		String sContent = "" ;
+    	return all2txt(iBookID, db, txtPath);
+	}
+	public static String all2txt(String iBookID, FoxMemDB db, String txtPath) { // 所有书籍转为txt
+		StringBuilder txt = new StringBuilder(81920);
 		List<Map<String, Object>> data ;
 		if ( iBookID.equalsIgnoreCase("all") ) {
 			data = FoxMemDBHelper.getEbookChaters(false, db);
@@ -80,18 +67,10 @@ public class FoxBookLib {
 		Iterator<Map<String, Object>> itr = data.iterator();
 		while (itr.hasNext()) {
 			HashMap<String, Object> mm = (HashMap<String, Object>) itr.next();
-			sContent = sContent + (String) mm.get("title") + "\n\n" + (String) mm.get("content") + "\n\n\n" ;
+			txt.append(mm.get("title")).append("\n\n").append(mm.get("content")).append("\n\n\n");
 		}
 
-		try {
-			BufferedWriter bw1 = new BufferedWriter(new FileWriter(txtPath, false));
-			bw1.write(sContent);
-			bw1.flush();
-			bw1.close();
-		} catch (IOException e) {
-			e.toString();
-//			e.printStackTrace();
-		}
+		writeText(txt.toString(), txtPath, "utf-8");
 		return "/fox.txt"; // 给foxHTTPD当下载路径使用
 	}
 	
@@ -670,4 +649,73 @@ public class FoxBookLib {
         return newPages;
     }
 
+    // { 通用文本读取，写入
+	// 优先使用这个读取文本，快点，变量大小可以调整一下以达到最好的速度
+	public static String readText(String filePath, String inFileEnCoding) {
+		// 为了线程安全，可以替换StringBuilder 为 StringBuffer
+		StringBuilder retStr = new StringBuilder(174080);
+		try {
+			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), inFileEnCoding));
+			
+			char[] chars = new char[4096]; // 这个大小不影响读取速度
+			int length = 0;
+			while ((length = br.read(chars)) > 0) {
+				retStr.append(chars, 0, length);
+			}
+			/*
+			// 下面这个效率稍低，但可以控制换行符
+			String line = null;
+			while ((line = br.readLine()) != null) {
+				retStr.append(line).append("\n");
+			}
+			 */
+			br.close();
+		} catch (IOException e) {
+			e.toString();
+		}
+		return retStr.toString();
+	}
+
+	// 写入指定编码，速度快点
+	public static void writeText(String iStr, String filePath, String oFileEncoding) {
+		boolean bAppend = false ;
+		try {
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath, bAppend), oFileEncoding));
+			bw.write(iStr);
+			bw.flush();
+			bw.close();
+		} catch (IOException e) {
+			e.toString();
+		}
+	}
+	
+	/*
+	// 这个用在定长切割大文本上，已经在importQidianTxt中使用
+    public static String readTextAndSplit(String filePath, String inFileEnCoding) {
+        StringBuilder retStr = new StringBuilder(174080);
+        StringBuilder chunkStr = new StringBuilder(65536);
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), inFileEnCoding));
+            String line = null;
+            int chunkLen = 0;
+            while ((line = br.readLine()) != null) {
+                chunkLen = chunkStr.length();
+                if ( chunkLen > 3000 && ( line.length() == 0 || chunkLen > 6000 || line.startsWith("第") || line.contains("卷") || line.contains("章") || line.contains("节") ) ) {
+                    retStr.append(chunkStr).append("\n##################################################\n\n");
+                    chunkStr = new StringBuilder(65536);
+                }
+                chunkStr.append(line).append("\n");
+            }
+            if ( chunkStr.length() > 0 )
+                retStr.append(chunkStr).append("\n#####LAST###########\n\n");
+            br.close();
+        } catch (IOException e) {
+            e.toString();
+        }
+        return retStr.toString();
+    }
+	 */	
+	
+    // } 通用文本读取，写入
+    
 } // 类结束

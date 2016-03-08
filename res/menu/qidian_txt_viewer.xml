@@ -5,4 +5,8 @@
         android:icon="@android:drawable/ic_menu_save"
         android:showAsAction="always|withText"
         android:title="保存数据库并退出"/>
+    <item
+        android:id="@+id/action_gbk2utf8"
+        android:showAsAction="ifRoom|withText"
+        android:title="转UTF8"/>
 </menu>

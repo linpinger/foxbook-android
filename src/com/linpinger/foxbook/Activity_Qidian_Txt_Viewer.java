@@ -22,6 +22,7 @@ public class Activity_Qidian_Txt_Viewer extends ListActivity {
 	private ListView lv_pagelist ;
 	SimpleAdapter adapter;
 	public FoxMemDB oDB  ; // 默认使用MemDB
+	private String txtPath ;
 	
 	private void renderListView() { // 刷新LV
 		adapter = new SimpleAdapter(this, data,
@@ -60,7 +61,7 @@ public class Activity_Qidian_Txt_Viewer extends ListActivity {
 		
 		// 获取传入的文件路径
 		Intent itt = getIntent();
-		String txtPath = itt.getData().getPath(); // 从intent获取txt路径
+		txtPath = itt.getData().getPath(); // 从intent获取txt路径
 		oDB = new FoxMemDB(new File(txtPath.replace(".txt", "") + ".db3"), this.getApplicationContext()) ; // 创建内存数据库
 		String BookName = FoxMemDBHelper.importQidianTxt(txtPath, oDB); //导入txt到数据库
 			
@@ -85,6 +86,12 @@ public class Activity_Qidian_Txt_Viewer extends ListActivity {
 		switch (item.getItemId()) {
 		case R.id.action_save_exit:
 			oDB.closeMemDB();
+			this.finish();
+			System.exit(0);
+			break;
+		case R.id.action_gbk2utf8:
+			FoxBookLib.all2txt("all", oDB, txtPath.replace(".txt", "") + "_UTF8.txt");
+			oDB.getDB().close();
 			this.finish();
 			System.exit(0);
 			break;
