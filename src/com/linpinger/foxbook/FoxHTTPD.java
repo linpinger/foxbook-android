@@ -50,9 +50,9 @@ public class FoxHTTPD extends NanoHTTPD {
 			if ( action.equalsIgnoreCase(DOWN_TXT)) { // ÏÂÔØtxt
 				String txtPath = "/fox.txt" ;
 				if ( Integer.valueOf(bookid) > 0 ) {
-					txtPath = FoxBookLib.all2txt(bookid, oDB);
+					txtPath = FoxMemDBHelper.all2txt(bookid, oDB);
 				} else { // ËùÓÐtxt
-					txtPath = FoxBookLib.all2txt(oDB);
+					txtPath = FoxMemDBHelper.all2txt(oDB);
 				}
 				
 				html = "<html><head><title>txt</title><meta http-equiv=\"refresh\" content=\"0; URL=" + txtPath +"\"></head><body><a href=\"" + txtPath + "\">Download txt</a></body></html>";

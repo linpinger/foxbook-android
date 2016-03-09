@@ -41,11 +41,11 @@ public class Activity_Qidian_Txt_Viewer extends ListActivity {
 				Integer tmpid = (Integer) chapinfo.get("id");
 
 				Intent intent = new Intent(Activity_Qidian_Txt_Viewer.this, Activity_ShowPage.class);
-				intent.putExtra("iam", FoxBookLib.FROM_DB); // from DB
+				intent.putExtra("iam", SITES.FROM_DB); // from DB
 				intent.putExtra("chapter_id", tmpid);
 				intent.putExtra("chapter_name", tmpname);
 				intent.putExtra("chapter_url", tmpurl);
-				intent.putExtra("searchengine", FoxBookLib.SE_BING); // SE
+				intent.putExtra("searchengine", SITES.SE_BING); // SE
 				Activity_ShowPage.oDB = oDB;
 				startActivity(intent);
 			}
@@ -90,7 +90,7 @@ public class Activity_Qidian_Txt_Viewer extends ListActivity {
 			System.exit(0);
 			break;
 		case R.id.action_gbk2utf8:
-			FoxBookLib.all2txt("all", oDB, txtPath.replace(".txt", "") + "_UTF8.txt");
+			FoxMemDBHelper.all2txt("all", oDB, txtPath.replace(".txt", "") + "_UTF8.txt");
 			oDB.getDB().close();
 			this.finish();
 			System.exit(0);

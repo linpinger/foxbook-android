@@ -94,23 +94,23 @@ public class Activity_ShowPage extends Activity {
 			public void run() {
 				String text = "";
 				switch(SE_TYPE) {
-				case FoxBookLib.SE_EASOU : // 处理easou搜索书籍，返回书籍地址
+				case SITES.SE_EASOU : // 处理easou搜索书籍，返回书籍地址
 					text = FoxBookLib.downhtml(pageurl, "utf-8");
 					text = site_easou.json2Text(text);
 					break;
-				case FoxBookLib.SE_ZSSQ:
+				case SITES.SE_ZSSQ:
 					text = FoxBookLib.downhtml(pageurl, "utf-8");
 					text = site_zssq.json2Text(text);
 					break;
-				case FoxBookLib.SE_QREADER:
+				case SITES.SE_QREADER:
 					text = site_qreader.qreader_GetContent(pageurl);
 					break;
-				case FoxBookLib.SE_QIDIAN_MOBILE:
+				case SITES.SE_QIDIAN_MOBILE:
 					text = FoxBookLib.downhtml(pageurl, "GBK");
 					text = site_qidian.qidian_getTextFromPageJS(text);
 					break;
 				default:
-					text = FoxBookLib.updatepage(-1, pageurl, oDB) ;
+					text = FoxMemDBHelper.updatepage(-1, pageurl, oDB) ;
 				}
 				Message msg = Message.obtain();
 				msg.what = IS_REFRESH;
@@ -119,7 +119,7 @@ public class Activity_ShowPage extends Activity {
 			}
 		};
 		
-		if ( FoxBookLib.FROM_DB == foxfrom ){ // DB
+		if ( SITES.FROM_DB == foxfrom ){ // DB
 			pageid =  itt.getIntExtra("chapter_id", 0);
 //			pagetext = FoxDB.getOneCell("select Content from page where id = " + pageid + " and Content is not null" );
 			Map<String,String> infox = oDB.getOneRow("select bookid as bid, Content as cc, Name as naa from page where id = " + pageid + " and Content is not null");
@@ -133,7 +133,7 @@ public class Activity_ShowPage extends Activity {
 			}
 			tv.setText("　　" + pagetext.replace("\n", "\n　　") + "\n" + pagename);
 		} 
-		if ( FoxBookLib.FROM_NET == foxfrom ){ // NET
+		if ( SITES.FROM_NET == foxfrom ){ // NET
 			setTitle("下载中...");
 			new Thread(down_page).start();
 		}

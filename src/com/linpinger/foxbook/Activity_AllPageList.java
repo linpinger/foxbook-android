@@ -57,7 +57,7 @@ public class Activity_AllPageList extends ListActivity {
 				setTitle(tmpname + " : " + tmpid);
 				
 				Intent intent = new Intent(Activity_AllPageList.this, Activity_ShowPage.class);
-				intent.putExtra("iam", FoxBookLib.FROM_DB);
+				intent.putExtra("iam", SITES.FROM_DB);
 				intent.putExtra("chapter_id", tmpid);
 				intent.putExtra("chapter_name", tmpname);
 				intent.putExtra("chapter_url", FoxBookLib.getFullURL(bookurl, tmpurl));

@@ -113,10 +113,10 @@ public class Activity_SearchBook extends Activity {
 						String lcQidianURL = (String)msg.obj;
 						if ( 0 != lcQidianURL.length() ) {
 							Intent intentQD = new Intent(Activity_SearchBook.this, Activity_PageList.class);
-							intentQD.putExtra("iam", FoxBookLib.FROM_NET);
+							intentQD.putExtra("iam", SITES.FROM_NET);
 							intentQD.putExtra("bookurl", lcQidianURL);
 							intentQD.putExtra("bookname", book_name);
-							intentQD.putExtra("searchengine", FoxBookLib.SE_QIDIAN_MOBILE);
+							intentQD.putExtra("searchengine", SITES.SE_QIDIAN_MOBILE);
 							Activity_PageList.oDB = oDB;
 							startActivity(intentQD);
 						} else {
@@ -127,7 +127,7 @@ public class Activity_SearchBook extends Activity {
 						String html = (String)msg.obj;
 
 						Intent intent = new Intent(Activity_SearchBook.this, Activity_PageList.class);
-						intent.putExtra("iam", FoxBookLib.FROM_NET);
+						intent.putExtra("iam", SITES.FROM_NET);
 						intent.putExtra("bookurl", book_url);
 						intent.putExtra("bookname", book_name);
 						intent.putExtra("html", html);
@@ -225,10 +225,10 @@ public class Activity_SearchBook extends Activity {
 			Intent intent13 = new Intent(
 					Activity_SearchBook.this,
 					Activity_PageList.class);
-			intent13.putExtra("iam", FoxBookLib.FROM_NET);
+			intent13.putExtra("iam", SITES.FROM_NET);
 			intent13.putExtra("bookurl", "http://linpinger.github.io/");
 			intent13.putExtra("bookname", book_name);
-			intent13.putExtra("searchengine", FoxBookLib.SE_QREADER);
+			intent13.putExtra("searchengine", SITES.SE_QREADER);
 			Activity_PageList.oDB = oDB;
 			startActivity(intent13);
 			break;
@@ -236,7 +236,7 @@ public class Activity_SearchBook extends Activity {
 			book_name = et.getText().toString();
 			Intent itzssq = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
 			itzssq.putExtra("bookname", book_name);
-			itzssq.putExtra("searchengine", FoxBookLib.SE_ZSSQ);
+			itzssq.putExtra("searchengine", SITES.SE_ZSSQ);
 			Activity_QuickSearch.oDB = oDB;
 			startActivity(itzssq);
 			break;
@@ -244,7 +244,7 @@ public class Activity_SearchBook extends Activity {
 			book_name = et.getText().toString();
 			Intent iteasou = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
 			iteasou.putExtra("bookname", book_name);
-			iteasou.putExtra("searchengine", FoxBookLib.SE_EASOU);
+			iteasou.putExtra("searchengine", SITES.SE_EASOU);
 			Activity_QuickSearch.oDB = oDB;
 			startActivity(iteasou);
 			break;
@@ -252,7 +252,7 @@ public class Activity_SearchBook extends Activity {
 			book_name = et.getText().toString();
 			Intent intent = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
 			intent.putExtra("bookname", book_name);
-			intent.putExtra("searchengine", FoxBookLib.SE_SOGOU);
+			intent.putExtra("searchengine", SITES.SE_SOGOU);
 			Activity_QuickSearch.oDB = oDB;
 			startActivity(intent);
 			break;
@@ -260,7 +260,7 @@ public class Activity_SearchBook extends Activity {
 			book_name = et.getText().toString();
 			Intent itb = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
 			itb.putExtra("bookname", book_name);
-			itb.putExtra("searchengine", FoxBookLib.SE_BING);
+			itb.putExtra("searchengine", SITES.SE_BING);
 			Activity_QuickSearch.oDB = oDB;
 			startActivity(itb);
 			break;
@@ -269,7 +269,7 @@ public class Activity_SearchBook extends Activity {
 			book_name = et.getText().toString();
 			Intent ityh = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
 			ityh.putExtra("bookname", book_name);
-			ityh.putExtra("searchengine", FoxBookLib.SE_YAHOO);
+			ityh.putExtra("searchengine", SITES.SE_YAHOO);
 			Activity_QuickSearch.oDB = oDB;
 			startActivity(ityh);
 			break;

@@ -118,8 +118,32 @@ public class FoxMemDB {
 		cursor.close();
 		return ree;
 	}
-	
 
+// ToDo 简化table的获取
+/*
+	public List<Map<String, Object>> getTable(String inSQL) { // 获取页面列表
+		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
+		Map<String, Object> item;
+		Cursor cursor = db.rawQuery(inSQL, null);
+		int colCount = cursor.getColumnCount();
+		int i = 0 ;
+		for ( i = 0; i < colCount; i++ ) {
+			if ( FieldType.Null == cursor.getType(i) ) {
+				
+			}
+		}		
+		if (cursor.getCount() > 0 && cursor.moveToFirst()) {
+			do {
+				for ( i = 0; i < colCount; i++ ) {
+					cursor.getType(i);
+
+				}
+			} while (cursor.moveToNext());
+		}
+		cursor.close();
+		return data;
+	}
+*/
 	private ArrayList<File> getDBList(File DBDir) {
         ArrayList<File> retList = new ArrayList<File>(9); // 最多9个路径，以后可以按需修改
         retList.add(new File(DBDir.getAbsolutePath() + File.separator + "FoxBook.db3"));

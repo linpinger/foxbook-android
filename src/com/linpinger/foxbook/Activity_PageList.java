@@ -58,11 +58,11 @@ public class Activity_PageList extends ListActivity {
 		public void run() {
 			Message msg = Message.obtain();
 			switch(SE_TYPE) {
-			case FoxBookLib.SE_QIDIAN_MOBILE : // 起点手机版目录
+			case SITES.SE_QIDIAN_MOBILE : // 起点手机版目录
 				msg.what = IS_QIDIAN_MOBILE;
 				msg.obj = FoxBookLib.downhtml(bookurl, "utf-8") ;
 				break;
-			case FoxBookLib.SE_EASOU : // 处理easou搜索书籍，返回书籍地址
+			case SITES.SE_EASOU : // 处理easou搜索书籍，返回书籍地址
 				String sJson = FoxBookLib.downhtml(site_easou.getUrlSE(bookname), "utf-8");
 				easou_gid_nid = site_easou.json2IDs(sJson,0);
 				bookurl = site_easou.getUrlToc(easou_gid_nid);
@@ -70,11 +70,11 @@ public class Activity_PageList extends ListActivity {
 				msg.what = IS_DOWNEASOU;
 				msg.obj = sJson;
 				break;
-			case FoxBookLib.SE_ZSSQ:
+			case SITES.SE_ZSSQ:
 				msg.what = IS_DOWNZSSQ;
 				msg.obj = FoxBookLib.downhtml(bookurl, "utf-8") ;
 				break;
-			case FoxBookLib.SE_QREADER:
+			case SITES.SE_QREADER:
 				if ( ! bookurl.contains(".qreader.") ) { // 在booklist上搜索快读
 					bookurl = site_qreader.qreader_Search(bookname);
 				}
@@ -92,7 +92,7 @@ public class Activity_PageList extends ListActivity {
 	}
 
 	private void renderListView() { // 刷新LV
-		if (FoxBookLib.FROM_DB == foxfrom) {
+		if (SITES.FROM_DB == foxfrom) {
 			adapter = new SimpleAdapter(this, data, R.layout.lv_item_pagelist,
 					new String[] { "name", "count" }, new int[] { R.id.tvName, R.id.tvCount });
 			lv_pagelist.setAdapter(adapter);
@@ -137,7 +137,7 @@ public class Activity_PageList extends ListActivity {
 				Map<String, Object> chapinfol = (HashMap<String, Object>) parent.getItemAtPosition(position);
 				longclickpos = position ; // base 0
 
-				if ( foxfrom == FoxBookLib.FROM_NET ) { // 从网络下载临时的条目没有ID
+				if ( foxfrom == SITES.FROM_NET ) { // 从网络下载临时的条目没有ID
 					foxtip("从网络下载临时的条目没有ID");
 					return true;
 				}
@@ -205,7 +205,7 @@ public class Activity_PageList extends ListActivity {
 									setTitle("正在更新: " + lcName);
 									(new Thread(){
 										public void run(){
-											FoxBookLib.updatepage(lcID, oDB);
+											FoxMemDBHelper.updatepage(lcID, oDB);
 									        handler.sendEmptyMessage(IS_UPDATEPAGE);
 										}
 									}).start();
@@ -279,7 +279,7 @@ public class Activity_PageList extends ListActivity {
 
 		init_handler() ; // 初始化一个handler 用于处理后台线程的消息
  
-		if ( FoxBookLib.FROM_NET == foxfrom ) {
+		if ( SITES.FROM_NET == foxfrom ) {
 			String html = itt.getStringExtra("html");
 			if (null == html) { // 没传入自己下载
 				new Thread(new DownTOC()).start();
@@ -287,7 +287,7 @@ public class Activity_PageList extends ListActivity {
 			}
 			data = FoxBookLib.tocHref(html, 0);
 		}
-		if ( FoxBookLib.FROM_DB == foxfrom) { // DB
+		if ( SITES.FROM_DB == foxfrom) { // DB
 			bookid = itt.getIntExtra("bookid", 0);
 			data = FoxMemDBHelper.getPageList("where bookid=" + bookid, oDB); // 获取页面列表
 		}
@@ -305,12 +305,12 @@ public class Activity_PageList extends ListActivity {
 		for ( int i=0; i< itemcount; i++){
 			switch (menu.getItem(i).getItemId()) {
 				case R.id.pm_Add:
-					if ( FoxBookLib.FROM_DB == foxfrom)  // 当是本地数据库时隐藏添加按钮
+					if ( SITES.FROM_DB == foxfrom)  // 当是本地数据库时隐藏添加按钮
 						menu.getItem(i).setVisible(false);
 					break;
 				case R.id.pm_cleanBook:
 				case R.id.pm_cleanBookND:
-					if ( FoxBookLib.FROM_NET == foxfrom ) // 当是网络时隐藏删除按钮
+					if ( SITES.FROM_NET == foxfrom ) // 当是网络时隐藏删除按钮
 						menu.getItem(i).setVisible(false);
 					break;
 			}
@@ -337,7 +337,7 @@ public class Activity_PageList extends ListActivity {
 			finish();
 			break;
 		case R.id.pm_Add:
-			if ( FoxBookLib.FROM_NET == foxfrom ) {
+			if ( SITES.FROM_NET == foxfrom ) {
 				if ( null != bookurl && "" != bookname ) {
 					int nBookID = 0 ;
 					// 新增入数据库，并获取返回bookid

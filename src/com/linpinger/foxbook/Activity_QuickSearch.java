@@ -62,19 +62,19 @@ public class Activity_QuickSearch extends ListActivity {
 		String seURL = "" ;
 		try {
 			switch (SE_TYPE) { // 1:sogou 2:yahoo 3:bing  11:easou 12:追书神器
-			case FoxBookLib.SE_SOGOU:
+			case SITES.SE_SOGOU:
 				seURL = "http://www.sogou.com/web?query=" + URLEncoder.encode(book_name, "GB2312") + "&num=50" ;
 				break;
-			case FoxBookLib.SE_YAHOO:
+			case SITES.SE_YAHOO:
 				seURL = "http://search.yahoo.com/search?n=40&p=" + URLEncoder.encode(book_name, "UTF-8") ;
 				break;
-			case FoxBookLib.SE_BING:
+			case SITES.SE_BING:
 				seURL = "http://cn.bing.com/search?q=" + URLEncoder.encode(book_name, "UTF-8") ;
 				break;
-			case FoxBookLib.SE_EASOU:
+			case SITES.SE_EASOU:
 				seURL = site_easou.getUrlSE(book_name);
 				break;
-			case FoxBookLib.SE_ZSSQ:
+			case SITES.SE_ZSSQ:
 				seURL = site_zssq.getUrlSE(book_name);
 				break;
 			}
@@ -91,7 +91,7 @@ public class Activity_QuickSearch extends ListActivity {
 				Map<String, Object> chapinfo = (HashMap<String, Object>) parent.getItemAtPosition(position);
 				book_url = (String) chapinfo.get("url");
 				Intent intent = new Intent(Activity_QuickSearch.this, Activity_PageList.class);
-				intent.putExtra("iam", FoxBookLib.FROM_NET);
+				intent.putExtra("iam", SITES.FROM_NET);
 				intent.putExtra("bookurl", book_url);
 				intent.putExtra("bookname", book_name);
 				intent.putExtra("searchengine", SE_TYPE);
@@ -113,13 +113,13 @@ public class Activity_QuickSearch extends ListActivity {
 		public void run() {
 			Message msg = Message.obtain();
 			switch(SE_TYPE) {
-			case FoxBookLib.SE_EASOU:
+			case SITES.SE_EASOU:
 				String sJson = FoxBookLib.downhtml(this.bookurl, "utf-8");
 				bookurl = site_easou.getUrlSL(site_easou.json2IDs(sJson, 1));
 				msg.what = IS_REFRESH;
 				msg.obj = FoxBookLib.downhtml(bookurl, "utf-8");
 				break;
-			case FoxBookLib.SE_ZSSQ :
+			case SITES.SE_ZSSQ :
 				String json = FoxBookLib.downhtml(this.bookurl, "utf-8");
 				bookurl = site_zssq.getUrlSL(site_zssq.json2BookID(json));
 				msg.what = IS_REFRESH;
@@ -146,10 +146,10 @@ public class Activity_QuickSearch extends ListActivity {
 				if ( msg.what == IS_REFRESH ) { // 下载完毕
 					String sHTTP = (String)msg.obj;				
 					switch(SE_TYPE) {
-					case FoxBookLib.SE_EASOU:
+					case SITES.SE_EASOU:
 						data = site_easou.json2SiteList(sHTTP) ;
 						break;
-					case FoxBookLib.SE_ZSSQ :
+					case SITES.SE_ZSSQ :
 						data = site_zssq.json2SiteList(sHTTP) ;
 						break;
 					default :

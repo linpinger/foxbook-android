@@ -85,7 +85,7 @@ public class Activity_BookList extends ListActivity {
 				nowID = (Integer) mm.get("id");
 				nowURL = (String) mm.get("url");
 
-				FoxBookLib.updatepage(nowID, nowURL, oDB);
+				FoxMemDBHelper.updatepage(nowID, nowURL, oDB);
 				
 				msg = Message.obtain();
 				msg.what = IS_MSG;
@@ -169,26 +169,26 @@ public class Activity_BookList extends ListActivity {
 
 			int site_type = 0 ;
 			if ( bookurl.contains("zhuishushenqi.com") ) {
-				site_type = FoxBookLib.SITE_ZSSQ ;
+				site_type = SITES.SITE_ZSSQ ;
 			}
 			if ( bookurl.contains(".qreader.") ) {
-				site_type = FoxBookLib.SITE_QREADER ;
+				site_type = SITES.SITE_QREADER ;
 			}
             if ( bookurl.contains("3g.if.qidian.com") ) {
-                site_type = FoxBookLib.SITE_QIDIAN_MOBILE ;
+                site_type = SITES.SITE_QIDIAN_MOBILE ;
             }
 
 			
 			String html = "";
 			switch(site_type) {
-			case FoxBookLib.SITE_QREADER:
+			case SITES.SITE_QREADER:
 				if (existList.length() > 3) {
 					xx = site_qreader.qreader_GetIndex(bookurl, 55, 1); // 更新模式  最后55章
 				} else {
 					xx = site_qreader.qreader_GetIndex(bookurl, 0, 1); // 更新模式
 				}
 				break;
-			case FoxBookLib.SITE_ZSSQ:
+			case SITES.SITE_ZSSQ:
 				html = FoxBookLib.downhtml(bookurl, "utf-8"); // 下载json
 				if (existList.length() > 3) {
 					xx = site_zssq.json2PageList(html, 55, 1); // 更新模式  最后55章
@@ -196,7 +196,7 @@ public class Activity_BookList extends ListActivity {
 					xx = site_zssq.json2PageList(html, 0, 1); // 更新模式
 				}
 				break;
-			case FoxBookLib.SITE_QIDIAN_MOBILE:
+			case SITES.SITE_QIDIAN_MOBILE:
 				html = FoxBookLib.downhtml(bookurl, "utf-8");
 				xx = site_qidian.json2PageList(html);
 				break;
@@ -284,7 +284,7 @@ public class Activity_BookList extends ListActivity {
 				msg.obj = bookname + ": 下载章节: " + nowCount + " / " + newpagecount ;
 				handler.sendMessage(msg);
 
-				FoxBookLib.updatepage(nowpageid, oDB);
+				FoxMemDBHelper.updatepage(nowpageid, oDB);
 			}
 			} // 单线程更新
 			} // bDownPage
@@ -313,7 +313,7 @@ public class Activity_BookList extends ListActivity {
 				if (tmpcount > 0) {
 					Intent intent = new Intent(Activity_BookList.this,
 							Activity_PageList.class);
-					intent.putExtra("iam", FoxBookLib.FROM_DB);
+					intent.putExtra("iam", SITES.FROM_DB);
 					intent.putExtra("bookurl", tmpurl);
 					intent.putExtra("bookname", tmpname);
 					intent.putExtra("bookid", tmpid);
@@ -375,14 +375,14 @@ public class Activity_BookList extends ListActivity {
 									break;
 								case 2: // 在线查看
 									Intent intent = new Intent(Activity_BookList.this, Activity_PageList.class);
-									intent.putExtra("iam", FoxBookLib.FROM_NET);
+									intent.putExtra("iam", SITES.FROM_NET);
 									intent.putExtra("bookurl", lcURL);
 									intent.putExtra("bookname", lcName);
 									if ( lcURL.contains("zhuishushenqi.com") ) {
-										intent.putExtra("searchengine", FoxBookLib.SITE_ZSSQ);
+										intent.putExtra("searchengine", SITES.SITE_ZSSQ);
 									}
 									if ( lcURL.contains(".qreader.") ) {
-										intent.putExtra("searchengine", FoxBookLib.SITE_QREADER);
+										intent.putExtra("searchengine", SITES.SITE_QREADER);
 									}
 									Activity_PageList.oDB = oDB;
 									startActivity(intent);
@@ -401,10 +401,10 @@ public class Activity_BookList extends ListActivity {
 									}
 									if ( 0 != lcQidianURL.length() ) {
 										Intent intentQD = new Intent(Activity_BookList.this, Activity_PageList.class);
-										intentQD.putExtra("iam", FoxBookLib.FROM_NET);
+										intentQD.putExtra("iam", SITES.FROM_NET);
 										intentQD.putExtra("bookurl", lcQidianURL);
 										intentQD.putExtra("bookname", lcName);
-										intentQD.putExtra("searchengine", FoxBookLib.SE_QIDIAN_MOBILE);
+										intentQD.putExtra("searchengine", SITES.SE_QIDIAN_MOBILE);
 										Activity_PageList.oDB = oDB;
 										startActivity(intentQD);
 									} else {
@@ -414,30 +414,30 @@ public class Activity_BookList extends ListActivity {
 								case 4: // 搜索:bing
 									Intent intent7 = new Intent(Activity_BookList.this, Activity_QuickSearch.class);
 									intent7.putExtra("bookname", lcName);
-									intent7.putExtra("searchengine", FoxBookLib.SE_BING);
+									intent7.putExtra("searchengine", SITES.SE_BING);
 									Activity_QuickSearch.oDB = oDB;
 									startActivity(intent7);
 									break;
 								case 5:  // 搜索:快读
 									Intent intent13 = new Intent(Activity_BookList.this, Activity_PageList.class);
-									intent13.putExtra("iam", FoxBookLib.FROM_NET);
+									intent13.putExtra("iam", SITES.FROM_NET);
 									intent13.putExtra("bookurl", lcURL);
 									intent13.putExtra("bookname", lcName);
-									intent13.putExtra("searchengine", FoxBookLib.SITE_QREADER);
+									intent13.putExtra("searchengine", SITES.SITE_QREADER);
 									Activity_PageList.oDB = oDB;
 									startActivity(intent13);
 									break;
 								case 6: // 搜索:追书神器
 									Intent intent9 = new Intent(Activity_BookList.this, Activity_QuickSearch.class);
 									intent9.putExtra("bookname", lcName);
-									intent9.putExtra("searchengine", FoxBookLib.SITE_ZSSQ);
+									intent9.putExtra("searchengine", SITES.SITE_ZSSQ);
 									Activity_QuickSearch.oDB = oDB;
 									startActivity(intent9);
 									break;
 								case 7: // 搜索:easou
 									Intent intent8 = new Intent(Activity_BookList.this, Activity_QuickSearch.class);
 									intent8.putExtra("bookname", lcName);
-									intent8.putExtra("searchengine", FoxBookLib.SITE_EASOU);
+									intent8.putExtra("searchengine", SITES.SITE_EASOU);
 									Activity_QuickSearch.oDB = oDB;
 									startActivity(intent8);
 									break;
@@ -664,7 +664,7 @@ public class Activity_BookList extends ListActivity {
 			setTitle("开始转换成EPUB...");
 			(new Thread(){
 				public void run(){
-					FoxBookLib.all2epub(oDB);
+					FoxMemDBHelper.all2epub(oDB);
 					Message msg = Message.obtain();
 					msg.what = IS_MSG;
 					msg.obj = "全部转换完毕: /sdcard/fox.epub";
@@ -676,7 +676,7 @@ public class Activity_BookList extends ListActivity {
 			setTitle("开始转换成UMD...");
 			(new Thread(){
 				public void run(){
-					FoxBookLib.all2umd(oDB);
+					FoxMemDBHelper.all2umd(oDB);
 					Message msg = Message.obtain();
 					msg.what = IS_MSG;
 					msg.obj = "全部转换完毕: /sdcard/fox.umd";
@@ -688,7 +688,7 @@ public class Activity_BookList extends ListActivity {
 			setTitle("开始转换成TXT...");
 			(new Thread(){
 				public void run(){
-					FoxBookLib.all2txt(oDB);
+					FoxMemDBHelper.all2txt(oDB);
 					Message msg = Message.obtain();
 					msg.what = IS_MSG;
 					msg.obj = "全部转换完毕: /sdcard/fox.txt";

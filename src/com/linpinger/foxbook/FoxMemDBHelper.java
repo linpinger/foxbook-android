@@ -1,8 +1,10 @@
 package com.linpinger.foxbook;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -13,9 +15,14 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ray.tools.umd.builder.Umd;
+import com.ray.tools.umd.builder.UmdChapters;
+import com.ray.tools.umd.builder.UmdHeader;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Environment;
 
 public class FoxMemDBHelper {
 
@@ -397,6 +404,133 @@ public class FoxMemDBHelper {
 		return addDelList;
 	}
 
+	public static void updatepage(int pageid, FoxMemDB db) {
+		Map<String, String> xx = db.getOneRow("select book.url as bu,page.url as pu from book,page where page.id=" + String.valueOf(pageid) + " and  book.id in (select bookid from page where id=" + String.valueOf(pageid) + ")");
+		String fullPageURL = FoxBookLib.getFullURL(xx.get("bu"),xx.get("pu"));		// 获取bookurl, pageurl 合成得到url
 
+		updatepage(pageid, fullPageURL, db) ;
+	}
+	
+	public static String updatepage(int pageid, String pageFullURL, FoxMemDB db) {
+		String text = "";
+		String html = "" ;
+		int site_type = 0 ; // 特殊页面处理 
+
+		if ( pageFullURL.contains(".qidian.com") ) { site_type = 99 ; }
+		if ( pageFullURL.contains("files.qidian.com") ) { site_type = 98; }   // 起点手机站直接用txt地址好了
+		if ( pageFullURL.contains(".qreader.") ) { site_type = SITES.SITE_QREADER ; }
+		if ( pageFullURL.contains("zhuishushenqi.com") ) { site_type = SITES.SITE_ZSSQ ; } // 这个得放在qidian后面，因为有时候zssq地址会包含起点的url
+
+		switch(site_type) {
+			case SITES.SITE_ZSSQ:
+				String json = FoxBookLib.downhtml(pageFullURL, "utf-8"); // 下载json
+				text = site_zssq.json2Text(json);
+				break;
+			case SITES.SITE_QREADER:
+				text = site_qreader.qreader_GetContent(pageFullURL);
+				break;
+			case 98:
+				html = FoxBookLib.downhtml(pageFullURL, "GBK"); // 下载json
+				text = site_qidian.qidian_getTextFromPageJS(html);
+				break;
+			case 99:
+				String nURL = site_qidian.qidian_toTxtURL_FromPageContent(FoxBookLib.downhtml(pageFullURL)) ; // 2015-11-17: 起点地址变动，只能下载网页后再获取txt地址
+				if ( nURL.equalsIgnoreCase("") ) {
+					text = "" ;
+				} else {
+					html = FoxBookLib.downhtml(nURL);
+					text = site_qidian.qidian_getTextFromPageJS(html);
+				}
+                break;
+			default:
+				html = FoxBookLib.downhtml(pageFullURL); // 下载url
+				text = FoxBookLib.pagetext(html);   	// 分析得到text
+		}
+
+		if ( pageid > 0 ) { // 当pageid小于0时不写入数据库，主要用于在线查看
+			FoxMemDBHelper.setPageContent(pageid, text,db); // 写入数据库
+			return String.valueOf(0);
+		} else {
+			return text;
+		}
+	}
  
+	   public static String all2txt(FoxMemDB db) {
+	    	return all2txt("all", db);
+	    }
+		public static String all2txt(String iBookID, FoxMemDB db) { // 所有书籍转为txt
+			String txtPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "fox.txt";
+	    	return all2txt(iBookID, db, txtPath);
+		}
+		public static String all2txt(String iBookID, FoxMemDB db, String txtPath) { // 所有书籍转为txt
+			StringBuilder txt = new StringBuilder(81920);
+			List<Map<String, Object>> data ;
+			if ( iBookID.equalsIgnoreCase("all") ) {
+				data = FoxMemDBHelper.getEbookChaters(false, db);
+			} else {
+				data = FoxMemDBHelper.getEbookChaters(false, iBookID, db);
+			}
+			Iterator<Map<String, Object>> itr = data.iterator();
+			while (itr.hasNext()) {
+				HashMap<String, Object> mm = (HashMap<String, Object>) itr.next();
+				txt.append(mm.get("title")).append("\n\n").append(mm.get("content")).append("\n\n\n");
+			}
+
+			FoxBookLib.writeText(txt.toString(), txtPath, "utf-8");
+			return "/fox.txt"; // 给foxHTTPD当下载路径使用
+		}
+		
+		public static void all2epub(FoxMemDB db) {// 所有书籍转为epub
+			String epubPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "fox.epub";
+			FoxEpub oEpub = new FoxEpub("FoxBook", epubPath);
+			
+			List<Map<String, Object>> data = FoxMemDBHelper.getEbookChaters(true, db);
+			Iterator<Map<String, Object>> itr = data.iterator();
+			HashMap<String, Object> mm;
+			while (itr.hasNext()) {
+				mm = (HashMap<String, Object>) itr.next();
+				oEpub.AddChapter((String)mm.get("title"), (String)mm.get("content"), -1);
+			}
+			oEpub.SaveTo();
+		}
+
+		public static void all2umd(FoxMemDB db) { // 所有书籍转为umd
+			String umdPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "fox.umd";
+			Umd umd = new Umd();
+			
+			UmdHeader uh = umd.getHeader(); // 设置书籍信息
+			uh.setTitle("FoxBook");
+			uh.setAuthor("爱尔兰之狐");
+			uh.setBookType("小说");
+			uh.setYear("2014");
+			uh.setMonth("04");
+			uh.setDay("01");
+			uh.setBookMan("爱尔兰之狐");
+			uh.setShopKeeper("爱尔兰之狐");
+
+			
+			UmdChapters  cha = umd.getChapters(); // 设置内容
+			List<Map<String, Object>> data = FoxMemDBHelper.getEbookChaters(false, db);
+			Iterator<Map<String, Object>> itr = data.iterator();
+			while (itr.hasNext()) {
+				HashMap<String, Object> mm = (HashMap<String, Object>) itr.next();
+				cha.addChapter((String) mm.get("title"), (String) mm.get("content"));
+			}
+
+	        File file = new File(umdPath); // 生成
+	        try {
+	            FileOutputStream fos = new FileOutputStream(file);
+	            try {
+	                BufferedOutputStream bos = new BufferedOutputStream(fos);
+	                umd.buildUmd(bos);
+	                bos.flush();
+	             } finally {
+	                fos.close();
+	            }
+	        } catch (Exception e) {
+	        	e.toString();
+	        }
+		}
+
+	
 }
