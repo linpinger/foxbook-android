@@ -94,12 +94,14 @@ public class Activity_AllPageList extends ListActivity {
 									foxtip("已删除并记录: " + lcName);
 									data.remove(longclickpos); // 位置可能不太靠谱
 									adapter.notifyDataSetChanged();
+									showItemCountOnTitle();
 									break;
 								case 1:
 									FoxMemDBHelper.delete_Pages(lcID, false, oDB);
 									foxtip("已删除: " + lcName);
 									data.remove(longclickpos);
 									adapter.notifyDataSetChanged();
+									showItemCountOnTitle();
 									break;
 								case 2:
 									HashMap<String, Object> nHMa ;
@@ -113,6 +115,7 @@ public class Activity_AllPageList extends ListActivity {
 										data.remove(0);
 									}
 									adapter.notifyDataSetChanged(); // 通知变更
+									showItemCountOnTitle();
 									foxtip("已删除并记录: <= " + lcName);
 									break;
 								case 3:
@@ -128,6 +131,7 @@ public class Activity_AllPageList extends ListActivity {
 										data.remove(longclickpos);
 									}
 									adapter.notifyDataSetChanged();
+									showItemCountOnTitle();
 									foxtip("已删除并记录: >= " + lcName);
 									break;
 								}
@@ -142,6 +146,10 @@ public class Activity_AllPageList extends ListActivity {
   };
   lv_pagelist.setOnItemLongClickListener(longlistener);
 }
+	
+	private void showItemCountOnTitle() {
+		setTitle("总数: " + String.valueOf(data.size()));
+	}
 	
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void showHomeUp() {
@@ -159,6 +167,7 @@ public class Activity_AllPageList extends ListActivity {
 		lv_pagelist = getListView();
 		
 		renderListView();
+		showItemCountOnTitle();
 		init_LV_item_click() ; // 初始化 单击 条目 的行为
 		init_LV_item_Long_click() ; // 初始化 长击 条目 的行为
 	}
@@ -177,6 +186,7 @@ public class Activity_AllPageList extends ListActivity {
 				nIDb = (Integer) nHMb.get("id");
 				FoxMemDBHelper.delete_Pages(nIDb, true, oDB);
 			}
+			FoxMemDBHelper.simplifyAllDelList(oDB); // 精简所有DelList
 			for ( int i = 0; i<datasiza; ++i) {
 				data.remove(0);
 			}

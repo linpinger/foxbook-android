@@ -24,7 +24,45 @@ import java.util.zip.GZIPInputStream;
 
 public class FoxBookLib {
 
-    public static List compare2GetNewPages(List<Map<String, Object>> xx, String existList) {
+    public static List compare2GetNewPages(List<Map<String, Object>> aHTML, String DelList) {
+        int htmlSize = aHTML.size();
+		if ( 0 == htmlSize ) // aHTML为空(可能网页下载有问题)
+            return aHTML ;
+        if ( ! DelList.contains("|") ) // 当DelList为空，返回原数组
+            return aHTML ;
+        
+        // 获取 DelList 第一行的 URL : BaseLineURL
+        int fFF = DelList.indexOf("|");
+        String BaseLineURL = DelList.substring(1 + DelList.lastIndexOf("\n", fFF), fFF);
+        
+        // 查到数组aHTML中等于BaseLineURL的行号，并删除1到该行号的所有元素
+        int EndIdx = 0 ;
+        String nowURL ;
+        for (int nowIdx = 0; nowIdx < htmlSize; nowIdx++) {
+            nowURL = (String) (( (HashMap<String, Object>)(aHTML.get(nowIdx)) ).get("url"));
+            if ( BaseLineURL.equalsIgnoreCase(nowURL) ) {
+                EndIdx = nowIdx ;
+                break ;
+            }
+        }
+        for (int nowIdx = EndIdx; nowIdx >= 0; nowIdx--) {
+            aHTML.remove(nowIdx);
+        }
+        htmlSize = aHTML.size();
+        
+        // 对比剩余的aHTML和DelList，得到新的aNewRet并返回
+        ArrayList<Map<String, Object>> aNewRet = new ArrayList<Map<String, Object>>(30);
+        for (int nowIdx = 0; nowIdx < htmlSize; nowIdx++) {
+            nowURL = (String) (( (HashMap<String, Object>)(aHTML.get(nowIdx)) ).get("url"));
+            if ( ! DelList.contains("\n" + nowURL + "|") )
+                aNewRet.add(aHTML.get(nowIdx));
+        }
+        
+        return aNewRet ;
+    }
+
+/*
+    public static List compare2GetNewPages2(List<Map<String, Object>> xx, String existList) {
         existList = existList.toLowerCase();
         int xxSize = xx.size();
         if (existList.contains("起止=")) { // 根据 起止 过滤一下 xx
@@ -86,7 +124,8 @@ public class FoxBookLib {
                 }
             }
         }
-	
+
+
         // 比较得到新章节
         String nowURL;
         ArrayList<HashMap<String, Object>> newPages = new ArrayList<HashMap<String, Object>>();
@@ -100,8 +139,25 @@ public class FoxBookLib {
         }
         return newPages;
     }
-
+*/
     public static String simplifyDelList(String DelList) { // 精简 DelList
+        int nLastItem = 9;
+        DelList = DelList.replace("\r", "").replace("\n\n", "\n");
+        String[] xx = DelList.split("\n");
+        if (xx.length < (nLastItem + 2)) {
+            return DelList;
+        }
+        int MaxLineCount = xx.length - nLastItem;
+
+        StringBuilder newList = new StringBuilder(4096);
+        for (int i = 0; i < 9; i++) {
+            newList.append(xx[MaxLineCount + i]).append("\n");
+        }
+        return newList.toString();
+    }
+
+/*
+    public static String simplifyDelList2(String DelList) { // 精简 DelList
         int qi = 0;
         int zhi = 0;
         if (DelList.contains("起止=")) {
@@ -128,7 +184,7 @@ public class FoxBookLib {
             return "起止=" + qi + "," + String.valueOf(zhi + MaxLineCount) + "\n" + newList.toString();
         }
     }
-
+*/
 
     public static List<Map<String, Object>> tocHref(String html, int lastNpage) {
         if (html.length() < 100) { //网页木有下载下来

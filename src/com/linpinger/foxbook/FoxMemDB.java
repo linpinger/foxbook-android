@@ -54,7 +54,7 @@ public class FoxMemDB {
 		db.close();
 	}
 
-	public String switchMemDB() { // 切换数据库路径
+	public File switchMemDB() { // 切换数据库路径
 		File oldDBPath = fDB;
 		ArrayList<File> dbList ;
 		if ( this.isIntDB ) {
@@ -77,7 +77,7 @@ public class FoxMemDB {
         db.close();
         
         createMemDB(fDB); // 导入新的
-        return fDB.getAbsolutePath();
+        return fDB;
 	}
 
 	public void execSQL(String inSQL) {
@@ -283,7 +283,7 @@ public class FoxMemDB {
 					oldSQL = cursor.getString(1); // SQL : create table ...
 					Matcher mat = Pattern.compile("(?i)^.*" + tbName + "(.*)$").matcher(oldSQL);
 					while (mat.find()) {
-						newSQL = "create table " + ToDB + "." + tbName + " " + mat.group(1);
+						newSQL = "create table " + ToDB + "." + tbName + mat.group(1);
 					}
 					oDBMem.execSQL(newSQL); //根据原数据库表格创建新表
 					oDBMem.execSQL("insert into " + ToDB + "." + tbName + " select * from " + FromDB + "." + tbName ) ; //插入原表数据到新表

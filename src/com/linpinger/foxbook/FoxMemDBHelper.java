@@ -378,6 +378,25 @@ public class FoxMemDBHelper {
 		db.execSQL("Delete From Page where BookID = " + sbookid);
 	}
 
+	// 精简所有书的DelURL
+	public static void simplifyAllDelList(FoxMemDB oDB) {
+		SQLiteDatabase db = oDB.getDB();
+		db.beginTransaction();// 开启事务
+		try {
+			Cursor cursor = db.rawQuery("select ID, DelURL from book where length(DelURL) > 128", null);
+			if (cursor.moveToFirst()) {
+				do {
+					db.execSQL("update Book set DelURL=? where id=" + String.valueOf(cursor.getInt(0)),
+							new Object[] { FoxBookLib.simplifyDelList(cursor.getString(1)) });
+				} while (cursor.moveToNext());
+			}
+			cursor.close();
+			db.setTransactionSuccessful();// 设置事务的标志为True
+		} finally {
+			db.endTransaction();
+		}
+	}
+
 	public static synchronized void setPageContent(int pageid, String text, FoxMemDB db) { // 修改指定章节的内容
 		String aNow = (new java.text.SimpleDateFormat("yyyyMMddHHmmss")).format(new java.util.Date()) ;
 		ContentValues args = new ContentValues();

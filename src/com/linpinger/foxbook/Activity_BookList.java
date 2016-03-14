@@ -48,11 +48,12 @@ public class Activity_BookList extends ListActivity {
 	String lcURL, lcName; // long click 的变量
 	Integer lcCount, lcID;
 	private static Handler handler;
-	private final int IS_MSG = 1;
+	private final int DO_SETTITLE = 1;
 	private final int IS_NEWPAGE = 2;
-	private final int IS_REFRESHLIST = 3;
-	private final int IS_REGENID = 4;
+	private final int DO_REFRESHLIST = 3;
+	private final int DO_REFRESH_TIP = 4;
 	private final int IS_NEWVER = 5;
+	private final int DO_REFRESH_SETTITLE = 6 ;
 	private boolean switchdbLock = false;
 	private long mExitTime;
 
@@ -88,14 +89,14 @@ public class Activity_BookList extends ListActivity {
 				FoxMemDBHelper.updatepage(nowID, nowURL, oDB);
 				
 				msg = Message.obtain();
-				msg.what = IS_MSG;
+				msg.what = DO_SETTITLE;
 				msg.obj = leftThread + ":" + thName + ":" + locCount + " / " + allCount ;
 				handler.sendMessage(msg);
 			}
 			--leftThread;
 			if ( 0 == leftThread ) { // 所有线程更新完毕
 				msg = Message.obtain();
-				msg.what = IS_MSG;
+				msg.what = DO_SETTITLE;
 				msg.obj = "已更新完所有空白章节>25" ;
 				handler.sendMessage(msg);
 			}
@@ -138,7 +139,7 @@ public class Activity_BookList extends ListActivity {
             }
             
 			msg = Message.obtain();
-			msg.what = IS_MSG;
+			msg.what = DO_SETTITLE;
 			msg.obj = "共 " + upchacount + " 新章节，全部更新完毕" ;
 			handler.sendMessage(msg);
 		}
@@ -163,7 +164,7 @@ public class Activity_BookList extends ListActivity {
 			String existList = FoxMemDBHelper.getPageListStr(bookid, oDB); // 得到旧 list
 
 			Message msg = Message.obtain();
-			msg.what = IS_MSG;
+			msg.what = DO_SETTITLE;
 			msg.obj = bookname + ": 正在下载目录页";
 			handler.sendMessage(msg);
 
@@ -215,10 +216,10 @@ public class Activity_BookList extends ListActivity {
 
 			if (newpagecount == 0) {
 				msg = Message.obtain();
-				msg.what = IS_MSG;
+				msg.what = DO_SETTITLE;
 				msg.obj = bookname + ": 无新章节";
 				handler.sendMessage(msg);
-				handler.sendEmptyMessage(IS_REFRESHLIST); // 更新完毕，通知刷新
+				handler.sendEmptyMessage(DO_REFRESHLIST); // 更新完毕，通知刷新
 				if ( ! bDownPage ) { //添加这个主要想在有空白章节时更新一下
 					return;
 				}
@@ -280,7 +281,7 @@ public class Activity_BookList extends ListActivity {
 
 				++nowCount;
 				msg = Message.obtain();
-				msg.what = IS_MSG;
+				msg.what = DO_SETTITLE;
 				msg.obj = bookname + ": 下载章节: " + nowCount + " / " + newpagecount ;
 				handler.sendMessage(msg);
 
@@ -290,11 +291,11 @@ public class Activity_BookList extends ListActivity {
 			} // bDownPage
 
 			msg = Message.obtain();
-			msg.what = IS_MSG;
+			msg.what = DO_SETTITLE;
 			msg.obj = bookname + ": 更新完毕";
 			handler.sendMessage(msg);
 
-			handler.sendEmptyMessage(IS_REFRESHLIST); // 更新完毕，通知刷新
+			handler.sendEmptyMessage(DO_REFRESHLIST); // 更新完毕，通知刷新
 		}
 	}
 
@@ -344,7 +345,7 @@ public class Activity_BookList extends ListActivity {
 				lcName = (String) chapinfol.get("name");
 				lcCount = Integer.parseInt((String) chapinfol.get("count"));
 				lcID = (Integer) chapinfol.get("id");
-				setTitle(lcName + " : " + lcURL);
+				setTitle(lcName + " : " + lcCount);
 
 				// builder.setIcon(R.drawable.ic_launcher);
 				builder.setTitle("操作:" + lcName);
@@ -485,23 +486,26 @@ public class Activity_BookList extends ListActivity {
 		handler = new Handler(new Handler.Callback() {
 			public boolean handleMessage(Message msg) {
 				switch (msg.what) {
-				case IS_MSG:
+				case DO_SETTITLE:
 					setTitle((String)msg.obj);
+					break;
+				case DO_REFRESHLIST:
+					refresh_BookList();
+					break;
+				case DO_REFRESH_TIP :
+					refresh_BookList();
+					foxtip((String) msg.obj);
+					break;
+				case DO_REFRESH_SETTITLE :
+					refresh_BookList();
+					setTitle((String) msg.obj);
 					break;
 				case IS_NEWPAGE:
 					upchacount += (Integer) msg.arg1;
 					setTitle((String) msg.obj);
 					break;
-				case IS_REGENID :
-					refresh_BookList(); // 刷新LV中的数据
-					foxtip((String) msg.obj);
-					break;
-				case IS_REFRESHLIST:
-					refresh_BookList(); // 刷新LV中的数据
-					break;
 				case IS_NEWVER:
 					setTitle((String)msg.obj);
-
 					try {
 						Intent i = new Intent(Intent.ACTION_VIEW);
 						i.setDataAndType(Uri.fromFile(new File("/sdcard/FoxBook.apk")), "application/vnd.android.package-archive"); 
@@ -509,7 +513,6 @@ public class Activity_BookList extends ListActivity {
 					} catch(Exception e) {
 						e.toString();
 					}
-
 					break;
 				}
 				return false;
@@ -602,11 +605,11 @@ public class Activity_BookList extends ListActivity {
 				(new Thread(){
 					public void run(){
 						switchdbLock = true;
-						String nowPath = oDB.switchMemDB();
+						String nowPath = oDB.switchMemDB().getName().replace(".db3", "");
 						switchdbLock = false;
 						Message msg = Message.obtain();
-						msg.what = IS_REGENID;
-						msg.obj = "已切换到:\n" + nowPath;
+						msg.what = DO_REFRESH_SETTITLE;
+						msg.obj = nowPath;
 						handler.sendMessage(msg);
 					}
 				}).start();
@@ -632,8 +635,9 @@ public class Activity_BookList extends ListActivity {
 			(new Thread(){ public void run(){
 					FoxMemDBHelper.regenID(1, oDB); // 顺序bookid
 					FoxMemDBHelper.regenID(9, oDB); // 重新生成页面ID
+					FoxMemDBHelper.simplifyAllDelList(oDB);
 					Message msg = Message.obtain();
-					msg.what = IS_REGENID;
+					msg.what = DO_REFRESH_TIP;
 					msg.obj = "已按页面页数顺序重排好书籍";
 					handler.sendMessage(msg);
 				} }).start();
@@ -643,8 +647,9 @@ public class Activity_BookList extends ListActivity {
 			(new Thread(){ public void run(){
 				FoxMemDBHelper.regenID(2, oDB); // 倒序bookid
 				FoxMemDBHelper.regenID(9, oDB); // 重新生成页面ID
+				FoxMemDBHelper.simplifyAllDelList(oDB);
 				Message msg = Message.obtain();
-				msg.what = IS_REGENID;
+				msg.what = DO_REFRESH_TIP;
 				msg.obj = "已按页面页数倒序重排好书籍";
 				handler.sendMessage(msg);
 			} }).start();
@@ -666,7 +671,7 @@ public class Activity_BookList extends ListActivity {
 				public void run(){
 					FoxMemDBHelper.all2epub(oDB);
 					Message msg = Message.obtain();
-					msg.what = IS_MSG;
+					msg.what = DO_SETTITLE;
 					msg.obj = "全部转换完毕: /sdcard/fox.epub";
 					handler.sendMessage(msg);
 				}
@@ -678,7 +683,7 @@ public class Activity_BookList extends ListActivity {
 				public void run(){
 					FoxMemDBHelper.all2umd(oDB);
 					Message msg = Message.obtain();
-					msg.what = IS_MSG;
+					msg.what = DO_SETTITLE;
 					msg.obj = "全部转换完毕: /sdcard/fox.umd";
 					handler.sendMessage(msg);
 				}
@@ -690,7 +695,7 @@ public class Activity_BookList extends ListActivity {
 				public void run(){
 					FoxMemDBHelper.all2txt(oDB);
 					Message msg = Message.obtain();
-					msg.what = IS_MSG;
+					msg.what = DO_SETTITLE;
 					msg.obj = "全部转换完毕: /sdcard/fox.txt";
 					handler.sendMessage(msg);
 				}
@@ -706,7 +711,7 @@ public class Activity_BookList extends ListActivity {
 						msg.what = IS_NEWVER;
 						msg.obj = newver + ":新版本" ;
 					} else {
-						msg.what = IS_MSG;
+						msg.what = DO_SETTITLE;
 						msg.obj = "无新版本" ;
 					}
 					handler.sendMessage(msg);
@@ -758,7 +763,7 @@ public class Activity_BookList extends ListActivity {
 				public void run(){
 					oDB.SD2Int(false);
 					Message msg = Message.obtain();
-					msg.what = IS_MSG;
+					msg.what = DO_SETTITLE;
 					msg.obj = "完毕导出: 内部存储->SD卡";
 					handler.sendMessage(msg);
 				}
@@ -771,7 +776,7 @@ public class Activity_BookList extends ListActivity {
 				public void run(){
 					oDB.SD2Int(true);
 					Message msg = Message.obtain();
-					msg.what = IS_MSG;
+					msg.what = DO_SETTITLE;
 					msg.obj = "完毕导入: SD卡->内部存储";
 					handler.sendMessage(msg);
 					System.exit(0); // 不保存退出

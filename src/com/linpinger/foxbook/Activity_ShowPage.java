@@ -38,7 +38,7 @@ public class Activity_ShowPage extends Activity {
 	SharedPreferences settings;
 	SharedPreferences.Editor editor;
 	private boolean isNextChapter = true;  // 翻页/翻屏
-	
+
 	private final int IS_REFRESH = 5 ;
 	
 	private int SE_TYPE = 1; // 搜索引擎
@@ -139,13 +139,20 @@ public class Activity_ShowPage extends Activity {
 		}
 
 		tv.setOnClickListener(new OnClickListener(){
-			@Override
 			public void onClick(View arg0) { // 单击滚屏
 				int vy = getWindowManager().getDefaultDisplay().getHeight(); // 屏幕高度
-				if ( cY <= vy / 3 ) { // 小于1/3屏 上一页
-					sv.smoothScrollBy(0, 30 - sv.getMeasuredHeight());
+				if (cY <= vy / 3) { // 小于1/3屏 上一页
+					if (sv.getScrollY() == 0) { // 在顶部前翻章
+						showPrevChapter(); // 上一章
+					} else {
+						sv.smoothScrollBy(0, 30 - sv.getMeasuredHeight());
+					}
 				} else {
-					sv.smoothScrollBy(0, sv.getMeasuredHeight() - 30);
+					if (sv.getScrollY() == (tv.getHeight() - sv.getHeight())) { // 到底部后翻页
+						showNextChapter(); // 下一章
+					} else {
+						sv.smoothScrollBy(0, sv.getMeasuredHeight() - 30);
+					}
 				}
 			}
 		});
@@ -155,10 +162,10 @@ public class Activity_ShowPage extends Activity {
 			public boolean onTouch(View arg0, MotionEvent arg1) {
 //				if ( arg1.getAction() == MotionEvent.ACTION_DOWN )
 				cY = arg1.getRawY(); // 获取的坐标给click使用
-//				cX = arg1.getRawX();
 				return false;
 			}
 		});
+		
 	}
 
 	@Override

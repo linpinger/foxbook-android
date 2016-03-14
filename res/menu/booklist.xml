@@ -28,14 +28,12 @@
         android:title="按页数顺序排列"/>
     <!-- android:icon="@android:drawable/ic_menu_sort_alphabetically" -->
 
-    <item
-        android:id="@+id/action_searchbook"
-        android:title="搜索小说"/>
+    <item android:id="@+id/action_exitwithnosave" android:title="不保存数据库退出"></item>
+    
+    <item android:id="@+id/action_searchbook" android:title="搜索小说"/>
     <!-- android:icon="@android:drawable/ic_menu_search" -->
     <!-- android:icon="@android:drawable/ic_menu_manage" -->
 
-    <item android:id="@+id/action_exitwithnosave" android:title="不保存数据库退出"></item>
-    
     <item android:id="@+id/action_foxhttpd" android:title="启动HTTP服务器" android:checkable="true" android:checked="false"></item>
 
     
