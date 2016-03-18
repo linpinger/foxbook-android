@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/activity_showpage_root_layout"
     android:background="@drawable/parchment_paper"
     android:orientation="vertical" >
     <!-- android:background="@color/page_text_background_color" -->

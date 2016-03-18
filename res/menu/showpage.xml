@@ -19,6 +19,10 @@
     <item
         android:id="@+id/sp_set_size_down"
         android:title="减小字体"/>
+    <item android:id="@+id/bg_color1" android:title="背景:绿"/>
+    <item android:id="@+id/bg_color2" android:title="背景:灰"/>
+    <item android:id="@+id/bg_color9" android:title="背景:默认"/>
+    
     <item
         android:id="@+id/is_next_chapter"
         android:checkable="true"

@@ -2,10 +2,13 @@ package com.linpinger.foxbook;
 
 import java.util.Map;
 
+import android.R.drawable;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,6 +20,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +31,7 @@ public class Activity_ShowPage extends Activity {
 	private int foxfrom = 0 ;  // 1=DB, 2=search 
 	private TextView tv ;
 	private ScrollView sv;
+	private LinearLayout rootLayout ;
 	private int bookid = 0 ; // 翻页时使用
 	private int pageid = 0 ;
 	private String pagetext = "暂缺" ;
@@ -57,6 +62,7 @@ public class Activity_ShowPage extends Activity {
 		
 		showHomeUp();
 		
+		rootLayout = (LinearLayout) findViewById(R.id.activity_showpage_root_layout);
 		tv = (TextView) findViewById(R.id.tv_page);
 		sv = (ScrollView) findViewById(R.id.scrollView1);
 		
@@ -246,6 +252,15 @@ public class Activity_ShowPage extends Activity {
 			tv.setTextSize(sp_fontsize);
 			editor.putFloat("ShowPage_FontSize", sp_fontsize);
 			editor.commit();
+			break;
+		case R.id.bg_color1:
+			rootLayout.setBackgroundResource(R.color.qd_mapp_bg_green);
+			break;
+		case R.id.bg_color2:
+			rootLayout.setBackgroundResource(R.color.qd_mapp_bg_grey);
+			break;
+		case R.id.bg_color9: // 设置背景
+			rootLayout.setBackgroundResource(R.drawable.parchment_paper);
 			break;
 		case R.id.sp_set_size_down: // 减小字体
 			--sp_fontsize;
