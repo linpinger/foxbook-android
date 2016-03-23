@@ -12,6 +12,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,7 +31,9 @@ public class Activity_AllPageList extends ListActivity {
 	private List<Map<String, Object>> data;
 	private ListView lv_pagelist ;
 	SimpleAdapter adapter;
-	
+	private Handler handler;
+	private static int IS_UPDATEPAGE = 88;
+
 	// 多层类中共享使用
 	private String lcURL, lcName;
 	private Integer lcID ;
@@ -84,7 +88,7 @@ public class Activity_AllPageList extends ListActivity {
 
 				// builder.setIcon(R.drawable.ic_launcher);
 				builder.setTitle("操作:" + lcName);
-				builder.setItems(new String[] { "删除本章", "删除本章并不写入Dellist", "删除本章及以上", "删除本章及以下" },
+				builder.setItems(new String[] { "删除本章", "删除本章并不写入Dellist", "删除本章及以上", "删除本章及以下", "更新本章" },
 						new DialogInterface.OnClickListener() {
 
 							public void onClick(DialogInterface dialog,  int which) {
@@ -134,6 +138,15 @@ public class Activity_AllPageList extends ListActivity {
 									showItemCountOnTitle();
 									foxtip("已删除并记录: >= " + lcName);
 									break;
+								case 4:
+									setTitle("正在更新: " + lcName);
+									(new Thread(){
+										public void run(){
+											FoxMemDBHelper.updatepage(lcID, oDB);
+									        handler.sendEmptyMessage(IS_UPDATEPAGE);
+										}
+									}).start();
+									break;
 								}
 								if ( data.size() == 0 ) { // 当记录删除完后，结束本Activity
 									exitMe(); // 结束本Activity
@@ -146,6 +159,16 @@ public class Activity_AllPageList extends ListActivity {
   };
   lv_pagelist.setOnItemLongClickListener(longlistener);
 }
+
+	private void init_handler() { // 初始化一个handler 用于处理后台线程的消息
+		handler = new Handler() {
+			public void handleMessage(Message msg) {
+				if ( msg.what == IS_UPDATEPAGE ) { // 更新章节完毕
+					setTitle("更新完毕 : " + lcName);
+				}
+			}
+		};
+	}
 	
 	private void showItemCountOnTitle() {
 		setTitle("总数: " + String.valueOf(data.size()));
@@ -165,7 +188,8 @@ public class Activity_AllPageList extends ListActivity {
 		showHomeUp();
 		
 		lv_pagelist = getListView();
-		
+
+		init_handler() ; // 初始化一个handler 用于处理后台线程的消息
 		renderListView();
 		showItemCountOnTitle();
 		init_LV_item_click() ; // 初始化 单击 条目 的行为

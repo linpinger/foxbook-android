@@ -355,10 +355,10 @@ public class Activity_BookList extends ListActivity {
 						"搜索:起点",
 						"搜索:bing",
 						"搜索:快读",
-						"搜索:追书神器",
 						"搜索:宜搜",
-						"编辑本书信息",
+						"搜索:追书神器",
 						"复制书名",
+						"编辑本书信息",
 						"删除本书" },
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog,
@@ -428,31 +428,31 @@ public class Activity_BookList extends ListActivity {
 									Activity_PageList.oDB = oDB;
 									startActivity(intent13);
 									break;
-								case 6: // 搜索:追书神器
-									Intent intent9 = new Intent(Activity_BookList.this, Activity_QuickSearch.class);
-									intent9.putExtra("bookname", lcName);
-									intent9.putExtra("searchengine", SITES.SITE_ZSSQ);
-									Activity_QuickSearch.oDB = oDB;
-									startActivity(intent9);
-									break;
-								case 7: // 搜索:easou
+								case 6: // 搜索:easou
 									Intent intent8 = new Intent(Activity_BookList.this, Activity_QuickSearch.class);
 									intent8.putExtra("bookname", lcName);
 									intent8.putExtra("searchengine", SITES.SITE_EASOU);
 									Activity_QuickSearch.oDB = oDB;
 									startActivity(intent8);
 									break;
-								case 8:  // 编辑本书信息
+								case 7: // 搜索:追书神器
+									Intent intent9 = new Intent(Activity_BookList.this, Activity_QuickSearch.class);
+									intent9.putExtra("bookname", lcName);
+									intent9.putExtra("searchengine", SITES.SITE_ZSSQ);
+									Activity_QuickSearch.oDB = oDB;
+									startActivity(intent9);
+									break;
+								case 8:  // 复制书名
+									copyToClipboard(lcName);
+									foxtip("已复制到剪贴板: " + lcName);
+									break;
+								case 9:  // 编辑本书信息
 									Intent itti = new Intent(
 											Activity_BookList.this,
 											Activity_BookInfo.class);
 									itti.putExtra("bookid", lcID);
 									Activity_BookInfo.oDB = oDB;
 									startActivityForResult(itti, 0);
-									break;
-								case 9:  // 复制书名
-									copyToClipboard(lcName);
-									foxtip("已复制到剪贴板: " + lcName);
 									break;
 								case 10: // 删除本书
 									FoxMemDBHelper.deleteBook(lcID, oDB);
