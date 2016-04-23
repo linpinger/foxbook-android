@@ -510,11 +510,10 @@ public class FoxBookLib {
             URL url = new URL(inURL);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             if ("GET" != PostData) {
-                System.out.println("I am Posting ...");
+//              System.out.println("I am Posting ...");
                 conn.setDoOutput(true);
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
-//				conn.setInstanceFollowRedirects(true);
             }
 
             if (inURL.contains(".13xs.")) {
@@ -522,49 +521,50 @@ public class FoxBookLib {
             } else {
                 conn.setRequestProperty("User-Agent", "ZhuiShuShenQi/3.26 Java/1.6.0_55"); // Android自带头部和IE8头部会导致yahoo搜索结果链接为追踪链接
             }
-            conn.setRequestProperty("Accept", "*/*");
             if (!inURL.contains("files.qidian.com")) { // 2015-4-16: qidian txt 使用cdn加速，如果头里有gzip就会返回错误的gz数据
                 conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
             } else {
                 conn.setRequestProperty("Accept-Encoding", "*"); // Android 会自动加上gzip，真坑，使用*覆盖之，起点CDN就能正确处理了
             }
+            conn.setRequestProperty("Accept", "*/*");
             conn.setConnectTimeout(5000);
             conn.setReadTimeout(15000);    // 读取超时15s
-            conn.connect();
-
-            if ("GET" != PostData) {
+            conn.setUseCaches(false);     // Cache-Control: no-cache     Pragma: no-cache
+            
+            conn.connect();  // 开始连接
+            if ("GET" != PostData) {  // 发送PostData
                 conn.getOutputStream().write(PostData.getBytes("UTF-8"));
                 conn.getOutputStream().flush();
                 conn.getOutputStream().close();
             }
+            
+            // 这个判断返回状态，本来想判断错误，结果简单的重新connect不行，不如重新来过吧
+            /*
+            int responseCode = conn.getResponseCode();
+            if (responseCode != HttpURLConnection.HTTP_OK) {
+//              System.out.println("  Error Happend, responseCode: " + responseCode + "  URL: " + inURL);
+                return buf;
+            }
+            */
 
             // 判断返回的是否是gzip数据
-            boolean bGZDate = false;
-            Map<String, List<String>> rh = conn.getHeaderFields();
-            List<String> ce = rh.get("Content-Encoding");
-            if (null == ce) { // 不是gzip数据
-                bGZDate = false;
-            } else {
-                bGZDate = true;
-            }
-
             ByteArrayOutputStream outStream = new ByteArrayOutputStream();
             byte[] buffer = new byte[8192];
-            int len = 0;
-
-            if (bGZDate) { // Gzip
+            int len = 0;   
+            // 返回的字段: Content-Encoding: gzip/null 判断是否是gzip
+            if (null == conn.getContentEncoding()) { // 不是gzip数据
+                InputStream in = conn.getInputStream();
+                while ((len = in.read(buffer)) != -1) {
+                    outStream.write(buffer, 0, len);
+                }
+                in.close();
+            } else { // gzip 压缩处理
                 InputStream in = conn.getInputStream();
                 GZIPInputStream gzin = new GZIPInputStream(in);
                 while ((len = gzin.read(buffer)) != -1) {
                     outStream.write(buffer, 0, len);
                 }
                 gzin.close();
-                in.close();
-            } else {
-                InputStream in = conn.getInputStream();
-                while ((len = in.read(buffer)) != -1) {
-                    outStream.write(buffer, 0, len);
-                }
                 in.close();
             }
 
