@@ -235,6 +235,138 @@ public class FoxMemDBHelper {
 		}
 	}
 	
+	// 获取有新章的书列表,　返回的数组元素: bookid, bookname, bookurl
+    public static ArrayList<HashMap<String, Object>> compareShelfToGetNew(FoxMemDB db) {
+		// 下载书架网页, 需要 书架地址，cookie
+		// 正则分析网页，合成 得到 书地址, 书名, 新章节地址, 新章节名
+		// 查数据库得到 bookid, bookname, bookurl, pageUrlList
+		// 比较书籍的 新章节地址是否在 pageUrlList 中，否就加入返回列表中
+    	ArrayList<HashMap<String, Object>> book = getBookListForShelf(db);
+    	
+    	String SiteURL = (String) book.get(0).get("url");
+    	int SiteType = 0 ;
+    	String cookieSQL = "";
+    	String urlShelf = "";
+    	String reShelf  = "(?smi)<tr>.*?(aid=[^\"]*)\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"([^\"]*)\"[^>]*>([^<]*)<";
+    	if ( SiteURL.contains(".13xs.com") ) {
+    		SiteType = 13 ;
+    		cookieSQL = ".13xs." ;
+    		urlShelf = "http://www.13xs.com/shujia.aspx";
+    		reShelf  = "(?smi)<tr>.*?(aid=[^\"]*)&index.*?\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<" ;
+    	}
+    	if ( SiteURL.contains(".biquge.com.tw") ) {
+    		SiteType = 2 ;
+    		cookieSQL = ".biquge." ;
+    		urlShelf = "http://www.biquge.com.tw/modules/article/bookcase.php";
+    		reShelf  = "(?smi)<tr>.*?(aid=[^\"]*)\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"([^\"]*)\"[^>]*>([^<]*)<";
+    	}
+    	if ( SiteURL.contains(".dajiadu.net") ) {
+    		SiteType = 4 ;
+    		cookieSQL = ".dajiadu." ;
+    		urlShelf = "http://www.dajiadu.net/modules/article/bookcase.php" ;
+    		reShelf  = "(?smi)<tr>.*?(aid=[^\"]*)&index.*?\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<" ;
+    	}
+    	if ( SiteURL.contains("m.qreader.me") ) {
+    		SiteType = 99 ;
+    		urlShelf = "http://m.qreader.me/update_books.php" ;
+    		reShelf = "(?smi)\"id\":([0-9]*),\"status\":([0-9]*).*?\"chapter_i\":([0-9]*),\"chapter_n\":\"([^\"]*)\"";
+    	}
+    	
+    	if ( 0 == SiteType ) {
+    		return null;
+    	}
+    	
+    	String html = "";
+    	if ( 99 == SiteType ) {
+    		Iterator<HashMap<String, Object>> itrQQ = book.iterator();
+    		String qindexURL ;
+    		String postData = "{\"books\":[" ;
+    		Pattern p = Pattern.compile("bid=([0-9]+)");
+            while (itrQQ.hasNext()) {
+    			qindexURL = (String) ( (HashMap<String, Object>) itrQQ.next() ).get("url");
+    			Matcher m = p.matcher(qindexURL) ;
+    			while(m.find())
+    				postData = postData + "{\"t\":0,\"i\":" + m.group(1) + "},";
+    		}
+			if ( postData.endsWith(",") )
+				postData = postData.substring(0, postData.length()-1) ;
+    		postData = postData + "]}";
+    		html = FoxBookLib.downhtml(urlShelf, "", postData);
+    	} else {
+    		String cookie = db.getOneCell("SELECT cookie from config where site like '%" + cookieSQL + "%' ") ;
+    		html = FoxBookLib.downhtml(urlShelf, "gbk", "GET", FoxBookLib.cookie2Field(cookie)) ;
+    	}
+		if ( html.length() < 5 )
+			return null ;
+
+    	HashMap<String, String> shelfBook = new HashMap<String, String>(30); // 书名 -> 新章节地址
+        Matcher mat = Pattern.compile(reShelf).matcher(html);
+        while (mat.find()) {
+        	switch (SiteType) {
+        	case 13:
+        		shelfBook.put(mat.group(2), mat.group(3) + ".html");
+        		break;
+        	case 2:
+        		shelfBook.put(mat.group(2), mat.group(3));
+        		break;
+        	case 4:
+        		shelfBook.put(mat.group(2), mat.group(3) + ".html");
+        		break;
+        	case 99: // BID -> 新章节地址
+        		shelfBook.put("BID" + mat.group(1), "#" + mat.group(3));
+        		break;
+        	}
+        }
+
+        ArrayList<HashMap<String, Object>> newPages = new ArrayList<HashMap<String, Object>>(30);
+		Iterator<HashMap<String, Object>> itr = book.iterator();
+		HashMap<String, Object> mm;
+		String nowName, nowURL, nowPageList;
+		Pattern pp = Pattern.compile("bid=([0-9]+)");
+		while (itr.hasNext()) {
+			mm = (HashMap<String, Object>) itr.next();
+//			nowBID =  String.valueOf((Integer)mm.get("id"));
+			nowName = (String) mm.get("name");
+			nowPageList = (String) mm.get("pagelist");
+			if ( 99 == SiteType ) {
+				nowURL = (String) mm.get("url");
+    			Matcher m = pp.matcher(nowURL) ;
+    			while(m.find()) {
+					if ( ! nowPageList.contains("\n" + (String)shelfBook.get("BID" + m.group(1)) + "|") ) {
+						newPages.add(mm);
+					}
+				}
+			} else {
+				if ( ! nowPageList.contains("\n" + (String)shelfBook.get(nowName) + "|") ) {
+					newPages.add(mm);
+				}
+			}
+		}
+		return newPages;
+	}
+    
+	
+	public static ArrayList<HashMap<String, Object>> getBookListForShelf(FoxMemDB db) { // 获取比较书架需要的数据
+		ArrayList<HashMap<String, Object>> data = new ArrayList<HashMap<String, Object>>(30);
+		String sql = "select id,name,url,DelURL from book where ( isEnd isnull or isEnd = '' or isEnd < 1 )" ;
+
+		Cursor cursor = db.getDB().rawQuery(sql, null);
+		HashMap<String, Object> item;
+		if (cursor.moveToFirst()) {
+			do {
+				item = new HashMap<String, Object>();
+				item.put("id", cursor.getInt(0));
+				item.put("name", cursor.getString(1));
+				item.put("url", cursor.getString(2));
+				item.put("pagelist", (cursor.getString(3) + "\n" + getPageListStr_notDel("where bookid = " + cursor.getInt(0), db)).replace("\n\n", "\n"));
+				data.add(item);
+			} while (cursor.moveToNext());
+		}
+		cursor.close();
+		
+		return data;
+	}
+	
 	public static List<Map<String, Object>> getBookList(FoxMemDB db) { // 获取书籍列表
 //		String sql = "select book.Name,count(page.id) as count,book.ID,book.URL,book.isEnd from Book left join page on book.id=page.bookid group by book.id order by count Desc";
 		String sql ="select book.Name,count(page.id) as count,book.ID,book.URL,book.isEnd from Book left join page on book.id=page.bookid group by book.id order by book.DisOrder";
@@ -277,6 +409,7 @@ public class FoxMemDBHelper {
 		cursor.close();
 		return data;
 	}
+
 
 	public static List<Map<String, Object>> getBookNewPages(int bookid, FoxMemDB db) { // 获取数据库中新增的章节
 		List<Map<String, Object>> xx = new ArrayList<Map<String, Object>>(100);

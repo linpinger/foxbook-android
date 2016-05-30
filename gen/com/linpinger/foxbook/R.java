@@ -11,10 +11,8 @@ public final class R {
     public static final class attr {
     }
     public static final class color {
-        public static final int page_text_background_color=0x7f040000;
-        public static final int pure_white=0x7f040003;
-        public static final int qd_mhtml_bg_blue=0x7f040002;
-        public static final int qd_mhtml_bg_green=0x7f040001;
+        public static final int qd_mapp_bg_green=0x7f040000;
+        public static final int qd_mapp_bg_grey=0x7f040001;
     }
     public static final class dimen {
         /**  Default screen margins, per the Android Design guidelines. 
@@ -31,19 +29,19 @@ public final class R {
         public static final int parchment_paper=0x7f020001;
     }
     public static final class id {
-        public static final int action_SD2intDB=0x7f09001e;
-        public static final int action_all2ebook=0x7f09001f;
-        public static final int action_all2epub=0x7f090020;
-        public static final int action_all2txt=0x7f090022;
-        public static final int action_all2umd=0x7f090021;
+        public static final int action_SD2intDB=0x7f09001c;
+        public static final int action_all2ebook=0x7f09001d;
+        public static final int action_all2epub=0x7f09001e;
+        public static final int action_all2txt=0x7f090020;
+        public static final int action_all2umd=0x7f09001f;
         public static final int action_allpagelist=0x7f090015;
         public static final int action_exitwithnosave=0x7f090019;
         public static final int action_foxhttpd=0x7f09001b;
         public static final int action_gbk2utf8=0x7f09002a;
-        public static final int action_intDB2SD=0x7f090023;
-        public static final int action_isIntDB=0x7f09001d;
-        public static final int action_isMemDB=0x7f09001c;
-        public static final int action_refresh=0x7f090024;
+        public static final int action_intDB2SD=0x7f090021;
+        public static final int action_isIntDB=0x7f090024;
+        public static final int action_isMemDB=0x7f090023;
+        public static final int action_refresh=0x7f090022;
         public static final int action_save_exit=0x7f090029;
         public static final int action_searchbook=0x7f09001a;
         public static final int action_sortbook_asc=0x7f090018;
@@ -55,9 +53,7 @@ public final class R {
         public static final int allpagelist_delete=0x7f090010;
         public static final int bg_color1=0x7f090036;
         public static final int bg_color2=0x7f090037;
-        public static final int bg_color3=0x7f090038;
-        public static final int bg_color8=0x7f090039;
-        public static final int bg_color9=0x7f09003a;
+        public static final int bg_color9=0x7f090038;
         public static final int btn_save=0x7f090005;
         public static final int button1=0x7f090009;
         public static final int button2=0x7f09000a;
@@ -67,7 +63,7 @@ public final class R {
         public static final int edt_delurl=0x7f090007;
         public static final int edt_isend=0x7f090002;
         public static final int edt_qdid=0x7f090003;
-        public static final int is_next_chapter=0x7f09003b;
+        public static final int is_next_chapter=0x7f090039;
         public static final int jumplist_tobottom=0x7f090011;
         public static final int jumplist_tomiddle=0x7f090013;
         public static final int jumplist_totop=0x7f090012;

@@ -106,6 +106,53 @@ public class Activity_BookList extends ListActivity {
 	public class UpdateAllBook implements Runnable {
 		public void run() {
 			Message msg;
+			
+			msg = Message.obtain();
+			msg.what = DO_SETTITLE;
+			msg.obj = "下载书架..." ;
+			handler.sendMessage(msg);
+			ArrayList<HashMap<String, Object>> nn = FoxMemDBHelper.compareShelfToGetNew(oDB);
+			if ( nn != null ) {
+				int nnSize = nn.size() ;
+				msg = Message.obtain();
+				msg.what = DO_SETTITLE;
+				msg.obj = "书架: " + nnSize + " 待更新" ;
+				handler.sendMessage(msg);
+				if ( 0 == nnSize ) {
+					return ;
+				} else { 
+					Iterator<HashMap<String, Object>> itrXX = nn.iterator();
+					HashMap<String, Object> mm;
+					int nowBID = 0;
+					String nowName, nowURL;
+					Thread nowTTT;
+					while (itrXX.hasNext()) {
+						mm = (HashMap<String, Object>) itrXX.next();
+						nowBID =  (Integer)mm.get("id");
+						nowName = (String) mm.get("name");
+						nowURL = (String) mm.get("url");
+//						nowPageList = (String) mm.get("pagelist");
+						nowTTT = new Thread(new UpdateBook(nowBID, nowURL, nowName, true));
+						nowTTT.start();
+						try {
+							nowTTT.join();
+							msg = Message.obtain();
+							msg.what = DO_SETTITLE;
+							msg.obj = "更新: " + nowName;
+							handler.sendMessage(msg);
+						} catch (InterruptedException e) {
+							e.toString();
+						}
+					}
+					msg = Message.obtain();
+					msg.what = DO_SETTITLE;
+					msg.obj = "完毕: " + nnSize + " 已更新" ;
+					handler.sendMessage(msg);
+					return ;
+				}
+			}
+			
+			
 			ArrayList<Thread> threadList = new ArrayList<Thread>(30);
             Thread nowT;
             

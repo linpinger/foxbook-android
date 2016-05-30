@@ -468,7 +468,7 @@ public class FoxBookLib {
         try {
 //			toFile.createNewFile();
             FileOutputStream outImgStream = new FileOutputStream(toFile);
-            outImgStream.write(downHTTP(inURL, "GET"));
+            outImgStream.write(downHTTP(inURL, "GET", null));
             outImgStream.close();
         } catch (Exception e) {
             e.toString();
@@ -484,7 +484,11 @@ public class FoxBookLib {
     }
 
     public static String downhtml(String inURL, String pageCharSet, String PostData) {
-        byte[] buf = downHTTP(inURL, PostData);
+        return downhtml(inURL, pageCharSet, PostData, null);
+	}
+
+    public static String downhtml(String inURL, String pageCharSet, String PostData, String iCookie) {
+        byte[] buf = downHTTP(inURL, PostData, iCookie);
         if (buf == null) {
             return "";
         }
@@ -504,7 +508,7 @@ public class FoxBookLib {
         }
     }
 
-    public static byte[] downHTTP(String inURL, String PostData) {
+    public static byte[] downHTTP(String inURL, String PostData, String iCookie) {
         byte[] buf = null;
         try {
             URL url = new URL(inURL);
@@ -515,6 +519,10 @@ public class FoxBookLib {
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
             }
+
+			if ( null != iCookie ) {
+				conn.setRequestProperty("Cookie", iCookie);
+			}
 
             if (inURL.contains(".13xs.")) {
                 conn.setRequestProperty("User-Agent", "ZhuiShuShenQi/3.26"); // 2015-10-27: qqxs使用加速宝，带Java的头会被和谐
@@ -575,6 +583,18 @@ public class FoxBookLib {
         }
         return buf;
     }
+    
+	// Wget Cookie 转为HTTP头中Cookie字段
+    public static String cookie2Field(String iCookie) {
+		String oStr = "" ;
+        Matcher mat = Pattern.compile("(?smi)\t[0-9]*\t([^\t]*)\t([^\r\n]*)").matcher(iCookie);
+        while (mat.find()) {
+			oStr = oStr + mat.group(1) + "=" + mat.group(2) + "; " ;
+//			System.out.println(mat.group(1) + "=" + mat.group(2));
+		}
+		return oStr ;
+	}
+
 
     // { 通用文本读取，写入
     // 优先使用这个读取文本，快点，变量大小可以调整一下以达到最好的速度
