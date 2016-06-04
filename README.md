@@ -20,7 +20,7 @@
 
 -   [源码工程](https://github.com/linpinger/foxbook-android)
 
--   [APK文件下载点1:github](http://linpinger.github.io/bin/foxbook-android/FoxBook.apk)
+-   [APK文件下载点1:sf.net](http://master.dl.sourceforge.net/project/foxtestphp/prj/FoxBook.apk)
 -   [APK文件下载点2:baidu](http://pan.baidu.com/s/1bnqxdjL)
 
 **工程中包含的其他文件:**
@@ -41,6 +41,7 @@
 
 **更新日志:**
 
+- 2016-06-04: 添加: 菜单:显示所有字数小于1K的章节
 - 2016-05-29: 添加: 更新所有先更新书架
 - 2016-03-23: 添加: 所有章节添加更新菜单, 修改: 调整菜单顺序，要是能根据使用频率自动调整菜单顺序就好了，YY一下，还是很有可能的嘛
 - 2016-03-15: 添加: 背景色绿灰

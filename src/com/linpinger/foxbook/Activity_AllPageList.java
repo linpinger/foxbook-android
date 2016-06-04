@@ -28,6 +28,11 @@ import android.widget.AdapterView.OnItemLongClickListener;
 // 2016-2-17: 本 Activity 只被 BookList 调用
 public class Activity_AllPageList extends ListActivity {
 	public static FoxMemDB oDB; // 被调用者修改
+	
+	public static final int SHOW_ALL = 1 ;  // 被其他Activity的调用者调用
+	public static final int SHOW_LESS1K = 2 ;
+	private int showtypelist = SHOW_ALL ;
+	
 	private List<Map<String, Object>> data;
 	private ListView lv_pagelist ;
 	SimpleAdapter adapter;
@@ -40,7 +45,14 @@ public class Activity_AllPageList extends ListActivity {
 	private int longclickpos = 0;
 
 	private void renderListView() { // 刷新LV
-		data = FoxMemDBHelper.getPageList("order by bookid,id", oDB);
+		switch (showtypelist) {
+		case SHOW_ALL:
+			data = FoxMemDBHelper.getPageList("order by bookid,id", oDB);
+			break;
+		case SHOW_LESS1K:
+			data = FoxMemDBHelper.getPageList("where length(content) < 999 order by bookid,id", oDB);
+			break;
+		}
 		adapter = new SimpleAdapter(this, data,
 				R.layout.lv_item_pagelist, new String[] { "name", "count" },
 				new int[] { R.id.tvName, R.id.tvCount });
@@ -186,6 +198,8 @@ public class Activity_AllPageList extends ListActivity {
 		setContentView(R.layout.activity_pagelist);
 		
 		showHomeUp();
+		
+		showtypelist = getIntent().getIntExtra("apl_showtype", SHOW_ALL); // 通过intent获取数据
 		
 		lv_pagelist = getListView();
 

@@ -674,9 +674,17 @@ public class Activity_BookList extends ListActivity {
 			break;
 		case R.id.action_allpagelist:  // 所有章节
 			Intent ittall = new Intent(Activity_BookList.this, Activity_AllPageList.class);
+			ittall.putExtra("apl_showtype", Activity_AllPageList.SHOW_ALL);
 			Activity_AllPageList.oDB = oDB;
 			startActivityForResult(ittall, 0);
 			break;
+		case R.id.action_showokinapl:  // 显示字数少于1K的章节
+			Intent ittlok = new Intent(Activity_BookList.this, Activity_AllPageList.class);
+			ittlok.putExtra("apl_showtype", Activity_AllPageList.SHOW_LESS1K);
+			Activity_AllPageList.oDB = oDB;
+			startActivityForResult(ittlok, 0);
+			break;
+			
 		case R.id.action_sortbook_asc: // 顺序排序
 			this.setTitle("顺序排序");
 			(new Thread(){ public void run(){

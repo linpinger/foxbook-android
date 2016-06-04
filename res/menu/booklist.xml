@@ -33,7 +33,8 @@
     <item android:id="@+id/action_searchbook" android:title="搜索小说"/>
     <!-- android:icon="@android:drawable/ic_menu_search" -->
     <!-- android:icon="@android:drawable/ic_menu_manage" -->
-
+	<item android:id="@+id/action_showokinapl" android:title="显示字数少于1K的章节"/>
+	
     <item android:id="@+id/action_foxhttpd" android:title="启动HTTP服务器" android:checkable="true" android:checked="false"></item>
 
 
