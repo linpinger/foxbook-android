@@ -54,6 +54,7 @@ public class Activity_BookList extends ListActivity {
 	private final int DO_REFRESH_TIP = 4;
 	private final int IS_NEWVER = 5;
 	private final int DO_REFRESH_SETTITLE = 6 ;
+	private final int DO_UPDATEFINISH = 7;
 	private boolean switchdbLock = false;
 	private long mExitTime;
 
@@ -145,7 +146,7 @@ public class Activity_BookList extends ListActivity {
 						}
 					}
 					msg = Message.obtain();
-					msg.what = DO_SETTITLE;
+					msg.what = DO_UPDATEFINISH;
 					msg.obj = "完毕: " + nnSize + " 已更新" ;
 					handler.sendMessage(msg);
 					return ;
@@ -186,7 +187,7 @@ public class Activity_BookList extends ListActivity {
             }
             
 			msg = Message.obtain();
-			msg.what = DO_SETTITLE;
+			msg.what = DO_UPDATEFINISH;
 			msg.obj = "共 " + upchacount + " 新章节，全部更新完毕" ;
 			handler.sendMessage(msg);
 		}
@@ -533,6 +534,14 @@ public class Activity_BookList extends ListActivity {
 		handler = new Handler(new Handler.Callback() {
 			public boolean handleMessage(Message msg) {
 				switch (msg.what) {
+				case DO_UPDATEFINISH:
+					setTitle((String)msg.obj);
+					String xCount = oDB.getOneCell("select count(id) from page where length(content) < 999");
+					if ( Integer.parseInt(xCount) > 0 ) {
+						setTitle(xCount + ":" + (String)msg.obj);
+						foxtip("有 " + xCount + " 章节短于1K");
+					}
+					break;
 				case DO_SETTITLE:
 					setTitle((String)msg.obj);
 					break;
