@@ -1,14 +1,10 @@
 package com.linpinger.foxbook;
 
 import java.util.Map;
-
-import android.R.drawable;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -43,6 +39,10 @@ public class Activity_ShowPage extends Activity {
 	SharedPreferences settings;
 	SharedPreferences.Editor editor;
 	private boolean isNextChapter = true;  // ·­Ò³/·­ÆÁ
+	public static final int BG_DEFAULT = 0 ;  // Ä¬ÈÏ±³¾°
+	public static final int BG_GREEN = 7 ;  // ÂÌÉ«±³¾°
+	public static final int BG_GRAY = 3 ;  // »ÒÉ«±³¾°
+	private int nowBGcolor = BG_DEFAULT ;
 
 	private final int IS_REFRESH = 5 ;
 	
@@ -70,6 +70,8 @@ public class Activity_ShowPage extends Activity {
         settings = getSharedPreferences(FOXSETTING, 0);
         editor = settings.edit();
         isNextChapter = settings.getBoolean("isNextChapter", isNextChapter);
+        nowBGcolor = settings.getInt("myBGcolor", BG_DEFAULT);
+        setBGcolor(nowBGcolor);
 		sp_fontsize = settings.getFloat("ShowPage_FontSize", sp_fontsize);
 		tv.setTextSize(sp_fontsize);
 
@@ -254,13 +256,13 @@ public class Activity_ShowPage extends Activity {
 			editor.commit();
 			break;
 		case R.id.bg_color1:
-			rootLayout.setBackgroundResource(R.color.qd_mapp_bg_green);
+			setBGcolor(BG_GREEN);
 			break;
 		case R.id.bg_color2:
-			rootLayout.setBackgroundResource(R.color.qd_mapp_bg_grey);
+			setBGcolor(BG_GRAY);
 			break;
 		case R.id.bg_color9: // ÉèÖÃ±³¾°
-			rootLayout.setBackgroundResource(R.drawable.parchment_paper);
+			setBGcolor(BG_DEFAULT);
 			break;
 		case R.id.sp_set_size_down: // ¼õÐ¡×ÖÌå
 			--sp_fontsize;
@@ -281,6 +283,22 @@ public class Activity_ShowPage extends Activity {
 			break;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	private void setBGcolor(int bgcolor) {
+		editor.putInt("myBGcolor", bgcolor);
+		editor.commit();
+		switch(bgcolor) {
+		case BG_DEFAULT:
+			rootLayout.setBackgroundResource(R.drawable.parchment_paper);
+			break;
+		case BG_GREEN:
+			rootLayout.setBackgroundResource(R.color.qd_mapp_bg_green);
+			break;
+		case BG_GRAY:
+			rootLayout.setBackgroundResource(R.color.qd_mapp_bg_grey);
+			break;
+		}
 	}
 	
 	public boolean onKeyDown(int keyCoder, KeyEvent event) { // °´ÍË³ö¼ü

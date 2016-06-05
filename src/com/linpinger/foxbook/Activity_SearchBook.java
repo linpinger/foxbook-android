@@ -33,8 +33,6 @@ public class Activity_SearchBook extends Activity {
 	private ImageButton btn_search;
 	private Button btn_pre ;
 	
-	public static final String FOXSETTING = "FOXSETTING";
-	
 	private String book_name = "";
 	private String book_url = "";
 	
