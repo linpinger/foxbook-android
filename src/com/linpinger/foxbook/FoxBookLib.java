@@ -26,7 +26,7 @@ public class FoxBookLib {
 
     public static List compare2GetNewPages(List<Map<String, Object>> aHTML, String DelList) {
         int htmlSize = aHTML.size();
-		if ( 0 == htmlSize ) // aHTML为空(可能网页下载有问题)
+        if ( 0 == htmlSize ) // aHTML为空(可能网页下载有问题)
             return aHTML ;
         if ( ! DelList.contains("|") ) // 当DelList为空，返回原数组
             return aHTML ;
@@ -73,7 +73,7 @@ public class FoxBookLib {
                 qz_1 = Integer.valueOf(mat.group(1));
                 qz_2 = Integer.valueOf(mat.group(2));
             }
-	
+
             ArrayList<Map<String, Object>> nXX = new ArrayList<Map<String, Object>>(30);
             // 下面的初始值及判断顺序最好不要随便变动
             int sIdx = 0;
@@ -319,7 +319,7 @@ public class FoxBookLib {
         html = html.replace("</b>", "");
         html = html.replace("<strong>", "");
         html = html.replace("</strong>", "");
-	
+
         // 获取链接 并存入结构中
         Matcher mat = Pattern.compile("(?smi)href *= *[\"']?([^>\"']+)[\"']?[^>]*> *([^<]+)<").matcher(html);
         while (mat.find()) {
@@ -466,7 +466,7 @@ public class FoxBookLib {
             toFile.delete();
         }
         try {
-//			toFile.createNewFile();
+//          toFile.createNewFile();
             FileOutputStream outImgStream = new FileOutputStream(toFile);
             outImgStream.write(downHTTP(inURL, "GET", null));
             outImgStream.close();
@@ -485,7 +485,7 @@ public class FoxBookLib {
 
     public static String downhtml(String inURL, String pageCharSet, String PostData) {
         return downhtml(inURL, pageCharSet, PostData, null);
-	}
+    }
 
     public static String downhtml(String inURL, String pageCharSet, String PostData, String iCookie) {
         byte[] buf = downHTTP(inURL, PostData, iCookie);
@@ -520,9 +520,9 @@ public class FoxBookLib {
                 conn.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
             }
 
-			if ( null != iCookie ) {
-				conn.setRequestProperty("Cookie", iCookie);
-			}
+            if ( null != iCookie ) {
+                conn.setRequestProperty("Cookie", iCookie);
+            }
 
             if (inURL.contains(".13xs.")) {
                 conn.setRequestProperty("User-Agent", "ZhuiShuShenQi/3.26"); // 2015-10-27: qqxs使用加速宝，带Java的头会被和谐
@@ -584,16 +584,16 @@ public class FoxBookLib {
         return buf;
     }
     
-	// Wget Cookie 转为HTTP头中Cookie字段
+    // Wget Cookie 转为HTTP头中Cookie字段
     public static String cookie2Field(String iCookie) {
-		String oStr = "" ;
+        String oStr = "" ;
         Matcher mat = Pattern.compile("(?smi)\t[0-9]*\t([^\t]*)\t([^\r\n]*)").matcher(iCookie);
         while (mat.find()) {
-			oStr = oStr + mat.group(1) + "=" + mat.group(2) + "; " ;
-//			System.out.println(mat.group(1) + "=" + mat.group(2));
-		}
-		return oStr ;
-	}
+            oStr = oStr + mat.group(1) + "=" + mat.group(2) + "; " ;
+//          System.out.println(mat.group(1) + "=" + mat.group(2));
+        }
+        return oStr ;
+    }
 
 
     // { 通用文本读取，写入
@@ -635,9 +635,9 @@ public class FoxBookLib {
             e.toString();
         }
     }
-	
-	/*
-	// 这个用在定长切割大文本上，已经在importQidianTxt中使用
+
+    /*
+    // 这个用在定长切割大文本上，已经在importQidianTxt中使用
     public static String readTextAndSplit(String filePath, String inFileEnCoding) {
         StringBuilder retStr = new StringBuilder(174080);
         StringBuilder chunkStr = new StringBuilder(65536);
@@ -661,8 +661,109 @@ public class FoxBookLib {
         }
         return retStr.toString();
     }
-	 */	
-	
+    */
+
+    public static String detectTxtEncoding(String txtPath) { // 猜测中文文本编码 返回: "GBK" 或 "UTF-8"
+        byte[] b = new byte[256]; // 读取这么多字节，如果这么多字节都是英文那就悲剧了
+        int loopTimes = 256 - 6 ; // 循环次数 = 字节数 - 6 避免越界
+        try {
+            FileInputStream in= new FileInputStream(txtPath);
+            in.read(b);
+            in.close();
+        } catch (Exception e) {
+            e.toString();
+        }
+        boolean isGBK = false ;
+    if (b[0] == -17 && b[1] == -69 && b[2] == -65) { // UTF-8 BOM : EF BB BF
+        isGBK = false ;
+    } else {
+        int aa = 0 ;
+        int bb = 0 ;
+        int cc = 0 ;
+        int dd = 0 ;
+        int ee = 0 ;
+        int ff = 0 ;
+        int i = 0 ;
+        while ( i < loopTimes ) { // 2字节GBK与3字节UTF8公倍数为6，故取6个字符比较
+            aa = b[i] & 0x000000FF ;
+            if ( aa == 0 )
+                break ;
+            if ( aa < 128 ) {
+                i = i + 1 ;
+                continue ;
+            }
+            if ( aa < 192 || aa > 239 ) {
+                isGBK = true ;
+                break ;
+            }
+
+            bb = b[i+1] & 0x000000FF ;
+            if ( bb < 128 || bb > 191 ) {
+                isGBK = true ;
+                break ;
+            }
+
+            // 第三字节:英文<128，GBK:129-254，UTF8:128-191 192-239
+            cc = b[i+2] & 0x000000FF ;
+            if ( cc > 239 ) {
+                isGBK = true ;
+                break ;
+            } else if ( cc < 128 ) {
+                i = i + 3 ;
+                continue ;
+            }
+
+            dd = b[i+3] & 0x000000FF ;
+            if ( dd < 64 ) {
+                i = i + 4 ;
+                continue ;
+            }
+
+            ee = b[i+4] & 0x000000FF ;
+            if ( ee < 64 ) {
+                i = i + 5 ;
+                continue ;
+            }
+
+            ff = b[i+5] & 0x000000FF ;
+            i = i + 6 ;
+        // GBK: : 2 : 129-254 64-254
+        // UTF8 : 2 : 192-223 128-191
+        // UTF8 : 3 : 224-239 128-191 128-191
+        } // while
+    } // if
+        if ( isGBK ) {
+            return "GBK" ;
+        } else {
+            return "UTF-8" ;
+        }
+    }
+/*
+GBK     : 1 : 81-FE = 129-254
+GBK     : 2 : 40-FE = 64-254
+
+GBK -> UTF-8 :
+UTF-8 2 : 1 : C2-D1 = 194-209
+UTF-8 2 : 1 : 80-BF = 128-191
+
+UTF-8 3 : 1 : E2-EF = 224-239
+UTF-8 3 : 2 : 80-BF = 128-191
+UTF-8 3 : 3 : 80-BF = 128-191
+*/
+// UTF-8 BOM : EF BB BF
+
+/*
+1字节 0xxxxxxx
+2字节 110xxxxx 10xxxxxx
+3字节 1110xxxx 10xxxxxx 10xxxxxx
+4字节 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+5字节 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+6字节 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+
+UTF8 : 2 : 192-223 128-191
+UTF8 : 3 : 224-239 128-191 128-191
+*/
+
     // } 通用文本读取，写入
     
 } // 类结束
