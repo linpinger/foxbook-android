@@ -383,20 +383,35 @@ public class FoxMemDBHelper {
     }
 
     public static List<Map<String, Object>> getPageList(String sqlWhereStr, FoxMemDB db) { // 获取页面列表
+		return getPageList(sqlWhereStr, 0, db) ;
+	}
+    public static List<Map<String, Object>> getPageList(String sqlWhereStr, int sMode, FoxMemDB db) { // 获取页面列表
         String sql = "select name, ID, URL,Bookid, length(content) from page " + sqlWhereStr ;
         Cursor cursor = db.getDB().rawQuery(sql, null);
 
+		int lastBID = 0 ;
+		int nowBID = 0 ;
         List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(25);
         Map<String, Object> item;
         if (cursor.moveToFirst()) {
             do {
                 item = new HashMap<String, Object>();
-                item.put("name", cursor.getString(0));
+				nowBID = cursor.getInt(3) ;
+				if ( 0 == sMode ) {
+                	item.put("name", cursor.getString(0));
+				} else {
+					if ( nowBID == lastBID ) {
+                		item.put("name", cursor.getString(0));
+					} else {
+                		item.put("name", "★" + cursor.getString(0));
+					}
+				}
                 item.put("id", cursor.getInt(1));
                 item.put("url", cursor.getString(2));
-                item.put("bookid", cursor.getInt(3));
+                item.put("bookid", nowBID);
                 item.put("count", cursor.getInt(4));
                 data.add(item);
+				lastBID = nowBID ;
             } while (cursor.moveToNext());
         }
         cursor.close();

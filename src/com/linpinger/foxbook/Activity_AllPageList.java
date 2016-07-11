@@ -47,7 +47,7 @@ public class Activity_AllPageList extends ListActivity {
 	private void renderListView() { // Ë¢ÐÂLV
 		switch (showtypelist) {
 		case SHOW_ALL:
-			data = FoxMemDBHelper.getPageList("order by bookid,id", oDB);
+			data = FoxMemDBHelper.getPageList("order by bookid,id", 1, oDB);
 			break;
 		case SHOW_LESS1K:
 			data = FoxMemDBHelper.getPageList("where length(content) < 999 order by bookid,id", oDB);
