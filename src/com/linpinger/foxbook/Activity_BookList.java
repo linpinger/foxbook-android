@@ -433,6 +433,9 @@ public class Activity_BookList extends ListActivity {
 									if ( lcURL.contains(".qreader.") ) {
 										intent.putExtra("searchengine", SITES.SITE_QREADER);
 									}
+									if ( lcURL.contains("3g.if.qidian.com") ) {
+										intent.putExtra("searchengine", SITES.SE_QIDIAN_MOBILE);
+									}
 									Activity_PageList.oDB = oDB;
 									startActivity(intent);
 									break;

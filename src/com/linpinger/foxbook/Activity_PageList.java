@@ -341,7 +341,7 @@ public class Activity_PageList extends ListActivity {
 				if ( null != bookurl && "" != bookname ) {
 					int nBookID = 0 ;
 					// 新增入数据库，并获取返回bookid
-					nBookID = FoxMemDBHelper.insertbook(bookname, bookurl, oDB);
+					nBookID = FoxMemDBHelper.insertbook(bookname, bookurl, null, oDB);
 					if ( nBookID < 1 )
 						break ;
 					Intent itti = new Intent(Activity_PageList.this, Activity_BookInfo.class);

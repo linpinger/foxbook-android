@@ -72,7 +72,7 @@ public class FoxMemDBHelper {
             return sQidianid;
         }
 
-        String sQidianURL = site_qidian.qidian_getIndexURL_Desk(Integer.valueOf(sQidianid)); // URL
+        String sQidianURL = site_qidian.qidian_getIndexURL_Mobile(Integer.valueOf(sQidianid)); // URL
         String sBookName = sQidianid;
         try {  // 第一行书名
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(txtPath), "GBK"));
@@ -81,7 +81,7 @@ public class FoxMemDBHelper {
         } catch (Exception e) {
             e.toString();
         }
-        String sBookid = String.valueOf(insertbook(sBookName, sQidianURL, oDB)); // 新增书籍 并 获取id
+        String sBookid = String.valueOf(insertbook(sBookName, sQidianURL, sQidianid, oDB)); // 新增书籍 并 获取id
 
         String txtContent = site_qidian.qidian_getTextFromPageJS(txt.replace("\r\n", "\n")) + "\n<end>\n" ;
         db.beginTransaction();// 开启事务
@@ -138,10 +138,13 @@ public class FoxMemDBHelper {
         db.execSQL("Delete From Book where ID = " + bookid);
     }
 
-    public static int insertbook(String bookname, String bookurl, FoxMemDB db) { // 插入一本新书，并返回bookid
+    public static int insertbook(String bookname, String bookurl, String qidianid, FoxMemDB db) { // 插入一本新书，并返回bookid
         ContentValues xxx = new ContentValues();
         xxx.put("Name", bookname);
         xxx.put("URL", bookurl);
+		if (qidianid != null) {
+        	xxx.put("QiDianID", qidianid);
+		}
         long bookid = db.getDB().insert("book", null, xxx);
 
         if ( -1 == bookid ){
