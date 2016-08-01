@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.io.File;
 import java.io.FileInputStream;
 import java.security.MessageDigest;
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -21,8 +20,8 @@ public class FoxUpdatePkg {
 	private String apkPATH = "/sdcard/FoxBook.apk" ;
 	private String urlVersion = "http://linpinger.github.io/bin/foxbook-android/version";
 	private String urlAPK = "http://linpinger.github.io/bin/foxbook-android/FoxBook.apk";
-//	private String urlVersion = "http://linpinger.qiniudn.com/version";
-//	private String urlAPK = "http://linpinger.qiniudn.com/FoxBook.apk";
+//	private String urlVersion = "http://linpinger.oschina.io/bin/foxbook-android/version";
+//	private String urlAPK = "http://linpinger.qiniudn.com/prj/FoxBook.apk";
 	
 	public FoxUpdatePkg(Context context) {
 		this.mContext = context;
@@ -47,7 +46,7 @@ public class FoxUpdatePkg {
 
 	private HashMap<String, Object> getRemoteVersion() {
 		String foxVer = FoxBookLib.downhtml(urlVersion) ;
-		// String foxVer = "foxbook-android>20140519>89317>F8639E58AA84A4F7C9E2152E8A6016AAF7EC534D>http://foxbook.qiniudn.com/FoxBook.apk\n" ;
+		// String foxVer = "foxbook-android>20140519>89317>F8639E58AA84A4F7C9E2152E8A6016AAF7EC534D>http://linpinger.qiniudn.com/prj/FoxBook.apk\n" ;
 		String xx[] = foxVer.replace("\n", "").replace("\r", "").split(">");
 		HashMap<String, Object> item = new HashMap<String, Object>();
 		item.put("name", xx[0]);
@@ -74,31 +73,41 @@ public class FoxUpdatePkg {
      * @param algorithm 所请求算法的名称  for example: MD5, SHA1, SHA-256, SHA-384, SHA-512 etc. 
      * @return
      */
-    public static String getFileMD5(File file,String algorithm) {
-        if (!file.isFile()) {
-            return null;
-        }
+	public static String getFileMD5(File file, String algorithm) {
+		if (!file.exists() || !file.isFile()) {
+			return "";
+		}
 
-        MessageDigest digest = null;
-        FileInputStream in = null;
-        byte buffer[] = new byte[1024];
-        int len;
+		byte[] buffer = new byte[2048];
+		try {
+			MessageDigest digest = MessageDigest.getInstance(algorithm);
+			FileInputStream in = new FileInputStream(file);
+			while (true) {
+				int len = in.read(buffer, 0, 2048);
+				if (len != -1) {
+					digest.update(buffer, 0, len);
+				} else {
+					break;
+				}
+			}
+			in.close();
 
-        try {
-            digest = MessageDigest.getInstance(algorithm);
-            in = new FileInputStream(file);
-            while ((len = in.read(buffer, 0, 1024)) != -1) {
-                digest.update(buffer, 0, len);
-            }
-            in.close();
-        } catch (Exception e) {
-//            e.printStackTrace();
-            return "";
-        }
+			byte[] md5Bytes = digest.digest();
+			StringBuilder hexValue = new StringBuilder();
+			for (int i = 0; i < md5Bytes.length; i++) {
+				int val = ((int) md5Bytes[i]) & 0xff;
+				if (val < 16) {
+					hexValue.append("0");
+				}
+				hexValue.append(Integer.toHexString(val));
+			}
+			return hexValue.toString();
+		} catch (Exception e) {
+			// e.printStackTrace();
+			return "";
+		}
+	}
 
-        BigInteger bigInt = new BigInteger(1, digest.digest());
-        return bigInt.toString(16);
-    }
     
     // foxhttpd需要
 	public static String getLocalIpAddress() {  
