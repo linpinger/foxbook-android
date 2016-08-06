@@ -9,13 +9,7 @@ public class SITES {
     public static final int SE_YAHOO = 2;
     public static final int SE_BING = 3;
 	
-    public static final int SE_EASOU = 11;
-    public static final int SE_ZSSQ = 12;
-    public static final int SE_QREADER = 13;
     public static final int SE_QIDIAN_MOBILE = 16;
 
-    public static final int SITE_EASOU = 11;
-    public static final int SITE_ZSSQ = 12;
-    public static final int SITE_QREADER = 13; // ¿ì¶Á
     public static final int SITE_QIDIAN_MOBILE = 16;  // 3g.if.qidian.com
 }

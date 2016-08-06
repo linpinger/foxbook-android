@@ -36,12 +36,8 @@ public class Activity_PageList extends ListActivity {
 
 	private static int IS_UPDATEPAGE = 88;
 	private static int IS_DOWNTOC = 5;
-	private final int IS_DOWNEASOU = 11;
-	private final int IS_DOWNZSSQ = 12;
-	private final int IS_DOWNKUAIDU = 13;
 	private final int IS_QIDIAN_MOBILE = 16;
 	
-	private String easou_gid_nid = "";
 	private int foxfrom = 0; // 1=DB, 2=search
 	private String bookurl = "";
 	private String bookname = "";
@@ -61,26 +57,6 @@ public class Activity_PageList extends ListActivity {
 			case SITES.SE_QIDIAN_MOBILE : // 起点手机版目录
 				msg.what = IS_QIDIAN_MOBILE;
 				msg.obj = FoxBookLib.downhtml(bookurl, "utf-8") ;
-				break;
-			case SITES.SE_EASOU : // 处理easou搜索书籍，返回书籍地址
-				String sJson = FoxBookLib.downhtml(site_easou.getUrlSE(bookname), "utf-8");
-				easou_gid_nid = site_easou.json2IDs(sJson,0);
-				bookurl = site_easou.getUrlToc(easou_gid_nid);
-				sJson = FoxBookLib.downhtml(bookurl, "utf-8");
-				msg.what = IS_DOWNEASOU;
-				msg.obj = sJson;
-				break;
-			case SITES.SE_ZSSQ:
-				msg.what = IS_DOWNZSSQ;
-				msg.obj = FoxBookLib.downhtml(bookurl, "utf-8") ;
-				break;
-			case SITES.SE_QREADER:
-				if ( ! bookurl.contains(".qreader.") ) { // 在booklist上搜索快读
-					bookurl = site_qreader.qreader_Search(bookname);
-				}
-				data = site_qreader.qreader_GetIndex(bookurl, 0, 1); // 0 表示所有
-				msg.what = IS_DOWNKUAIDU;
-				msg.obj = data;
 				break;
 			default:
 				msg.what = IS_DOWNTOC;
@@ -224,22 +200,9 @@ public class Activity_PageList extends ListActivity {
 	private void init_handler() { // 初始化一个handler 用于处理后台线程的消息
 		handler = new Handler() {
 			public void handleMessage(Message msg) {
-				if ( msg.what == IS_DOWNKUAIDU ) {
-					data = (List<Map<String, Object>>)msg.obj;
-					renderListView();
-					return ;
-				}
 				String sHTTP = (String)msg.obj;
 				if ( msg.what == IS_UPDATEPAGE ) { // 更新章节完毕
 					setTitle("更新完毕 : " + lcName);
-				}
-				if ( msg.what == IS_DOWNEASOU ) { // 处理easou json
-					data = site_easou.json2PageList(sHTTP, easou_gid_nid, 0);
-					renderListView();
-				}
-				if ( msg.what == IS_DOWNZSSQ ) {
-					data = site_zssq.json2PageList(sHTTP, 0);
-					renderListView();
 				}
 				if ( msg.what == IS_QIDIAN_MOBILE ) {
 					data = site_qidian.json2PageList(sHTTP);

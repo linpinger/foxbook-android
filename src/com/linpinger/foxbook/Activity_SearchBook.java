@@ -218,34 +218,6 @@ public class Activity_SearchBook extends Activity {
 			book_name = et.getText().toString();
 			(new Thread(new GetQidianURL())).start() ;
 			break;
-		case R.id.sm_QuickSearchQreader: // 快搜:快读
-			book_name = et.getText().toString();
-			Intent intent13 = new Intent(
-					Activity_SearchBook.this,
-					Activity_PageList.class);
-			intent13.putExtra("iam", SITES.FROM_NET);
-			intent13.putExtra("bookurl", "http://linpinger.github.io/");
-			intent13.putExtra("bookname", book_name);
-			intent13.putExtra("searchengine", SITES.SE_QREADER);
-			Activity_PageList.oDB = oDB;
-			startActivity(intent13);
-			break;
-		case R.id.sm_QuickSearchZhuiShuShenQi: // 快搜:追书神器
-			book_name = et.getText().toString();
-			Intent itzssq = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
-			itzssq.putExtra("bookname", book_name);
-			itzssq.putExtra("searchengine", SITES.SE_ZSSQ);
-			Activity_QuickSearch.oDB = oDB;
-			startActivity(itzssq);
-			break;
-		case R.id.sm_QuickSearchEaSou: // 快搜:Easou
-			book_name = et.getText().toString();
-			Intent iteasou = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
-			iteasou.putExtra("bookname", book_name);
-			iteasou.putExtra("searchengine", SITES.SE_EASOU);
-			Activity_QuickSearch.oDB = oDB;
-			startActivity(iteasou);
-			break;
 		case R.id.sm_QuickSearchSouGou: // 快搜:搜狗
 			book_name = et.getText().toString();
 			Intent intent = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);

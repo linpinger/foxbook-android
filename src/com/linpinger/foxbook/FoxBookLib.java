@@ -444,13 +444,6 @@ public class FoxBookLib {
 
     public static String getFullURL(String sbaseurl, String suburl) { // 获取完整路径
         String allURL = "";
-        if (sbaseurl.contains("zhuishushenqi.com")) {     // 对于这种非正常合成URL需处理一下 http://xxx.com/fskd/http://wwe.comvs.fs
-            if (suburl.contains("zhuishushenqi.com")) {
-                return suburl;
-            } else {
-                return site_zssq.getUrlPage(suburl);
-            }
-        }
         try {
             allURL = (new URL(new URL(sbaseurl), suburl)).toString();
         } catch (MalformedURLException e) {

@@ -581,17 +581,8 @@ public class FoxMemDBHelper {
 
         if ( pageFullURL.contains(".qidian.com") ) { site_type = 99 ; }
         if ( pageFullURL.contains("files.qidian.com") ) { site_type = 98; }   // 起点手机站直接用txt地址好了
-        if ( pageFullURL.contains(".qreader.") ) { site_type = SITES.SITE_QREADER ; }
-        if ( pageFullURL.contains("zhuishushenqi.com") ) { site_type = SITES.SITE_ZSSQ ; } // 这个得放在qidian后面，因为有时候zssq地址会包含起点的url
 
         switch(site_type) {
-            case SITES.SITE_ZSSQ:
-                String json = FoxBookLib.downhtml(pageFullURL, "utf-8"); // 下载json
-                text = site_zssq.json2Text(json);
-                break;
-            case SITES.SITE_QREADER:
-                text = site_qreader.qreader_GetContent(pageFullURL);
-                break;
             case 98:
                 html = FoxBookLib.downhtml(pageFullURL, "GBK"); // 下载json
                 text = site_qidian.qidian_getTextFromPageJS(html);

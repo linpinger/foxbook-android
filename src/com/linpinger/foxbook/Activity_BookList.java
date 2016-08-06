@@ -217,12 +217,6 @@ public class Activity_BookList extends ListActivity {
 			handler.sendMessage(msg);
 
 			int site_type = 0 ;
-			if ( bookurl.contains("zhuishushenqi.com") ) {
-				site_type = SITES.SITE_ZSSQ ;
-			}
-			if ( bookurl.contains(".qreader.") ) {
-				site_type = SITES.SITE_QREADER ;
-			}
             if ( bookurl.contains("3g.if.qidian.com") ) {
                 site_type = SITES.SITE_QIDIAN_MOBILE ;
             }
@@ -230,21 +224,6 @@ public class Activity_BookList extends ListActivity {
 			
 			String html = "";
 			switch(site_type) {
-			case SITES.SITE_QREADER:
-				if (existList.length() > 3) {
-					xx = site_qreader.qreader_GetIndex(bookurl, 55, 1); // 更新模式  最后55章
-				} else {
-					xx = site_qreader.qreader_GetIndex(bookurl, 0, 1); // 更新模式
-				}
-				break;
-			case SITES.SITE_ZSSQ:
-				html = FoxBookLib.downhtml(bookurl, "utf-8"); // 下载json
-				if (existList.length() > 3) {
-					xx = site_zssq.json2PageList(html, 55, 1); // 更新模式  最后55章
-				} else {
-					xx = site_zssq.json2PageList(html, 0, 1); // 更新模式
-				}
-				break;
 			case SITES.SITE_QIDIAN_MOBILE:
 				html = FoxBookLib.downhtml(bookurl, "utf-8");
 				xx = site_qidian.json2PageList(html);
@@ -402,9 +381,6 @@ public class Activity_BookList extends ListActivity {
 						"在线查看",
 						"搜索:起点",
 						"搜索:bing",
-						"搜索:快读",
-						"搜索:宜搜",
-						"搜索:追书神器",
 						"复制书名",
 						"编辑本书信息",
 						"删除本书" },
@@ -427,12 +403,6 @@ public class Activity_BookList extends ListActivity {
 									intent.putExtra("iam", SITES.FROM_NET);
 									intent.putExtra("bookurl", lcURL);
 									intent.putExtra("bookname", lcName);
-									if ( lcURL.contains("zhuishushenqi.com") ) {
-										intent.putExtra("searchengine", SITES.SITE_ZSSQ);
-									}
-									if ( lcURL.contains(".qreader.") ) {
-										intent.putExtra("searchengine", SITES.SITE_QREADER);
-									}
 									if ( lcURL.contains("3g.if.qidian.com") ) {
 										intent.putExtra("searchengine", SITES.SE_QIDIAN_MOBILE);
 									}
@@ -442,7 +412,7 @@ public class Activity_BookList extends ListActivity {
 								case 3: // 搜索:起点
 									String lcQidianID = oDB.getOneCell("select qidianid from book where id=" + lcID);
 									String lcQidianURL = "";
-									if ( 0 == lcQidianID.length() ) {
+									if ( null == lcQidianID || 0 == lcQidianID.length() ) {
 						                String json = FoxBookLib.downhtml(site_qidian.qidian_getSearchURL_Mobile(lcName), "utf-8");
 						                List<Map<String, Object>> qds = site_qidian.json2BookList(json);
 						                if ( qds.get(0).get("name").toString().equalsIgnoreCase(lcName) ) { // 第一个结果就是目标书
@@ -470,34 +440,11 @@ public class Activity_BookList extends ListActivity {
 									Activity_QuickSearch.oDB = oDB;
 									startActivity(intent7);
 									break;
-								case 5:  // 搜索:快读
-									Intent intent13 = new Intent(Activity_BookList.this, Activity_PageList.class);
-									intent13.putExtra("iam", SITES.FROM_NET);
-									intent13.putExtra("bookurl", lcURL);
-									intent13.putExtra("bookname", lcName);
-									intent13.putExtra("searchengine", SITES.SITE_QREADER);
-									Activity_PageList.oDB = oDB;
-									startActivity(intent13);
-									break;
-								case 6: // 搜索:easou
-									Intent intent8 = new Intent(Activity_BookList.this, Activity_QuickSearch.class);
-									intent8.putExtra("bookname", lcName);
-									intent8.putExtra("searchengine", SITES.SITE_EASOU);
-									Activity_QuickSearch.oDB = oDB;
-									startActivity(intent8);
-									break;
-								case 7: // 搜索:追书神器
-									Intent intent9 = new Intent(Activity_BookList.this, Activity_QuickSearch.class);
-									intent9.putExtra("bookname", lcName);
-									intent9.putExtra("searchengine", SITES.SITE_ZSSQ);
-									Activity_QuickSearch.oDB = oDB;
-									startActivity(intent9);
-									break;
-								case 8:  // 复制书名
+								case 5:  // 复制书名
 									copyToClipboard(lcName);
 									foxtip("已复制到剪贴板: " + lcName);
 									break;
-								case 9:  // 编辑本书信息
+								case 6:  // 编辑本书信息
 									Intent itti = new Intent(
 											Activity_BookList.this,
 											Activity_BookInfo.class);
@@ -505,7 +452,7 @@ public class Activity_BookList extends ListActivity {
 									Activity_BookInfo.oDB = oDB;
 									startActivityForResult(itti, 0);
 									break;
-								case 10: // 删除本书
+								case 7: // 删除本书
 									FoxMemDBHelper.deleteBook(lcID, oDB);
 									refresh_BookList();
 									foxtip("已删除: " + lcName);

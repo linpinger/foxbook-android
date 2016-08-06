@@ -3,21 +3,19 @@
 
     <!--
         android:icon="@android:drawable/ic_popup_sync"
-        android:showAsAction="always"
-    -->
+        android:showAsAction="always"    -->
     <item
         android:id="@+id/sm_QuickSearchQidian"
         android:title="快速搜索:起点"/>
 
-    
     <item
-        android:id="@+id/sm_QuickSearchQreader"
-        android:title="快速搜索:快读"/>
-    <item android:id="@+id/sm_QuickSearchBing" android:title="快速搜索:Bing" /><item
+        android:id="@+id/sm_QuickSearchBing"
+        android:title="快速搜索:Bing"/>
+    <item
         android:id="@+id/sm_QuickSearchSouGou"
         android:title="快速搜索:搜狗"/>
     <item
         android:id="@+id/sm_QuickSearchYahoo"
-        android:title="快速搜索:雅虎"/><item android:id="@+id/sm_QuickSearchEaSou" android:title="快速搜索:宜搜" /><item android:id="@+id/sm_QuickSearchZhuiShuShenQi" android:title="快速搜索:追书神器" />
-    
+        android:title="快速搜索:雅虎"/>
+
 </menu>

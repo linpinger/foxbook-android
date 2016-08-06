@@ -102,17 +102,6 @@ public class Activity_ShowPage extends Activity {
 			public void run() {
 				String text = "";
 				switch(SE_TYPE) {
-				case SITES.SE_EASOU : // 处理easou搜索书籍，返回书籍地址
-					text = FoxBookLib.downhtml(pageurl, "utf-8");
-					text = site_easou.json2Text(text);
-					break;
-				case SITES.SE_ZSSQ:
-					text = FoxBookLib.downhtml(pageurl, "utf-8");
-					text = site_zssq.json2Text(text);
-					break;
-				case SITES.SE_QREADER:
-					text = site_qreader.qreader_GetContent(pageurl);
-					break;
 				case SITES.SE_QIDIAN_MOBILE:
 					text = FoxBookLib.downhtml(pageurl, "GBK");
 					text = site_qidian.qidian_getTextFromPageJS(text);
