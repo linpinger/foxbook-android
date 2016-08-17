@@ -19,14 +19,36 @@
     <item
         android:id="@+id/sp_set_size_down"
         android:title="减小字体"/>
+  
+    <item
+        android:id="@+id/font1"
+        android:title="字体1"/>
+    <item
+        android:id="@+id/font2"
+        android:title="字体2"/> 
+
+    <item
+        android:id="@+id/hideactionbar"
+        android:title="隐藏/显示动作栏"/> 
+    <item
+        android:id="@+id/is_nextfullscreen"
+        android:checkable="true"
+        android:checked="false"
+        android:title="下次全屏"/> 
+    <item
+        android:id="@+id/is_eink"
+        android:checkable="true"
+        android:checked="false"
+        android:title="是E-ink设备"/>
+    <item
+        android:id="@+id/is_mapupkey"
+        android:checkable="true"
+        android:checked="false"
+		android:visible="false"
+        android:title="上翻映射为下翻"/>
+
     <item android:id="@+id/bg_color1" android:title="背景:绿"/>
     <item android:id="@+id/bg_color2" android:title="背景:灰"/>
     <item android:id="@+id/bg_color9" android:title="背景:默认"/>
     
-    <item
-        android:id="@+id/is_next_chapter"
-        android:checkable="true"
-        android:checked="true"
-        android:title="音量键:翻章/翻屏"/>
-
 </menu>

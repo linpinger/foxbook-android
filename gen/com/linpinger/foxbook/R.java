@@ -13,6 +13,7 @@ public final class R {
     public static final class color {
         public static final int qd_mapp_bg_green=0x7f040000;
         public static final int qd_mapp_bg_grey=0x7f040001;
+        public static final int qd_mapp_bg_white=0x7f040002;
     }
     public static final class dimen {
         /**  Default screen margins, per the Android Design guidelines. 
@@ -52,9 +53,9 @@ public final class R {
         public static final int action_updatepkg=0x7f090026;
         public static final int activity_showpage_root_layout=0x7f09000c;
         public static final int allpagelist_delete=0x7f090010;
-        public static final int bg_color1=0x7f090034;
-        public static final int bg_color2=0x7f090035;
-        public static final int bg_color9=0x7f090036;
+        public static final int bg_color1=0x7f09003a;
+        public static final int bg_color2=0x7f09003b;
+        public static final int bg_color9=0x7f09003c;
         public static final int btn_save=0x7f090005;
         public static final int button1=0x7f090009;
         public static final int button2=0x7f09000a;
@@ -64,7 +65,12 @@ public final class R {
         public static final int edt_delurl=0x7f090007;
         public static final int edt_isend=0x7f090002;
         public static final int edt_qdid=0x7f090003;
-        public static final int is_next_chapter=0x7f090037;
+        public static final int font1=0x7f090034;
+        public static final int font2=0x7f090035;
+        public static final int hideactionbar=0x7f090036;
+        public static final int is_eink=0x7f090038;
+        public static final int is_mapupkey=0x7f090039;
+        public static final int is_nextfullscreen=0x7f090037;
         public static final int jumplist_tobottom=0x7f090011;
         public static final int jumplist_tomiddle=0x7f090013;
         public static final int jumplist_totop=0x7f090012;
@@ -128,6 +134,7 @@ public final class R {
         AppBaseTheme from BOTH res/values/styles.xml and
         res/values-v11/styles.xml on API 14+ devices.
     
+ <style name="AppBaseTheme" parent="android:Theme.DeviceDefault.Light"> 
  API 14 theme customizations can go here. 
          */
         public static final int AppBaseTheme=0x7f070000;

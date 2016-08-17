@@ -10,6 +10,7 @@ import android.app.ListActivity;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,6 +29,10 @@ import android.widget.AdapterView.OnItemLongClickListener;
 public class Activity_PageList extends ListActivity {
 	public static FoxMemDB oDB;
 	
+	SharedPreferences settings;
+	public static final String FOXSETTING = "FOXSETTING";
+	private boolean isEink = false; // 是否E-ink设备
+
 	private List<Map<String, Object>> data;
 	private ListView lv_pagelist ;
 	
@@ -225,6 +230,12 @@ public class Activity_PageList extends ListActivity {
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) { // 入口
+		settings = getSharedPreferences(FOXSETTING, 0);
+		isEink = settings.getBoolean("isEink", isEink);
+		if ( isEink ) {
+			this.setTheme(android.R.style.Theme_DeviceDefault_Light);
+		}
+
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_pagelist);
 

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import android.app.ListActivity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,6 +24,11 @@ public class Activity_Qidian_Txt_Viewer extends ListActivity {
 	SimpleAdapter adapter;
 	public FoxMemDB oDB  ; // 默认使用MemDB
 	private String txtPath ;
+
+	SharedPreferences settings;
+	public static final String FOXSETTING = "FOXSETTING";
+	private boolean isEink = false; // 是否E-ink设备
+
 	
 	private void renderListView() { // 刷新LV
 		adapter = new SimpleAdapter(this, data,
@@ -55,6 +61,12 @@ public class Activity_Qidian_Txt_Viewer extends ListActivity {
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) { // 入口
+		settings = getSharedPreferences(FOXSETTING, 0);
+		isEink = settings.getBoolean("isEink", isEink);
+		if ( isEink ) {
+			this.setTheme(android.R.style.Theme_DeviceDefault_Light);
+		}
+
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_qidian_txt_viewver);
 		lv_pagelist = getListView();

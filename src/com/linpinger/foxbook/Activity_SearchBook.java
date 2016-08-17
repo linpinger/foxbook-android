@@ -7,6 +7,7 @@ import android.os.Message;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -33,6 +34,10 @@ public class Activity_SearchBook extends Activity {
 	private ImageButton btn_search;
 	private Button btn_pre ;
 	
+	SharedPreferences settings;
+	public static final String FOXSETTING = "FOXSETTING";
+	private boolean isEink = false; //  «∑ÒE-ink…Ë±∏
+
 	private String book_name = "";
 	private String book_url = "";
 	
@@ -65,6 +70,12 @@ public class Activity_SearchBook extends Activity {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		settings = getSharedPreferences(FOXSETTING, 0);
+		isEink = settings.getBoolean("isEink", isEink);
+		if ( isEink ) {
+			this.setTheme(android.R.style.Theme_DeviceDefault_Light);
+		}
+
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_search);
 		mExitTime = System.currentTimeMillis();

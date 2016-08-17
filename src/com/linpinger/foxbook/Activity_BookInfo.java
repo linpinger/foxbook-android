@@ -6,6 +6,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -21,6 +22,10 @@ public class Activity_BookInfo extends Activity {
 	private TextView tv_bid;
 	private EditText edt_bname, edt_isend, edt_qdid, edt_burl, edt_delurl;
 	
+	SharedPreferences settings;
+	public static final String FOXSETTING = "FOXSETTING";
+	private boolean isEink = false; // 是否E-ink设备
+
 	private int bookid ;
 	
 	private void init_controls() { // 初始化各控件
@@ -40,6 +45,12 @@ public class Activity_BookInfo extends Activity {
 	}		// 响应点击事件在onOptionsItemSelected的switch中加入 android.R.id.home   this.finish();
 	
 	public void onCreate(Bundle savedInstanceState) { // 界面初始化
+		settings = getSharedPreferences(FOXSETTING, 0);
+		isEink = settings.getBoolean("isEink", isEink);
+		if ( isEink ) {
+			this.setTheme(android.R.style.Theme_DeviceDefault_Light);
+		}
+
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_bookinfo);
 		

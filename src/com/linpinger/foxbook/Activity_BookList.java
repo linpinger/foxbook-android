@@ -64,6 +64,7 @@ public class Activity_BookList extends ListActivity {
 	SharedPreferences settings;
 	SharedPreferences.Editor editor;
 	public static final String FOXSETTING = "FOXSETTING";
+	private boolean isEink = false; // 是否E-ink设备
 	private boolean isMemDB = true;  // 是否是内存数据库
 	private boolean isIntDB = false;  // 是否是内部存储空间[还是SD卡]中保存数据库
 
@@ -527,6 +528,12 @@ public class Activity_BookList extends ListActivity {
 	}
 
 	public void onCreate(Bundle savedInstanceState) {
+		settings = getSharedPreferences(FOXSETTING, 0);
+		isEink = settings.getBoolean("isEink", isEink);
+		if ( isEink ) {
+			this.setTheme(android.R.style.Theme_DeviceDefault_Light);
+		}
+
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_booklist);
 		mExitTime = System.currentTimeMillis(); // 当前时间，便于两次退出

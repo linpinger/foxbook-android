@@ -10,6 +10,7 @@ import java.util.Map;
 import android.annotation.TargetApi;
 import android.app.ListActivity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,6 +29,10 @@ public class Activity_QuickSearch extends ListActivity {
 	private Handler handler;
 	private static int IS_REFRESH = 5 ;
 	
+	SharedPreferences settings;
+	public static final String FOXSETTING = "FOXSETTING";
+	private boolean isEink = false; // 是否E-ink设备
+
 	private String book_name = "" ;
 	private String book_url = "" ;
 	
@@ -41,6 +46,12 @@ public class Activity_QuickSearch extends ListActivity {
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) { // 入口
+		settings = getSharedPreferences(FOXSETTING, 0);
+		isEink = settings.getBoolean("isEink", isEink);
+		if ( isEink ) {
+			this.setTheme(android.R.style.Theme_DeviceDefault_Light);
+		}
+
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_quicksearch);
 		
