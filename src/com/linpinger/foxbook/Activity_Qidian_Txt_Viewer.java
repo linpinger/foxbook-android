@@ -74,7 +74,7 @@ public class Activity_Qidian_Txt_Viewer extends ListActivity {
 		// 获取传入的文件路径
 		Intent itt = getIntent();
 		txtPath = itt.getData().getPath(); // 从intent获取txt路径
-		oDB = new FoxMemDB(new File(txtPath.replace(".txt", "") + ".db3"), this.getApplicationContext()) ; // 创建内存数据库
+		oDB = new FoxMemDB(new File(txtPath.replace(".txt", "") + ".ramdb3"), this.getApplicationContext()) ; // 创建内存数据库
 		String BookName = FoxMemDBHelper.importQidianTxt(txtPath, oDB); //导入txt到数据库
 			
 		foxtip("处理:" + txtPath);
