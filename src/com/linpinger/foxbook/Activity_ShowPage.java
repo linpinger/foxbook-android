@@ -47,6 +47,7 @@ public class Activity_ShowPage extends Activity {
 	private boolean isEink = false; // 是否E-ink设备
 	private boolean isMapUpKey = false; // 是否映射上翻为下翻键
 	private boolean isFullScreen = false; // 下次是否全屏
+	private boolean isShowScrollBar = false; // 是否显示滚动条/自动隐藏
 	private boolean bHideActionBar = false ;
 	public static final int BG_DEFAULT = 0 ;  // 默认背景
 	public static final int BG_GREEN = 7 ;  // 绿色背景
@@ -90,6 +91,11 @@ public class Activity_ShowPage extends Activity {
 		rootLayout = (LinearLayout) findViewById(R.id.activity_showpage_root_layout);
 		tv = (TextView) findViewById(R.id.tv_page);
 		sv = (ScrollView) findViewById(R.id.scrollView1);
+
+		isShowScrollBar = settings.getBoolean("isShowScrollBar", isShowScrollBar);
+		if ( isShowScrollBar ) {
+			sv.setScrollbarFadingEnabled(false); // 一直显示滚动条，非自动淡出
+		}
 
 		tLastPushEinkButton = System.currentTimeMillis();
 
@@ -215,6 +221,9 @@ public class Activity_ShowPage extends Activity {
 					break;
 				case R.id.is_nextfullscreen:
 					menu.getItem(i).setChecked(isFullScreen);
+					break;
+				case R.id.is_nextshowscrollbar:
+					menu.getItem(i).setChecked(isShowScrollBar);
 					break;
 				case R.id.is_mapupkey:
 					menu.getItem(i).setChecked(isMapUpKey);
@@ -360,6 +369,19 @@ public class Activity_ShowPage extends Activity {
 				foxtip("下次不是全屏模式，现在退出");
 			}
 			this.finish();
+			break;
+		case R.id.is_nextshowscrollbar:
+			isShowScrollBar = ! item.isChecked();
+			item.setChecked(isShowScrollBar);
+			editor.putBoolean("isShowScrollBar", isShowScrollBar);
+			editor.commit();
+			if (isShowScrollBar) {
+				sv.setScrollbarFadingEnabled(false);
+				foxtip("滚动条一直显示");
+			} else {
+				sv.setScrollbarFadingEnabled(true);
+				foxtip("滚动条自动淡出");
+			}
 			break;
 		case R.id.is_mapupkey:
 			isMapUpKey = ! item.isChecked();

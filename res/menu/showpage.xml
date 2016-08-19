@@ -36,6 +36,11 @@
         android:checked="false"
         android:title="下次全屏"/> 
     <item
+        android:id="@+id/is_nextshowscrollbar"
+        android:checkable="true"
+        android:checked="false"
+        android:title="一直显示滚动条"/> 
+    <item
         android:id="@+id/is_eink"
         android:checkable="true"
         android:checked="false"
