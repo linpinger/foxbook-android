@@ -22,6 +22,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -39,6 +40,15 @@ public class Activity_BookList extends ListActivity {
 	public FoxMemDB oDB  ; // 默认使用MemDB
 	public int downThread = 9 ;  // 页面下载任务线程数
 	public int leftThread = downThread ;
+
+	// 设置: 
+	SharedPreferences settings;
+	SharedPreferences.Editor editor;
+	private boolean isMemDB = true;  // 是否是内存数据库
+	private boolean isIntDB = false;  // 是否是内部存储空间[还是SD卡]中保存数据库
+	private boolean isWhiteActionBar = false; // 白色动作栏
+	private boolean isCompareShelf = true ;   // 更新前比较书架
+	private String beforeSwitchDB3 = "orderby_count_desc" ; // 和 arrays.xml中的entryvalues_before_switch_db 对应
 
 	private FoxHTTPD foxHTTPD  = null;
 	private boolean bDB3FileFromIntent = false;  // 是否是通过文件关联进来的，会修改不保存数据库退出菜单功能
@@ -60,13 +70,6 @@ public class Activity_BookList extends ListActivity {
 
 	private int upchacount;    // 新增章节计数
 	
-	// 设置: isMemDB
-	SharedPreferences settings;
-	SharedPreferences.Editor editor;
-	public static final String FOXSETTING = "FOXSETTING";
-	private boolean isEink = false; // 是否E-ink设备
-	private boolean isMemDB = true;  // 是否是内存数据库
-	private boolean isIntDB = false;  // 是否是内部存储空间[还是SD卡]中保存数据库
 
 	public class FoxTaskDownPage implements Runnable { // 多线程任务更新页面列表
 		List<Map<String, Object>> taskList;
@@ -109,6 +112,8 @@ public class Activity_BookList extends ListActivity {
 		public void run() {
 			Message msg;
 			
+			isCompareShelf = settings.getBoolean("isCompareShelf", isCompareShelf); // 更新前比较书架
+if ( isCompareShelf ) {
 			msg = Message.obtain();
 			msg.what = DO_SETTITLE;
 			msg.obj = "下载书架..." ;
@@ -153,7 +158,7 @@ public class Activity_BookList extends ListActivity {
 					return ;
 				}
 			}
-			
+}
 			
 			ArrayList<Thread> threadList = new ArrayList<Thread>(30);
             Thread nowT;
@@ -528,9 +533,9 @@ public class Activity_BookList extends ListActivity {
 	}
 
 	public void onCreate(Bundle savedInstanceState) {
-		settings = getSharedPreferences(FOXSETTING, 0);
-		isEink = settings.getBoolean("isEink", isEink);
-		if ( isEink ) {
+		settings = PreferenceManager.getDefaultSharedPreferences(this);
+		isWhiteActionBar = settings.getBoolean("isWhiteActionBar", isWhiteActionBar);
+		if ( isWhiteActionBar ) {
 			this.setTheme(android.R.style.Theme_DeviceDefault_Light);
 		}
 
@@ -547,7 +552,6 @@ public class Activity_BookList extends ListActivity {
 		}
 
 		// 获取设置，是否使用内存数据库
-        settings = getSharedPreferences(FOXSETTING, 0);
         editor = settings.edit();
         this.isMemDB = settings.getBoolean("isMemDB", isMemDB);
         this.isIntDB = settings.getBoolean("isIntDB", isIntDB);
@@ -578,12 +582,6 @@ public class Activity_BookList extends ListActivity {
 		int itemcount = menu.size();
 		for ( int i=0; i< itemcount; i++){
 			switch (menu.getItem(i).getItemId()) {
-				case R.id.action_isMemDB:
-					menu.getItem(i).setChecked(this.isMemDB);
-					break;
-				case R.id.action_isIntDB:
-					menu.getItem(i).setChecked(this.isIntDB);
-					break;
 				case R.id.action_intDB2SD:
 					menu.getItem(i).setVisible(this.isIntDB);
 					break;
@@ -607,6 +605,9 @@ public class Activity_BookList extends ListActivity {
 
 	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作
 		switch (item.getItemId()) {
+		case R.id.setting:
+			startActivity(new Intent(Activity_BookList.this, Activity_Setting.class));
+			break;
 		case R.id.action_updateall: // 更新所有
 			new Thread(new UpdateAllBook()).start();
 			break;
@@ -618,6 +619,17 @@ public class Activity_BookList extends ListActivity {
 				(new Thread(){
 					public void run(){
 						switchdbLock = true;
+						beforeSwitchDB3 = settings.getString("beforeSwitchDB3", beforeSwitchDB3);
+						if ( ! beforeSwitchDB3.equalsIgnoreCase("none") ) { // 切换前先排序
+							if ( beforeSwitchDB3.equalsIgnoreCase("orderby_count_desc") ) {
+								FoxMemDBHelper.regenID(2, oDB); // 倒序bookid
+							}
+							if ( beforeSwitchDB3.equalsIgnoreCase("orderby_count_asc") ) {
+								FoxMemDBHelper.regenID(1, oDB); // 顺序bookid
+							}
+							FoxMemDBHelper.regenID(9, oDB); // 重新生成页面ID
+							FoxMemDBHelper.simplifyAllDelList(oDB);
+						}
 						String nowPath = oDB.switchMemDB().getName().replace(".db3", "");
 						switchdbLock = false;
 						Message msg = Message.obtain();
@@ -633,8 +645,7 @@ public class Activity_BookList extends ListActivity {
 			foxtip("ListView已刷新");
 			break;
 		case R.id.action_searchbook:  // 打开搜索书籍
-			Intent intent = new Intent(Activity_BookList.this,
-					Activity_SearchBook.class);
+			Intent intent = new Intent(Activity_BookList.this, Activity_SearchBook.class);
 			Activity_SearchBook.oDB = oDB;
 			startActivityForResult(intent,0);
 			break;
@@ -674,17 +685,6 @@ public class Activity_BookList extends ListActivity {
 				msg.obj = "已按页面页数倒序重排好书籍";
 				handler.sendMessage(msg);
 			} }).start();
-			break;
-		case R.id.action_isMemDB:
-			isMemDB = ! item.isChecked() ;
-			item.setChecked(isMemDB);
-			editor.putBoolean("isMemDB", isMemDB);
-			editor.commit();
-			if (isMemDB) {
-				foxtip("切换到内存数据库模式，重启程序生效");
-			} else {
-				foxtip("切换到普通模式，重启程序生效");
-			}
 			break;
 		case R.id.action_all2epub:
 			setTitle("开始转换成EPUB...");
@@ -765,17 +765,6 @@ public class Activity_BookList extends ListActivity {
 					item.setChecked(bStartIt);
 					item.setTitle(nowIP + ":" + String.valueOf(nowListenPort) + " 已关");
 				}
-			}
-			break;
-		case R.id.action_isIntDB:   // 是否使用内部存储
-			isIntDB = ! item.isChecked() ;
-			item.setChecked(isIntDB);
-			editor.putBoolean("isIntDB", isIntDB);
-			editor.commit();
-			if (isIntDB) {
-				foxtip("切换到内部存储数据库模式，重启程序生效");
-			} else {
-				foxtip("切换到SD卡数据库模式，重启程序生效");
 			}
 			break;
 		case R.id.action_intDB2SD:  // 内部存储->SD卡

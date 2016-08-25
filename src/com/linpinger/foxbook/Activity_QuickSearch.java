@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -30,8 +31,7 @@ public class Activity_QuickSearch extends ListActivity {
 	private static int IS_REFRESH = 5 ;
 	
 	SharedPreferences settings;
-	public static final String FOXSETTING = "FOXSETTING";
-	private boolean isEink = false; // 是否E-ink设备
+	private boolean isWhiteActionBar = false; // 白色动作栏
 
 	private String book_name = "" ;
 	private String book_url = "" ;
@@ -46,9 +46,9 @@ public class Activity_QuickSearch extends ListActivity {
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) { // 入口
-		settings = getSharedPreferences(FOXSETTING, 0);
-		isEink = settings.getBoolean("isEink", isEink);
-		if ( isEink ) {
+		settings = PreferenceManager.getDefaultSharedPreferences(this);
+		isWhiteActionBar = settings.getBoolean("isWhiteActionBar", isWhiteActionBar);
+		if ( isWhiteActionBar ) {
 			this.setTheme(android.R.style.Theme_DeviceDefault_Light);
 		}
 

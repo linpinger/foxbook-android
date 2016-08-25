@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <array name="entries_pagebackground">
+        <item>羊皮纸</item>
+        <item>绿色</item>
+        <item>灰色</item>
+        <item>白色</item>
+    </array>
+    <array name="entryvalues_pagebackground">
+        <item>default</item>
+        <item>green</item>
+        <item>gray</item>
+        <item>white</item>
+    </array>
+    
+    <array name="entries_before_switch_db">
+        <item>无动作</item>
+        <item>按章节数倒序排列</item>
+        <item>按章节数顺序排列</item>
+    </array>
+    <array name="entryvalues_before_switch_db">
+        <item>none</item>
+        <item>orderby_count_desc</item>
+        <item>orderby_count_asc</item>
+    </array>
+    
+    <array name="entries_upgrade_line">
+        <item>(国外) github</item>
+        <item>(国内) oschina </item>
+    </array>
+    <array name="entryvalues_upgrade_line">
+        <item>github</item>
+        <item>oschina</item>
+    </array>
+
+</resources>

@@ -1,45 +1,43 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-
+    
     <item
         android:id="@+id/action_updateall"
         android:icon="@android:drawable/ic_popup_sync"
-        android:showAsAction="always|withText"
+        android:showAsAction="always"
         android:title="更新所有"/>
     <item
         android:id="@+id/action_allpagelist"
         android:icon="@android:drawable/ic_menu_view"
-        android:showAsAction="always|withText"
+        android:showAsAction="always"
         android:title="显示所有"/>
     <item
         android:id="@+id/action_switchdb"
         android:icon="@android:drawable/ic_menu_rotate"
-        android:showAsAction="ifRoom|withText"
+        android:showAsAction="always"
         android:title="切换数据库"/>
+    
+
+	<item android:id="@+id/action_showokinapl" android:title="显示字数少于1K的章节"/>
+    <item android:id="@+id/action_exitwithnosave" android:title="不保存数据库退出"></item>
+    
     <item
         android:id="@+id/action_sortbook_desc"
         android:icon="@android:drawable/ic_menu_sort_by_size"
-        android:title="按页数倒序排列" android:showAsAction="ifRoom|withText"/>
-
-
-
+        android:title="按页数倒序排列"/>
     <!-- android:icon="@android:drawable/ic_menu_set_as" -->
     <item
         android:id="@+id/action_sortbook_asc"
         android:title="按页数顺序排列"/>
     <!-- android:icon="@android:drawable/ic_menu_sort_alphabetically" -->
 
-    <item android:id="@+id/action_exitwithnosave" android:title="不保存数据库退出"></item>
-
-    <item android:id="@+id/action_searchbook" android:title="搜索小说"/>
+<item android:id="@+id/action_searchbook" android:title="搜索小说"/>
     <!-- android:icon="@android:drawable/ic_menu_search" -->
     <!-- android:icon="@android:drawable/ic_menu_manage" -->
-	<item android:id="@+id/action_showokinapl" android:title="显示字数少于1K的章节"/>
-	
+    <item android:id="@+id/action_refresh" android:title="刷新列表"/>	
+    
     <item android:id="@+id/action_foxhttpd" android:title="启动HTTP服务器" android:checkable="true" android:checked="false"></item>
 
-
     <item android:id="@+id/action_SD2intDB" android:title="导入:SD卡-&gt;内部存储" android:visible="false" />
-
 
     <item android:id="@+id/action_all2ebook" android:title="+全部转为电子书">
         <menu>
@@ -50,14 +48,11 @@
             <item android:id="@+id/action_all2txt" android:title="全部转为TXT" />
         </menu>
     </item>
-    <item android:id="@+id/action_intDB2SD" android:title="导出:内部存储-&gt;SD卡" android:visible="false" /><item
-        android:id="@+id/action_refresh"
-        android:title="刷新列表"/>
-    <!-- android:icon="@android:drawable/ic_menu_mapmode" -->
+    <item android:id="@+id/action_intDB2SD" android:title="导出:内部存储-&gt;SD卡" android:visible="false" />
 
-    <item android:id="@+id/action_isMemDB" android:checkable="true" android:checked="true" android:title="使用MemDB" />
-    <item android:id="@+id/action_isIntDB" android:title="使用内部存储" android:checkable="true" android:checked="false" />
+    <!-- android:icon="@android:drawable/ic_menu_mapmode" -->
 
     <item android:id="@+id/action_updatepkg" android:title="更新本软件" />
 
+    <item android:id="@+id/setting" android:title="设置" />
 </menu>

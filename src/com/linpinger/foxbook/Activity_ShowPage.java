@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,20 +41,19 @@ public class Activity_ShowPage extends Activity {
 	private String pageurl = "" ;
 	private float cX = 0 ; // 点击textView的坐标
 	private float cY = 0 ; // 点击textView的坐标
-	public static final String FOXSETTING = "FOXSETTING";
-	float sp_fontsize = 19; // 字体大小
+	
 	SharedPreferences settings;
 	SharedPreferences.Editor editor;
-	private boolean isEink = false; // 是否E-ink设备
+	private boolean isWhiteActionBar = false; // 白色动作栏
+	private String myBGcolor = "default" ;  // 背景:默认羊皮纸
 	private boolean isMapUpKey = false; // 是否映射上翻为下翻键
 	private boolean isFullScreen = false; // 下次是否全屏
+	private boolean isCloseSmoothScroll = false; // 关闭平滑滚动
 	private boolean isShowScrollBar = false; // 是否显示滚动条/自动隐藏
 	private boolean bHideActionBar = false ;
-	public static final int BG_DEFAULT = 0 ;  // 默认背景
-	public static final int BG_GREEN = 7 ;  // 绿色背景
-	public static final int BG_GRAY = 3 ;  // 灰色背景
-	public static final int BG_WHITE = 5 ;  // 白色背景:E-ink模式专用
-	private int nowBGcolor = BG_DEFAULT ;
+	private float sp_fontsize = 19; // 字体大小
+	private float lineSpaceingMultip = 1.3f ; // 行间距倍数
+	
 
 	private long tLastPushEinkButton ;
 	private String lastTitle="";
@@ -68,11 +68,26 @@ public class Activity_ShowPage extends Activity {
 		getActionBar().setDisplayShowHomeEnabled(false); // 隐藏程序图标
 	}		// 响应点击事件在onOptionsItemSelected的switch中加入 android.R.id.home   this.finish();
 	
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+	private void changeLineSpaceing(float mu) {
+		float spEx = tv.getLineSpacingExtra();
+		float spMu = tv.getLineSpacingMultiplier();
+		lineSpaceingMultip = spMu + mu ;
+		editor.putFloat("lineSpaceingMultip", lineSpaceingMultip);
+		editor.commit();
+		tv.setLineSpacing(spEx, lineSpaceingMultip);
+		foxtip("当前行间距: " + spEx + "  倍数: " + lineSpaceingMultip);
+	}
+	
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+	private void setLineSpaceing() {
+		tv.setLineSpacing(tv.getLineSpacingExtra(), lineSpaceingMultip);
+	}
 
 	protected void onCreate(Bundle savedInstanceState) {
-		settings = getSharedPreferences(FOXSETTING, 0);
-		isEink = settings.getBoolean("isEink", isEink);
-		if ( isEink ) {
+		settings = PreferenceManager.getDefaultSharedPreferences(this);
+		isWhiteActionBar = settings.getBoolean("isWhiteActionBar", isWhiteActionBar);
+		if ( isWhiteActionBar ) {
 			this.setTheme(android.R.style.Theme_DeviceDefault_Light);
 		}
 		
@@ -87,6 +102,11 @@ public class Activity_ShowPage extends Activity {
 		setContentView(R.layout.activity_showpage);
 		
 		showHomeUp();
+		
+		bHideActionBar = settings.getBoolean("bHideActionBar", bHideActionBar);
+		if ( bHideActionBar ) {
+			getActionBar().hide();
+		}
 		
 		rootLayout = (LinearLayout) findViewById(R.id.activity_showpage_root_layout);
 		tv = (TextView) findViewById(R.id.tv_page);
@@ -104,12 +124,15 @@ public class Activity_ShowPage extends Activity {
         editor = settings.edit();
         
         isMapUpKey = settings.getBoolean("isMapUpKey", isMapUpKey);
-        nowBGcolor = settings.getInt("myBGcolor", BG_DEFAULT);
-        setBGcolor(nowBGcolor);
+        isCloseSmoothScroll = settings.getBoolean("isCloseSmoothScroll", isCloseSmoothScroll);
+        myBGcolor = settings.getString("myBGcolor", myBGcolor);
+        setBGcolor(myBGcolor);
 		sp_fontsize = settings.getFloat("ShowPage_FontSize", sp_fontsize);
 		tv.setTextSize(sp_fontsize);
-
 		
+		lineSpaceingMultip = settings.getFloat("lineSpaceingMultip", lineSpaceingMultip);
+		setLineSpaceing();
+				
 		Intent itt = getIntent();
 		foxfrom = itt.getIntExtra("iam", 0);       // 必需 表明数据从哪来的
 		pagename = itt.getStringExtra("chapter_name");
@@ -122,10 +145,16 @@ public class Activity_ShowPage extends Activity {
 			public void handleMessage(Message msg) {
 				String sText = (String)msg.obj;
 				if ( msg.what == IS_REFRESH ) {
-					tv.setText("　　" + sText.replace("\n", "\n　　") + "\n" + pagename);
 					setTitle(pagename + " : " + pageurl );
 					if ( sText.length() < 9 ) {
 						tv.setText("　　啊噢，可能处理的时候出现问题了哦\n\nURL: " + pageurl + "\nPageName: " + pagename + "\nContent:" + sText );
+					} else {
+						if ( bHideActionBar ) {
+							tv.setText(pagename + "\n\n　　" + sText.replace("\n", "\n　　") + "\n" + pagename);
+						} else {
+							tv.setText("　　" + sText.replace("\n", "\n　　") + "\n" + pagename);
+						}
+						
 					}
 				}
 			}
@@ -161,7 +190,12 @@ public class Activity_ShowPage extends Activity {
 			} else {
 				bookid = Integer.valueOf(infox.get("bid")); // 翻页使用
 			}
-			tv.setText("　　" + pagetext.replace("\n", "\n　　") + "\n" + pagename);
+			if ( bHideActionBar ) {
+				tv.setText(pagename + "\n\n　　" + pagetext.replace("\n", "\n　　") + "\n" + pagename);
+			} else {
+				tv.setText("　　" + pagetext.replace("\n", "\n　　") + "\n" + pagename);
+			}
+			
 		} 
 		if ( SITES.FROM_NET == foxfrom ){ // NET
 			setTitle("下载中...");
@@ -208,6 +242,8 @@ public class Activity_ShowPage extends Activity {
 			this.setTitle(aNow + " " + lastTitle);
 			getActionBar().show();
 		}
+		editor.putBoolean("bHideActionBar", bHideActionBar);
+		editor.commit();
 	}
 
 	@Override
@@ -216,18 +252,17 @@ public class Activity_ShowPage extends Activity {
 		int itemcount = menu.size();
 		for ( int i=0; i< itemcount; i++){
 			switch (menu.getItem(i).getItemId()) {
-				case R.id.is_eink: // E-ink
-					menu.getItem(i).setChecked(isEink);
-					break;
 				case R.id.is_nextfullscreen:
 					menu.getItem(i).setChecked(isFullScreen);
+					break;
+				case R.id.is_closesmoothscroll:
+					menu.getItem(i).setChecked(isCloseSmoothScroll);
 					break;
 				case R.id.is_nextshowscrollbar:
 					menu.getItem(i).setChecked(isShowScrollBar);
 					break;
 				case R.id.is_mapupkey:
 					menu.getItem(i).setChecked(isMapUpKey);
-					menu.getItem(i).setVisible(isEink);
 					break;
 			}
 		}
@@ -310,53 +345,42 @@ public class Activity_ShowPage extends Activity {
 			editor.putFloat("ShowPage_FontSize", sp_fontsize);
 			editor.commit();
 			break;
-		case R.id.font1:
-			File font1 = new File("/sdcard/fonts/font1.ttf");
+		case R.id.userfont:
+			File font1 = new File(settings.getString("selectfont", "/sdcard/fonts/foxfont.ttf"));
 			if ( font1.exists() ) {
 				tv.setTypeface(Typeface.createFromFile(font1));
 			} else {
 				foxtip("字体不存在:\n" + font1.getAbsolutePath());
-				new File("/sdcard/fonts/").mkdir();
-			}
-			break;
-		case R.id.font2:
-			File font2 = new File("/sdcard/fonts/font2.ttf");
-			if ( font2.exists() ) {
-				tv.setTypeface(Typeface.createFromFile(font2));
-			} else {
-				foxtip("字体不存在:\n" + font2.getAbsolutePath());
-				new File("/sdcard/fonts/").mkdir();
+				font1.getParentFile().mkdirs();
 			}
 			break;
 		case R.id.hideactionbar:
 			hideShowActionBar();
 			break;
 		case R.id.bg_color1:
-			setBGcolor(BG_GREEN);
+			setBGcolor("green");
 			break;
 		case R.id.bg_color2:
-			setBGcolor(BG_GRAY);
+			setBGcolor("gray");
+			break;
+		case R.id.bg_color3:
+			setBGcolor("white");
 			break;
 		case R.id.bg_color9: // 设置背景
-			setBGcolor(BG_DEFAULT);
+			setBGcolor("default");
 			break;
+		case R.id.sp_set_linespace_up:
+			changeLineSpaceing(0.05f);
+			break;
+		case R.id.sp_set_linespace_down:
+			changeLineSpaceing(-0.05f);
+			break;
+			
 		case R.id.sp_set_size_down: // 减小字体
 			--sp_fontsize;
 			tv.setTextSize(sp_fontsize);
 			editor.putFloat("ShowPage_FontSize", sp_fontsize);
 			editor.commit();
-			break;
-		case R.id.is_eink: // 默认不是E-ink设备
-			isEink = ! item.isChecked();
-			item.setChecked(isEink);
-			editor.putBoolean("isEink", isEink);
-			editor.commit();
-			if (isEink) {
-				setBGcolor(BG_WHITE);
-				foxtip("现在是E-ink模式:\n背景设为白色\n取消平滑滚动\n下次显示的菜单不一样哦");
-			} else {
-				foxtip("现在是非E-ink模式:\n背景请自行设置\n平滑滚动");
-			}
 			break;
 		case R.id.is_nextfullscreen:
 			isFullScreen = ! item.isChecked();
@@ -369,6 +393,17 @@ public class Activity_ShowPage extends Activity {
 				foxtip("下次不是全屏模式，现在退出");
 			}
 			this.finish();
+			break;
+		case R.id.is_closesmoothscroll:
+			isCloseSmoothScroll = ! item.isChecked();
+			item.setChecked(isCloseSmoothScroll);
+			editor.putBoolean("isCloseSmoothScroll", isCloseSmoothScroll);
+			editor.commit();
+			if (isCloseSmoothScroll) {
+				foxtip("取消平滑滚动");
+			} else {
+				foxtip("默认平滑滚动");
+			}			
 			break;
 		case R.id.is_nextshowscrollbar:
 			isShowScrollBar = ! item.isChecked();
@@ -398,30 +433,28 @@ public class Activity_ShowPage extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 	
-	private void setBGcolor(int bgcolor) {
-		editor.putInt("myBGcolor", bgcolor);
-		editor.commit();
-		switch(bgcolor) {
-		case BG_DEFAULT:
+	private void setBGcolor(String bgcolor) {
+		if ( bgcolor.equalsIgnoreCase("default") ) {
 			rootLayout.setBackgroundResource(R.drawable.parchment_paper);
-			break;
-		case BG_GREEN:
-			rootLayout.setBackgroundResource(R.color.qd_mapp_bg_green);
-			break;
-		case BG_GRAY:
-			rootLayout.setBackgroundResource(R.color.qd_mapp_bg_grey);
-			break;
-		case BG_WHITE:
-			rootLayout.setBackgroundResource(R.color.qd_mapp_bg_white);
-			break;
 		}
+		if ( bgcolor.equalsIgnoreCase("green") ) {
+			rootLayout.setBackgroundResource(R.color.qd_mapp_bg_green);
+		}
+		if ( bgcolor.equalsIgnoreCase("gray") ) {
+			rootLayout.setBackgroundResource(R.color.qd_mapp_bg_grey);
+		}
+		if ( bgcolor.equalsIgnoreCase("white") ) {
+			rootLayout.setBackgroundResource(R.color.qd_mapp_bg_white);
+		}
+		editor.putString("myBGcolor", bgcolor);
+		editor.commit();
 	}
 
 	private void clickPrev() {
 		if (sv.getScrollY() == 0) { // 在顶部前翻章
 			showPrevChapter(); // 上一章
 		} else {
-			if ( isEink ) {
+			if ( isCloseSmoothScroll ) {
 				sv.scrollBy(0, 30 - sv.getMeasuredHeight());
 			} else {
 				sv.smoothScrollBy(0, 30 - sv.getMeasuredHeight());
@@ -432,7 +465,7 @@ public class Activity_ShowPage extends Activity {
 		if (sv.getScrollY() == (tv.getHeight() - sv.getHeight())) { // 到底部后翻页
 			showNextChapter() ; // 下一章
 		} else {
-			if ( isEink ) {
+			if ( isCloseSmoothScroll ) {
 				sv.scrollBy(0, sv.getMeasuredHeight() - 30);
 			} else {
 				sv.smoothScrollBy(0, sv.getMeasuredHeight() - 30);
@@ -452,7 +485,7 @@ public class Activity_ShowPage extends Activity {
 			if ( System.currentTimeMillis() - tLastPushEinkButton < 1000 ) { // 莫名其妙的会多按，也是醉了
 				tLastPushEinkButton = System.currentTimeMillis();
 //				foxtip("短\n\n\n\n\n\nXXXXX");
-				if ( isEink )
+				if ( isCloseSmoothScroll )
 					return true ;
 			}
 			// 2016-8-15: BOOX C67ML Carta 左右翻页健对应: KEYCODE_PAGE_UP = 92, KEYCODE_PAGE_DOWN = 93

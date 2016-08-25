@@ -14,10 +14,7 @@ import java.util.regex.Pattern;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-/**
- *
- * @author guanli
- */
+
 public class site_qidian {
     // 2015年桌面版改版后已失效
     public static String qidian_getIndexURL_Desk(int bookid) {
@@ -94,6 +91,8 @@ public class site_qidian {
         String RE = "" ;
         if ( iURL.contains("3g.if.qidian.com") ) {
             RE = "(?i)BookId=([0-9]+)&" ; // http://3g.if.qidian.com/Client/IGetBookInfo.aspx?version=2&BookId=3530623&ChapterId=0
+        } else if (iURL.contains("m.qidian.com")) {
+        	RE = "(?i)bookid=([0-9]+)" ;
         } else {
             RE = "(?i).*/([0-9]+)\\." ; // http://read.qidian.com/BookReader/3059077.aspx
         }

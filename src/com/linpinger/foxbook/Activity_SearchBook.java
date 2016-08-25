@@ -4,6 +4,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
@@ -35,8 +36,7 @@ public class Activity_SearchBook extends Activity {
 	private Button btn_pre ;
 	
 	SharedPreferences settings;
-	public static final String FOXSETTING = "FOXSETTING";
-	private boolean isEink = false; // 是否E-ink设备
+	private boolean isWhiteActionBar = false; // 白色动作栏
 
 	private String book_name = "";
 	private String book_url = "";
@@ -70,9 +70,9 @@ public class Activity_SearchBook extends Activity {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		settings = getSharedPreferences(FOXSETTING, 0);
-		isEink = settings.getBoolean("isEink", isEink);
-		if ( isEink ) {
+		settings = PreferenceManager.getDefaultSharedPreferences(this);
+		isWhiteActionBar = settings.getBoolean("isWhiteActionBar", isWhiteActionBar);
+		if ( isWhiteActionBar ) {
 			this.setTheme(android.R.style.Theme_DeviceDefault_Light);
 		}
 
@@ -151,7 +151,13 @@ public class Activity_SearchBook extends Activity {
 		final Runnable downHTML = new Runnable() {
 			@Override
 			public void run() {
-				String html = FoxBookLib.downhtml(book_url);
+				String html = "";
+				if ( book_url.toLowerCase().contains(".qidian.com/") ) { // 起点地址特别处理
+					book_url = site_qidian.qidian_getIndexURL_Mobile(site_qidian.qidian_getBookID_FromURL(book_url));
+					html = FoxBookLib.downhtml(book_url, "utf-8");
+				} else {
+					html = FoxBookLib.downhtml(book_url);
+				}
 				
 				Message msg = Message.obtain();
 				msg.what = IS_DOWNHTML;
@@ -176,11 +182,12 @@ public class Activity_SearchBook extends Activity {
 						book_url = "";
 						setTitle("错误: 当前页面地址为空");
 					} else {
+						// 这里为毛要 get  bookurl bookname ?
 						book_name = itt.getStringExtra("bookname");
 						if ( null == book_name ) {
 							book_name = "";
 						}
-						setTitle("下载目录 : " + book_name + " <" + book_url + ">");
+						setTitle("蜜汁下载目录 : " + book_name + " <" + book_url + ">");
 						new Thread(downHTML).start();
 					}
 				}
@@ -245,7 +252,6 @@ public class Activity_SearchBook extends Activity {
 			Activity_QuickSearch.oDB = oDB;
 			startActivity(itb);
 			break;
-
 		case R.id.sm_QuickSearchYahoo:  // 快搜:雅虎
 			book_name = et.getText().toString();
 			Intent ityh = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
@@ -254,7 +260,14 @@ public class Activity_SearchBook extends Activity {
 			Activity_QuickSearch.oDB = oDB;
 			startActivity(ityh);
 			break;
-
+		case R.id.link_qidian_mtop:
+			wv.getSettings().setJavaScriptEnabled(true) ; // 允许JS
+			wv.loadUrl("http://m.qidian.com/top.aspx");
+			break;
+		case R.id.link_qidian_dtop:
+			wv.getSettings().setJavaScriptEnabled(true) ; // 允许JS
+			wv.loadUrl("http://top.qidian.com");
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}

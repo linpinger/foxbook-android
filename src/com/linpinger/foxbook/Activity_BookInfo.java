@@ -9,12 +9,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class Activity_BookInfo extends Activity {
 	public static FoxMemDB oDB;
@@ -23,8 +26,7 @@ public class Activity_BookInfo extends Activity {
 	private EditText edt_bname, edt_isend, edt_qdid, edt_burl, edt_delurl;
 	
 	SharedPreferences settings;
-	public static final String FOXSETTING = "FOXSETTING";
-	private boolean isEink = false; // 是否E-ink设备
+	private boolean isWhiteActionBar = false; // 白色动作栏
 
 	private int bookid ;
 	
@@ -45,9 +47,9 @@ public class Activity_BookInfo extends Activity {
 	}		// 响应点击事件在onOptionsItemSelected的switch中加入 android.R.id.home   this.finish();
 	
 	public void onCreate(Bundle savedInstanceState) { // 界面初始化
-		settings = getSharedPreferences(FOXSETTING, 0);
-		isEink = settings.getBoolean("isEink", isEink);
-		if ( isEink ) {
+		settings = PreferenceManager.getDefaultSharedPreferences(this);
+		isWhiteActionBar = settings.getBoolean("isWhiteActionBar", isWhiteActionBar);
+		if ( isWhiteActionBar ) {
 			this.setTheme(android.R.style.Theme_DeviceDefault_Light);
 		}
 
@@ -87,12 +89,30 @@ public class Activity_BookInfo extends Activity {
 
 	}
 	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.bookinfo, menu);
+		return true;
+	}
+
 	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作
 		switch (item.getItemId()) {
+		case R.id.bi_getQDidFromURL:
+			String url_now = edt_burl.getText().toString();
+			if ( url_now.contains(".qidian.com/") ) {
+				edt_qdid.setText(String.valueOf(site_qidian.qidian_getBookID_FromURL(url_now)));
+			} else {
+				foxtip("URL不包含 .qidian.com/");
+			}
+			break;
 		case android.R.id.home: // 返回图标
 			this.finish();
 			break;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	private void foxtip(String sinfo) { // Toast消息
+		Toast.makeText(getApplicationContext(), sinfo, Toast.LENGTH_SHORT).show();
 	}
 }

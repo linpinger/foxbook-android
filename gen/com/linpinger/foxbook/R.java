@@ -8,12 +8,20 @@
 package com.linpinger.foxbook;
 
 public final class R {
+    public static final class array {
+        public static final int entries_before_switch_db=0x7f050002;
+        public static final int entries_pagebackground=0x7f050000;
+        public static final int entries_upgrade_line=0x7f050004;
+        public static final int entryvalues_before_switch_db=0x7f050003;
+        public static final int entryvalues_pagebackground=0x7f050001;
+        public static final int entryvalues_upgrade_line=0x7f050005;
+    }
     public static final class attr {
     }
     public static final class color {
-        public static final int qd_mapp_bg_green=0x7f040000;
-        public static final int qd_mapp_bg_grey=0x7f040001;
-        public static final int qd_mapp_bg_white=0x7f040002;
+        public static final int qd_mapp_bg_green=0x7f060000;
+        public static final int qd_mapp_bg_grey=0x7f060001;
+        public static final int qd_mapp_bg_white=0x7f060002;
     }
     public static final class dimen {
         /**  Default screen margins, per the Android Design guidelines. 
@@ -22,75 +30,81 @@ public final class R {
          screen margins) for sw720dp devices (e.g. 10" tablets) in landscape here.
     
          */
-        public static final int activity_horizontal_margin=0x7f050000;
-        public static final int activity_vertical_margin=0x7f050001;
+        public static final int activity_horizontal_margin=0x7f070000;
+        public static final int activity_vertical_margin=0x7f070001;
     }
     public static final class drawable {
         public static final int book=0x7f020000;
         public static final int parchment_paper=0x7f020001;
     }
     public static final class id {
-        public static final int action_SD2intDB=0x7f09001d;
-        public static final int action_all2ebook=0x7f09001e;
-        public static final int action_all2epub=0x7f09001f;
-        public static final int action_all2txt=0x7f090021;
-        public static final int action_all2umd=0x7f090020;
-        public static final int action_allpagelist=0x7f090015;
-        public static final int action_exitwithnosave=0x7f090019;
-        public static final int action_foxhttpd=0x7f09001c;
-        public static final int action_gbk2utf8=0x7f09002b;
-        public static final int action_intDB2SD=0x7f090022;
-        public static final int action_isIntDB=0x7f090025;
-        public static final int action_isMemDB=0x7f090024;
-        public static final int action_refresh=0x7f090023;
-        public static final int action_save_exit=0x7f09002a;
-        public static final int action_searchbook=0x7f09001a;
-        public static final int action_showokinapl=0x7f09001b;
-        public static final int action_sortbook_asc=0x7f090018;
-        public static final int action_sortbook_desc=0x7f090017;
-        public static final int action_switchdb=0x7f090016;
-        public static final int action_updateall=0x7f090014;
-        public static final int action_updatepkg=0x7f090026;
-        public static final int activity_showpage_root_layout=0x7f09000c;
-        public static final int allpagelist_delete=0x7f090010;
-        public static final int bg_color1=0x7f09003a;
-        public static final int bg_color2=0x7f09003b;
-        public static final int bg_color9=0x7f09003c;
-        public static final int btn_save=0x7f090005;
-        public static final int button1=0x7f090009;
-        public static final int button2=0x7f09000a;
-        public static final int editText1=0x7f090008;
-        public static final int edt_bname=0x7f090001;
-        public static final int edt_burl=0x7f090004;
-        public static final int edt_delurl=0x7f090007;
-        public static final int edt_isend=0x7f090002;
-        public static final int edt_qdid=0x7f090003;
-        public static final int font1=0x7f090034;
-        public static final int font2=0x7f090035;
-        public static final int hideactionbar=0x7f090036;
-        public static final int is_eink=0x7f090038;
-        public static final int is_mapupkey=0x7f090039;
-        public static final int is_nextfullscreen=0x7f090037;
-        public static final int jumplist_tobottom=0x7f090011;
-        public static final int jumplist_tomiddle=0x7f090013;
-        public static final int jumplist_totop=0x7f090012;
-        public static final int pm_Add=0x7f090027;
-        public static final int pm_cleanBook=0x7f090028;
-        public static final int pm_cleanBookND=0x7f090029;
-        public static final int scrollView1=0x7f090006;
-        public static final int show_next=0x7f090031;
-        public static final int show_prev=0x7f090030;
-        public static final int sm_QuickSearchBing=0x7f09002d;
-        public static final int sm_QuickSearchQidian=0x7f09002c;
-        public static final int sm_QuickSearchSouGou=0x7f09002e;
-        public static final int sm_QuickSearchYahoo=0x7f09002f;
-        public static final int sp_set_size_down=0x7f090033;
-        public static final int sp_set_size_up=0x7f090032;
-        public static final int tvCount=0x7f09000f;
-        public static final int tvName=0x7f09000e;
-        public static final int tv_bid=0x7f090000;
-        public static final int tv_page=0x7f09000d;
-        public static final int webView1=0x7f09000b;
+        public static final int action_SD2intDB=0x7f0b001f;
+        public static final int action_all2ebook=0x7f0b0020;
+        public static final int action_all2epub=0x7f0b0021;
+        public static final int action_all2txt=0x7f0b0023;
+        public static final int action_all2umd=0x7f0b0022;
+        public static final int action_allpagelist=0x7f0b0016;
+        public static final int action_exitwithnosave=0x7f0b0019;
+        public static final int action_foxhttpd=0x7f0b001e;
+        public static final int action_gbk2utf8=0x7f0b002b;
+        public static final int action_intDB2SD=0x7f0b0024;
+        public static final int action_refresh=0x7f0b001d;
+        public static final int action_save_exit=0x7f0b002a;
+        public static final int action_searchbook=0x7f0b001c;
+        public static final int action_showokinapl=0x7f0b0018;
+        public static final int action_sortbook_asc=0x7f0b001b;
+        public static final int action_sortbook_desc=0x7f0b001a;
+        public static final int action_switchdb=0x7f0b0017;
+        public static final int action_updateall=0x7f0b0015;
+        public static final int action_updatepkg=0x7f0b0025;
+        public static final int activity_showpage_root_layout=0x7f0b000c;
+        public static final int allpagelist_delete=0x7f0b0010;
+        public static final int bg_color1=0x7f0b003e;
+        public static final int bg_color2=0x7f0b003f;
+        public static final int bg_color3=0x7f0b0040;
+        public static final int bg_color9=0x7f0b0041;
+        public static final int bi_getQDidFromURL=0x7f0b0014;
+        public static final int btn_save=0x7f0b0005;
+        public static final int button1=0x7f0b0009;
+        public static final int button2=0x7f0b000a;
+        public static final int editText1=0x7f0b0008;
+        public static final int edt_bname=0x7f0b0001;
+        public static final int edt_burl=0x7f0b0004;
+        public static final int edt_delurl=0x7f0b0007;
+        public static final int edt_isend=0x7f0b0002;
+        public static final int edt_qdid=0x7f0b0003;
+        public static final int group1=0x7f0b003d;
+        public static final int hideactionbar=0x7f0b0042;
+        public static final int is_closesmoothscroll=0x7f0b003a;
+        public static final int is_mapupkey=0x7f0b003c;
+        public static final int is_nextfullscreen=0x7f0b0034;
+        public static final int is_nextshowscrollbar=0x7f0b003b;
+        public static final int jumplist_tobottom=0x7f0b0011;
+        public static final int jumplist_tomiddle=0x7f0b0013;
+        public static final int jumplist_totop=0x7f0b0012;
+        public static final int link_qidian_dtop=0x7f0b0031;
+        public static final int link_qidian_mtop=0x7f0b0030;
+        public static final int pm_Add=0x7f0b0027;
+        public static final int pm_cleanBook=0x7f0b0028;
+        public static final int pm_cleanBookND=0x7f0b0029;
+        public static final int scrollView1=0x7f0b0006;
+        public static final int setting=0x7f0b0026;
+        public static final int show_next=0x7f0b0033;
+        public static final int show_prev=0x7f0b0032;
+        public static final int sm_QuickSearchBing=0x7f0b002d;
+        public static final int sm_QuickSearchQidian=0x7f0b002c;
+        public static final int sm_QuickSearchSouGou=0x7f0b002e;
+        public static final int sm_QuickSearchYahoo=0x7f0b002f;
+        public static final int sp_set_linespace_down=0x7f0b0038;
+        public static final int sp_set_linespace_up=0x7f0b0037;
+        public static final int sp_set_size_down=0x7f0b0036;
+        public static final int sp_set_size_up=0x7f0b0035;
+        public static final int tvCount=0x7f0b000f;
+        public static final int tvName=0x7f0b000e;
+        public static final int tv_bid=0x7f0b0000;
+        public static final int tv_page=0x7f0b000d;
+        public static final int userfont=0x7f0b0039;
+        public static final int webView1=0x7f0b000b;
     }
     public static final class layout {
         public static final int activity_bookinfo=0x7f030000;
@@ -104,15 +118,16 @@ public final class R {
         public static final int lv_item_pagelist=0x7f030008;
     }
     public static final class menu {
-        public static final int allpagelist=0x7f080000;
-        public static final int booklist=0x7f080001;
-        public static final int pagelist=0x7f080002;
-        public static final int qidian_txt_viewer=0x7f080003;
-        public static final int search=0x7f080004;
-        public static final int showpage=0x7f080005;
+        public static final int allpagelist=0x7f0a0000;
+        public static final int bookinfo=0x7f0a0001;
+        public static final int booklist=0x7f0a0002;
+        public static final int pagelist=0x7f0a0003;
+        public static final int qidian_txt_viewer=0x7f0a0004;
+        public static final int search=0x7f0a0005;
+        public static final int showpage=0x7f0a0006;
     }
     public static final class string {
-        public static final int app_name=0x7f060000;
+        public static final int app_name=0x7f080000;
     }
     public static final class style {
         /** 
@@ -137,10 +152,13 @@ public final class R {
  <style name="AppBaseTheme" parent="android:Theme.DeviceDefault.Light"> 
  API 14 theme customizations can go here. 
          */
-        public static final int AppBaseTheme=0x7f070000;
+        public static final int AppBaseTheme=0x7f090000;
         /**  Application theme. 
  All customizations that are NOT specific to a particular API-level can go here. 
          */
-        public static final int AppTheme=0x7f070001;
+        public static final int AppTheme=0x7f090001;
+    }
+    public static final class xml {
+        public static final int preferences=0x7f040000;
     }
 }

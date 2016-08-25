@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,8 +31,7 @@ public class Activity_PageList extends ListActivity {
 	public static FoxMemDB oDB;
 	
 	SharedPreferences settings;
-	public static final String FOXSETTING = "FOXSETTING";
-	private boolean isEink = false; // 是否E-ink设备
+	private boolean isWhiteActionBar = false; // 白色动作栏
 
 	private List<Map<String, Object>> data;
 	private ListView lv_pagelist ;
@@ -230,9 +230,9 @@ public class Activity_PageList extends ListActivity {
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) { // 入口
-		settings = getSharedPreferences(FOXSETTING, 0);
-		isEink = settings.getBoolean("isEink", isEink);
-		if ( isEink ) {
+		settings = PreferenceManager.getDefaultSharedPreferences(this);
+		isWhiteActionBar = settings.getBoolean("isWhiteActionBar", isWhiteActionBar);
+		if ( isWhiteActionBar ) {
 			this.setTheme(android.R.style.Theme_DeviceDefault_Light);
 		}
 
@@ -259,7 +259,11 @@ public class Activity_PageList extends ListActivity {
 				new Thread(new DownTOC()).start();
 				html = "";
 			}
-			data = FoxBookLib.tocHref(html, 0);
+			if ( bookurl.contains("3g.if.qidian.com") ) { // 搜索页传来的起点地址
+				data = site_qidian.json2PageList(html);
+			} else {
+				data = FoxBookLib.tocHref(html, 0);
+			}
 		}
 		if ( SITES.FROM_DB == foxfrom) { // DB
 			bookid = itt.getIntExtra("bookid", 0);

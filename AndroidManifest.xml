@@ -2,13 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.linpinger.foxbook"
     android:versionCode="5"
-    android:versionName="20160819" >
+    android:versionName="20160825" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <!-- 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    -->
+<!--     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> -->
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -27,16 +25,18 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-             <intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-				<category android:name="android.intent.category.DEFAULT" />
-				<category android:name="android.intent.category.BROWSABLE" />
-				<data android:scheme="file" /> <!-- content -->
-				<data android:mimeType="*/*" />
-				<data android:host="*" />
-				<data android:pathPattern=".*.db3" />
-				<data android:pathPattern=".*.db3.old" />
-		     </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="file" /> <!-- content -->
+                <data android:mimeType="*/*" />
+                <data android:host="*" />
+                <data android:pathPattern=".*.db3" />
+                <data android:pathPattern=".*.db3.old" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".Activity_Main"
@@ -51,16 +51,14 @@
             android:name=".Activity_QuickSearch"
             android:label="非浏览器控件搜索" >
         </activity>
-        
         <activity
             android:name=".Activity_PageList"
             android:label="测试列表" >
         </activity>
-               <activity
+        <activity
             android:name=".Activity_AllPageList"
             android:label="所有列表" >
         </activity>
-        
         <activity
             android:name=".Activity_ShowPage"
             android:label="查看内容" >
@@ -70,19 +68,24 @@
             android:label="编辑书籍信息"
             android:windowSoftInputMode="adjustUnspecified|stateHidden" >
         </activity>
-        
         <activity
             android:name=".Activity_Qidian_Txt_Viewer"
             android:label="查看起点txt" >
-             <intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-				<category android:name="android.intent.category.DEFAULT" />
-				<category android:name="android.intent.category.BROWSABLE" />
-				<data android:scheme="file" /> <!-- content -->
-				<data android:mimeType="*/*" />
-				<data android:host="*" />
-				<data android:pathPattern=".*.txt" />
-		     </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="file" /> <!-- content -->
+                <data android:mimeType="*/*" />
+                <data android:host="*" />
+                <data android:pathPattern=".*.txt" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".Activity_Setting"
+            android:label="Fox的配置" >
         </activity>
     </application>
 

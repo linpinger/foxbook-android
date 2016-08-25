@@ -9,6 +9,7 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,8 +27,7 @@ public class Activity_Qidian_Txt_Viewer extends ListActivity {
 	private String txtPath ;
 
 	SharedPreferences settings;
-	public static final String FOXSETTING = "FOXSETTING";
-	private boolean isEink = false; // 是否E-ink设备
+	private boolean isWhiteActionBar = false; // 白色动作栏
 
 	
 	private void renderListView() { // 刷新LV
@@ -61,9 +61,9 @@ public class Activity_Qidian_Txt_Viewer extends ListActivity {
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) { // 入口
-		settings = getSharedPreferences(FOXSETTING, 0);
-		isEink = settings.getBoolean("isEink", isEink);
-		if ( isEink ) {
+		settings = PreferenceManager.getDefaultSharedPreferences(this);
+		isWhiteActionBar = settings.getBoolean("isWhiteActionBar", isWhiteActionBar);
+		if ( isWhiteActionBar ) {
 			this.setTheme(android.R.style.Theme_DeviceDefault_Light);
 		}
 
