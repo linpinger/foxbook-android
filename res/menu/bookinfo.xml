@@ -2,7 +2,25 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
+        android:id="@+id/bi_copyBookName"
+        android:title="复制书名"/>
+    <item
+        android:id="@+id/bi_copyQidianID"
+        android:title="复制起点ID"/>
+    <item
+        android:id="@+id/bi_copyURL"
+        android:title="复制网址"/>
+    <item
         android:id="@+id/bi_getQDidFromURL"
-        android:title="从地址获取QidianID"/>
+        android:title="从地址获取起点ID"/>
+    <item
+        android:id="@+id/bi_pasteBookName"
+        android:title="粘贴书名"/>
+    <item
+        android:id="@+id/bi_pasteQidianID"
+        android:title="粘贴起点ID"/>
+    <item
+        android:id="@+id/bi_pasteURL"
+        android:title="粘贴网址"/>
 
 </menu>

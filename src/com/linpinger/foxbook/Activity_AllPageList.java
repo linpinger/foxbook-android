@@ -224,7 +224,7 @@ public class Activity_AllPageList extends ListActivity {
 	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作
 		switch (item.getItemId()) {
 		case android.R.id.home: // 返回图标
-			this.finish();
+			exitMe();
 			break;
 		case R.id.allpagelist_delete: // 删除所有章节
 			HashMap<String, Object> nHMb ;
@@ -252,6 +252,9 @@ public class Activity_AllPageList extends ListActivity {
 		case R.id.jumplist_tomiddle:
 			lv_pagelist.setSelection((int)( 0.5 * ( adapter.getCount() - 1 ) ));
 			break;
+		case R.id.apl_finish:
+			exitMe();
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -263,8 +266,7 @@ public class Activity_AllPageList extends ListActivity {
 	
 	public boolean onKeyDown(int keyCoder, KeyEvent event) { // 按键响应
 		if (keyCoder == KeyEvent.KEYCODE_BACK) {
-			setResult(RESULT_OK, (new Intent()).setAction("返回列表"));
-			finish();
+			exitMe();
 			return true;
 		}
 		return super.onKeyDown(keyCoder, event);
@@ -275,7 +277,7 @@ public class Activity_AllPageList extends ListActivity {
 	}
 
 	private void exitMe() { // 结束本Activity
-		setResult(RESULT_OK, (new Intent()).setAction("已清空所有列表"));
+		setResult(RESULT_OK, (new Intent()).setAction("返回列表"));
 		this.finish();
 	}
 }

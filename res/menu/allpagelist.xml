@@ -19,5 +19,8 @@
         android:id="@+id/jumplist_tomiddle"
         android:showAsAction="ifRoom|withText"
         android:title="表中"/>
+    <item
+        android:id="@+id/apl_finish"
+        android:title="返回"/>
     
 </menu>

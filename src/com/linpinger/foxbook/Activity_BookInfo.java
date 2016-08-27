@@ -105,6 +105,30 @@ public class Activity_BookInfo extends Activity {
 				foxtip("URL²»°üº¬ .qidian.com/");
 			}
 			break;
+		case R.id.bi_copyBookName:
+			String bn = edt_bname.getText().toString();
+			TOOLS.setcliptext(bn, this);
+			foxtip("¼ôÌù°å: " + bn);
+			break;
+		case R.id.bi_copyQidianID:
+			String bq = edt_qdid.getText().toString();
+			TOOLS.setcliptext(bq, this);
+			foxtip("¼ôÌù°å: " + bq);
+			break;
+		case R.id.bi_copyURL: // ¸´ÖÆ
+			String bu = edt_burl.getText().toString();
+			TOOLS.setcliptext(bu, this);
+			foxtip("¼ôÌù°å: " + bu);
+			break;
+		case R.id.bi_pasteBookName: // Õ³Ìù
+			edt_bname.setText(TOOLS.getcliptext(this));
+			break;
+		case R.id.bi_pasteQidianID:
+			edt_qdid.setText(TOOLS.getcliptext(this));
+			break;
+		case R.id.bi_pasteURL:
+			edt_burl.setText(TOOLS.getcliptext(this));
+			break;
 		case android.R.id.home: // ·µ»ØÍ¼±ê
 			this.finish();
 			break;
@@ -112,6 +136,8 @@ public class Activity_BookInfo extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 	
+
+
 	private void foxtip(String sinfo) { // ToastÏûÏ¢
 		Toast.makeText(getApplicationContext(), sinfo, Toast.LENGTH_SHORT).show();
 	}

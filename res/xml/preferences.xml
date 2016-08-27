@@ -37,7 +37,25 @@
             android:summaryOff="下载每个目录，较耗流量"
             android:summaryOn="较节省时间，流量，需有cookie"
             android:title="更新前比较书架" />
-
+         <SwitchPreference
+            android:defaultValue="true"
+            android:key="isShowAppIcon"
+            android:summaryOff="隐藏图标"
+            android:summaryOn="显示图标"
+            android:title="应用图标" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="isClickHomeExit"
+            android:summaryOff="无反应"
+            android:summaryOn="退出应用"
+            android:title="点击ActionBar图标" />
+         <SwitchPreference
+            android:defaultValue="false"
+            android:key="isShowIfRoom"
+            android:summaryOff="一直显示"
+            android:summaryOn="如果有空间"
+            android:title="显示为按钮" />
+        
     </PreferenceCategory>
     
     <PreferenceCategory android:title="阅读页设置" >

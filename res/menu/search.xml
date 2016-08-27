@@ -3,11 +3,11 @@
 
     <!--
         android:icon="@android:drawable/ic_popup_sync"
-        android:showAsAction="always"    -->
+        android:showAsAction="always"
+    -->
     <item
         android:id="@+id/sm_QuickSearchQidian"
         android:title="快速搜索:起点"/>
-
     <item
         android:id="@+id/sm_QuickSearchBing"
         android:title="快速搜索:Bing"/>
@@ -17,11 +17,17 @@
     <item
         android:id="@+id/sm_QuickSearchYahoo"
         android:title="快速搜索:雅虎"/>
-    
-        <item
+    <item
         android:id="@+id/link_qidian_mtop"
         android:title="打开: 起点排行m"/>
-        <item
+    <item
         android:id="@+id/link_qidian_dtop"
         android:title="打开: 起点排行"/>
+    <item
+        android:id="@+id/sm_copyURL"
+        android:title="复制当前网址到剪贴板"/>
+    <item
+        android:id="@+id/sm_downQDtxt"
+        android:title="下载起点Txt"/>
+
 </menu>

@@ -100,7 +100,11 @@ public class site_qidian {
         while (m.find()) {
             sQDID = m.group(1);
         }
-        return Integer.valueOf(sQDID);
+        if ( null == sQDID | "" == sQDID ) {
+        	return 0;
+        } else { 
+        	return Integer.valueOf(sQDID);
+        }
     }
     
     /**

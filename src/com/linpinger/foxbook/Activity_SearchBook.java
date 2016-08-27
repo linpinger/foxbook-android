@@ -15,6 +15,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -45,6 +47,9 @@ public class Activity_SearchBook extends Activity {
 	private final int IS_DOWNHTML = 5;
 	
 	private static Handler handler;
+	
+	private static final int ItemA1 = Menu.FIRST;
+	private static final int ItemA2 = Menu.FIRST + 1;
 
 	public class GetQidianURL implements Runnable {
 		@Override
@@ -86,6 +91,7 @@ public class Activity_SearchBook extends Activity {
 		wv = (WebView) findViewById(R.id.webView1);
 		btn_search = (ImageButton) findViewById(R.id.button1);
 		btn_pre = (Button) findViewById(R.id.button2);
+		this.registerForContextMenu(btn_pre);
 		
 //		wv.loadUrl("about:blank");
 //		wv.loadDataWithBaseURL("http://www.autohotkey.net/~linpinger/index.html?s=FoxBook_Android", "用法说明:", "text/html", "utf-8", "");
@@ -105,6 +111,10 @@ public class Activity_SearchBook extends Activity {
 		btn_search.setOnClickListener(new OnClickListener() { // 点击按钮搜索 // 需要转换编码
 			public void onClick(View v) {
 				book_name = et.getText().toString();
+				if ( book_name.length() == 0 ) { // 当未输入书名，去排行看看
+					funcOpenTopQD(true);
+					return ;
+				}
 				try {
 					wv.loadUrl("http://cn.bing.com/search?q=" + URLEncoder.encode(book_name, "UTF-8"));
 				} catch (UnsupportedEncodingException e) {
@@ -153,7 +163,9 @@ public class Activity_SearchBook extends Activity {
 			public void run() {
 				String html = "";
 				if ( book_url.toLowerCase().contains(".qidian.com/") ) { // 起点地址特别处理
-					book_url = site_qidian.qidian_getIndexURL_Mobile(site_qidian.qidian_getBookID_FromURL(book_url));
+					int qdid = site_qidian.qidian_getBookID_FromURL(book_url);
+					if ( qdid == 0 ) { return ; }
+					book_url = site_qidian.qidian_getIndexURL_Mobile(qdid);
 					html = FoxBookLib.downhtml(book_url, "utf-8");
 				} else {
 					html = FoxBookLib.downhtml(book_url);
@@ -172,9 +184,9 @@ public class Activity_SearchBook extends Activity {
 			public void onClick(View v) {
 				book_url = wv.getUrl();
 				if ( null != book_url ) {
-					setTitle("下载目录 : " + book_name + " <" + book_url + ">");
+					setTitle(book_name + " <" + book_url + ">");
 					new Thread(downHTML).start();
-				} else {
+				} else { //什么时候会是null？
 					book_url = "";
 					Intent itt = getIntent();
 					book_url = itt.getStringExtra("bookurl");
@@ -261,15 +273,68 @@ public class Activity_SearchBook extends Activity {
 			startActivity(ityh);
 			break;
 		case R.id.link_qidian_mtop:
-			wv.getSettings().setJavaScriptEnabled(true) ; // 允许JS
-			wv.loadUrl("http://m.qidian.com/top.aspx");
+			funcOpenTopQD(true);
 			break;
 		case R.id.link_qidian_dtop:
-			wv.getSettings().setJavaScriptEnabled(true) ; // 允许JS
-			wv.loadUrl("http://top.qidian.com");
+			funcOpenTopQD(false);
+			break;
+		case R.id.sm_copyURL:
+			this.funcCopyURL();
+			break;
+		case R.id.sm_downQDtxt:
+			this.funcDownQDtxt();
 			break;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case ItemA1:
+			funcCopyURL();
+			break;
+		case ItemA2:
+			funcDownQDtxt();
+			break;
+		}
+		return true;
+	}
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+		if ( v == this.btn_pre ) {
+			menu.setHeaderTitle("操作");
+			menu.add(9, ItemA1, 9, "复制网址到剪贴板"); // int groupId, int itemId, int order, CharSequence title
+			menu.add(9, ItemA2, 9, "下载起点Txt");
+		}
+	}
+	
+	private String funcCopyURL() {
+		String ua = wv.getUrl();
+		TOOLS.setcliptext(ua, this);
+		foxtip("剪贴板:\n" + ua);
+		return ua;
+	}
+	
+	private void funcDownQDtxt() {
+		String ub = wv.getUrl();
+		if (ub.contains(".qidian.com/")) {
+			String qidianID = String.valueOf(site_qidian.qidian_getBookID_FromURL(ub));
+			TOOLS.download("http://download.qidian.com/pda/" + qidianID + ".txt", qidianID + ".txt", this);
+			foxtip("开始下载: " + qidianID + ".txt");
+		} else {
+			foxtip("非起点URL:\n" + ub);
+		}
+	}
+	
+	private void funcOpenTopQD(boolean isMobile) {
+		wv.getSettings().setJavaScriptEnabled(true) ; // 允许JS
+		if ( isMobile ) {
+			wv.loadUrl("http://m.qidian.com/top.aspx");
+		} else {
+			wv.loadUrl("http://top.qidian.com");
+		}
 	}
 
 	private void foxtip(String sinfo) { // Toast消息

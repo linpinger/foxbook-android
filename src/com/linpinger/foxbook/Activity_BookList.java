@@ -12,8 +12,6 @@ import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.ListActivity;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -44,12 +42,15 @@ public class Activity_BookList extends ListActivity {
 	// 设置: 
 	SharedPreferences settings;
 	SharedPreferences.Editor editor;
+	private String beforeSwitchDB3 = "orderby_count_desc" ; // 和 arrays.xml中的entryvalues_before_switch_db 对应
 	private boolean isMemDB = true;  // 是否是内存数据库
 	private boolean isIntDB = false;  // 是否是内部存储空间[还是SD卡]中保存数据库
 	private boolean isWhiteActionBar = false; // 白色动作栏
 	private boolean isCompareShelf = true ;   // 更新前比较书架
-	private String beforeSwitchDB3 = "orderby_count_desc" ; // 和 arrays.xml中的entryvalues_before_switch_db 对应
-
+	private boolean isShowAppIcon = true;     // 显示App图标
+	private boolean isClickHomeExit = false;  // 点击Actionbar图标退出
+	private boolean isShowIfRoom = false;     // 一直显示菜单图标
+	
 	private FoxHTTPD foxHTTPD  = null;
 	private boolean bDB3FileFromIntent = false;  // 是否是通过文件关联进来的，会修改不保存数据库退出菜单功能
 	
@@ -447,7 +448,7 @@ if ( isCompareShelf ) {
 									startActivity(intent7);
 									break;
 								case 5:  // 复制书名
-									copyToClipboard(lcName);
+									TOOLS.setcliptext(lcName, getApplicationContext());
 									foxtip("已复制到剪贴板: " + lcName);
 									break;
 								case 6:  // 编辑本书信息
@@ -532,6 +533,12 @@ if ( isCompareShelf ) {
 		});
 	}
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private void showHomeUp() {
+		getActionBar().setDisplayHomeAsUpEnabled(isClickHomeExit);  // 标题栏中添加返回图标
+		getActionBar().setDisplayShowHomeEnabled(isShowAppIcon); // 隐藏程序图标
+	}		// 响应点击事件在onOptionsItemSelected的switch中加入 android.R.id.home   this.finish();
+	
 	public void onCreate(Bundle savedInstanceState) {
 		settings = PreferenceManager.getDefaultSharedPreferences(this);
 		isWhiteActionBar = settings.getBoolean("isWhiteActionBar", isWhiteActionBar);
@@ -541,6 +548,12 @@ if ( isCompareShelf ) {
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_booklist);
+
+		isClickHomeExit = settings.getBoolean("isClickHomeExit", isClickHomeExit);
+		isShowAppIcon = settings.getBoolean("isShowAppIcon", isShowAppIcon);
+		showHomeUp();
+		isShowIfRoom = settings.getBoolean("isShowIfRoom", isShowIfRoom);
+
 		mExitTime = System.currentTimeMillis(); // 当前时间，便于两次退出
 
 		// 获取传入的路径(关联db3文件)
@@ -589,22 +602,38 @@ if ( isCompareShelf ) {
 					menu.getItem(i).setVisible(this.isIntDB);
 					break;
 				case R.id.action_exitwithnosave:
-					if ( bDB3FileFromIntent ) {
+					if ( bDB3FileFromIntent )
 						menu.getItem(i).setTitle("保存数据库并退出");
-					}
 					break;
 				case R.id.action_switchdb:
-					if ( bDB3FileFromIntent ) {
+					if ( bDB3FileFromIntent )
 						menu.getItem(i).setVisible(false);
-					}
+					if ( isShowIfRoom )
+						setTypeOfShowAsAction(menu.getItem(i));
+					break;
+				case R.id.action_allpagelist:
+					if ( isShowIfRoom )
+						setTypeOfShowAsAction(menu.getItem(i));
+					break;
+				case R.id.action_updateall:
+					if ( isShowIfRoom )
+						setTypeOfShowAsAction(menu.getItem(i));
 					break;
 			}
 		}
 		return true;
 	}
+	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private void setTypeOfShowAsAction(MenuItem mi) {
+		mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM); // SHOW_AS_ACTION_NEVER  // API > 11
+	}
 
 	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作
 		switch (item.getItemId()) {
+		case android.R.id.home:
+			exitApp();
+			break;
 		case R.id.setting:
 			startActivity(new Intent(Activity_BookList.this, Activity_Setting.class));
 			break;
@@ -803,29 +832,28 @@ if ( isCompareShelf ) {
 
 	public boolean onKeyDown(int keyCoder, KeyEvent event) { // 按键响应
 		if (keyCoder == KeyEvent.KEYCODE_BACK) {
-			if ((System.currentTimeMillis() - mExitTime) > 2000) { // 两次退出键间隔
-				foxtip("再按一次返回键退出程序");
-				mExitTime = System.currentTimeMillis();
-			} else {
-				if ( ! bDB3FileFromIntent ) { // 不保存数据库并退出
-					beforeExitApp();
-				}
-				this.finish();
-				System.exit(0);
-			}
+			exitApp() ;
 			return true;
 		}
 		return super.onKeyDown(keyCoder, event);
+	}
+	private void exitApp() {
+		if ((System.currentTimeMillis() - mExitTime) > 2000) { // 两次退出键间隔
+			foxtip("再按一次退出程序");
+			mExitTime = System.currentTimeMillis();
+		} else {
+			if ( ! bDB3FileFromIntent ) { // 不保存数据库并退出
+				beforeExitApp();
+			}
+			this.finish();
+			System.exit(0);
+		}
 	}
 	private void beforeExitApp() {
 		oDB.closeMemDB();
 		if (foxHTTPD != null) {
 			foxHTTPD.stop();
 		}
-	}
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	public void copyToClipboard(String iText) {
-		((ClipboardManager) getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("hello", iText));
 	}
 
 }
