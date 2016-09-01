@@ -32,6 +32,7 @@ public class Activity_PageList extends ListActivity {
 	
 	SharedPreferences settings;
 	private boolean isWhiteActionBar = false; // 白色动作栏
+	private boolean isUseNewPageView = true; // 使用新的自定义View
 
 	private List<Map<String, Object>> data;
 	private ListView lv_pagelist ;
@@ -96,14 +97,20 @@ public class Activity_PageList extends ListActivity {
 				Integer tmpid = (Integer) chapinfo.get("id");
 
 				// setTitle(parent.getItemAtPosition(position).toString());
-				Intent intent = new Intent(Activity_PageList.this,
-						Activity_ShowPage.class);
+				Intent intent ;
+				isUseNewPageView = settings.getBoolean("isUseNewPageView", isUseNewPageView);
+				if ( isUseNewPageView ) {
+					intent = new Intent(Activity_PageList.this, Activity_ShowPage4Eink.class);
+					Activity_ShowPage4Eink.oDB = oDB;
+				} else {
+					intent = new Intent(Activity_PageList.this, Activity_ShowPage.class);
+					Activity_ShowPage.oDB = oDB;
+				}
 				intent.putExtra("iam", foxfrom);
 				intent.putExtra("chapter_id", tmpid);
 				intent.putExtra("chapter_name", tmpname);
 				intent.putExtra("chapter_url", FoxBookLib.getFullURL(bookurl, tmpurl));
 				intent.putExtra("searchengine", SE_TYPE);
-				Activity_ShowPage.oDB = oDB;
 				startActivity(intent);
 			}
 		};

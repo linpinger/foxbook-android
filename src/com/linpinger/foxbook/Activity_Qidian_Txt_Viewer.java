@@ -28,6 +28,7 @@ public class Activity_Qidian_Txt_Viewer extends ListActivity {
 
 	SharedPreferences settings;
 	private boolean isWhiteActionBar = false; // 白色动作栏
+	private boolean isUseNewPageView = true; // 使用新的自定义View
 
 	
 	private void renderListView() { // 刷新LV
@@ -46,13 +47,20 @@ public class Activity_Qidian_Txt_Viewer extends ListActivity {
 				String tmpname = (String) chapinfo.get("name");
 				Integer tmpid = (Integer) chapinfo.get("id");
 
-				Intent intent = new Intent(Activity_Qidian_Txt_Viewer.this, Activity_ShowPage.class);
+				Intent intent ;
+				isUseNewPageView = settings.getBoolean("isUseNewPageView", isUseNewPageView);
+				if ( isUseNewPageView ) {
+					intent = new Intent(Activity_Qidian_Txt_Viewer.this, Activity_ShowPage4Eink.class);
+					Activity_ShowPage4Eink.oDB = oDB;
+				} else {
+					intent = new Intent(Activity_Qidian_Txt_Viewer.this, Activity_ShowPage.class);
+					Activity_ShowPage.oDB = oDB;
+				}
 				intent.putExtra("iam", SITES.FROM_DB); // from DB
 				intent.putExtra("chapter_id", tmpid);
 				intent.putExtra("chapter_name", tmpname);
 				intent.putExtra("chapter_url", tmpurl);
 				intent.putExtra("searchengine", SITES.SE_BING); // SE
-				Activity_ShowPage.oDB = oDB;
 				startActivity(intent);
 			}
 		};

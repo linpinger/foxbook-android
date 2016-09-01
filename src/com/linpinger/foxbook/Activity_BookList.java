@@ -46,6 +46,7 @@ public class Activity_BookList extends ListActivity {
 	private boolean isMemDB = true;  // 是否是内存数据库
 	private boolean isIntDB = false;  // 是否是内部存储空间[还是SD卡]中保存数据库
 	private boolean isWhiteActionBar = false; // 白色动作栏
+	private boolean isUpdateBlankPagesFirst = true; // 更新前先检测是否有空白章节
 	private boolean isCompareShelf = true ;   // 更新前比较书架
 	private boolean isShowAppIcon = true;     // 显示App图标
 	private boolean isClickHomeExit = false;  // 点击Actionbar图标退出
@@ -112,6 +113,21 @@ public class Activity_BookList extends ListActivity {
 	public class UpdateAllBook implements Runnable {
 		public void run() {
 			Message msg;
+			
+			isUpdateBlankPagesFirst = settings.getBoolean("isUpdateBlankPagesFirst", isUpdateBlankPagesFirst);
+			if ( isUpdateBlankPagesFirst ) {
+				List<Map<String, Object>> blankPages = FoxMemDBHelper.getPageList("where length(content) < 99 or content is null order by bookid,id", oDB);
+				int blankPCount = blankPages.size();
+				int nowBlankPageID = 0 ;
+				for ( int i = 0; i<blankPCount; ++i) { // 更新空白页
+					nowBlankPageID = (Integer)blankPages.get(i).get("id");
+					msg = Message.obtain();
+					msg.what = DO_SETTITLE;
+					msg.obj = "更新空白章: " + nowBlankPageID ;
+					handler.sendMessage(msg);
+					FoxMemDBHelper.updatepage(nowBlankPageID, oDB);
+				}
+			}
 			
 			isCompareShelf = settings.getBoolean("isCompareShelf", isCompareShelf); // 更新前比较书架
 if ( isCompareShelf ) {

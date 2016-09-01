@@ -37,6 +37,7 @@ public class Activity_AllPageList extends ListActivity {
 	
 	SharedPreferences settings;
 	private boolean isWhiteActionBar = false; // 是否E-ink设备
+	private boolean isUseNewPageView = true; // 使用新的自定义View
 
 	private List<Map<String, Object>> data;
 	private ListView lv_pagelist ;
@@ -77,12 +78,19 @@ public class Activity_AllPageList extends ListActivity {
 
 				setTitle(tmpname + " : " + tmpid);
 				
-				Intent intent = new Intent(Activity_AllPageList.this, Activity_ShowPage.class);
+				Intent intent;
+				isUseNewPageView = settings.getBoolean("isUseNewPageView", isUseNewPageView);
+				if ( isUseNewPageView ) {
+					intent = new Intent(Activity_AllPageList.this, Activity_ShowPage4Eink.class);
+					Activity_ShowPage4Eink.oDB = oDB;
+				} else {
+					intent = new Intent(Activity_AllPageList.this, Activity_ShowPage.class);
+					Activity_ShowPage.oDB = oDB;
+				}
 				intent.putExtra("iam", SITES.FROM_DB);
 				intent.putExtra("chapter_id", tmpid);
 				intent.putExtra("chapter_name", tmpname);
 				intent.putExtra("chapter_url", FoxBookLib.getFullURL(bookurl, tmpurl));
-				Activity_ShowPage.oDB = oDB;
 				startActivity(intent);
 			}
 		};
