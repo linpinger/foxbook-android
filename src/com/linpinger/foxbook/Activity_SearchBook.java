@@ -21,8 +21,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.KeyEvent;
-
 import java.io.UnsupportedEncodingException;
 import java.lang.String;
 import java.net.URLEncoder;
@@ -208,30 +206,26 @@ public class Activity_SearchBook extends Activity {
 		
 	}
 
-	public boolean onKeyDown(int keyCoder, KeyEvent event) { // 按退出键
-		if ( keyCoder == KeyEvent.KEYCODE_BACK ) {
-			if ((System.currentTimeMillis() - mExitTime) > 2000) {
-				if ( wv.canGoBack() ) {
-					Toast.makeText(this, "后退中...", Toast.LENGTH_SHORT).show();
-					wv.goBack(); // goBack()表示返回webView的上一页面
-				} else {
-					Toast.makeText(this, "再按一次退出搜索", Toast.LENGTH_SHORT).show();
-                    mExitTime = System.currentTimeMillis();
-				}
+	@Override
+	public void onBackPressed() { // 返回键被按
+		if ((System.currentTimeMillis() - mExitTime) > 2000) {
+			if ( wv.canGoBack() ) {
+				foxtip("后退中...");
+				wv.goBack(); // goBack()表示返回webView的上一页面
 			} else {
-				setResult(RESULT_OK, (new Intent()).setAction("返回列表"));
-				finish();
+				foxtip("再按一次退出搜索");
+				mExitTime = System.currentTimeMillis();
 			}
-			return true;
+		} else {
+			exitMe();
 		}
-		return super.onKeyDown(keyCoder, event);
 	}
 
-	/*
-	 * protected void onPause() { super.onPause(); }
-	 * 
-	 * protected void onResume() { super.onResume(); }
-	 */
+	private void exitMe() {
+		setResult(RESULT_OK);
+		finish();
+	}
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) { // 创建菜单
 		getMenuInflater().inflate(R.menu.search, menu);
@@ -242,7 +236,7 @@ public class Activity_SearchBook extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作
 		switch (item.getItemId()) {
 		case android.R.id.home: // 返回图标
-			this.finish();
+			exitMe();
 			break;
 		case R.id.sm_QuickSearchQidian: // 快搜:起点
 			book_name = et.getText().toString();

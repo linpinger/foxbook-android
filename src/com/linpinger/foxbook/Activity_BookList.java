@@ -27,7 +27,6 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -45,11 +44,8 @@ public class Activity_BookList extends ListActivity {
 	private String beforeSwitchDB3 = "orderby_count_desc" ; // 和 arrays.xml中的entryvalues_before_switch_db 对应
 	private boolean isMemDB = true;  // 是否是内存数据库
 	private boolean isIntDB = false;  // 是否是内部存储空间[还是SD卡]中保存数据库
-	private boolean isWhiteActionBar = false; // 白色动作栏
 	private boolean isUpdateBlankPagesFirst = true; // 更新前先检测是否有空白章节
 	private boolean isCompareShelf = true ;   // 更新前比较书架
-	private boolean isShowAppIcon = true;     // 显示App图标
-	private boolean isClickHomeExit = false;  // 点击Actionbar图标退出
 	private boolean isShowIfRoom = false;     // 一直显示菜单图标
 	
 	private FoxHTTPD foxHTTPD  = null;
@@ -57,6 +53,7 @@ public class Activity_BookList extends ListActivity {
 	
 	ListView lv_booklist;
 	List<Map<String, Object>> data;
+	SimpleAdapter adapter ;
 	String lcURL, lcName; // long click 的变量
 	Integer lcCount, lcID;
 	private static Handler handler;
@@ -123,7 +120,7 @@ public class Activity_BookList extends ListActivity {
 					nowBlankPageID = (Integer)blankPages.get(i).get("id");
 					msg = Message.obtain();
 					msg.what = DO_SETTITLE;
-					msg.obj = "更新空白章: " + nowBlankPageID ;
+					msg.obj = "填空: " + (String)blankPages.get(i).get("name");
 					handler.sendMessage(msg);
 					FoxMemDBHelper.updatepage(nowBlankPageID, oDB);
 				}
@@ -362,14 +359,13 @@ if ( isCompareShelf ) {
 				setTitle(tmpname + " : " + tmpurl);
 
 				if (tmpcount > 0) {
-					Intent intent = new Intent(Activity_BookList.this,
-							Activity_PageList.class);
+					Intent intent = new Intent(Activity_BookList.this, Activity_PageList.class);
 					intent.putExtra("iam", SITES.FROM_DB);
 					intent.putExtra("bookurl", tmpurl);
 					intent.putExtra("bookname", tmpname);
 					intent.putExtra("bookid", tmpid);
 					Activity_PageList.oDB = oDB;
-					startActivityForResult(intent, 0);
+					startActivityForResult(intent, 1);
 				}
 			}
 		};
@@ -377,11 +373,9 @@ if ( isCompareShelf ) {
 	}
 
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode,
-			Intent retIntent) { // 修改书后返回的数据
-		if (0 == requestCode && RESULT_OK == resultCode) {
+	protected void onActivityResult(int requestCode, int resultCode, Intent retIntent) {
+		if (RESULT_OK == resultCode)
 			refresh_BookList(); // 刷新LV中的数据
-		}
 	}
 
 	private void init_LV_item_Long_click() { // 初始化 长击 条目 的行为
@@ -430,7 +424,7 @@ if ( isCompareShelf ) {
 										intent.putExtra("searchengine", SITES.SE_QIDIAN_MOBILE);
 									}
 									Activity_PageList.oDB = oDB;
-									startActivity(intent);
+									startActivityForResult(intent, 1);
 									break;
 								case 3: // 搜索:起点
 									String lcQidianID = oDB.getOneCell("select qidianid from book where id=" + lcID);
@@ -451,7 +445,7 @@ if ( isCompareShelf ) {
 										intentQD.putExtra("bookname", lcName);
 										intentQD.putExtra("searchengine", SITES.SE_QIDIAN_MOBILE);
 										Activity_PageList.oDB = oDB;
-										startActivity(intentQD);
+										startActivityForResult(intentQD, 1);
 									} else {
 										foxtip("在起点上未搜索到该书名");
 									}
@@ -461,19 +455,17 @@ if ( isCompareShelf ) {
 									intent7.putExtra("bookname", lcName);
 									intent7.putExtra("searchengine", SITES.SE_BING);
 									Activity_QuickSearch.oDB = oDB;
-									startActivity(intent7);
+									startActivityForResult(intent7, 5);
 									break;
 								case 5:  // 复制书名
 									TOOLS.setcliptext(lcName, getApplicationContext());
 									foxtip("已复制到剪贴板: " + lcName);
 									break;
 								case 6:  // 编辑本书信息
-									Intent itti = new Intent(
-											Activity_BookList.this,
-											Activity_BookInfo.class);
+									Intent itti = new Intent(Activity_BookList.this,Activity_BookInfo.class);
 									itti.putExtra("bookid", lcID);
 									Activity_BookInfo.oDB = oDB;
-									startActivityForResult(itti, 0);
+									startActivityForResult(itti, 3);
 									break;
 								case 7: // 删除本书
 									FoxMemDBHelper.deleteBook(lcID, oDB);
@@ -496,7 +488,7 @@ if ( isCompareShelf ) {
 	private void refresh_BookList() { // 刷新LV中的数据
 		data = FoxMemDBHelper.getBookList(oDB); // 获取书籍列表
 		// 设置listview的Adapter
-		SimpleAdapter adapter = new SimpleAdapter(this, data,
+		adapter = new SimpleAdapter(this, data,
 				R.layout.lv_item_booklist, new String[] { "name", "count" },
 				new int[] { R.id.tvName, R.id.tvCount });
 		lv_booklist.setAdapter(adapter);
@@ -551,22 +543,19 @@ if ( isCompareShelf ) {
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void showHomeUp() {
-		getActionBar().setDisplayHomeAsUpEnabled(isClickHomeExit);  // 标题栏中添加返回图标
-		getActionBar().setDisplayShowHomeEnabled(isShowAppIcon); // 隐藏程序图标
+		getActionBar().setDisplayHomeAsUpEnabled(settings.getBoolean("isClickHomeExit", false));  // 标题栏中添加返回图标
+		getActionBar().setDisplayShowHomeEnabled(settings.getBoolean("isShowAppIcon", true)); // 隐藏程序图标
 	}		// 响应点击事件在onOptionsItemSelected的switch中加入 android.R.id.home   this.finish();
 	
 	public void onCreate(Bundle savedInstanceState) {
 		settings = PreferenceManager.getDefaultSharedPreferences(this);
-		isWhiteActionBar = settings.getBoolean("isWhiteActionBar", isWhiteActionBar);
-		if ( isWhiteActionBar ) {
+		if ( settings.getBoolean("isWhiteActionBar", false) ) {
 			this.setTheme(android.R.style.Theme_DeviceDefault_Light);
 		}
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_booklist);
 
-		isClickHomeExit = settings.getBoolean("isClickHomeExit", isClickHomeExit);
-		isShowAppIcon = settings.getBoolean("isShowAppIcon", isShowAppIcon);
 		showHomeUp();
 		isShowIfRoom = settings.getBoolean("isShowIfRoom", isShowIfRoom);
 
@@ -598,8 +587,7 @@ if ( isCompareShelf ) {
 		init_handler(); // 初始化一个handler 用于处理后台线程的消息
 
 		lv_booklist = getListView(); // 获取LV
-
-		refresh_BookList(); // 刷新LV中的数据
+		refresh_BookList();
 
 		init_LV_item_click(); // 初始化 单击 条目 的行为
 		init_LV_item_Long_click(); // 初始化 长击 条目 的行为
@@ -648,7 +636,7 @@ if ( isCompareShelf ) {
 	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作
 		switch (item.getItemId()) {
 		case android.R.id.home:
-			exitApp();
+			onBackPressed();
 			break;
 		case R.id.setting:
 			startActivity(new Intent(Activity_BookList.this, Activity_Setting.class));
@@ -690,21 +678,20 @@ if ( isCompareShelf ) {
 			foxtip("ListView已刷新");
 			break;
 		case R.id.action_searchbook:  // 打开搜索书籍
-			Intent intent = new Intent(Activity_BookList.this, Activity_SearchBook.class);
 			Activity_SearchBook.oDB = oDB;
-			startActivityForResult(intent,0);
+			startActivityForResult(new Intent(Activity_BookList.this, Activity_SearchBook.class),4);
 			break;
 		case R.id.action_allpagelist:  // 所有章节
 			Intent ittall = new Intent(Activity_BookList.this, Activity_AllPageList.class);
 			ittall.putExtra("apl_showtype", Activity_AllPageList.SHOW_ALL);
 			Activity_AllPageList.oDB = oDB;
-			startActivityForResult(ittall, 0);
+			startActivityForResult(ittall, 2);
 			break;
 		case R.id.action_showokinapl:  // 显示字数少于1K的章节
 			Intent ittlok = new Intent(Activity_BookList.this, Activity_AllPageList.class);
 			ittlok.putExtra("apl_showtype", Activity_AllPageList.SHOW_LESS1K);
 			Activity_AllPageList.oDB = oDB;
-			startActivityForResult(ittlok, 0);
+			startActivityForResult(ittlok, 2);
 			break;
 			
 		case R.id.action_sortbook_asc: // 顺序排序
@@ -842,34 +829,27 @@ if ( isCompareShelf ) {
 		return super.onOptionsItemSelected(item);
 	}
 
-	private void foxtip(String sinfo) { // Toast消息
-		Toast.makeText(getApplicationContext(), sinfo, Toast.LENGTH_SHORT).show();
+	private void beforeExitApp() {
+		oDB.closeMemDB();
+		if (foxHTTPD != null)
+			foxHTTPD.stop();
 	}
 
-	public boolean onKeyDown(int keyCoder, KeyEvent event) { // 按键响应
-		if (keyCoder == KeyEvent.KEYCODE_BACK) {
-			exitApp() ;
-			return true;
-		}
-		return super.onKeyDown(keyCoder, event);
-	}
-	private void exitApp() {
+	@Override
+	public void onBackPressed() { // 返回键被按
 		if ((System.currentTimeMillis() - mExitTime) > 2000) { // 两次退出键间隔
 			foxtip("再按一次退出程序");
 			mExitTime = System.currentTimeMillis();
 		} else {
-			if ( ! bDB3FileFromIntent ) { // 不保存数据库并退出
+			if ( ! bDB3FileFromIntent ) // 不保存数据库并退出
 				beforeExitApp();
-			}
 			this.finish();
 			System.exit(0);
 		}
 	}
-	private void beforeExitApp() {
-		oDB.closeMemDB();
-		if (foxHTTPD != null) {
-			foxHTTPD.stop();
-		}
+	
+	private void foxtip(String sinfo) { // Toast消息
+		Toast.makeText(getApplicationContext(), sinfo, Toast.LENGTH_SHORT).show();
 	}
 
 }

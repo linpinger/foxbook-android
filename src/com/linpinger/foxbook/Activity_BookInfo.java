@@ -49,9 +49,8 @@ public class Activity_BookInfo extends Activity {
 	public void onCreate(Bundle savedInstanceState) { // 界面初始化
 		settings = PreferenceManager.getDefaultSharedPreferences(this);
 		isWhiteActionBar = settings.getBoolean("isWhiteActionBar", isWhiteActionBar);
-		if ( isWhiteActionBar ) {
+		if ( isWhiteActionBar )
 			this.setTheme(android.R.style.Theme_DeviceDefault_Light);
-		}
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_bookinfo);
@@ -82,8 +81,7 @@ public class Activity_BookInfo extends Activity {
 				cc.put("QiDianID", edt_qdid.getText().toString());
 				cc.put("isEnd", edt_isend.getText().toString());
 				FoxMemDBHelper.update_cell("Book", cc, "id=" + bookid, oDB) ; // 修改单个字段
-				setResult(RESULT_OK, (new Intent()).setAction("已修改书籍信息"));
-				finish();
+				onBackPressed();
 			}
 		});
 
@@ -130,13 +128,17 @@ public class Activity_BookInfo extends Activity {
 			edt_burl.setText(TOOLS.getcliptext(this));
 			break;
 		case android.R.id.home: // 返回图标
-			this.finish();
+			onBackPressed();
 			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
 	
-
+	@Override
+	public void onBackPressed() { // 返回键被按
+		setResult(RESULT_OK);
+		finish();
+	}
 
 	private void foxtip(String sinfo) { // Toast消息
 		Toast.makeText(getApplicationContext(), sinfo, Toast.LENGTH_SHORT).show();

@@ -63,8 +63,8 @@ public class Activity_QuickSearch extends ListActivity {
 		
 		setTitle("搜索: " + book_name);
 		
-		data = new ArrayList<Map<String, Object>>(10);
-		renderListView();
+		data = new ArrayList<Map<String, Object>>();
+		refreshLVAdapter();
 		
 		init_handler() ; // 初始化一个handler 用于处理后台线程的消息
 		
@@ -87,6 +87,13 @@ public class Activity_QuickSearch extends ListActivity {
 			e.printStackTrace();
 		}
 		new Thread(new DownTOC(seURL)).start();
+	}
+
+	private void refreshLVAdapter() {
+		adapter = new SimpleAdapter(this, data,
+				android.R.layout.simple_list_item_2, new String[] { "name", "url" },
+				new int[] { android.R.id.text1, android.R.id.text2 });
+		lv_sitelist.setAdapter(adapter);
 	}
 	
 	private void init_LV_item_click() { // 初始化 单击 条目 的行为
@@ -117,52 +124,22 @@ public class Activity_QuickSearch extends ListActivity {
 		@Override
 		public void run() {
 			Message msg = Message.obtain();
-			switch(SE_TYPE) {
-			default :
-				msg.what = IS_REFRESH;
-				msg.obj = FoxBookLib.downhtml(this.bookurl);
-			}
+			msg.what = IS_REFRESH;
+			msg.obj = FoxBookLib.downhtml(this.bookurl);
 			handler.sendMessage(msg);
 		}
 	}
 
-	private void renderListView() { // 刷新LV
-		adapter = new SimpleAdapter(this, data,
-				android.R.layout.simple_list_item_2, new String[] { "name", "url" },
-				new int[] { android.R.id.text1, android.R.id.text2 });
-		lv_sitelist.setAdapter(adapter);
-	}
-	
 	private void init_handler() { // 初始化一个handler 用于处理后台线程的消息
 		handler = new Handler() {
 			public void handleMessage(Message msg) {
 				if ( msg.what == IS_REFRESH ) { // 下载完毕
 					String sHTTP = (String)msg.obj;				
-					switch(SE_TYPE) {
-					default :
-						data = FoxBookLib.getSearchEngineHref(sHTTP, book_name); // 搜索引擎网页分析放在这里
-					}
-					renderListView();
+					data = FoxBookLib.getSearchEngineHref(sHTTP, book_name); // 搜索引擎网页分析放在这里
+					refreshLVAdapter();
 				}
 			}
 		};
 	}
-
-/*
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) { // 创建菜单
-		getMenuInflater().inflate(R.menu.search, menu);
-		return true;
-	}
-	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作
-		switch (item.getItemId()) {
-		case R.id.sm_QuickSearchSouGou: // 快搜:搜狗
-			break;
-		}
-		return super.onOptionsItemSelected(item);
-	}
-	
-*/
-
 
 }

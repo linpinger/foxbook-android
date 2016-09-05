@@ -16,7 +16,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -198,8 +197,10 @@ public class Activity_PageList extends ListActivity {
 										}
 									}).start();
 									break;
-								}
-							}
+								} // switch end
+								if ( data.size() == 0 )  // 当记录删除完后，结束本Activity
+									onBackPressed();
+							} // onClick end
 						});
 				builder.create().show();
 				return true;
@@ -307,19 +308,17 @@ public class Activity_PageList extends ListActivity {
 	public boolean onOptionsItemSelected(MenuItem item) { // 响应菜单
 		switch (item.getItemId()) {
 		case android.R.id.home: // 返回图标
-			this.finish();
+			onBackPressed();
 			break;
 		case R.id.pm_cleanBook:
 			FoxMemDBHelper.delete_Book_All_Pages(bookid, true, oDB);
 			foxtip("已删除并更新记录");
-			setResult(RESULT_OK, (new Intent()).setAction("已清空某书并写入已删除列表"));
-			finish();
+			onBackPressed();
 			break;
 		case R.id.pm_cleanBookND:
 			FoxMemDBHelper.delete_Book_All_Pages(bookid, false, oDB);
 			foxtip("已删除");
-			setResult(RESULT_OK, (new Intent()).setAction("已清空某书并没有写入已删除列表"));
-			finish();
+			onBackPressed();
 			break;
 		case R.id.pm_Add:
 			if ( SITES.FROM_NET == foxfrom ) {
@@ -333,8 +332,7 @@ public class Activity_PageList extends ListActivity {
 					itti.putExtra("bookid", nBookID);
 					Activity_BookInfo.oDB = oDB;
 					startActivity(itti);
-					setResult(RESULT_OK, (new Intent()).setAction("返回列表"));
-					finish();
+					onBackPressed();
 				} else {
 					setTitle("信息不完整@新增 : " + bookname + " <" + bookurl + ">");
 				}
@@ -354,13 +352,10 @@ public class Activity_PageList extends ListActivity {
 		return super.onOptionsItemSelected(item);
 	}
 	
-	public boolean onKeyDown(int keyCoder, KeyEvent event) { // 按键响应
-		if (keyCoder == KeyEvent.KEYCODE_BACK) {
-			setResult(RESULT_OK, (new Intent()).setAction("返回列表"));
-			finish();
-			return true;
-		}
-		return super.onKeyDown(keyCoder, event);
+	@Override
+	public void onBackPressed() { // 返回键被按
+		setResult(RESULT_OK);
+		finish();
 	}
 
 	private void foxtip(String sinfo) { // Toast消息

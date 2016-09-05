@@ -3,7 +3,10 @@ package com.linpinger.foxbook;
 import java.io.File;
 import java.util.ArrayList;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -13,13 +16,16 @@ import android.view.View;
 //在Activity中使用 View.setOnClickListener 绑定点击事件，免得自己来判断
 public class View_FoxTextView extends View  {
 
+	private FoxBroadcastReceiver bc_rcv;
 	private Context ctx ;
 	private Paint p;
 	
 	// 配置
 	String txt = "木有内容，真是个悲伤的消息";
+	String firstPageInfoL = "" ;   // 第一页时，在左侧信息处显示的信息
 	String infoL = "我是萌萌哒标题";
-	String infoR = "15:55";
+	String infoR = "15:55 0%";
+	int batteryLevel = 0;
 	float fontSizeSP = 18 ;
 	float lineSpaceing = 1.5f ;
 	
@@ -45,14 +51,24 @@ public class View_FoxTextView extends View  {
 
 		fontSize = TOOLS.sp2px(ctx, fontSizeSP);
 		
+		bc_rcv = new FoxBroadcastReceiver();
+		ctx.registerReceiver(bc_rcv, new IntentFilter(Intent.ACTION_BATTERY_CHANGED)); // 电量变动
+		ctx.registerReceiver(bc_rcv, new IntentFilter(Intent.ACTION_TIME_CHANGED)); // 时间变动 ACTION_TIME_TICK
 	}
 	
+
+	@Override
+	protected void onDetachedFromWindow() {
+		ctx.unregisterReceiver(bc_rcv);  // 关闭广播接收
+		super.onDetachedFromWindow();
+	}
+
 	public int setPrevText() { // 需被覆盖
-		setText("上章标题", "　　上章内容\n　　么么哒\n", 1);
+		setText("上章标题", "　　上章内容\n　　么么哒\n");
 		return 0;
 	}
 	public int setNextText() { // 需被覆盖
-		setText("下章标题", "　　下章内容\n　　么么哒\n", 1);
+		setText("下章标题", "　　下章内容\n　　么么哒\n");
 		return 0;
 	}
 	
@@ -77,9 +93,14 @@ public class View_FoxTextView extends View  {
 	}
 	
 	public void setInfoR() {
-		infoR = (new java.text.SimpleDateFormat("HH:mm")).format(new java.util.Date());
+		infoR = (new java.text.SimpleDateFormat("HH:mm")).format(new java.util.Date()) + "　" + batteryLevel + "%";
 	}
-	public void setText(String iTitle, String iTxt, int ChapterID) {
+
+	public void setText(String iTitle, String iTxt, String iFirstPageLinfo) {
+		firstPageInfoL = iFirstPageLinfo;
+		setText(iTitle, iTxt);
+	}
+	public void setText(String iTitle, String iTxt) {
 		infoL = iTitle;
 		txt = iTxt ;
 		nowPageNum = 0;
@@ -192,10 +213,13 @@ public class View_FoxTextView extends View  {
 
 		// 绘制底部信息
 		p.setTextSize(fontSize / 5 * 2 + padding / 2);
-		if ( infoL.length() > 21 ) // 标题文字太长，处理一下
-			infoL = infoL.substring(0, 20) + "…" ;
-		canvas.drawText(nowPageNum + 1 + " / " + nowPageCount + "  " + infoL, padding, ch - padding / 2, p);
-		canvas.drawText(infoR, cw - padding - 3 * fontSize / 2 , ch - padding / 2, p);
+//		if ( infoL.length() > 21 ) // 标题文字太长，处理一下
+//			infoL = infoL.substring(0, 20) + "…" ;
+		if ( 0 == nowPageNum )
+			canvas.drawText("本章共 " + nowPageCount + " 页    " + firstPageInfoL, padding, ch - padding / 2, p);
+		else
+			canvas.drawText(nowPageNum + 1 + " / " + nowPageCount + "  " + infoL, padding, ch - padding / 2, p);
+		canvas.drawText(infoR, cw - padding - 7 * fontSize / 2 , ch - padding / 2, p);
 	} // onDraw结束
 	
 	private ArrayList<String> split2lines(String inText, Paint p, float maxWidth) {
@@ -231,6 +255,22 @@ public class View_FoxTextView extends View  {
 		}
 
 		return oLine;
+	}
+
+
+	class FoxBroadcastReceiver extends BroadcastReceiver{
+		@Override
+		public void onReceive(Context ctx, Intent itt) {
+			if( itt.getAction().equals(Intent.ACTION_BATTERY_CHANGED) ) {
+				batteryLevel = itt.getIntExtra("level", 0);
+				setInfoR();
+				postInvalidate();
+			}
+			if( itt.getAction().equals(Intent.ACTION_TIME_CHANGED) ) {
+				setInfoR();
+				postInvalidate();
+			}
+		}
 	}
 
 } // 自定义View结束

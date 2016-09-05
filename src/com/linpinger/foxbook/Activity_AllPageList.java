@@ -16,7 +16,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -173,9 +172,8 @@ public class Activity_AllPageList extends ListActivity {
 									}).start();
 									break;
 								}
-								if ( data.size() == 0 ) { // 当记录删除完后，结束本Activity
-									exitMe(); // 结束本Activity
-								}
+								if ( data.size() == 0 )  // 当记录删除完后，结束本Activity
+									onBackPressed();
 							}
 				});
 		builder.create().show();
@@ -232,7 +230,7 @@ public class Activity_AllPageList extends ListActivity {
 	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作
 		switch (item.getItemId()) {
 		case android.R.id.home: // 返回图标
-			exitMe();
+			onBackPressed();
 			break;
 		case R.id.allpagelist_delete: // 删除所有章节
 			HashMap<String, Object> nHMb ;
@@ -249,7 +247,7 @@ public class Activity_AllPageList extends ListActivity {
 			}
 			adapter.notifyDataSetChanged();
 			foxtip("已删除所有记录");
-			exitMe(); // 结束本Activity
+			onBackPressed(); // 结束本Activity
 			break;
 		case R.id.jumplist_tobottom:
 			lv_pagelist.setSelection(adapter.getCount() - 1);
@@ -261,7 +259,7 @@ public class Activity_AllPageList extends ListActivity {
 			lv_pagelist.setSelection((int)( 0.5 * ( adapter.getCount() - 1 ) ));
 			break;
 		case R.id.apl_finish:
-			exitMe();
+			onBackPressed();
 			break;
 		}
 		return super.onOptionsItemSelected(item);
@@ -272,20 +270,13 @@ public class Activity_AllPageList extends ListActivity {
 		return true;
 	}
 	
-	public boolean onKeyDown(int keyCoder, KeyEvent event) { // 按键响应
-		if (keyCoder == KeyEvent.KEYCODE_BACK) {
-			exitMe();
-			return true;
-		}
-		return super.onKeyDown(keyCoder, event);
-	}
-
 	private void foxtip(String sinfo) { // Toast消息
 		Toast.makeText(getApplicationContext(), sinfo, Toast.LENGTH_SHORT).show();
 	}
 
-	private void exitMe() { // 结束本Activity
-		setResult(RESULT_OK, (new Intent()).setAction("返回列表"));
-		this.finish();
+	@Override
+	public void onBackPressed() { // 返回键被按
+		setResult(RESULT_OK);
+		finish();
 	}
 }

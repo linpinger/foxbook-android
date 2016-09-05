@@ -39,6 +39,9 @@ public class Activity_ShowPage4Eink extends Activity {
 	private String pagename = "" ;
 	private String pageurl = "" ;
 	
+	private String bookname = "";
+	private String allpagescount = "0" ;
+	
 	SharedPreferences settings;
 	SharedPreferences.Editor editor;
 	private String myBGcolor = "default" ;  // 背景:默认羊皮纸
@@ -48,7 +51,6 @@ public class Activity_ShowPage4Eink extends Activity {
 	private float lineSpaceingMultip = 1.5f ; // 行间距倍数
 
 	private long tLastPushEinkButton ;
-	private String lastTitle="";
 
 	private final int IS_REFRESH = 5 ;
 	
@@ -60,54 +62,54 @@ public class Activity_ShowPage4Eink extends Activity {
 		public FoxTextView(Context context) {
 			super(context);
 		}
-
-		@Override
-		public int setPrevText() {
+		
+		private int setPrevOrNextText(boolean isNextPage) {
+			String strNoMoreTip ;
+			String whereStrA;
+			String whereStrB;
+			if ( isNextPage ) {
+				strNoMoreTip = "亲，没有下一页了";
+				whereStrA = "id > " + pageid + " and bookid = " + bookid + " and content is not null limit 1" ;
+				whereStrB = "page.bookid=book.id and bookid > " + bookid + " and content is not null order by bookid, id limit 1";
+			} else {
+				strNoMoreTip = "亲，没有上一页了";
+				whereStrA = "id < " + pageid + " and bookid = " + bookid + " and content is not null order by id desc limit 1" ;
+				whereStrB = "page.bookid=book.id and bookid < " + bookid + " and content is not null order by bookid desc, id desc limit 1";
+			}
+			
 			if ( 0 == pageid ) {
 				foxtip("亲，ID 为 0");
 				return -1;
 			}
 			Map<String,String> pp ;
-			pp = oDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where id < " + pageid + " and bookid = " + bookid + " and content is not null order by id desc limit 1"); // 本书内的上一章
+			pp = oDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where " + whereStrA); // 本书
 			if ( null == pp.get("id") ) {
-				pp = oDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where bookid < " + bookid + " and content is not null order by bookid desc, id desc limit 1"); // 上一本书的最后一章
+				pp = oDB.getOneRow("select page.id as id, page.bookid as bid, page.name as name, page.url as url, page.content as content, book.name as bnn from book, page where " + whereStrB);
 				if ( null == pp.get("name") ) {
-					foxtip("亲，没有上一页了");
+					foxtip(strNoMoreTip);
 					return -2;
 				}
+				bookname = pp.get("bnn");
 			}
 			pageid = Integer.valueOf(pp.get("id"));
 			bookid = Integer.valueOf(pp.get("bid"));
-			lastTitle = pageid + " : " + pp.get("name") + " : " + pp.get("url");
-			setTitle(lastTitle);
+			pagename = pp.get("name");
 			pagetext = pp.get("content");
-			mv.setText(pp.get("name"), "　　" + pagetext.replace("\n", "\n　　"), pageid);
+
+			if ( pagename.length() > 21 ) // 标题文字太长，处理一下
+				pagename = pagename.substring(0, 20) + "…" ;
+			mv.setText(pagename, "　　" + pagetext.replace("\n", "\n　　"), bookname + "   " + pageid + " / " + allpagescount);
 			return 0;
 		}
 
 		@Override
+		public int setPrevText() {
+			return setPrevOrNextText(false); // 上一
+		}
+
+		@Override
 		public int setNextText() {
-			if ( 0 == pageid ) {
-				foxtip("亲，ID 为 0");
-				return -1 ;
-			}
-			Map<String,String> nn;
-			nn = oDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where id > " + pageid + " and bookid = " + bookid + " and content is not null limit 1"); // 本书内的下一章
-			if ( null == nn.get("id") ) {
-				nn = oDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where bookid > " + bookid + " and content is not null order by bookid, id limit 1");
-				if ( null == nn.get("name") ) {
-					foxtip("亲，没有下一页了");
-					return -2 ;
-				}
-			}
-			
-			pageid = Integer.valueOf(nn.get("id"));
-			bookid = Integer.valueOf(nn.get("bid"));
-			lastTitle = pageid + " : " + nn.get("name") + " : " + nn.get("url");
-			setTitle(lastTitle);
-			pagetext = nn.get("content");
-			mv.setText(nn.get("name"), "　　" + pagetext.replace("\n", "\n　　"), pageid);
-			return 0;
+			return setPrevOrNextText(true); // 下一
 		}
 	}
 	
@@ -176,18 +178,16 @@ public class Activity_ShowPage4Eink extends Activity {
 		pageurl = itt.getStringExtra("chapter_url");
 		SE_TYPE = itt.getIntExtra("searchengine", 1) ; // 给出搜索引擎类型
 
-		setTitle(pagename + " : " + pageurl );
-
 		final Handler handler = new Handler() {
 			public void handleMessage(Message msg) {
 				String sText = (String)msg.obj;
 				if ( msg.what == IS_REFRESH ) {
-					setTitle(pagename + " : " + pageurl );
 					if ( sText.length() < 9 ) {
-						mv.setText("错误", "　　啊噢，可能处理的时候出现问题了哦\n\nURL: " + pageurl + "\nPageName: " + pagename + "\nContent:" + sText , 0);
+						mv.setText("错误", "　　啊噢，可能处理的时候出现问题了哦\n\nURL: " + pageurl + "\nPageName: " + pagename + "\nContent:" + sText);
 					} else {
-						mv.setText(pagename, "　　" + sText.replace("\n", "\n　　"), 0);
+						mv.setText(pagename, "　　" + sText.replace("\n", "\n　　"));
 					}
+					mv.postInvalidate();
 				}
 			}
 		};
@@ -213,20 +213,22 @@ public class Activity_ShowPage4Eink extends Activity {
 		
 		if ( SITES.FROM_DB == foxfrom ){ // DB
 			pageid =  itt.getIntExtra("chapter_id", 0);
-			Map<String,String> infox = oDB.getOneRow("select bookid as bid, Content as cc, Name as naa from page where id = " + pageid + " and Content is not null");
+			Map<String,String> infox = oDB.getOneRow("select page.bookid as bid, page.Content as cc, page.Name as naa, book.name as bnn from book,page where page.bookid=book.id and page.id = " + pageid + " and page.Content is not null");
 			pagetext = infox.get("cc") ;
 			pagename = infox.get("naa") ;
+			bookname = infox.get("bnn") ;
 
 			if ( null == pagetext  ) {
 				pagetext = "本章节内容还没下载，请回到列表，更新本书或本章节" ;
 			} else {
 				bookid = Integer.valueOf(infox.get("bid")); // 翻页使用
 			}
-			mv.setText(pagename, "　　" + pagetext.replace("\n", "\n　　"), pageid);
-			
+			if ( pagename.length() > 21 ) // 标题文字太长，处理一下
+				pagename = pagename.substring(0, 20) + "…" ;
+			allpagescount = oDB.getOneCell("select count(id) from page");
+			mv.setText(pagename, "　　" + pagetext.replace("\n", "\n　　"), bookname + "   " + pageid + " / " + allpagescount);
 		} 
 		if ( SITES.FROM_NET == foxfrom ){ // NET
-			setTitle("下载中...");
 			new Thread(down_page).start();
 		}
 		
@@ -258,12 +260,10 @@ public class Activity_ShowPage4Eink extends Activity {
 		switch (item.getItemId()) {
 		case R.id.show_prev:
 			mv.setPrevText(); // 上一章
-			mv.setInfoR();
 			mv.postInvalidate();
 			break;
 		case R.id.show_next:
 			mv.setNextText() ; // 下一章
-			mv.setInfoR();
 			mv.postInvalidate();
 			break;
 		case R.id.sp_set_size_up: // 增大字体

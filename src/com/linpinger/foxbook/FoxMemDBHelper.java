@@ -35,6 +35,7 @@ public class FoxMemDBHelper {
         String sQidianid = (new File(txtPath)).getName().replace(".txt", ""); // 文件名
 
         if ( ! txt.contains("更新时间") ) { // 非起点文本
+        	String sBookid = String.valueOf(insertbook(sQidianid, "txt", "00", oDB)); // 新增书籍 并 获取id
             db.beginTransaction();// 开启事务
             try {
                 BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(txtPath), txtEnCoding));
@@ -52,7 +53,7 @@ public class FoxMemDBHelper {
                     if ( chunkLen > 2200 && lineLen < 22 && ( line.startsWith("第") || line.contains("卷") || line.contains("章") || line.contains("节") || line.contains("回") || line.contains("品") || lineLen > 2 ) ) {
                         ++ chunkCount;
                           db.execSQL("insert into page(bookid,name,content,CharCount) values(?,?,?,?)",
-                              new Object[] { "1", txtEnCoding + "_" + String.valueOf(chunkCount), chunkStr.toString(), String.valueOf(chunkStr.length()) });
+                              new Object[] { sBookid, txtEnCoding + "_" + String.valueOf(chunkCount), chunkStr.toString(), String.valueOf(chunkStr.length()) });
                         chunkStr = new StringBuilder(65536);
                      }
                      chunkStr.append(line).append("\n");

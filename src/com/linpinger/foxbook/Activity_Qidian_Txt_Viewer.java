@@ -5,9 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.annotation.TargetApi;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Menu;
@@ -67,6 +69,12 @@ public class Activity_Qidian_Txt_Viewer extends ListActivity {
 		lv_pagelist.setOnItemClickListener(listener);
 	}
 	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private void showHomeUp() {
+		getActionBar().setDisplayHomeAsUpEnabled(settings.getBoolean("isClickHomeExit", false));  // 标题栏中添加返回图标
+//		getActionBar().setDisplayShowHomeEnabled(isShowAppIcon); // 隐藏程序图标
+	}		// 响应点击事件在onOptionsItemSelected的switch中加入 android.R.id.home   this.finish();
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) { // 入口
 		settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -77,15 +85,22 @@ public class Activity_Qidian_Txt_Viewer extends ListActivity {
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_qidian_txt_viewver);
+		showHomeUp();
+		
 		lv_pagelist = getListView();
 		
 		// 获取传入的文件路径
 		Intent itt = getIntent();
 		txtPath = itt.getData().getPath(); // 从intent获取txt路径
-		oDB = new FoxMemDB(new File(txtPath.replace(".txt", "") + ".ramdb3"), this.getApplicationContext()) ; // 创建内存数据库
+		File nowDB3 = new File(txtPath.replace(".txt", "") + ".db3");
+		if ( nowDB3.exists() ) { // 存在，就重命名一下
+			File bakFile = new File(txtPath.replace(".txt", "") + "_" + System.currentTimeMillis() + ".db3");
+			nowDB3.renameTo(bakFile);
+			foxtip("数据库存在，重命名为:\n" + bakFile.getName());
+		}
+		oDB = new FoxMemDB(nowDB3, this.getApplicationContext()) ; // 创建内存数据库
+		foxtip("处理: " + txtPath);
 		String BookName = FoxMemDBHelper.importQidianTxt(txtPath, oDB); //导入txt到数据库
-			
-		foxtip("处理:" + txtPath);
 		setTitle(BookName);
 		
 		data = FoxMemDBHelper.getPageList("", oDB); // 获取页面列表
@@ -104,6 +119,10 @@ public class Activity_Qidian_Txt_Viewer extends ListActivity {
 	}
 	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作
 		switch (item.getItemId()) {
+		case android.R.id.home:
+			this.finish();
+			System.exit(0);
+			break;
 		case R.id.action_save_exit:
 			oDB.closeMemDB();
 			this.finish();
