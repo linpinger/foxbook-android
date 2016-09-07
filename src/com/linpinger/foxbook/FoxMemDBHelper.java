@@ -26,78 +26,124 @@ import android.os.Environment;
 
 public class FoxMemDBHelper {
 
-    public static String importQidianTxt(String txtPath, FoxMemDB oDB) {
+	public static String importQidianTxt(String txtPath, FoxMemDB oDB) {
+		return importQidianTxt(txtPath, oDB, true); // 使用新方式，更快 
+	}
+    public static String importQidianTxt(String txtPath, FoxMemDB oDB, boolean isNew) {
+    	// boolean isNew = true;
+    	//long sTime = System.currentTimeMillis();
         // 第一步检测编码，非GBK就是UTF-8，其他不予考虑
         String txtEnCoding = FoxBookLib.detectTxtEncoding(txtPath) ; // 猜测中文文本编码 返回: "GBK" 或 "UTF-8"
-        String txt = FoxBookLib.readText(txtPath, txtEnCoding) ;
+        String txt = FoxBookLib.readText(txtPath, txtEnCoding).replace("\r", "").replace("　", ""); // 为起点txt预处理
+
+        if ( ! txt.contains("更新时间") ) // 非起点文本
+			return importNormalTxt(txtPath, oDB, txtEnCoding);
 
         SQLiteDatabase db = oDB.getDB();
         String sQidianid = (new File(txtPath)).getName().replace(".txt", ""); // 文件名
-
-        if ( ! txt.contains("更新时间") ) { // 非起点文本
-        	String sBookid = String.valueOf(insertbook(sQidianid, "txt", "00", oDB)); // 新增书籍 并 获取id
-            db.beginTransaction();// 开启事务
-            try {
-                BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(txtPath), txtEnCoding));
-                StringBuilder chunkStr = new StringBuilder(65536);
-                int chunkLen = 0;
-                int chunkCount = 0;
-                String line = null;
-				int lineLen = 0;
-                while ((line = br.readLine()) != null) {
-                    if ( line.startsWith("　　") ) { // 去掉开头的空白
-                        line = line.replaceFirst("　　*", "");
-                    }
-					lineLen = line.length() ;
-                    chunkLen = chunkStr.length();
-                    if ( chunkLen > 2200 && lineLen < 22 && ( line.startsWith("第") || line.contains("卷") || line.contains("章") || line.contains("节") || line.contains("回") || line.contains("品") || lineLen > 2 ) ) {
-                        ++ chunkCount;
-                          db.execSQL("insert into page(bookid,name,content,CharCount) values(?,?,?,?)",
-                              new Object[] { sBookid, txtEnCoding + "_" + String.valueOf(chunkCount), chunkStr.toString(), String.valueOf(chunkStr.length()) });
-                        chunkStr = new StringBuilder(65536);
-                     }
-                     chunkStr.append(line).append("\n");
-                }
-                if ( chunkStr.length() > 0 ) {
-                     ++ chunkCount;
-                      db.execSQL("insert into page(bookid,name,content,CharCount) values(?,?,?,?)",
-                              new Object[] { "1", txtEnCoding + "_" + String.valueOf(chunkCount), chunkStr.toString(), String.valueOf(chunkStr.length()) });
-                }
-                br.close();
-                db.setTransactionSuccessful();// 设置事务的标志为True
-            } catch (IOException e) {
-                e.toString();
-             } finally {
-                db.endTransaction();// 结束事务,有两种情况：commit,rollback,  事务的提交或回滚是由事务的标志决定的,如果事务的标志为True，事务就会提交，否侧回滚,默认情况下事务的标志为False
-            }
-            return sQidianid;
-        }
-
         String sQidianURL = site_qidian.qidian_getIndexURL_Mobile(Integer.valueOf(sQidianid)); // URL
         String sBookName = sQidianid;
-        try {  // 第一行书名
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(txtPath), "GBK"));
-            sBookName =  br.readLine() ;
-            br.close();
-        } catch (Exception e) {
-            e.toString();
-        }
-        String sBookid = String.valueOf(insertbook(sBookName, sQidianURL, sQidianid, oDB)); // 新增书籍 并 获取id
 
-        String txtContent = site_qidian.qidian_getTextFromPageJS(txt.replace("\r\n", "\n")) + "\n<end>\n" ;
-        db.beginTransaction();// 开启事务
-        try {
-            Matcher mat = Pattern.compile("(?mi)^([^\\r\\n]+)[\\r\\n]{1,2}更新时间.*$[\\r\\n]{2,4}([^\\a]+?)(?=(^([^\\r\\n]+)[\\r\\n]{1,2}更新时间)|^<end>$)").matcher(txtContent);
-            while (mat.find()) {
-                db.execSQL("insert into page(bookid,name,content,CharCount) values(?,?,?,?)",
-                        new Object[] { sBookid, mat.group(1), mat.group(2).replace("\n\n", "\n"), String.valueOf(mat.group(2).length()) });
-            }
-            db.setTransactionSuccessful();// 设置事务的标志为True
-        } finally {
-            db.endTransaction();// 结束事务,有两种情况：commit,rollback,// 事务的提交或回滚是由事务的标志决定的,如果事务的标志为True，事务就会提交，否侧回滚,默认情况下事务的标志为False
+        // 新版要快很多，而且少了头部的无用章节
+        // 不过如果以后起点txt有结构变动的话，适应性可能不如旧版，故保留旧版
+        if ( isNew ) {
+    		String line[] = txt.split("\n");
+    		int lineCount = line.length;
+    		sBookName = line[0] ;
+    		String sBookid = String.valueOf(insertbook(sBookName, sQidianURL, sQidianid, oDB)); // 新增书籍 并 获取id
+    		int titleNum = 0 ; // base:0 包含
+    		int headNum = 0 ; // base:0  包含
+    		db.beginTransaction();// 开启事务
+    		for ( int i=3; i<lineCount; i++) { // 从第四行开始
+    			if (line[i].startsWith("更新时间")) { // 上一行为标题行
+    				titleNum = i - 1 ;
+    				headNum = i + 2 ;
+    			} else { // 非标题行
+    				if ( line[i].startsWith("<a href=") ) {
+    					// 在这里获取标题行，内容行
+    					// System.out.println(titleNum + " : " + headNum + " - " + i );
+    					StringBuilder sbd = new StringBuilder();
+    					for ( int j=headNum; j<i; j++)
+    						sbd.append(line[j]).append("\n");
+    					sbd.append("\n");
+    					db.execSQL("insert into page(bookid,name,content,CharCount) values(?,?,?,?)",
+            					new Object[] { sBookid, line[titleNum], sbd.toString(), String.valueOf(sbd.length()) });
+    				}
+    			}
+    		}
+    		db.setTransactionSuccessful();// 设置事务的标志为True
+    		db.endTransaction();
+        } else {
+        	try {  // 第一行书名
+        		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(txtPath), "GBK"));
+        		sBookName =  br.readLine() ;
+        		br.close();
+        	} catch (Exception e) {
+        		e.toString();
+        	}
+        	String sBookid = String.valueOf(insertbook(sBookName, sQidianURL, sQidianid, oDB)); // 新增书籍 并 获取id
+
+        	String txtContent = site_qidian.qidian_getTextFromPageJS(txt) + "\n<end>\n" ;
+        	db.beginTransaction();// 开启事务
+        	try {
+        		Matcher mat = Pattern.compile("(?mi)^([^\\r\\n]+)[\\r\\n]{1,2}更新时间.*$[\\r\\n]{2,4}([^\\a]+?)(?=(^([^\\r\\n]+)[\\r\\n]{1,2}更新时间)|^<end>$)").matcher(txtContent);
+        		while (mat.find()) {
+        			db.execSQL("insert into page(bookid,name,content,CharCount) values(?,?,?,?)",
+        					new Object[] { sBookid, mat.group(1), mat.group(2).replace("\n\n", "\n"), String.valueOf(mat.group(2).length()) });
+        		}
+        		db.setTransactionSuccessful();// 设置事务的标志为True
+        	} finally {
+        		db.endTransaction();// 结束事务,有两种情况：commit,rollback,// 事务的提交或回滚是由事务的标志决定的,如果事务的标志为True，事务就会提交，否侧回滚,默认情况下事务的标志为False
+        	}
         }
+        // Log.e("XX", "耗时: " + (System.currentTimeMillis() - sTime));
         return sBookName;
     }
+
+	private static String importNormalTxt(String txtPath, FoxMemDB oDB, String txtEnCoding) {
+//        String txtEnCoding = FoxBookLib.detectTxtEncoding(txtPath) ; // 猜测中文文本编码 返回: "GBK" 或 "UTF-8"
+//        String txt = FoxBookLib.readText(txtPath, txtEnCoding) ;
+
+        String fileName = (new File(txtPath)).getName().replace(".txt", ""); // 文件名
+        SQLiteDatabase db = oDB.getDB();
+        String sBookid = String.valueOf(insertbook(fileName, "txt", "00", oDB)); // 新增书籍 并 获取id
+
+        db.beginTransaction();// 开启事务
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(txtPath), txtEnCoding));
+            StringBuilder chunkStr = new StringBuilder(65536);
+            int chunkLen = 0;
+            int chunkCount = 0;
+            String line = null;
+			int lineLen = 0;
+            while ((line = br.readLine()) != null) {
+                if ( line.startsWith("　　") ) // 去掉开头的空白
+                    line = line.replaceFirst("　　*", "");
+
+				lineLen = line.length() ;
+                chunkLen = chunkStr.length();
+                if ( chunkLen > 2200 && lineLen < 22 && ( line.startsWith("第") || line.contains("卷") || line.contains("章") || line.contains("节") || line.contains("回") || line.contains("品") || lineLen > 2 ) ) {
+                    ++ chunkCount;
+                      db.execSQL("insert into page(bookid,name,content,CharCount) values(?,?,?,?)",
+                          new Object[] { sBookid, txtEnCoding + "_" + String.valueOf(chunkCount), chunkStr.toString(), String.valueOf(chunkStr.length()) });
+                    chunkStr = new StringBuilder(65536);
+                 }
+                 chunkStr.append(line).append("\n");
+            }
+            if ( chunkStr.length() > 0 ) {
+                 ++ chunkCount;
+                  db.execSQL("insert into page(bookid,name,content,CharCount) values(?,?,?,?)",
+                          new Object[] { "1", txtEnCoding + "_" + String.valueOf(chunkCount), chunkStr.toString(), String.valueOf(chunkStr.length()) });
+            }
+            br.close();
+            db.setTransactionSuccessful();// 设置事务的标志为True
+        } catch (IOException e) {
+            e.toString();
+         } finally {
+            db.endTransaction();// 结束事务,有两种情况：commit,rollback,  事务的提交或回滚是由事务的标志决定的,如果事务的标志为True，事务就会提交，否侧回滚,默认情况下事务的标志为False
+        }
+        return fileName;
+	}
 
     public static List<Map<String, Object>> getEbookChaters(boolean isHTMLOut, FoxMemDB db){
         return getEbookChaters(isHTMLOut, "all", db);

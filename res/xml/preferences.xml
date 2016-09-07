@@ -119,6 +119,12 @@
             android:title="一直显示滚动条" />
     </PreferenceCategory>
     <PreferenceCategory android:title="其他设置" >
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="isNewImportQDtxt"
+            android:summaryOff="旧方法，适应性更好"
+            android:summaryOn="新方法，更快，无相关章节"
+            android:title="导入起点txt时使用的方法" />
         <ListPreference
             android:defaultValue="github"
             android:dialogTitle="选择本软件升级线路"

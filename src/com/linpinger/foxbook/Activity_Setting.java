@@ -30,6 +30,7 @@ public class Activity_Setting extends Activity {
 		}
 
 		super.onCreate(savedInstanceState);
+		// addPreferencesFromResource(R.xml.preferences); // 当使用PreferenceActivity时
 		getFragmentManager().beginTransaction().replace(android.R.id.content, new PrefsFragement()).commit(); 
 
 		getActionBar().setDisplayHomeAsUpEnabled(true);  // 标题栏中添加返回图标
