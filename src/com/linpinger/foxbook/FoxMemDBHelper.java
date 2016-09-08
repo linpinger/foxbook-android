@@ -46,13 +46,14 @@ public class FoxMemDBHelper {
 
         // 新版要快很多，而且少了头部的无用章节
         // 不过如果以后起点txt有结构变动的话，适应性可能不如旧版，故保留旧版
-        if ( isNew ) {
+        if ( isNew ) { // 新版，可能有bug
     		String line[] = txt.split("\n");
     		int lineCount = line.length;
     		sBookName = line[0] ;
     		String sBookid = String.valueOf(insertbook(sBookName, sQidianURL, sQidianid, oDB)); // 新增书籍 并 获取id
     		int titleNum = 0 ; // base:0 包含
     		int headNum = 0 ; // base:0  包含
+			int lastEndNum = 0 ;
     		db.beginTransaction();// 开启事务
     		for ( int i=3; i<lineCount; i++) { // 从第四行开始
     			if (line[i].startsWith("更新时间")) { // 上一行为标题行
@@ -60,6 +61,8 @@ public class FoxMemDBHelper {
     				headNum = i + 2 ;
     			} else { // 非标题行
     				if ( line[i].startsWith("<a href=") ) {
+						if ( i - lastEndNum < 5 ) // 有些txt章节尾部有两行链接，醉了
+							continue;
     					// 在这里获取标题行，内容行
     					// System.out.println(titleNum + " : " + headNum + " - " + i );
     					StringBuilder sbd = new StringBuilder();
@@ -68,12 +71,13 @@ public class FoxMemDBHelper {
     					sbd.append("\n");
     					db.execSQL("insert into page(bookid,name,content,CharCount) values(?,?,?,?)",
             					new Object[] { sBookid, line[titleNum], sbd.toString(), String.valueOf(sbd.length()) });
+						lastEndNum = i;
     				}
     			}
     		}
     		db.setTransactionSuccessful();// 设置事务的标志为True
     		db.endTransaction();
-        } else {
+        } else { // 旧版，稍微慢一点
         	try {  // 第一行书名
         		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(txtPath), "GBK"));
         		sBookName =  br.readLine() ;
