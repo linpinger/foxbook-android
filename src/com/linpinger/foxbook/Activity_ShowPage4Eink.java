@@ -46,8 +46,8 @@ public class Activity_ShowPage4Eink extends Activity {
 	SharedPreferences.Editor editor;
 	private String myBGcolor = "default" ;  // 背景:默认羊皮纸
 	private boolean isMapUpKey = false; // 是否映射上翻为下翻键
-	private boolean isFullScreen = false; // 下次是否全屏
-	private float sp_fontsize = 18; // 字体大小
+	private float fontsize = 36.0f; // 字体大小
+	private float paddingMultip  = 0.5f ; // 页边距 = 字体大小 * paddingMultip
 	private float lineSpaceingMultip = 1.5f ; // 行间距倍数
 
 	private long tLastPushEinkButton ;
@@ -96,8 +96,6 @@ public class Activity_ShowPage4Eink extends Activity {
 			pagename = pp.get("name");
 			pagetext = pp.get("content");
 
-			if ( pagename.length() > 21 ) // 标题文字太长，处理一下
-				pagename = pagename.substring(0, 20) + "…" ;
 			mv.setText(pagename, "　　" + pagetext.replace("\n", "\n　　"), bookname + "   " + pageid + " / " + allpagescount);
 			return 0;
 		}
@@ -118,8 +116,7 @@ public class Activity_ShowPage4Eink extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		settings = PreferenceManager.getDefaultSharedPreferences(this);
-		isFullScreen = settings.getBoolean("isFullScreen", isFullScreen);
-		if ( isFullScreen )
+		if ( settings.getBoolean("isFullScreen", false) )
 			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		this.setTheme(android.R.style.Theme_Holo_Light_NoActionBar); // 无ActionBar
@@ -132,6 +129,8 @@ public class Activity_ShowPage4Eink extends Activity {
 		setBGcolor(myBGcolor);
 		
 		mv = new FoxTextView(this); // 自定义View
+		mv.setBodyBold(settings.getBoolean("isBodyBold", false));
+
 		setContentView(mv);
 		this.registerForContextMenu(mv); // 绑定上下文菜单
 		mv.setOnTouchListener(new OnTouchListener(){ // 触摸事件
@@ -166,9 +165,13 @@ public class Activity_ShowPage4Eink extends Activity {
 		tLastPushEinkButton = System.currentTimeMillis();
 
         isMapUpKey = settings.getBoolean("isMapUpKey", isMapUpKey);
-		sp_fontsize = settings.getFloat("ShowPage_FontSize", sp_fontsize);
-		mv.setFontSizeSP(String.valueOf(sp_fontsize) + "f");
-		
+
+        fontsize = settings.getFloat("fontsize", (float)TOOLS.sp2px(this, 18.5f)); // 字体大小
+		mv.setFontSize(fontsize);
+
+		paddingMultip = settings.getFloat("paddingMultip", paddingMultip);
+		mv.setPadding(String.valueOf(paddingMultip) + "f");
+
 		lineSpaceingMultip = settings.getFloat("lineSpaceingMultip", lineSpaceingMultip);
 		mv.setLineSpaceing(String.valueOf(lineSpaceingMultip) + "f");
 				
@@ -223,8 +226,6 @@ public class Activity_ShowPage4Eink extends Activity {
 			} else {
 				bookid = Integer.valueOf(infox.get("bid")); // 翻页使用
 			}
-			if ( pagename.length() > 21 ) // 标题文字太长，处理一下
-				pagename = pagename.substring(0, 20) + "…" ;
 			allpagescount = oDB.getOneCell("select count(id) from page");
 			mv.setText(pagename, "　　" + pagetext.replace("\n", "\n　　"), bookname + "   " + pageid + " / " + allpagescount);
 		} 
@@ -237,21 +238,8 @@ public class Activity_ShowPage4Eink extends Activity {
 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-		if ( v == mv ) {
-			// menu.setHeaderTitle("菜单名");
+		if ( v == mv ) { // menu.setHeaderTitle("菜单名");
 			getMenuInflater().inflate(R.menu.showpage4eink, menu);
-			int itemcount = menu.size();
-			for ( int i=0; i< itemcount; i++){
-				switch (menu.getItem(i).getItemId()) {
-					case R.id.is_nextfullscreen:
-						menu.getItem(i).setChecked(isFullScreen);
-						break;
-					case R.id.is_mapupkey:
-						menu.getItem(i).setChecked(isMapUpKey);
-						break;
-				}
-			}
-
 		}
 		super.onCreateContextMenu(menu, v, menuInfo);
 	}
@@ -267,18 +255,52 @@ public class Activity_ShowPage4Eink extends Activity {
 			mv.postInvalidate();
 			break;
 		case R.id.sp_set_size_up: // 增大字体
-			++sp_fontsize;
-			mv.setFontSizeSP(String.valueOf(sp_fontsize) + "f");
-			editor.putFloat("ShowPage_FontSize", sp_fontsize);
-			editor.commit();
+			fontsize += 0.5f ;
+			mv.setFontSize(fontsize);
 			mv.postInvalidate();
+			editor.putFloat("fontsize", fontsize);
+			editor.commit();
+			foxtip("字体大小: " + fontsize);
 			break;
 		case R.id.sp_set_size_down: // 减小字体
-			--sp_fontsize;
-			mv.setFontSizeSP(String.valueOf(sp_fontsize) + "f");
-			editor.putFloat("ShowPage_FontSize", sp_fontsize);
-			editor.commit();
+			fontsize -= 0.5f ;
+			mv.setFontSize(fontsize);
 			mv.postInvalidate();
+			editor.putFloat("fontsize", fontsize);
+			editor.commit();
+			foxtip("字体大小: " + fontsize);
+			break;
+		case R.id.paddingup:  // 增大页边距
+			paddingMultip += 0.1f ;
+			mv.setPadding(String.valueOf(paddingMultip) + "f");
+			mv.postInvalidate();
+			editor.putFloat("paddingMultip", paddingMultip);
+			editor.commit();
+			foxtip("页边距: " + paddingMultip);
+			break;
+		case R.id.paddingdown:  // 减小页边距
+			paddingMultip -= 0.1f ;
+			mv.setPadding(String.valueOf(paddingMultip) + "f");
+			mv.postInvalidate();
+			editor.putFloat("paddingMultip", paddingMultip);
+			editor.commit();
+			foxtip("页边距: " + paddingMultip);
+			break;
+		case R.id.sp_set_linespace_up: // 加 行间距
+			lineSpaceingMultip += 0.05f ;
+			mv.setLineSpaceing(String.valueOf(lineSpaceingMultip) + "f");
+			mv.postInvalidate();
+			editor.putFloat("lineSpaceingMultip", lineSpaceingMultip);
+			editor.commit();
+			foxtip("行间距: " + lineSpaceingMultip);
+			break;
+		case R.id.sp_set_linespace_down: // 减 行间距
+			lineSpaceingMultip -= 0.05f ;
+			mv.setLineSpaceing(String.valueOf(lineSpaceingMultip) + "f");
+			mv.postInvalidate();
+			editor.putFloat("lineSpaceingMultip", lineSpaceingMultip);
+			editor.commit();
+			foxtip("行间距: " + lineSpaceingMultip);
 			break;
 		case R.id.userfont:
 			String nowFontPath = settings.getString("selectfont", "/sdcard/fonts/foxfont.ttf") ;
@@ -299,44 +321,8 @@ public class Activity_ShowPage4Eink extends Activity {
 		case R.id.bg_color9: // 设置背景
 			setBGcolor("default");
 			break;
-		case R.id.sp_set_linespace_up:
-			lineSpaceingMultip = settings.getFloat("lineSpaceingMultip", lineSpaceingMultip);
-			lineSpaceingMultip += 0.1 ;
-			mv.setLineSpaceing(String.valueOf(lineSpaceingMultip) + "f");
-			editor.putFloat("lineSpaceingMultip", lineSpaceingMultip);
-			editor.commit();
-			mv.postInvalidate();
-			break;
-		case R.id.sp_set_linespace_down:
-			lineSpaceingMultip = settings.getFloat("lineSpaceingMultip", lineSpaceingMultip);
-			lineSpaceingMultip -= 0.1 ;
-			mv.setLineSpaceing(String.valueOf(lineSpaceingMultip) + "f");
-			editor.putFloat("lineSpaceingMultip", lineSpaceingMultip);
-			editor.commit();
-			mv.postInvalidate();
-			break;
-		case R.id.is_nextfullscreen:
-			isFullScreen = ! item.isChecked();
-			item.setChecked(isFullScreen);
-			editor.putBoolean("isFullScreen", isFullScreen);
-			editor.commit();
-			if (isFullScreen) {
-				foxtip("下次是全屏模式，现在退出");
-			} else {
-				foxtip("下次不是全屏模式，现在退出");
-			}
-			foxExit();
-			break;
-		case R.id.is_mapupkey:
-			isMapUpKey = ! item.isChecked();
-			item.setChecked(isMapUpKey);
-			editor.putBoolean("isMapUpKey", isMapUpKey);
-			editor.commit();
-			if (isMapUpKey) {
-				foxtip("现在是上翻键功能为下翻");
-			} else {
-				foxtip("现在恢复上翻键功能");
-			}
+		case R.id.setting:
+			startActivity(new Intent(Activity_ShowPage4Eink.this, Activity_Setting.class));
 			break;
 		}
 		return true;
@@ -348,14 +334,10 @@ public class Activity_ShowPage4Eink extends Activity {
 	public boolean dispatchKeyEvent(KeyEvent event) {
 		int kc = event.getKeyCode() ;
 
-// foxtip("key: " + kc + " isMapUpKey: " + isMapUpKey + "\nEvent: " + event.toString());
-
 		// 莫名其妙的按一个按钮出现两个keyCode
 		if ( ( event.getAction() == KeyEvent.ACTION_UP ) & ( KeyEvent.KEYCODE_PAGE_DOWN == kc | KeyEvent.KEYCODE_PAGE_UP == kc | KeyEvent.KEYCODE_VOLUME_UP == kc | KeyEvent.KEYCODE_VOLUME_DOWN == kc ) ) {
 			if ( System.currentTimeMillis() - tLastPushEinkButton < 1000 ) { // 莫名其妙的会多按，也是醉了
 				tLastPushEinkButton = System.currentTimeMillis();
-//				foxtip("短\n\n\n\n\n\nXXXXX");
-//				if ( isCloseSmoothScroll )
 					return true ;
 			}
 			// 2016-8-15: BOOX C67ML Carta 左右翻页健对应: KEYCODE_PAGE_UP = 92, KEYCODE_PAGE_DOWN = 93

@@ -13,24 +13,21 @@
         android:id="@+id/sp_set_size_down"
         android:title="减小字体"/>
     <item
+        android:id="@+id/paddingup"
+        android:title="增大页边距"/>
+    <item
+        android:id="@+id/paddingdown"
+        android:title="减小页边距"/>
+    <item
         android:id="@+id/sp_set_linespace_up"
-        android:title="增大行间距"/>
+        android:title="加行间距"/>
     <item
         android:id="@+id/sp_set_linespace_down"
-        android:title="减小行间距"/>
+        android:title="减行间距"/>
     <item
         android:id="@+id/userfont"
         android:title="使用自定义字体"/>
-    <item
-        android:id="@+id/is_nextfullscreen"
-        android:checkable="true"
-        android:checked="false"
-        android:title="下次全屏"/>
-    <item
-        android:id="@+id/is_mapupkey"
-        android:checkable="true"
-        android:checked="false"
-        android:title="上翻映射为下翻"/>
+	<item android:id="@+id/setting" android:title="设置" />
     <item
         android:id="@+id/group1"
         android:title="+阅读背景">

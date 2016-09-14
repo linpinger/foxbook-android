@@ -24,14 +24,14 @@ public class View_FoxTextView extends View  {
 	String txt = "木有内容，真是个悲伤的消息";
 	String firstPageInfoL = "" ;   // 第一页时，在左侧信息处显示的信息
 	String infoL = "我是萌萌哒标题";
-	String infoR = "15:55 0%";
+	String infoR = "15:55  0%";
 	int batteryLevel = 0;
-	float fontSizeSP = 18 ;
 	float lineSpaceing = 1.5f ;
+	float paddingMulti = 0.5f ;
 	
 	
 //	private boolean bDrawSplitLine = false ;  // 调试用的
-	private int fontSize = 26 ; // E-ink:26 Mobile:34 Mi:26
+	private float fontSize = 36.0f ; // E-ink:26 Mobile:34 Mi:26
 	private boolean bUseUserFont = false ; // 使用用户字体
 	private String userFontPath = "/sdcard/fonts/foxfont.ttf"; // 用户字体路径
 	
@@ -39,6 +39,7 @@ public class View_FoxTextView extends View  {
 //	private float clickY = 0 ;
 	private int nowPageNum = 0 ; // 第一屏为0
 	private boolean isLastPage = false ; //是否在最后一页
+	private boolean isBodyBold = false ; // 正文是否加粗
 	
 	public View_FoxTextView(Context context) {
 		super(context);
@@ -49,13 +50,16 @@ public class View_FoxTextView extends View  {
 		p.setSubpixelText(true); 
 		p.setColor(Color.BLACK);  // 颜色
 
-		fontSize = TOOLS.sp2px(ctx, fontSizeSP);
+		fontSize = (float)TOOLS.sp2px(ctx, 18.5f);
 		
 		bc_rcv = new FoxBroadcastReceiver();
 		ctx.registerReceiver(bc_rcv, new IntentFilter(Intent.ACTION_BATTERY_CHANGED)); // 电量变动
 		ctx.registerReceiver(bc_rcv, new IntentFilter(Intent.ACTION_TIME_CHANGED)); // 时间变动 ACTION_TIME_TICK
 	}
-	
+
+	public void setBodyBold(boolean bBold) {
+		isBodyBold = bBold ;
+	}
 
 	@Override
 	protected void onDetachedFromWindow() {
@@ -93,7 +97,7 @@ public class View_FoxTextView extends View  {
 	}
 	
 	public void setInfoR() {
-		infoR = (new java.text.SimpleDateFormat("HH:mm")).format(new java.util.Date()) + "　" + batteryLevel + "%";
+		infoR = (new java.text.SimpleDateFormat("HH:mm")).format(new java.util.Date()) + "  " + batteryLevel + "%";
 	}
 
 	public void setText(String iTitle, String iTxt, String iFirstPageLinfo) {
@@ -107,11 +111,14 @@ public class View_FoxTextView extends View  {
 		this.setInfoR();
 	}
 
-	public void setFontSizeSP(String inFSSP) { // "18f"
-		fontSize = TOOLS.sp2px(ctx, Float.valueOf(inFSSP));
+	public void setFontSize(float inFontSizePX) {
+		fontSize = inFontSizePX;
 	}
 	public void setLineSpaceing(String inLS) {// "1.5f"
 		lineSpaceing = Float.valueOf(inLS);
+	}
+	public void setPadding(String floatFontSizeMultiple) { // 0.5f
+		paddingMulti = Float.valueOf(floatFontSizeMultiple) ;
 	}
 
 	public boolean setUserFontPath(String fontPath) {
@@ -136,7 +143,7 @@ public class View_FoxTextView extends View  {
  		// super.onDraw(canvas);
 		// 计算参数
 		float lineHeight = fontSize * lineSpaceing ;
-		float padding = fontSize * 0.5f ;
+		float padding = fontSize * paddingMulti ;
 		
 		// 获取画布的大小
 		int cw = canvas.getWidth();
@@ -170,7 +177,7 @@ public class View_FoxTextView extends View  {
 		int lineCount = lines.size();
 
 		// 计算每屏最多行数
-		int linePerScreen = (int) Math.floor( (ch - 2 * padding) / lineHeight);
+		int linePerScreen = (int) Math.floor( (ch - padding) / lineHeight);
 		int nowPageCount = (int) Math.ceil( lineCount / Double.valueOf((String.valueOf(linePerScreen) + ".0")) );  // 屏数
 		if (nowPageNum == -6) // 向上翻，回到尾部
 			nowPageNum = nowPageCount - 1 ;
@@ -187,39 +194,46 @@ public class View_FoxTextView extends View  {
 		// 按计算绘制
 		int drawCount = 0;
 		for ( int lineidx = startLineNum; lineidx < lineCount; lineidx++) {
-//		int lineidx = -1;
-//		for ( String line : lines ) {
-//			++ lineidx;
 //Log.e("XX", "LC=" + lineidx + " DC=" + drawCount + " text=" + line);
-//			if ( lineidx < startLineNum )
-//				continue;
 			if ( lineidx > endLineNum )
 				break;
 			++ drawCount;
 			if ( lineidx == 0 ) { // 第一行当作标题
 				p.setFakeBoldText(true);
-				p.setTextSize(lineHeight - padding / 4 * 3 );
+				p.setTextSize(lineHeight - padding * 0.5f );
 				float titleX = ( cw - p.measureText(infoL)) / 2;
 				if ( titleX < 0 )
 					titleX = padding ;
 				canvas.drawText(infoL, titleX, lineHeight, p);
 				p.setTextSize(fontSize);
-				p.setFakeBoldText(false);
+				if ( ! isBodyBold )
+					p.setFakeBoldText(false);
 			} else {
-//				canvas.drawText(line, padding, lineHeight * drawCount, p);
 				canvas.drawText(lines.get(lineidx), padding, lineHeight * drawCount, p);
 			}
 		}
 
 		// 绘制底部信息
-		p.setTextSize(fontSize / 5 * 2 + padding / 2);
-//		if ( infoL.length() > 21 ) // 标题文字太长，处理一下
-//			infoL = infoL.substring(0, 20) + "…" ;
-		if ( 0 == nowPageNum )
-			canvas.drawText("本章共 " + nowPageCount + " 页    " + firstPageInfoL, padding, ch - padding / 2, p);
-		else
-			canvas.drawText(nowPageNum + 1 + " / " + nowPageCount + "  " + infoL, padding, ch - padding / 2, p);
-		canvas.drawText(infoR, cw - padding - 7 * fontSize / 2 , ch - padding / 2, p);
+//		p.setColor(Color.DKGRAY);  // 颜色
+//		p.setTextSize(fontSize * 0.4f + padding * 0.5f);
+//		float infoY = ch - padding / 2 ;
+		p.setTextSize( (ch - linePerScreen * lineHeight) / 2 );
+		float infoY = ch - (ch - linePerScreen * lineHeight) / 4 ;
+		float infoRLen = p.measureText(infoR);
+		canvas.drawText(infoR, cw - padding - infoRLen , infoY, p); // 右侧时间 电量
+		// 左侧信息
+		if ( 0 == nowPageNum ) { // 首页
+			canvas.drawText("1 / " + nowPageCount + "  " + firstPageInfoL, padding, infoY, p);
+			// canvas.drawText("本章共 " + nowPageCount + " 页    " + firstPageInfoL, padding, ch - padding / 2, p);
+		} else { // 非首页，截断过长标题
+			String newInfoL = ( nowPageNum + 1 ) + " / " + nowPageCount + "  " + infoL ;
+			int infoLen = p.breakText(newInfoL, true, cw - 2 * padding - infoRLen - fontSize, null);
+			String addStr = "";
+			if ( infoLen < newInfoL.length() )
+				addStr = "…" ;
+			canvas.drawText(newInfoL.substring(0, infoLen) + addStr, padding, infoY, p);
+		}
+//		p.setColor(Color.BLACK);  // 颜色
 	} // onDraw结束
 	
 	private ArrayList<String> split2lines(String inText, Paint p, float maxWidth) {

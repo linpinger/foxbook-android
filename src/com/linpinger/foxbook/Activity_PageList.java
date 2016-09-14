@@ -347,7 +347,9 @@ public class Activity_PageList extends ListActivity {
 		case R.id.jumplist_tomiddle:
 			lv_pagelist.setSelection((int)( 0.5 * ( adapter.getCount() - 1 ) ));
 			break;
-		
+		case R.id.pl_finish:
+			onBackPressed();
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}

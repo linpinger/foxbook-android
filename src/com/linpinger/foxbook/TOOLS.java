@@ -22,6 +22,19 @@ public class TOOLS {
         return (int) (spValue * fontScale + 0.5f);  
     }
 
+	/** 
+     * 将px值转换为sp值，保证文字大小不变 
+     *  
+     * @param pxValue 
+     * @param fontScale 
+     *            （DisplayMetrics类中属性scaledDensity） 
+     * @return 
+     */  
+    public static int px2sp(Context context, float pxValue) {  
+        final float fontScale = context.getResources().getDisplayMetrics().scaledDensity;  
+        return (int) (pxValue / fontScale + 0.5f);  
+    }
+
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static void download(String iURL, String saveName, Context ctx) {
 		DownloadManager downloadManager = (DownloadManager)ctx.getSystemService(Context.DOWNLOAD_SERVICE);

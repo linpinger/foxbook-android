@@ -51,7 +51,7 @@ public class Activity_ShowPage extends Activity {
 	private boolean isCloseSmoothScroll = false; // 关闭平滑滚动
 	private boolean isShowScrollBar = false; // 是否显示滚动条/自动隐藏
 	private boolean bHideActionBar = false ;
-	private float sp_fontsize = 19; // 字体大小
+	private float sp_fontsize = 18.5f; // 字体大小
 	private float lineSpaceingMultip = 1.3f ; // 行间距倍数
 	
 
