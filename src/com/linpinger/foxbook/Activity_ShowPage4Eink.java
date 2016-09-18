@@ -1,5 +1,6 @@
 package com.linpinger.foxbook;
 
+import java.io.File;
 import java.util.Map;
 
 import android.annotation.TargetApi;
@@ -7,6 +8,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -216,16 +218,14 @@ public class Activity_ShowPage4Eink extends Activity {
 		
 		if ( SITES.FROM_DB == foxfrom ){ // DB
 			pageid =  itt.getIntExtra("chapter_id", 0);
-			Map<String,String> infox = oDB.getOneRow("select page.bookid as bid, page.Content as cc, page.Name as naa, book.name as bnn from book,page where page.bookid=book.id and page.id = " + pageid + " and page.Content is not null");
+			Map<String,String> infox = oDB.getOneRow("select page.bookid as bid, page.Content as cc, page.Name as naa, book.name as bnn from book,page where page.bookid=book.id and page.id = " + pageid ); // + " and page.Content is not null");
+			bookid = Integer.valueOf(infox.get("bid")); // 翻页使用
 			pagetext = infox.get("cc") ;
 			pagename = infox.get("naa") ;
 			bookname = infox.get("bnn") ;
 
-			if ( null == pagetext  ) {
+			if ( null == pagetext | pagetext.length() < 5  )
 				pagetext = "本章节内容还没下载，请回到列表，更新本书或本章节" ;
-			} else {
-				bookid = Integer.valueOf(infox.get("bid")); // 翻页使用
-			}
 			allpagescount = oDB.getOneCell("select count(id) from page");
 			mv.setText(pagename, "　　" + pagetext.replace("\n", "\n　　"), bookname + "   " + pageid + " / " + allpagescount);
 		} 
@@ -302,13 +302,6 @@ public class Activity_ShowPage4Eink extends Activity {
 			editor.commit();
 			foxtip("行间距: " + lineSpaceingMultip);
 			break;
-		case R.id.userfont:
-			String nowFontPath = settings.getString("selectfont", "/sdcard/fonts/foxfont.ttf") ;
-			if ( ! mv.setUserFontPath(nowFontPath) )
-				foxtip("字体不存在:\n" + nowFontPath);
-			else
-				mv.postInvalidate();
-			break;
 		case R.id.bg_color1:
 			setBGcolor("green");
 			break;
@@ -324,10 +317,45 @@ public class Activity_ShowPage4Eink extends Activity {
 		case R.id.setting:
 			startActivity(new Intent(Activity_ShowPage4Eink.this, Activity_Setting.class));
 			break;
+		case R.id.userfont:
+			String nowFontPath = settings.getString("selectfont", "/sdcard/fonts/foxfont.ttf") ;
+			if ( ! mv.setUserFontPath(nowFontPath) )
+				foxtip("字体不存在:\n" + nowFontPath);
+			else
+				mv.postInvalidate();
+			break;
+		case R.id.selectFont:
+			Intent itt = new Intent(Activity_ShowPage4Eink.this, Activity_FileChooser.class);
+			itt.putExtra("dir", "/sdcard/fonts/");
+			startActivityForResult(itt, 9);
+			break;
 		}
 		return true;
 	}
 	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (requestCode) {
+		case 9:  // 响应文件选择器的选择
+			if (resultCode == RESULT_OK) {
+				Uri uri = data.getData();
+				// 判断文件名后缀
+				String newFont = new File(uri.getPath()).getAbsolutePath();
+				String nowPATH = newFont.toLowerCase() ;
+				if ( nowPATH.endsWith(".ttf") | nowPATH.endsWith(".ttc") | nowPATH.endsWith(".otf") ) {
+					editor.putString("selectfont", newFont);
+					editor.commit();
+					foxtip(newFont);
+					mv.setUserFontPath(newFont);
+					mv.postInvalidate();
+				} else {
+					foxtip("要选择后缀为.ttf/.ttc/.otf的字体文件");
+				}
+			}
+			break;
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+	}
 
 
 	@Override

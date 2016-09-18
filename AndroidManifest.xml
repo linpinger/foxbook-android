@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.linpinger.foxbook"
     android:versionCode="5"
-    android:versionName="20160913" >
+    android:versionName="20160918" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -87,6 +87,10 @@
             android:name=".Activity_Setting"
             android:label="Fox的配置" >
         </activity>
-    </application>
+        <activity
+            android:name=".Activity_FileChooser"
+            android:label="Fox的文件选择器" >
+        </activity>
+</application>
 
 </manifest>

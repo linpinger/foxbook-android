@@ -1,5 +1,7 @@
 package com.linpinger.foxbook;
 
+import java.io.File;
+
 import android.annotation.TargetApi;
 import android.app.DownloadManager;
 import android.content.Context;
@@ -9,6 +11,24 @@ import android.text.ClipboardManager;
 
 
 public class TOOLS {
+	
+	public static boolean deleteDir(File dir) {
+		if (dir.isDirectory()) {
+			String[] children = dir.list(); // 递归删除目录中的子目录下
+			for (int i = 0; i < children.length; i++) {
+				if (! deleteDir(new File(dir, children[i])) ) {
+					return false;
+				}
+			}
+		} // 目录此时为空，可以删除
+		boolean bDeleted = false ;
+		try {
+			bDeleted = dir.delete();
+		} catch (Exception e) {
+			e.toString();
+		}
+		return bDeleted;
+	}
     /** 
      * 将sp值转换为px值，保证文字大小不变 
      *  
