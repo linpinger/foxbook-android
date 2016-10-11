@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import android.annotation.TargetApi;
-import android.app.ListActivity;
+// import android.app.ListActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -20,7 +20,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
-public class Activity_Qidian_Txt_Viewer extends ListActivity {
+public class Activity_Qidian_Txt_Viewer extends ListActivity_Eink {
 	private List<Map<String, Object>> data;
 	private ListView lv_pagelist ;
 	SimpleAdapter adapter;
@@ -163,12 +163,17 @@ public class Activity_Qidian_Txt_Viewer extends ListActivity {
 			break;
 		case R.id.jumplist_tobottom:
 			lv_pagelist.setSelection(adapter.getCount() - 1);
+			setItemPos4Eink(adapter.getCount() - 1);
 			break;
 		case R.id.jumplist_totop:
 			lv_pagelist.setSelection(0);
+			setItemPos4Eink(); // 滚动位置放到头部
 			break;
 		case R.id.jumplist_tomiddle:
-			lv_pagelist.setSelection((int)( 0.5 * ( adapter.getCount() - 1 ) ));
+			int midPos = adapter.getCount() / 2 - 1 ;
+			lv_pagelist.setSelection(midPos);
+			setItemPos4Eink(midPos);
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}

@@ -12,7 +12,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
-import android.app.ListActivity;
+// import android.app.ListActivity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.DialogInterface;
@@ -29,7 +29,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
-public class Activity_FileChooser extends ListActivity {
+public class Activity_FileChooser extends ListActivity_Eink {
 	ListView lv ;
 	SimpleAdapter adapter ;
 	List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
@@ -124,6 +124,7 @@ public class Activity_FileChooser extends ListActivity {
 		Collections.sort(data, new ComparatorName()); // 排序
 		
 		adapter.notifyDataSetChanged();
+		this.setItemPos4Eink(); // 滚动位置放到头部
 		// refreshListView();
 	}
 

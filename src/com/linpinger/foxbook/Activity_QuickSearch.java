@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import android.annotation.TargetApi;
-import android.app.ListActivity;
+// import android.app.ListActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -22,7 +22,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class Activity_QuickSearch extends ListActivity {
+public class Activity_QuickSearch extends ListActivity_Eink {
 	public static FoxMemDB oDB;
 	private ListView lv_sitelist ;
 	SimpleAdapter adapter;

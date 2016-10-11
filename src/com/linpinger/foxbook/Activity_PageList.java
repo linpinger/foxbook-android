@@ -6,7 +6,7 @@ import java.util.Map;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
-import android.app.ListActivity;
+// import android.app.ListActivity;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -26,7 +26,7 @@ import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 
-public class Activity_PageList extends ListActivity {
+public class Activity_PageList extends ListActivity_Eink {
 	public static FoxMemDB oDB;
 	
 	SharedPreferences settings;
@@ -161,6 +161,7 @@ public class Activity_PageList extends ListActivity {
 									}
 									adapter.notifyDataSetChanged();
 									foxtip("已删除并记录: <= " + lcName);
+									setItemPos4Eink(); // 滚动位置放到头部
 									break;
 								case 3:
 									FoxMemDBHelper.delete_nowupdown_Pages(lcID, true, false, oDB);
@@ -169,6 +170,7 @@ public class Activity_PageList extends ListActivity {
 									}
 									adapter.notifyDataSetChanged();
 									foxtip("已删除: <= " + lcName);
+									setItemPos4Eink(); // 滚动位置放到头部
 									break;
 								case 4:
 									FoxMemDBHelper.delete_nowupdown_Pages(lcID, false, true, oDB);
@@ -310,6 +312,9 @@ public class Activity_PageList extends ListActivity {
 		case android.R.id.home: // 返回图标
 			onBackPressed();
 			break;
+		case R.id.pl_finish:
+			onBackPressed();
+			break;
 		case R.id.pm_cleanBook:
 			FoxMemDBHelper.delete_Book_All_Pages(bookid, true, oDB);
 			foxtip("已删除并更新记录");
@@ -340,17 +345,19 @@ public class Activity_PageList extends ListActivity {
 			break;
 		case R.id.jumplist_tobottom:
 			lv_pagelist.setSelection(adapter.getCount() - 1);
+			setItemPos4Eink(adapter.getCount() - 1);
 			break;
 		case R.id.jumplist_totop:
 			lv_pagelist.setSelection(0);
+			setItemPos4Eink(); // 滚动位置放到头部
 			break;
 		case R.id.jumplist_tomiddle:
-			lv_pagelist.setSelection((int)( 0.5 * ( adapter.getCount() - 1 ) ));
-			break;
-		case R.id.pl_finish:
-			onBackPressed();
+			int midPos = adapter.getCount() / 2 - 1 ;
+			lv_pagelist.setSelection(midPos);
+			setItemPos4Eink(midPos);
 			break;
 		}
+		
 		return super.onOptionsItemSelected(item);
 	}
 	

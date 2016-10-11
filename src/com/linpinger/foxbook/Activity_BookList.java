@@ -11,7 +11,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
-import android.app.ListActivity;
+// import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,7 +32,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 @SuppressLint("SdCardPath")
-public class Activity_BookList extends ListActivity {
+public class Activity_BookList extends ListActivity_Eink {
 	
 	public FoxMemDB oDB  ; // 默认使用MemDB
 	public int downThread = 9 ;  // 页面下载任务线程数
