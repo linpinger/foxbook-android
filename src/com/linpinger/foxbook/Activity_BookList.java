@@ -492,6 +492,7 @@ if ( isCompareShelf ) {
 				R.layout.lv_item_booklist, new String[] { "name", "count" },
 				new int[] { R.id.tvName, R.id.tvCount });
 		lv_booklist.setAdapter(adapter);
+		setItemPos4Eink();
 		// adapter.notifyDataSetChanged();
 	}
 

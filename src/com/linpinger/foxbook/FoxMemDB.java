@@ -46,12 +46,16 @@ public class FoxMemDB {
 		return db;
 	}
 	
-	public void closeMemDB() {
-		vacuumMemDB();
+	public void closeMemDB(File saveDBPath) {
 		if ( this.isMemDB ) {
-			FoxMemDBBackupAndRestore(db, fDB, true); // 将旧的数据库保存到磁盘上
+			vacuumMemDB();
+			FoxMemDBBackupAndRestore(db, saveDBPath, true); // 将旧的数据库保存到磁盘上
 		}
 		db.close();
+	}
+
+	public void closeMemDB() {
+		closeMemDB(fDB);
 	}
 
 	public File switchMemDB() { // 切换数据库路径
@@ -70,11 +74,7 @@ public class FoxMemDB {
         }
         fDB = dbList.get(nowDBnum) ;
         
-        vacuumMemDB();
-		if ( this.isMemDB ) {
-        	FoxMemDBBackupAndRestore(db, oldDBPath, true); // 将旧的数据库保存到磁盘上
-		}
-        db.close();
+		closeMemDB(oldDBPath);
         
         createMemDB(fDB); // 导入新的
         return fDB;
