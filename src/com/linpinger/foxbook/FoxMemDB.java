@@ -50,6 +50,8 @@ public class FoxMemDB {
 		if ( this.isMemDB ) {
 			vacuumMemDB();
 			FoxMemDBBackupAndRestore(db, saveDBPath, true); // 将旧的数据库保存到磁盘上
+		} else {
+			db.execSQL("drop table if exists main.android_metadata;"); 
 		}
 		db.close();
 	}
