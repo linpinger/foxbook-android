@@ -529,7 +529,7 @@ public class FoxBookLib {
             }
             conn.setRequestProperty("Accept", "*/*");
             conn.setConnectTimeout(5000);
-            conn.setReadTimeout(15000);    // 读取超时15s
+            conn.setReadTimeout(5000);    // 读取超时5s
             conn.setUseCaches(false);     // Cache-Control: no-cache     Pragma: no-cache
             
             conn.connect();  // 开始连接
