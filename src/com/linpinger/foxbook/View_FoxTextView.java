@@ -41,6 +41,10 @@ public class View_FoxTextView extends View  {
 	private boolean isLastPage = false ; //是否在最后一页
 	private boolean isBodyBold = false ; // 正文是否加粗
 	
+	private ArrayList<String> lines ;
+	private int lastTxtHashCode = 0 ;
+	private float lastMaxWidth = 0 ;
+
 	public View_FoxTextView(Context context) {
 		super(context);
 		ctx = context ;
@@ -173,7 +177,15 @@ public class View_FoxTextView extends View  {
 		p.setStyle(Paint.Style.FILL) ;
 		p.setTextSize(fontSize);
 
-		ArrayList<String> lines = split2lines(txt, p, cw - 2 * padding); // 将内容拆成行
+		// 计算txt内容及maxwidth是否和上次相同，若有不同则重新生成lines，也就是说只在第一次生成，避免每次绘制都生成一次，这可是个耗时大户
+		int nowTxtHashCode = txt.hashCode();
+		float nowMaxWidth = cw - 2 * padding ;
+		if ( ( lastTxtHashCode != nowTxtHashCode ) || ( lastMaxWidth != nowMaxWidth ) ) {
+			lines = split2lines(txt, p, cw - 2 * padding); // 将内容拆成行
+			lastTxtHashCode = nowTxtHashCode ;
+			lastMaxWidth = nowMaxWidth ;
+		}
+
 		int lineCount = lines.size();
 
 		// 计算每屏最多行数
