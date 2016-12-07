@@ -1,6 +1,8 @@
 package com.linpinger.foxbook;
 
 import java.io.File;
+import java.io.LineNumberReader;
+import java.io.StringReader;
 import java.util.Map;
 
 import android.annotation.TargetApi;
@@ -28,22 +30,21 @@ import android.widget.Toast;
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class Activity_ShowPage4Eink extends Activity {
 	public static FoxMemDB oDB;
-	
+
 	FoxTextView mv;
 	private float cX = 0 ; // 点击View的坐标
 	private float cY = 0 ; // 点击View的坐标
 
-	
 	private int foxfrom = 0 ;  // 1=DB, 2=search 
 	private int bookid = 0 ; // 翻页时使用
 	private int pageid = 0 ;
 	private String pagetext = "暂缺" ;
 	private String pagename = "" ;
 	private String pageurl = "" ;
-	
+
 	private String bookname = "";
 	private String allpagescount = "0" ;
-	
+
 	SharedPreferences settings;
 	SharedPreferences.Editor editor;
 	private String myBGcolor = "default" ;  // 背景:默认羊皮纸
@@ -51,20 +52,21 @@ public class Activity_ShowPage4Eink extends Activity {
 	private float fontsize = 36.0f; // 字体大小
 	private float paddingMultip  = 0.5f ; // 页边距 = 字体大小 * paddingMultip
 	private float lineSpaceingMultip = 1.5f ; // 行间距倍数
+	private boolean isProcessLongOneLine = true; // 处理超长单行 > 4K
 
 	private long tLastPushEinkButton ;
 
 	private final int IS_REFRESH = 5 ;
-	
+
 	private int SE_TYPE = 1; // 搜索引擎
-	
-	
+
+
 	private class FoxTextView extends View_FoxTextView {
 
 		public FoxTextView(Context context) {
 			super(context);
 		}
-		
+
 		private int setPrevOrNextText(boolean isNextPage) {
 			String strNoMoreTip ;
 			String whereStrA;
@@ -78,7 +80,7 @@ public class Activity_ShowPage4Eink extends Activity {
 				whereStrA = "id < " + pageid + " and bookid = " + bookid + " and content is not null order by id desc limit 1" ;
 				whereStrB = "page.bookid=book.id and bookid < " + bookid + " and content is not null order by bookid desc, id desc limit 1";
 			}
-			
+
 			if ( 0 == pageid ) {
 				foxtip("亲，ID 为 0");
 				return -1;
@@ -98,6 +100,7 @@ public class Activity_ShowPage4Eink extends Activity {
 			pagename = pp.get("name");
 			pagetext = pp.get("content");
 
+			pagetext = ProcessLongOneLine(pagetext);
 			mv.setText(pagename, "　　" + pagetext.replace("\n", "\n　　"), bookname + "   " + pageid + " / " + allpagescount);
 			return 0;
 		}
@@ -112,9 +115,9 @@ public class Activity_ShowPage4Eink extends Activity {
 			return setPrevOrNextText(true); // 下一
 		}
 	}
-	
 
-	
+
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -129,7 +132,9 @@ public class Activity_ShowPage4Eink extends Activity {
         myBGcolor = settings.getString("myBGcolor", myBGcolor);
         editor = settings.edit(); // 获取设置
 		setBGcolor(myBGcolor);
-		
+
+		isProcessLongOneLine = settings.getBoolean("isProcessLongOneLine", isProcessLongOneLine);
+
 		mv = new FoxTextView(this); // 自定义View
 		mv.setBodyBold(settings.getBoolean("isBodyBold", false));
 
@@ -163,7 +168,7 @@ public class Activity_ShowPage4Eink extends Activity {
 				}
 			}
 		});
-		
+
 		tLastPushEinkButton = System.currentTimeMillis();
 
         isMapUpKey = settings.getBoolean("isMapUpKey", isMapUpKey);
@@ -176,7 +181,7 @@ public class Activity_ShowPage4Eink extends Activity {
 
 		lineSpaceingMultip = settings.getFloat("lineSpaceingMultip", lineSpaceingMultip);
 		mv.setLineSpaceing(String.valueOf(lineSpaceingMultip) + "f");
-				
+
 		Intent itt = getIntent();
 		foxfrom = itt.getIntExtra("iam", 0);       // 必需 表明数据从哪来的
 		pagename = itt.getStringExtra("chapter_name");
@@ -190,6 +195,7 @@ public class Activity_ShowPage4Eink extends Activity {
 					if ( sText.length() < 9 ) {
 						mv.setText("错误", "　　啊噢，可能处理的时候出现问题了哦\n\nURL: " + pageurl + "\nPageName: " + pagename + "\nContent:" + sText);
 					} else {
+						pagetext = ProcessLongOneLine(pagetext);
 						mv.setText(pagename, "　　" + sText.replace("\n", "\n　　"));
 					}
 					mv.postInvalidate();
@@ -215,7 +221,7 @@ public class Activity_ShowPage4Eink extends Activity {
 				handler.sendMessage(msg);
 			}
 		};
-		
+
 		if ( SITES.FROM_DB == foxfrom ){ // DB
 			pageid =  itt.getIntExtra("chapter_id", 0);
 			Map<String,String> infox = oDB.getOneRow("select page.bookid as bid, page.Content as cc, page.Name as naa, book.name as bnn from book,page where page.bookid=book.id and page.id = " + pageid ); // + " and page.Content is not null");
@@ -227,12 +233,13 @@ public class Activity_ShowPage4Eink extends Activity {
 			if ( null == pagetext | pagetext.length() < 5  )
 				pagetext = "本章节内容还没下载，请回到列表，更新本书或本章节" ;
 			allpagescount = oDB.getOneCell("select count(id) from page");
+			pagetext = ProcessLongOneLine(pagetext);
 			mv.setText(pagename, "　　" + pagetext.replace("\n", "\n　　"), bookname + "   " + pageid + " / " + allpagescount);
 		} 
 		if ( SITES.FROM_NET == foxfrom ){ // NET
 			new Thread(down_page).start();
 		}
-		
+
 	} // oncreate 结束
 
 
@@ -332,7 +339,7 @@ public class Activity_ShowPage4Eink extends Activity {
 		}
 		return true;
 	}
-	
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
@@ -402,7 +409,7 @@ public class Activity_ShowPage4Eink extends Activity {
 		myBGcolor = bgcolor ;
 		editor.putString("myBGcolor", myBGcolor);
 		editor.commit();
-		
+
 		if ( myBGcolor.equalsIgnoreCase("white") )
 			getWindow().setBackgroundDrawableResource(R.color.qd_mapp_bg_white); // 白色背景
 		if ( myBGcolor.equalsIgnoreCase("green") )
@@ -412,5 +419,30 @@ public class Activity_ShowPage4Eink extends Activity {
 		if ( myBGcolor.equalsIgnoreCase("gray") )
 			getWindow().setBackgroundDrawableResource(R.color.qd_mapp_bg_grey); // 灰色
 	}
-	
+
+	private String ProcessLongOneLine(String iText) {
+		if ( ! isProcessLongOneLine )
+			return iText ;
+
+//		long sTime = System.currentTimeMillis();
+
+		int sLen = iText.length(); // 字符数
+		int lineCount = 0 ; // 行数
+		try {
+			LineNumberReader lnr = new LineNumberReader(new StringReader(iText));
+			while ( null != lnr.readLine() )
+				++ lineCount;
+		} catch ( Exception e ) {
+			e.toString();
+		}
+		if ( ( sLen / lineCount ) > 200 ) { // 小于200(也许可以定到130)意味着换行符够多，处理的时候不会太卡，大于阈值200就得处理得到足够多的换行符
+//			Log.e("XX", "Cal : " + sLen + " / " +  lineCount + " >= 200 ");
+			iText = iText.replace("。", "。\n");
+			iText = iText.replace("\n\n", "\n");
+		}
+
+//		Log.e("TT", "Time=" + ( System.currentTimeMillis() - sTime ) ); 
+		return iText;
+	}
+
 }

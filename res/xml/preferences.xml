@@ -104,6 +104,12 @@
             android:key="selectfont"
             android:summary="阅读页字体选择(需存在文件选择器)"
             android:title="选择字体" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="isProcessLongOneLine"
+            android:summaryOff="不处理"
+            android:summaryOn="当字符与换行比大于阈值200处理"
+            android:title="是否预处理超长单行" />
     </PreferenceCategory>
     <PreferenceCategory android:title="旧版阅读页设置" >
         <CheckBoxPreference
