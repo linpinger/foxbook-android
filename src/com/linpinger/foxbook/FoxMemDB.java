@@ -41,6 +41,9 @@ public class FoxMemDB {
 		this.fDB = DBFile;
 		createMemDB(fDB);
 	}
+	public File getDBFile() {
+		return fDB;
+	}
 
 	public SQLiteDatabase getDB() {
 		return db;

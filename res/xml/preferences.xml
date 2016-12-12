@@ -104,6 +104,15 @@
             android:key="selectfont"
             android:summary="阅读页字体选择(需存在文件选择器)"
             android:title="选择字体" />
+        <Preference
+            android:key="exportEinkCFG"
+            android:summary="阅读页设置 to FoxBook.cfg"
+            android:title="导出阅读页设置" />
+        <Preference
+            android:key="importEinkCFG"
+            android:summary="阅读页设置 from FoxBook.cfg"
+            android:title="导入阅读页设置" />
+
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="isProcessLongOneLine"

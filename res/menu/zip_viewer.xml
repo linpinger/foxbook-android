@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/action_save_exit"
+        android:icon="@android:drawable/ic_menu_save"
+        android:showAsAction="always"
+        android:title="保存数据库并退出"/>
+    <item
+        android:id="@+id/jumplist_tobottom"
+        android:icon="@android:drawable/stat_sys_download_done"
+        android:title="跳到表尾"/>
+    <item
+        android:id="@+id/jumplist_totop"
+        android:title="表头"/>
+    <item
+        android:id="@+id/jumplist_tomiddle"
+        android:title="表中"/>
+
+</menu>

@@ -73,7 +73,7 @@ public class Activity_PageList extends ListActivity_Eink {
 	}
 
 	private void renderListView() { // 刷新LV
-		if (SITES.FROM_DB == foxfrom) {
+		if (SITES.FROM_DB == foxfrom || SITES.FROM_ZIP == foxfrom) {
 			adapter = new SimpleAdapter(this, data, R.layout.lv_item_pagelist,
 					new String[] { "name", "count" }, new int[] { R.id.tvName, R.id.tvCount });
 			lv_pagelist.setAdapter(adapter);
@@ -94,7 +94,7 @@ public class Activity_PageList extends ListActivity_Eink {
 				String tmpurl = (String) chapinfo.get("url");
 				String tmpname = (String) chapinfo.get("name");
 				Integer tmpid = (Integer) chapinfo.get("id");
-
+				
 				// setTitle(parent.getItemAtPosition(position).toString());
 				Intent intent ;
 				isUseNewPageView = settings.getBoolean("isUseNewPageView", isUseNewPageView);
@@ -110,6 +110,10 @@ public class Activity_PageList extends ListActivity_Eink {
 				intent.putExtra("chapter_name", tmpname);
 				intent.putExtra("chapter_url", FoxBookLib.getFullURL(bookurl, tmpurl));
 				intent.putExtra("searchengine", SE_TYPE);
+
+				if ( foxfrom == SITES.FROM_ZIP )
+					intent.putExtra("chapter_url", bookurl + "@" + tmpurl);
+
 				startActivity(intent);
 			}
 		};
@@ -261,9 +265,13 @@ public class Activity_PageList extends ListActivity_Eink {
 
 		setTitle(bookname + " : " + bookurl);
 
+		if ( bookurl.startsWith("zip://"))
+			foxfrom = SITES.FROM_ZIP ;
+
 		init_handler() ; // 初始化一个handler 用于处理后台线程的消息
  
-		if ( SITES.FROM_NET == foxfrom ) {
+		switch (foxfrom) {
+		case SITES.FROM_NET:
 			String html = itt.getStringExtra("html");
 			if (null == html) { // 没传入自己下载
 				new Thread(new DownTOC()).start();
@@ -274,10 +282,17 @@ public class Activity_PageList extends ListActivity_Eink {
 			} else {
 				data = FoxBookLib.tocHref(html, 0);
 			}
-		}
-		if ( SITES.FROM_DB == foxfrom) { // DB
+			break;
+		case SITES.FROM_DB:
 			bookid = itt.getIntExtra("bookid", 0);
 			data = FoxMemDBHelper.getPageList("where bookid=" + bookid, oDB); // 获取页面列表
+			break;
+		case SITES.FROM_ZIP:
+			bookid = itt.getIntExtra("bookid", 0);
+			data = FoxMemDBHelper.getPageList("where bookid=" + bookid, 26, oDB); // 获取页面列表
+			break;
+		default:
+			break;
 		}
 
 		renderListView();

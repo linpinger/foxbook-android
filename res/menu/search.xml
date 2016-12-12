@@ -27,7 +27,7 @@
         android:id="@+id/sm_copyURL"
         android:title="复制当前网址到剪贴板"/>
     <item
-        android:id="@+id/sm_downQDtxt"
-        android:title="下载起点Txt"/>
+        android:id="@+id/sm_downQDEpub"
+        android:title="下载起点Epub"/>
 
 </menu>

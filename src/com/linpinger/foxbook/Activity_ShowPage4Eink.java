@@ -3,7 +3,10 @@ package com.linpinger.foxbook;
 import java.io.File;
 import java.io.LineNumberReader;
 import java.io.StringReader;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -59,6 +62,8 @@ public class Activity_ShowPage4Eink extends Activity {
 	private final int IS_REFRESH = 5 ;
 
 	private int SE_TYPE = 1; // 搜索引擎
+	
+	private File ZIPFILE ;
 
 
 	private class FoxTextView extends View_FoxTextView {
@@ -71,20 +76,27 @@ public class Activity_ShowPage4Eink extends Activity {
 			String strNoMoreTip ;
 			String whereStrA;
 			String whereStrB;
+			String addSQL = " and content is not null ";
+
+			if ( foxfrom == SITES.FROM_ZIP )
+				addSQL = "" ;
+
 			if ( isNextPage ) {
 				strNoMoreTip = "亲，没有下一页了";
-				whereStrA = "id > " + pageid + " and bookid = " + bookid + " and content is not null limit 1" ;
-				whereStrB = "page.bookid=book.id and bookid > " + bookid + " and content is not null order by bookid, id limit 1";
+				whereStrA = "id > " + pageid + " and bookid = " + bookid + addSQL + " limit 1" ;
+				whereStrB = "page.bookid=book.id and bookid > " + bookid + addSQL + " order by bookid, id limit 1";
 			} else {
 				strNoMoreTip = "亲，没有上一页了";
-				whereStrA = "id < " + pageid + " and bookid = " + bookid + " and content is not null order by id desc limit 1" ;
-				whereStrB = "page.bookid=book.id and bookid < " + bookid + " and content is not null order by bookid desc, id desc limit 1";
+				whereStrA = "id < " + pageid + " and bookid = " + bookid + addSQL + " order by id desc limit 1" ;
+				whereStrB = "page.bookid=book.id and bookid < " + bookid + addSQL + " order by bookid desc, id desc limit 1";
 			}
 
 			if ( 0 == pageid ) {
 				foxtip("亲，ID 为 0");
 				return -1;
 			}
+			
+
 			Map<String,String> pp ;
 			pp = oDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where " + whereStrA); // 本书
 			if ( null == pp.get("id") ) {
@@ -99,6 +111,17 @@ public class Activity_ShowPage4Eink extends Activity {
 			bookid = Integer.valueOf(pp.get("bid"));
 			pagename = pp.get("name");
 			pagetext = pp.get("content");
+
+			if ( foxfrom == SITES.FROM_ZIP ) {
+				FoxZipReader z = new FoxZipReader(ZIPFILE);
+				String html = z.getHtmlFile(pp.get("url"), "UTF-8");
+				z.close();
+				if ( html.contains("\"tpc_content\"") ) {
+					HashMap<String, Object> cc = Activity_Zip_Viewer.page1024(html);
+					pagetext = cc.get("content").toString();
+					pagename = cc.get("title").toString();
+				}
+			}
 
 			pagetext = ProcessLongOneLine(pagetext);
 			mv.setText(pagename, "　　" + pagetext.replace("\n", "\n　　"), bookname + "   " + pageid + " / " + allpagescount);
@@ -222,7 +245,8 @@ public class Activity_ShowPage4Eink extends Activity {
 			}
 		};
 
-		if ( SITES.FROM_DB == foxfrom ){ // DB
+		switch (foxfrom) {
+		case SITES.FROM_DB: // DB
 			pageid =  itt.getIntExtra("chapter_id", 0);
 			Map<String,String> infox = oDB.getOneRow("select page.bookid as bid, page.Content as cc, page.Name as naa, book.name as bnn from book,page where page.bookid=book.id and page.id = " + pageid ); // + " and page.Content is not null");
 			bookid = Integer.valueOf(infox.get("bid")); // 翻页使用
@@ -235,10 +259,36 @@ public class Activity_ShowPage4Eink extends Activity {
 			allpagescount = oDB.getOneCell("select count(id) from page");
 			pagetext = ProcessLongOneLine(pagetext);
 			mv.setText(pagename, "　　" + pagetext.replace("\n", "\n　　"), bookname + "   " + pageid + " / " + allpagescount);
-		} 
-		if ( SITES.FROM_NET == foxfrom ){ // NET
+			break;
+		case SITES.FROM_NET: // NET
 			new Thread(down_page).start();
-		}
+			break;
+		case SITES.FROM_ZIP: // ZIP文件
+			pageid =  itt.getIntExtra("chapter_id", 0);
+			bookid = Integer.valueOf(oDB.getOneCell("select bookid from page where id = " + pageid )); // 翻页使用
+			allpagescount = oDB.getOneCell("select count(id) from page");
+			
+	    	Matcher mat = Pattern.compile("(?i)^zip://([^@]*?)@([^@]*)$").matcher(pageurl);
+	    	String zipRelPath = "";
+	    	String zipItemName = "";
+	    	while (mat.find()) {
+	    		zipRelPath = mat.group(1) ;
+	    		zipItemName = mat.group(2) ;
+	    	}
+	    	ZIPFILE = new File(oDB.getDBFile().getParent() + "/" + zipRelPath);
+			FoxZipReader z = new FoxZipReader(ZIPFILE);
+			String html = z.getHtmlFile(zipItemName, "UTF-8");
+			z.close();
+			if ( html.contains("\"tpc_content\"") ) {
+				HashMap<String, Object> cc = Activity_Zip_Viewer.page1024(html);
+				pagetext = cc.get("content").toString();
+				pagename = cc.get("title").toString();
+			}
+			mv.setText(pagename, "　　" + pagetext.replace("\n", "\n　　"), bookname + "   " + pageid + " / " + allpagescount);
+			break;
+		default:
+			break;
+		} // switch 结束
 
 	} // oncreate 结束
 

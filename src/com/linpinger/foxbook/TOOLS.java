@@ -1,17 +1,60 @@
 package com.linpinger.foxbook;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.util.Properties;
 
 import android.annotation.TargetApi;
 import android.app.DownloadManager;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.text.ClipboardManager;
 
 
 public class TOOLS {
 	
+	public static boolean myConfigImportExPort(Context ctx, boolean isExport) { // 导入导出阅读页配置，这个调整起来还是有点麻烦的
+		File cfgFile = new File( Environment.getExternalStorageDirectory().getPath() + "/FoxBook.cfg" );
+		SharedPreferences ps = PreferenceManager.getDefaultSharedPreferences(ctx);
+
+		if ( isExport ) { // 导出: DefaultSharedPreferences -> Properties
+			StringBuffer oStr = new StringBuffer();
+			oStr.append("fontsize=").append(ps.getFloat("fontsize", 36.0f)).append("\n")
+				.append("paddingMultip=").append(ps.getFloat("paddingMultip", 0.5f)).append("\n")
+				.append("lineSpaceingMultip=").append(ps.getFloat("lineSpaceingMultip", 1.5f)).append("\n")
+				.append("myBGcolor=").append(ps.getString("myBGcolor", "green")).append("\n")
+				.append("\n");
+			if ( cfgFile.exists() )
+				cfgFile.renameTo(new File(cfgFile.getPath() + ".old"));
+			FoxBookLib.writeText(oStr.toString(), cfgFile.getPath(), "UTF-8");
+			return true ;
+		} else { // 导入: DefaultSharedPreferences <- Properties
+			if ( ! cfgFile.exists() ) {
+				System.out.println("错误: FoxBook配置文件不存在，无法导入");
+				return false;
+			}
+			Properties pro = new Properties();
+			try {
+				FileInputStream inputFile = new FileInputStream(cfgFile);
+				pro.load(inputFile);
+				inputFile.close();
+			} catch ( Exception e ) {
+				System.out.println(e.toString());
+			}
+			Editor ed = ps.edit();
+			ed.putFloat("fontsize", Float.valueOf(pro.getProperty("fontsize")));
+			ed.putFloat("paddingMultip", Float.valueOf(pro.getProperty("paddingMultip")));
+			ed.putFloat("lineSpaceingMultip", Float.valueOf(pro.getProperty("lineSpaceingMultip")));
+			ed.putString("myBGcolor", pro.getProperty("myBGcolor"));
+			return ed.commit();
+		}
+	}
+
 	public static boolean deleteDir(File dir) {
 		if (dir.isDirectory()) {
 			String[] children = dir.list(); // 递归删除目录中的子目录下

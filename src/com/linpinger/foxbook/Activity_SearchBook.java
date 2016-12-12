@@ -275,8 +275,8 @@ public class Activity_SearchBook extends Activity {
 		case R.id.sm_copyURL:
 			this.funcCopyURL();
 			break;
-		case R.id.sm_downQDtxt:
-			this.funcDownQDtxt();
+		case R.id.sm_downQDEpub:
+			this.funcDownQDEbook();
 			break;
 		}
 		return super.onOptionsItemSelected(item);
@@ -289,7 +289,7 @@ public class Activity_SearchBook extends Activity {
 			funcCopyURL();
 			break;
 		case ItemA2:
-			funcDownQDtxt();
+			funcDownQDEbook();
 			break;
 		}
 		return true;
@@ -300,7 +300,7 @@ public class Activity_SearchBook extends Activity {
 		if ( v == this.btn_pre ) {
 			menu.setHeaderTitle("操作");
 			menu.add(9, ItemA1, 9, "复制网址到剪贴板"); // int groupId, int itemId, int order, CharSequence title
-			menu.add(9, ItemA2, 9, "下载起点Txt");
+			menu.add(9, ItemA2, 9, "下载起点Epub");
 		}
 	}
 	
@@ -311,12 +311,12 @@ public class Activity_SearchBook extends Activity {
 		return ua;
 	}
 	
-	private void funcDownQDtxt() {
+	private void funcDownQDEbook() {
 		String ub = wv.getUrl();
 		if (ub.contains(".qidian.com/")) {
 			String qidianID = String.valueOf(site_qidian.qidian_getBookID_FromURL(ub));
-			TOOLS.download("http://download.qidian.com/pda/" + qidianID + ".txt", qidianID + ".txt", this);
-			foxtip("开始下载: " + qidianID + ".txt");
+			TOOLS.download("http://download.qidian.com/epub/" + qidianID + ".epub", qidianID + ".epub", this);
+			foxtip("开始下载: " + qidianID + ".epub");
 		} else {
 			foxtip("非起点URL:\n" + ub);
 		}

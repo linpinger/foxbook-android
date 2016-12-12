@@ -26,6 +26,29 @@ import android.os.Environment;
 
 public class FoxMemDBHelper {
 
+	public static void importQidianEpub(FoxEpubReader epub, FoxMemDB oDB) { // 导入起点epub
+		HashMap<String, Object> qhm = epub.getQiDianEpubInfo();
+		String qidianid = qhm.get("qidianid").toString();
+		String sBookid = String.valueOf(FoxMemDBHelper.insertbook(qhm.get("bookname").toString()
+				, site_qidian.qidian_getIndexURL_Mobile(Integer.valueOf(qidianid)), qidianid, oDB));
+
+		// 导入内容到RamDB
+		String fileName ;
+		String pageTitle ;
+		String pageText ;
+		SQLiteDatabase db = oDB.getDB();
+		db.beginTransaction();// 开启事务
+		for ( HashMap<String, Object> hm : epub.getQiDianEpubTOC() ) {
+			fileName = hm.get("name").toString();
+			pageTitle = hm.get("title").toString();
+			pageText = epub.getQiDianEpubPage(fileName);
+			db.execSQL("insert into page(bookid,name,content,CharCount) values(?,?,?,?)",
+					new Object[] { sBookid, pageTitle, pageText, String.valueOf(pageText.length()) });
+		}
+		db.setTransactionSuccessful();// 设置事务的标志为True
+		db.endTransaction();
+
+	}
 	public static String importQidianTxt(String txtPath, FoxMemDB oDB) {
 		return importQidianTxt(txtPath, oDB, true); // 使用新方式，更快 
 	}
@@ -441,6 +464,10 @@ public class FoxMemDBHelper {
 	}
     public static List<Map<String, Object>> getPageList(String sqlWhereStr, int sMode, FoxMemDB db) { // 获取页面列表
         String sql = "select name, ID, URL,Bookid, length(content) from page " + sqlWhereStr ;
+		if ( sMode == 26 ) { // ZIP专用，显示字数
+			sql = "select name, ID, URL,Bookid, CharCount from page " + sqlWhereStr ;
+			sMode = 0;
+		}
         Cursor cursor = db.getDB().rawQuery(sql, null);
 
 		int lastBID = 0 ;

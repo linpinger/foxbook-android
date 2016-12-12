@@ -4,6 +4,8 @@ public class SITES {
     // 下面的常量是供Android各Activity使用的，它们会交换这些常量，并通过这些常量辨别网站类型
     public static final int FROM_DB = 1;
     public static final int FROM_NET = 2;
+    
+    public static final int FROM_ZIP = 26;
 	
     public static final int SE_SOGOU = 1;
     public static final int SE_YAHOO = 2;
