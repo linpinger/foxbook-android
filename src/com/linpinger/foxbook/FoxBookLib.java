@@ -23,6 +23,36 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 public class FoxBookLib {
+	
+	public static HashMap<String, Object> getPage1024(String html) { // 处理得到1024文本版的内容: title, content
+		// Used by: Activity_EBook_Viewer , Activity_ShowPage4Eink 
+		HashMap<String, Object> oM = new HashMap<String, Object>();
+
+		// 标题
+		// <center><b>查看完整版本: [-- <a href="read.php?tid=21" target="_blank">[11-14] 连城诀外传</a> --]</b></center>
+		Matcher mat2 = Pattern.compile("(?smi)<center><b>[^>]*?>([^<]*?)</a>").matcher(html);
+		while (mat2.find()) {
+			oM.put("title", mat2.group(1));
+		}
+
+		// 内容
+		String text = "";
+		html = html.replace("<script src=\"http://u.phpwind.com/src/nc.php\" language=\"JavaScript\"></script><br>", "")
+				.replaceAll("<br>[ 　]*", "<br>")
+				.replace("\r", "")
+				.replace("\n", "")
+				.replace("<br>", "\n")
+				.replace("&nbsp;", " ")
+				.replace("\n\n", "\n")
+				.replace("\n\n", "\n");
+		Matcher mat = Pattern.compile("(?smi)\"tpc_content\">(.*?)</td>").matcher(html);
+		while (mat.find()) {
+			text = text + mat.group(1) + "\n-----#####-----\n" ;
+		}
+		oM.put("content", text);
+
+		return oM ;
+	}
 
     public static List compare2GetNewPages(List<Map<String, Object>> aHTML, String DelList) {
         int htmlSize = aHTML.size();

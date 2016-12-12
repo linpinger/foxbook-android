@@ -42,8 +42,10 @@ public class FoxMemDBHelper {
 			fileName = hm.get("name").toString();
 			pageTitle = hm.get("title").toString();
 			pageText = epub.getQiDianEpubPage(fileName);
-			db.execSQL("insert into page(bookid,name,content,CharCount) values(?,?,?,?)",
-					new Object[] { sBookid, pageTitle, pageText, String.valueOf(pageText.length()) });
+			db.execSQL("insert into page(bookid,name, url,content,CharCount) values(?,?,?,?,?)",
+					new Object[] { sBookid, pageTitle
+					, site_qidian.qidian_getPageURL(Integer.valueOf(hm.get("pageid").toString()), Integer.valueOf(hm.get("bookid").toString()))
+					, pageText, String.valueOf(pageText.length()) });
 		}
 		db.setTransactionSuccessful();// 设置事务的标志为True
 		db.endTransaction();

@@ -117,7 +117,7 @@ public class Activity_ShowPage4Eink extends Activity {
 				String html = z.getHtmlFile(pp.get("url"), "UTF-8");
 				z.close();
 				if ( html.contains("\"tpc_content\"") ) {
-					HashMap<String, Object> cc = Activity_Zip_Viewer.page1024(html);
+					HashMap<String, Object> cc = FoxBookLib.getPage1024(html);
 					pagetext = cc.get("content").toString();
 					pagename = cc.get("title").toString();
 				}
@@ -280,7 +280,7 @@ public class Activity_ShowPage4Eink extends Activity {
 			String html = z.getHtmlFile(zipItemName, "UTF-8");
 			z.close();
 			if ( html.contains("\"tpc_content\"") ) {
-				HashMap<String, Object> cc = Activity_Zip_Viewer.page1024(html);
+				HashMap<String, Object> cc = FoxBookLib.getPage1024(html);
 				pagetext = cc.get("content").toString();
 				pagename = cc.get("title").toString();
 			}

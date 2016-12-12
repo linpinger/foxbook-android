@@ -51,20 +51,20 @@ public class FoxEpubReader {
     }
 
     public ArrayList<HashMap<String, Object>> getQiDianEpubTOC() {
-        ArrayList<HashMap<String, Object>> xx = new ArrayList<HashMap<String, Object>>(80);
-        String xml = getFileContent("toc.ncx");
-// <navPoint id="content1003656831_312845178" playOrder="5"><navLabel><text>第一章 与天斗，其乐无穷！</text></navLabel><content src="content1003656831_312845178.html"/></navPoint>
-        Matcher mat = Pattern.compile("(?smi)<navPoint.*?<text>(.*?)</text>.*?src=\"([^\"]*?)\"").matcher(xml);
-        HashMap<String, Object> hm ;
-        while (mat.find()) {
-            if ( mat.group(2).contains("content")) {
-                hm = new HashMap<String, Object>();
-                hm.put("title", mat.group(1));
-                hm.put("name", mat.group(2));
-                xx.add(hm);
-            }
-         }
-        return xx ;
+    	ArrayList<HashMap<String, Object>> xx = new ArrayList<HashMap<String, Object>>(80);
+    	String html = getFileContent("catalog.html");
+    	// <a href="content1004074281_325666373.html">楔子</a>
+    	Matcher mat = Pattern.compile("(?smi)<a href=\"(content([0-9]*)_([0-9]*).html)\">([^<]*)</a>").matcher(html);
+    	HashMap<String, Object> hm ;
+    	while (mat.find()) {
+    		hm = new HashMap<String, Object>();
+    		hm.put("title", mat.group(4));
+    		hm.put("name", mat.group(1));
+    		hm.put("bookid", mat.group(2));
+    		hm.put("pageid", mat.group(3));
+    		xx.add(hm);
+    	}
+    	return xx ;
     }
     
     public String getQiDianEpubPage(String itemName){

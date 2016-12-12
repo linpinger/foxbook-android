@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.linpinger.foxbook"
     android:versionCode="5"
-    android:versionName="20161211" >
+    android:versionName="20161212" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -69,8 +69,8 @@
             android:windowSoftInputMode="adjustUnspecified|stateHidden" >
         </activity>
         <activity
-            android:name=".Activity_Qidian_Txt_Viewer"
-            android:label="查看起点txt" >
+            android:name=".Activity_EBook_Viewer"
+            android:label="查看Txt/Zip/Epub" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -81,20 +81,6 @@
                 <data android:mimeType="*/*" />
                 <data android:host="*" />
                 <data android:pathPattern=".*.txt" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".Activity_Zip_Viewer"
-            android:label="查看Zip/Epub" >
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:scheme="file" /> <!-- content -->
-                <data android:mimeType="*/*" />
-                <data android:host="*" />
                 <data android:pathPattern=".*.zip" />
                 <data android:pathPattern=".*.epub" />
             </intent-filter>

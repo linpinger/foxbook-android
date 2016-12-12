@@ -13,7 +13,7 @@
         android:id="@+id/android:empty"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="\n　　读取Zip/Epub里文件列表中...\n\n　　萌萌哒 ^_^"
+        android:text="\n　　处理Txt/Zip/Epub文件中...\n\n　　萌萌哒 ^_^"
         android:textSize="16sp" />
 
 </LinearLayout>
