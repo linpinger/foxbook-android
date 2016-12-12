@@ -113,7 +113,7 @@ public class Activity_EBook_Viewer extends ListActivity_Eink {
 				System.out.println("Todo: 非起点epub读取");
 				return ;
 			}
-			FoxMemDBHelper.importQidianEpub(epub, oDB);
+			setTitle(FoxMemDBHelper.importQidianEpub(epub, oDB));
 			
 			epub.close();
 			data = FoxMemDBHelper.getPageList("", oDB); // 获取页面列表

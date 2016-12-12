@@ -26,7 +26,7 @@ import android.os.Environment;
 
 public class FoxMemDBHelper {
 
-	public static void importQidianEpub(FoxEpubReader epub, FoxMemDB oDB) { // 导入起点epub
+	public static String importQidianEpub(FoxEpubReader epub, FoxMemDB oDB) { // 导入起点epub
 		HashMap<String, Object> qhm = epub.getQiDianEpubInfo();
 		String qidianid = qhm.get("qidianid").toString();
 		String sBookid = String.valueOf(FoxMemDBHelper.insertbook(qhm.get("bookname").toString()
@@ -49,7 +49,7 @@ public class FoxMemDBHelper {
 		}
 		db.setTransactionSuccessful();// 设置事务的标志为True
 		db.endTransaction();
-
+		return qhm.get("bookname").toString();
 	}
 	public static String importQidianTxt(String txtPath, FoxMemDB oDB) {
 		return importQidianTxt(txtPath, oDB, true); // 使用新方式，更快 
