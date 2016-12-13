@@ -24,6 +24,7 @@ public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 	public final int ZIP = 26 ;        // 普通zip文件
 	public final int ZIP1024 = 1024 ;  // 1024 html 打包的zip
 	public final int EPUB = 500 ;      // 普通 epub文件 处理方式待定
+	public final int EPUBFOXMAKE = 506; //我生成的 epub
 	public final int EPUBQIDIAN = 517; // 起点 epub
 	public final int TXT = 200 ;       // 普通txt
 	public final int TXTQIDIAN = 217 ; // 起点txt
@@ -106,13 +107,22 @@ public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 			break;
 		case EPUB:
 		case EPUBQIDIAN:
+		case EPUBFOXMAKE:
 			FoxEpubReader epub = new FoxEpubReader(new File(eBookPath));
 			if ( epub.getTextFile("catalog.html").length() == 0 ) { // 非起点 epub
-				EBOOKTYPE = EPUB ;
-				System.out.println("Todo: 非起点epub读取");
-				return ;
+				if ( epub.getTextFile("FoxMake.htm").length() == 0 ) { // 非 FoxMake epub
+					EBOOKTYPE = EPUB ;
+					System.out.println("Todo: 暂不支持解析该Epub类型");
+					foxtip("暂不支持解析该Epub类型");
+					return ;
+				} else {
+					EBOOKTYPE = EPUBFOXMAKE;
+					setTitle(FoxMemDBHelper.importFoxMakeEpub(epub, oDB));
+				}
+			} else {
+				EBOOKTYPE = EPUBQIDIAN;
+				setTitle(FoxMemDBHelper.importQidianEpub(epub, oDB));
 			}
-			setTitle(FoxMemDBHelper.importQidianEpub(epub, oDB));
 			epub.close();
 			data = FoxMemDBHelper.getPageList("", oDB); // 获取页面列表
 
@@ -182,6 +192,7 @@ public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 
 		case EPUB:
 		case EPUBQIDIAN:
+		case EPUBFOXMAKE:
 		case TXT:
 		case TXTQIDIAN:
 			pageid = tmpid;

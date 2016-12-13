@@ -25,7 +25,30 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
 
 public class FoxMemDBHelper {
+	public static String importFoxMakeEpub(FoxEpubReader epub, FoxMemDB oDB) { // 导入FoxMake epub
+		String sBookid = String.valueOf(FoxMemDBHelper.insertbook("FoxMakeEpub", "fox.epub", "0", oDB));
 
+		String html = epub.getTextFile("FoxMake.htm");
+		// 导入内容到RamDB
+		String fileName ;
+		String pageTitle ;
+		String pageText ;
+		SQLiteDatabase db = oDB.getDB();
+		db.beginTransaction();// 开启事务
+	   	Matcher mat = Pattern.compile("(?smi)<a href=\"([^\"]*)\">([^<]*)</a>").matcher(html); // path, title
+    	while (mat.find()) {
+			fileName = mat.group(1);
+			pageTitle = mat.group(2);
+			pageText = ToolBookJava.pagetext(epub.getTextFile(fileName));
+			db.execSQL("insert into page(bookid,name, url,content,CharCount) values(?,?,?,?,?)",
+					new Object[] { sBookid, pageTitle
+					, fileName
+					, pageText, String.valueOf(pageText.length()) });
+		}
+		db.setTransactionSuccessful();// 设置事务的标志为True
+		db.endTransaction();
+		return "FoxMakeEpub";
+	}
 	public static String importQidianEpub(FoxEpubReader epub, FoxMemDB oDB) { // 导入起点epub
 		HashMap<String, Object> qhm = epub.getQiDianEpubInfo();
 		String qidianid = qhm.get("qidianid").toString();
