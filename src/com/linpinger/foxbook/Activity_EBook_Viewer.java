@@ -19,7 +19,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
-public class Activity_EBook_Viewer extends ListActivity_Eink {
+public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 	
 	public final int ZIP = 26 ;        // 普通zip文件
 	public final int ZIP1024 = 1024 ;  // 1024 html 打包的zip
@@ -100,21 +100,19 @@ public class Activity_EBook_Viewer extends ListActivity_Eink {
 			EBOOKTYPE = ZIP1024 ;
 			tmpBookID = FoxMemDBHelper.insertbook("zip", "http://127.0.0.1/", "5", oDB);
 			FoxZipReader z = new FoxZipReader(new File(eBookPath));
-			data = z.getList();
+			data = z.getFileList();
 			z.close();
 			renderListView();  // 处理好data后再刷新列表
 			break;
 		case EPUB:
 		case EPUBQIDIAN:
 			FoxEpubReader epub = new FoxEpubReader(new File(eBookPath));
-			
-			if ( epub.getFileContent("catalog.html").length() == 0 ) { // 非起点 epub
+			if ( epub.getTextFile("catalog.html").length() == 0 ) { // 非起点 epub
 				EBOOKTYPE = EPUB ;
 				System.out.println("Todo: 非起点epub读取");
 				return ;
 			}
 			setTitle(FoxMemDBHelper.importQidianEpub(epub, oDB));
-			
 			epub.close();
 			data = FoxMemDBHelper.getPageList("", oDB); // 获取页面列表
 
@@ -153,11 +151,9 @@ public class Activity_EBook_Viewer extends ListActivity_Eink {
 			String html = "";
 			HashMap<String, Object> cc = new HashMap<String, Object>();
 			if ( lowname.endsWith(".html") | lowname.endsWith(".htm") | lowname.endsWith(".txt") ) {
-				FoxZipReader z = new FoxZipReader(new File(eBookPath));
-				html = z.getHtmlFile(tmpname, "UTF-8");
-				z.close();
+				html = FoxZipReader.getUtf8TextFromZip(new File(eBookPath), tmpname);
 				if ( html.contains("\"tpc_content\"") )
-					cc = FoxBookLib.getPage1024(html);
+					cc = ToolBookJava.getPage1024(html);
 			} else {
 				foxtip("暂不支持这种格式的处理");
 				return ;

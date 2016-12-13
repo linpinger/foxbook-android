@@ -11,7 +11,14 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class FoxZipReader {
-	private ZipFile zf ;
+	protected ZipFile zf ;
+
+	public static String getUtf8TextFromZip(File zFile, String itemFileName) {
+		FoxZipReader z = new FoxZipReader(zFile);
+		String html = z.getTextFile(itemFileName);
+		z.close();
+		return html;
+	}
 
 	public FoxZipReader(File inZip) {
 		try {
@@ -20,8 +27,8 @@ public class FoxZipReader {
 			System.out.println(e.toString());
 		}
 	}
-	
-	public ArrayList<Map<String, Object>> getList() {
+
+	public ArrayList<Map<String, Object>> getFileList() {
 		ArrayList<Map<String, Object>> oList = new ArrayList<Map<String, Object>>(10240);
 		HashMap<String, Object> hm ;
 
@@ -36,10 +43,14 @@ public class FoxZipReader {
 		return oList;
 	}
 
-	public String getHtmlFile(String filename, String inFileEnCoding) {
+	public String getTextFile(String utf8file) {
+        return getTextFile(utf8file, "UTF-8");
+    }
+
+	public String getTextFile(String filename, String iTextFileEncoding) {
 		StringBuilder retStr = new StringBuilder(174080);
 		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(zf.getInputStream(zf.getEntry(filename)), inFileEnCoding));
+			BufferedReader br = new BufferedReader(new InputStreamReader(zf.getInputStream(zf.getEntry(filename)), iTextFileEncoding));
 			char[] chars = new char[4096]; // 这个大小不影响读取速度
             int length = 0;
             while ((length = br.read(chars)) > 0) {
@@ -51,8 +62,7 @@ public class FoxZipReader {
         }
 		return retStr.toString();
 	}
-	
-	
+
 	public void close() {
 		try {
 			zf.close();

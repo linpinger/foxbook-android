@@ -66,7 +66,7 @@ public class Activity_ShowPage4Eink extends Activity {
 	private File ZIPFILE ;
 
 
-	private class FoxTextView extends View_FoxTextView {
+	private class FoxTextView extends Ext_View_FoxTextView {
 
 		public FoxTextView(Context context) {
 			super(context);
@@ -113,11 +113,9 @@ public class Activity_ShowPage4Eink extends Activity {
 			pagetext = pp.get("content");
 
 			if ( foxfrom == SITES.FROM_ZIP ) {
-				FoxZipReader z = new FoxZipReader(ZIPFILE);
-				String html = z.getHtmlFile(pp.get("url"), "UTF-8");
-				z.close();
+				String html = FoxZipReader.getUtf8TextFromZip(ZIPFILE, pp.get("url"));
 				if ( html.contains("\"tpc_content\"") ) {
-					HashMap<String, Object> cc = FoxBookLib.getPage1024(html);
+					HashMap<String, Object> cc = ToolBookJava.getPage1024(html);
 					pagetext = cc.get("content").toString();
 					pagename = cc.get("title").toString();
 				}
@@ -196,7 +194,7 @@ public class Activity_ShowPage4Eink extends Activity {
 
         isMapUpKey = settings.getBoolean("isMapUpKey", isMapUpKey);
 
-        fontsize = settings.getFloat("fontsize", (float)TOOLS.sp2px(this, 18.5f)); // 字体大小
+        fontsize = settings.getFloat("fontsize", (float)ToolAndroid.sp2px(this, 18.5f)); // 字体大小
 		mv.setFontSize(fontsize);
 
 		paddingMultip = settings.getFloat("paddingMultip", paddingMultip);
@@ -232,7 +230,7 @@ public class Activity_ShowPage4Eink extends Activity {
 				String text = "";
 				switch(SE_TYPE) {
 				case SITES.SE_QIDIAN_MOBILE:
-					text = FoxBookLib.downhtml(pageurl, "GBK");
+					text = ToolBookJava.downhtml(pageurl, "GBK");
 					text = site_qidian.qidian_getTextFromPageJS(text);
 					break;
 				default:
@@ -276,11 +274,9 @@ public class Activity_ShowPage4Eink extends Activity {
 	    		zipItemName = mat.group(2) ;
 	    	}
 	    	ZIPFILE = new File(oDB.getDBFile().getParent() + "/" + zipRelPath);
-			FoxZipReader z = new FoxZipReader(ZIPFILE);
-			String html = z.getHtmlFile(zipItemName, "UTF-8");
-			z.close();
+	    	String html = FoxZipReader.getUtf8TextFromZip(ZIPFILE, zipItemName);
 			if ( html.contains("\"tpc_content\"") ) {
-				HashMap<String, Object> cc = FoxBookLib.getPage1024(html);
+				HashMap<String, Object> cc = ToolBookJava.getPage1024(html);
 				pagetext = cc.get("content").toString();
 				pagename = cc.get("title").toString();
 			}

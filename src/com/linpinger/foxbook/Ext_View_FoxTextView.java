@@ -14,7 +14,7 @@ import android.graphics.Typeface;
 import android.view.View;
 
 //在Activity中使用 View.setOnClickListener 绑定点击事件，免得自己来判断
-public class View_FoxTextView extends View  {
+public class Ext_View_FoxTextView extends View  {
 
 	private FoxBroadcastReceiver bc_rcv;
 	private Context ctx ;
@@ -45,7 +45,7 @@ public class View_FoxTextView extends View  {
 	private int lastTxtHashCode = 0 ;
 	private float lastMaxWidth = 0 ;
 
-	public View_FoxTextView(Context context) {
+	public Ext_View_FoxTextView(Context context) {
 		super(context);
 		ctx = context ;
 		
@@ -54,7 +54,7 @@ public class View_FoxTextView extends View  {
 		p.setSubpixelText(true); 
 		p.setColor(Color.BLACK);  // 颜色
 
-		fontSize = (float)TOOLS.sp2px(ctx, 18.5f);
+		fontSize = (float)ToolAndroid.sp2px(ctx, 18.5f);
 		
 		bc_rcv = new FoxBroadcastReceiver();
 		ctx.registerReceiver(bc_rcv, new IntentFilter(Intent.ACTION_BATTERY_CHANGED)); // 电量变动

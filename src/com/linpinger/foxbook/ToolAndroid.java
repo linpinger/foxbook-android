@@ -15,9 +15,8 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.ClipboardManager;
 
+public class ToolAndroid {
 
-public class TOOLS {
-	
 	public static boolean myConfigImportExPort(Context ctx, boolean isExport) { // 导入导出阅读页配置，这个调整起来还是有点麻烦的
 		File cfgFile = new File( Environment.getExternalStorageDirectory().getPath() + "/FoxBook.cfg" );
 		SharedPreferences ps = PreferenceManager.getDefaultSharedPreferences(ctx);
@@ -31,7 +30,7 @@ public class TOOLS {
 				.append("\n");
 			if ( cfgFile.exists() )
 				cfgFile.renameTo(new File(cfgFile.getPath() + ".old"));
-			FoxBookLib.writeText(oStr.toString(), cfgFile.getPath(), "UTF-8");
+			ToolJava.writeText(oStr.toString(), cfgFile.getPath() );
 			return true ;
 		} else { // 导入: DefaultSharedPreferences <- Properties
 			if ( ! cfgFile.exists() ) {
@@ -55,23 +54,6 @@ public class TOOLS {
 		}
 	}
 
-	public static boolean deleteDir(File dir) {
-		if (dir.isDirectory()) {
-			String[] children = dir.list(); // 递归删除目录中的子目录下
-			for (int i = 0; i < children.length; i++) {
-				if (! deleteDir(new File(dir, children[i])) ) {
-					return false;
-				}
-			}
-		} // 目录此时为空，可以删除
-		boolean bDeleted = false ;
-		try {
-			bDeleted = dir.delete();
-		} catch (Exception e) {
-			e.toString();
-		}
-		return bDeleted;
-	}
     /** 
      * 将sp值转换为px值，保证文字大小不变 
      *  
@@ -110,7 +92,7 @@ public class TOOLS {
 		// request.setMimeType("application/cn.trinea.download.file");
 		downloadManager.enqueue(request);
 	}
-	
+
 	public static void setcliptext(String content, Context ctx){ // 复制文本到剪贴板
 		ClipboardManager cmb = (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE); 
 		cmb.setText(content.trim()); 

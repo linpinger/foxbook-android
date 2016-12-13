@@ -29,7 +29,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
-public class Activity_FileChooser extends ListActivity_Eink {
+public class Activity_FileChooser extends Ext_ListActivity_4Eink {
 	ListView lv ;
 	SimpleAdapter adapter ;
 	List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
@@ -170,7 +170,7 @@ public class Activity_FileChooser extends ListActivity_Eink {
 							public void onClick(DialogInterface dialog,int which) {
 								switch (which) {
 								case 1:  // É¾³ý
-									if ( TOOLS.deleteDir(new File(nowDir, lcName)) ) {
+									if ( ToolJava.deleteDir(new File(nowDir, lcName)) ) {
 										data.remove(lcPos);
 										adapter.notifyDataSetChanged();
 										foxtip("ÒÑÉ¾³ý:\n" + lcName);
@@ -188,7 +188,7 @@ public class Activity_FileChooser extends ListActivity_Eink {
 								case 3:
 									String xx = getTextFromClipboard();
 									String txtName = (new java.text.SimpleDateFormat("yyyy-MM-dd_HHmmss")).format(new java.util.Date()) + ".txt";
-									FoxBookLib.writeText(xx, new File(nowDir, txtName).getPath(), "utf-8");
+									ToolJava.writeText(xx, new File(nowDir, txtName).getPath() );
 									getFileList(nowDir);
 									foxtip("±£´æµ½: " + txtName);
 									break;

@@ -22,7 +22,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class Activity_QuickSearch extends ListActivity_Eink {
+public class Activity_QuickSearch extends Ext_ListActivity_4Eink {
 	public static FoxMemDB oDB;
 	private ListView lv_sitelist ;
 	SimpleAdapter adapter;
@@ -125,7 +125,7 @@ public class Activity_QuickSearch extends ListActivity_Eink {
 		public void run() {
 			Message msg = Message.obtain();
 			msg.what = IS_REFRESH;
-			msg.obj = FoxBookLib.downhtml(this.bookurl);
+			msg.obj = ToolBookJava.downhtml(this.bookurl);
 			handler.sendMessage(msg);
 		}
 	}
@@ -135,7 +135,7 @@ public class Activity_QuickSearch extends ListActivity_Eink {
 			public void handleMessage(Message msg) {
 				if ( msg.what == IS_REFRESH ) { // 下载完毕
 					String sHTTP = (String)msg.obj;				
-					data = FoxBookLib.getSearchEngineHref(sHTTP, book_name); // 搜索引擎网页分析放在这里
+					data = ToolBookJava.getSearchEngineHref(sHTTP, book_name); // 搜索引擎网页分析放在这里
 					refreshLVAdapter();
 				}
 			}

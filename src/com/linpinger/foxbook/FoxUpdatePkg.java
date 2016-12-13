@@ -45,9 +45,9 @@ public class FoxUpdatePkg {
 		int oldVer = getVersion(mContext); // 本程序日期
 		if ( newVer <= oldVer ) { return 0 ; }
 		if ( newURL == "" ) {
-			FoxBookLib.saveHTTPFile(urlAPK, apkPATH);
+			ToolBookJava.saveHTTPFile(urlAPK, apkPATH);
 		} else {
-			FoxBookLib.saveHTTPFile(newURL, apkPATH) ;
+			ToolBookJava.saveHTTPFile(newURL, apkPATH) ;
 		}
 		String realSHA1 = getFileMD5(new File(apkPATH), "SHA1") ;
 		if ( newSHA1.compareToIgnoreCase(realSHA1) != 0 ) { return 0 ; } // sha1值不对
@@ -55,7 +55,7 @@ public class FoxUpdatePkg {
 	}
 
 	private HashMap<String, Object> getRemoteVersion() {
-		String foxVer = FoxBookLib.downhtml(urlVersion) ;
+		String foxVer = ToolBookJava.downhtml(urlVersion) ;
 		// String foxVer = "foxbook-android>20140519>89317>F8639E58AA84A4F7C9E2152E8A6016AAF7EC534D>http://linpinger.qiniudn.com/prj/FoxBook.apk\n" ;
 		String xx[] = foxVer.replace("\n", "").replace("\r", "").split(">");
 		HashMap<String, Object> item = new HashMap<String, Object>();

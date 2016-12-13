@@ -27,7 +27,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 
 // 2016-2-17: 本 Activity 只被 BookList 调用
-public class Activity_AllPageList extends ListActivity_Eink {
+public class Activity_AllPageList extends Ext_ListActivity_4Eink {
 	public static FoxMemDB oDB; // 被调用者修改
 	
 	public static final int SHOW_ALL = 1 ;  // 被其他Activity的调用者调用
@@ -89,7 +89,7 @@ public class Activity_AllPageList extends ListActivity_Eink {
 				intent.putExtra("iam", SITES.FROM_DB);
 				intent.putExtra("chapter_id", tmpid);
 				intent.putExtra("chapter_name", tmpname);
-				intent.putExtra("chapter_url", FoxBookLib.getFullURL(bookurl, tmpurl));
+				intent.putExtra("chapter_url", ToolBookJava.getFullURL(bookurl, tmpurl));
 				startActivity(intent);
 			}
 		};

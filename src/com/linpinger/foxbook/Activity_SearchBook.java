@@ -52,7 +52,7 @@ public class Activity_SearchBook extends Activity {
 	public class GetQidianURL implements Runnable {
 		@Override
 		public void run() {
-			String json = FoxBookLib.downhtml(site_qidian.qidian_getSearchURL_Mobile(book_name), "utf-8");
+			String json = ToolBookJava.downhtml(site_qidian.qidian_getSearchURL_Mobile(book_name), "utf-8");
             List<Map<String, Object>> qds = site_qidian.json2BookList(json);
             if ( qds.get(0).get("name").toString().equalsIgnoreCase(book_name) ) { // 第一个结果就是目标书
             	book_url = qds.get(0).get("url").toString();
@@ -164,9 +164,9 @@ public class Activity_SearchBook extends Activity {
 					int qdid = site_qidian.qidian_getBookID_FromURL(book_url);
 					if ( qdid == 0 ) { return ; }
 					book_url = site_qidian.qidian_getIndexURL_Mobile(qdid);
-					html = FoxBookLib.downhtml(book_url, "utf-8");
+					html = ToolBookJava.downhtml(book_url, "utf-8");
 				} else {
-					html = FoxBookLib.downhtml(book_url);
+					html = ToolBookJava.downhtml(book_url);
 				}
 				
 				Message msg = Message.obtain();
@@ -306,7 +306,7 @@ public class Activity_SearchBook extends Activity {
 	
 	private String funcCopyURL() {
 		String ua = wv.getUrl();
-		TOOLS.setcliptext(ua, this);
+		ToolAndroid.setcliptext(ua, this);
 		foxtip("剪贴板:\n" + ua);
 		return ua;
 	}
@@ -315,7 +315,7 @@ public class Activity_SearchBook extends Activity {
 		String ub = wv.getUrl();
 		if (ub.contains(".qidian.com/")) {
 			String qidianID = String.valueOf(site_qidian.qidian_getBookID_FromURL(ub));
-			TOOLS.download("http://download.qidian.com/epub/" + qidianID + ".epub", qidianID + ".epub", this);
+			ToolAndroid.download("http://download.qidian.com/epub/" + qidianID + ".epub", qidianID + ".epub", this);
 			foxtip("开始下载: " + qidianID + ".epub");
 		} else {
 			foxtip("非起点URL:\n" + ub);

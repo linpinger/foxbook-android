@@ -166,7 +166,7 @@ public class Activity_ShowPage extends Activity {
 				String text = "";
 				switch(SE_TYPE) {
 				case SITES.SE_QIDIAN_MOBILE:
-					text = FoxBookLib.downhtml(pageurl, "GBK");
+					text = ToolBookJava.downhtml(pageurl, "GBK");
 					text = site_qidian.qidian_getTextFromPageJS(text);
 					break;
 				default:

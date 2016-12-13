@@ -54,12 +54,12 @@ public class Activity_Setting extends PreferenceActivity {
 			return true;
 		}
 		if ( preference.getKey().equalsIgnoreCase("exportEinkCFG") ) {
-			TOOLS.myConfigImportExPort(this, true);
+			ToolAndroid.myConfigImportExPort(this, true);
 			Toast.makeText(this, "已导出到 FoxBook.cfg", Toast.LENGTH_SHORT).show();
 			return true;
 		}
 		if ( preference.getKey().equalsIgnoreCase("importEinkCFG") ) {
-			TOOLS.myConfigImportExPort(this, false);
+			ToolAndroid.myConfigImportExPort(this, false);
 			Toast.makeText(this, "已从 FoxBook.cfg 导入", Toast.LENGTH_SHORT).show();
 			return true;
 		}

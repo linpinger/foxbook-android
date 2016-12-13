@@ -32,7 +32,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 @SuppressLint("SdCardPath")
-public class Activity_BookList extends ListActivity_Eink {
+public class Activity_BookList extends Ext_ListActivity_4Eink {
 	
 	public FoxMemDB oDB  ; // 默认使用MemDB
 	public int downThread = 9 ;  // 页面下载任务线程数
@@ -245,20 +245,20 @@ if ( isCompareShelf ) {
 			String html = "";
 			switch(site_type) {
 			case SITES.SITE_QIDIAN_MOBILE:
-				html = FoxBookLib.downhtml(bookurl, "utf-8");
+				html = ToolBookJava.downhtml(bookurl, "utf-8");
 				xx = site_qidian.json2PageList(html);
 				break;
 			default:
-				html = FoxBookLib.downhtml(bookurl); // 下载url
+				html = ToolBookJava.downhtml(bookurl); // 下载url
 				if (existList.length() > 3) {
-					xx = FoxBookLib.tocHref(html, 55); // 分析获取 list 最后55章
+					xx = ToolBookJava.tocHref(html, 55); // 分析获取 list 最后55章
 				} else {
-					xx = FoxBookLib.tocHref(html, 0); // 分析获取 list 所有章节
+					xx = ToolBookJava.tocHref(html, 0); // 分析获取 list 所有章节
 				}
 			}
 
 			@SuppressWarnings("unchecked")
-			ArrayList<HashMap<String, Object>> newPages = (ArrayList<HashMap<String, Object>>)FoxBookLib.compare2GetNewPages(xx, existList) ;
+			ArrayList<HashMap<String, Object>> newPages = (ArrayList<HashMap<String, Object>>)ToolBookJava.compare2GetNewPages(xx, existList) ;
 			int newpagecount = newPages.size(); // 新章节数，便于统计
 
 			if (newpagecount == 0) {
@@ -430,7 +430,7 @@ if ( isCompareShelf ) {
 									String lcQidianID = oDB.getOneCell("select qidianid from book where id=" + lcID);
 									String lcQidianURL = "";
 									if ( null == lcQidianID || 0 == lcQidianID.length() ) {
-						                String json = FoxBookLib.downhtml(site_qidian.qidian_getSearchURL_Mobile(lcName), "utf-8");
+						                String json = ToolBookJava.downhtml(site_qidian.qidian_getSearchURL_Mobile(lcName), "utf-8");
 						                List<Map<String, Object>> qds = site_qidian.json2BookList(json);
 						                if ( qds.get(0).get("name").toString().equalsIgnoreCase(lcName) ) { // 第一个结果就是目标书
 											lcQidianURL = qds.get(0).get("url").toString();
@@ -458,7 +458,7 @@ if ( isCompareShelf ) {
 									startActivityForResult(intent7, 5);
 									break;
 								case 5:  // 复制书名
-									TOOLS.setcliptext(lcName, getApplicationContext());
+									ToolAndroid.setcliptext(lcName, getApplicationContext());
 									foxtip("已复制到剪贴板: " + lcName);
 									break;
 								case 6:  // 编辑本书信息

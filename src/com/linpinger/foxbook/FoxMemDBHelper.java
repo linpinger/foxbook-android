@@ -58,8 +58,8 @@ public class FoxMemDBHelper {
     	// boolean isNew = true;
     	//long sTime = System.currentTimeMillis();
         // 第一步检测编码，非GBK就是UTF-8，其他不予考虑
-        String txtEnCoding = FoxBookLib.detectTxtEncoding(txtPath) ; // 猜测中文文本编码 返回: "GBK" 或 "UTF-8"
-        String txt = FoxBookLib.readText(txtPath, txtEnCoding).replace("\r", "").replace("　", ""); // 为起点txt预处理
+        String txtEnCoding = ToolJava.detectTxtEncoding(txtPath) ; // 猜测中文文本编码 返回: "GBK" 或 "UTF-8"
+        String txt = ToolJava.readText(txtPath, txtEnCoding).replace("\r", "").replace("　", ""); // 为起点txt预处理
 
         if ( ! txt.contains("更新时间") ) // 非起点文本
 			return importNormalTxt(txtPath, oDB, txtEnCoding);
@@ -130,8 +130,8 @@ public class FoxMemDBHelper {
     }
 
 	private static String importNormalTxt(String txtPath, FoxMemDB oDB, String txtEnCoding) {
-//        String txtEnCoding = FoxBookLib.detectTxtEncoding(txtPath) ; // 猜测中文文本编码 返回: "GBK" 或 "UTF-8"
-//        String txt = FoxBookLib.readText(txtPath, txtEnCoding) ;
+//        String txtEnCoding = ToolBookJava.detectTxtEncoding(txtPath) ; // 猜测中文文本编码 返回: "GBK" 或 "UTF-8"
+//        String txt = ToolBookJava.readText(txtPath, txtEnCoding) ;
 
         String fileName = (new File(txtPath)).getName().replace(".txt", ""); // 文件名
         SQLiteDatabase db = oDB.getDB();
@@ -364,10 +364,10 @@ public class FoxMemDBHelper {
             if ( postData.endsWith(",") )
                 postData = postData.substring(0, postData.length()-1) ;
             postData = postData + "]}";
-            html = FoxBookLib.downhtml(urlShelf, "", postData);
+            html = ToolBookJava.downhtml(urlShelf, "", postData);
         } else {
             String cookie = db.getOneCell("SELECT cookie from config where site like '%" + cookieSQL + "%' ") ;
-            html = FoxBookLib.downhtml(urlShelf, "gbk", "GET", FoxBookLib.cookie2Field(cookie)) ;
+            html = ToolBookJava.downhtml(urlShelf, "gbk", "GET", ToolBookJava.cookie2Field(cookie)) ;
         }
         if ( html.length() < 5 )
             return null ;
@@ -516,7 +516,7 @@ public class FoxMemDBHelper {
                 do {
                     item = new HashMap<String, Object>();
                     item.put("id", cursor.getInt(0));
-                    item.put("url", FoxBookLib.getFullURL(bookurl,cursor.getString(1)));
+                    item.put("url", ToolBookJava.getFullURL(bookurl,cursor.getString(1)));
                     xx.add(item);
                 } while (cursor.moveToNext());
             }
@@ -611,7 +611,7 @@ public class FoxMemDBHelper {
             if (cursor.moveToFirst()) {
                 do {
                     db.execSQL("update Book set DelURL=? where id=" + String.valueOf(cursor.getInt(0)),
-                            new Object[] { FoxBookLib.simplifyDelList(cursor.getString(1)) });
+                            new Object[] { ToolBookJava.simplifyDelList(cursor.getString(1)) });
                 } while (cursor.moveToNext());
             }
             cursor.close();
@@ -649,7 +649,7 @@ public class FoxMemDBHelper {
 
     public static void updatepage(int pageid, FoxMemDB db) {
         Map<String, String> xx = db.getOneRow("select book.url as bu,page.url as pu from book,page where page.id=" + String.valueOf(pageid) + " and  book.id in (select bookid from page where id=" + String.valueOf(pageid) + ")");
-        String fullPageURL = FoxBookLib.getFullURL(xx.get("bu"),xx.get("pu")); // 获取bookurl, pageurl 合成得到url
+        String fullPageURL = ToolBookJava.getFullURL(xx.get("bu"),xx.get("pu")); // 获取bookurl, pageurl 合成得到url
 
         updatepage(pageid, fullPageURL, db) ;
     }
@@ -664,21 +664,21 @@ public class FoxMemDBHelper {
 
         switch(site_type) {
             case 98:
-                html = FoxBookLib.downhtml(pageFullURL, "GBK"); // 下载json
+                html = ToolBookJava.downhtml(pageFullURL, "GBK"); // 下载json
                 text = site_qidian.qidian_getTextFromPageJS(html);
                 break;
             case 99:
-                String nURL = site_qidian.qidian_toTxtURL_FromPageContent(FoxBookLib.downhtml(pageFullURL)) ; // 2015-11-17: 起点地址变动，只能下载网页后再获取txt地址
+                String nURL = site_qidian.qidian_toTxtURL_FromPageContent(ToolBookJava.downhtml(pageFullURL)) ; // 2015-11-17: 起点地址变动，只能下载网页后再获取txt地址
                 if ( nURL.equalsIgnoreCase("") ) {
                     text = "" ;
                 } else {
-                    html = FoxBookLib.downhtml(nURL);
+                    html = ToolBookJava.downhtml(nURL);
                     text = site_qidian.qidian_getTextFromPageJS(html);
                 }
                 break;
             default:
-                html = FoxBookLib.downhtml(pageFullURL); // 下载url
-                text = FoxBookLib.pagetext(html);       // 分析得到text
+                html = ToolBookJava.downhtml(pageFullURL); // 下载url
+                text = ToolBookJava.pagetext(html);       // 分析得到text
         }
 
         if ( pageid > 0 ) { // 当pageid小于0时不写入数据库，主要用于在线查看
@@ -710,22 +710,21 @@ public class FoxMemDBHelper {
                 txt.append(mm.get("title")).append("\n\n").append(mm.get("content")).append("\n\n\n");
             }
 
-            FoxBookLib.writeText(txt.toString(), txtPath, "utf-8");
+            ToolJava.writeText(txt.toString(), txtPath);
             return "/fox.txt"; // 给foxHTTPD当下载路径使用
         }
 
         public static void all2epub(FoxMemDB db) {// 所有书籍转为epub
-            String epubPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "fox.epub";
-            FoxEpub oEpub = new FoxEpub("FoxBook", epubPath);
+            FoxEpubWriter oEpub = new FoxEpubWriter(new File(Environment.getExternalStorageDirectory(), "fox.epub"));
 
             List<Map<String, Object>> data = FoxMemDBHelper.getEbookChaters(true, db);
             Iterator<Map<String, Object>> itr = data.iterator();
             HashMap<String, Object> mm;
             while (itr.hasNext()) {
                 mm = (HashMap<String, Object>) itr.next();
-                oEpub.AddChapter((String)mm.get("title"), (String)mm.get("content"), -1);
+                oEpub.addChapter((String)mm.get("title"), (String)mm.get("content"), -1);
             }
-            oEpub.SaveTo();
+            oEpub.saveAll();
         }
 
         public static void all2umd(FoxMemDB db) { // 所有书籍转为umd

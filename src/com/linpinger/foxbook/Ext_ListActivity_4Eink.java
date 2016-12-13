@@ -4,7 +4,7 @@ import android.app.ListActivity;
 import android.view.KeyEvent;
 import android.widget.ListView;
 
-public class ListActivity_Eink extends ListActivity {
+public class Ext_ListActivity_4Eink extends ListActivity {
 	
 	ListView lv ;
 	private int showItemPos = 0 ;

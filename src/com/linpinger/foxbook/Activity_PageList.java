@@ -26,7 +26,7 @@ import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 
-public class Activity_PageList extends ListActivity_Eink {
+public class Activity_PageList extends Ext_ListActivity_4Eink {
 	public static FoxMemDB oDB;
 	
 	SharedPreferences settings;
@@ -61,11 +61,11 @@ public class Activity_PageList extends ListActivity_Eink {
 			switch(SE_TYPE) {
 			case SITES.SE_QIDIAN_MOBILE : // 起点手机版目录
 				msg.what = IS_QIDIAN_MOBILE;
-				msg.obj = FoxBookLib.downhtml(bookurl, "utf-8") ;
+				msg.obj = ToolBookJava.downhtml(bookurl, "utf-8") ;
 				break;
 			default:
 				msg.what = IS_DOWNTOC;
-				msg.obj = FoxBookLib.downhtml(bookurl);
+				msg.obj = ToolBookJava.downhtml(bookurl);
 				break;
 			}
 			handler.sendMessage(msg);
@@ -108,7 +108,7 @@ public class Activity_PageList extends ListActivity_Eink {
 				intent.putExtra("iam", foxfrom);
 				intent.putExtra("chapter_id", tmpid);
 				intent.putExtra("chapter_name", tmpname);
-				intent.putExtra("chapter_url", FoxBookLib.getFullURL(bookurl, tmpurl));
+				intent.putExtra("chapter_url", ToolBookJava.getFullURL(bookurl, tmpurl));
 				intent.putExtra("searchengine", SE_TYPE);
 
 				if ( foxfrom == SITES.FROM_ZIP )
@@ -229,7 +229,7 @@ public class Activity_PageList extends ListActivity_Eink {
 				}
 				
 				if ( msg.what == IS_DOWNTOC ) { // 下载目录完毕
-					data = FoxBookLib.tocHref(sHTTP, 0);
+					data = ToolBookJava.tocHref(sHTTP, 0);
 					renderListView();
 				}
 			}
@@ -280,7 +280,7 @@ public class Activity_PageList extends ListActivity_Eink {
 			if ( bookurl.contains("3g.if.qidian.com") ) { // 搜索页传来的起点地址
 				data = site_qidian.json2PageList(html);
 			} else {
-				data = FoxBookLib.tocHref(html, 0);
+				data = ToolBookJava.tocHref(html, 0);
 			}
 			break;
 		case SITES.FROM_DB:
