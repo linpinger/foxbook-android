@@ -1,7 +1,10 @@
-package com.linpinger.foxbook;
+package com.linpinger.tool;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -24,7 +27,7 @@ public class FoxZipReader {
 		try {
 			zf = new ZipFile(inZip) ;
 		} catch (Exception e) {
-			System.out.println(e.toString());
+			System.err.println(e.toString());
 		}
 	}
 
@@ -58,16 +61,31 @@ public class FoxZipReader {
             }
             br.close();
 		} catch (Exception e) {
-			System.out.println(e.toString());
+			System.err.println(e.toString());
         }
 		return retStr.toString();
+	}
+
+	public void getBinFile(String filename, File outFile) {
+		try {
+			BufferedInputStream bis = new BufferedInputStream(zf.getInputStream(zf.getEntry(filename)));
+			BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outFile));
+			byte[] buf = new byte[1048576];
+			int nRead ;
+			while ( ( nRead = bis.read(buf) ) != -1 )
+				bos.write(buf, 0, nRead);
+			bos.close();
+            bis.close();
+		} catch (Exception e) {
+			System.err.println(e.toString());
+        }
 	}
 
 	public void close() {
 		try {
 			zf.close();
 		} catch (Exception e) {
-			System.out.println(e.toString());
+			System.err.println(e.toString());
 		}
 	}
 }

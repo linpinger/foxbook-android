@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.linpinger.tool.Ext_ListActivity_4Eink;
+import com.linpinger.tool.ToolBookJava;
+
 import android.annotation.TargetApi;
 // import android.app.ListActivity;
 import android.content.Intent;

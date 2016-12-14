@@ -1,9 +1,15 @@
-package com.linpinger.foxbook;
+package com.linpinger.tool;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -471,25 +477,27 @@ public class ToolBookJava {
         try {
             allURL = (new URL(new URL(sbaseurl), suburl)).toString();
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+			System.err.println(e.toString());
         }
         return allURL;
     }
 
-    //获取网络文件，转存到outPath中，outPath需要带文件后缀名
-    public static void saveHTTPFile(String inURL, String outPath) {
+    //获取网络文件，转存到outPath中，outPath需要带文件后缀名，返回文件大小
+    public static int saveHTTPFile(String inURL, String outPath) {
+    	int oLen = 0 ;
         File toFile = new File(outPath);
-        if (toFile.exists()) {
+        if (toFile.exists())
             toFile.delete();
-        }
         try {
-//          toFile.createNewFile();
-            FileOutputStream outImgStream = new FileOutputStream(toFile);
-            outImgStream.write(downHTTP(inURL, "GET", null));
-            outImgStream.close();
+            FileOutputStream fos = new FileOutputStream(toFile);
+            byte[] hb = downHTTP(inURL, "GET", null);
+            oLen = hb.length ;
+            fos.write(hb);
+            fos.close();
         } catch (Exception e) {
-            e.toString();
+            System.err.println(e.toString());
         }
+        return oLen;
     }
 
     public static String downhtml(String inURL) {
@@ -506,21 +514,20 @@ public class ToolBookJava {
 
     public static String downhtml(String inURL, String pageCharSet, String PostData, String iCookie) {
         byte[] buf = downHTTP(inURL, PostData, iCookie);
-        if (buf == null) {
+        if (buf == null)
             return "";
-        }
         try {
             String html = "";
             if (pageCharSet == "") {
                 html = new String(buf, "gbk");
-                if (html.matches("(?smi).*<meta[^>]*charset=[\"]?(utf8|utf-8)[\"]?.*")) { // 探测编码
+                if (html.matches("(?smi).*<meta[^>]*charset=[\"]?(utf8|utf-8)[\"]?.*")) // 探测编码
                     html = new String(buf, "utf-8");
-                }
             } else {
                 html = new String(buf, pageCharSet);
             }
             return html;
         } catch (Exception e) { // 错误 是神马
+        	System.err.println(e.toString());
             return "";
         }
     }
@@ -537,20 +544,19 @@ public class ToolBookJava {
                 conn.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
             }
 
-            if ( null != iCookie ) {
+            if ( null != iCookie )
                 conn.setRequestProperty("Cookie", iCookie);
-            }
 
-            if (inURL.contains(".13xs.")) {
+            if (inURL.contains(".13xs."))
                 conn.setRequestProperty("User-Agent", "ZhuiShuShenQi/3.26"); // 2015-10-27: qqxs使用加速宝，带Java的头会被和谐
-            } else {
+            else
                 conn.setRequestProperty("User-Agent", "ZhuiShuShenQi/3.26 Java/1.6.0_55"); // Android自带头部和IE8头部会导致yahoo搜索结果链接为追踪链接
-            }
-            if (!inURL.contains("files.qidian.com")) { // 2015-4-16: qidian txt 使用cdn加速，如果头里有gzip就会返回错误的gz数据
+
+            if (!inURL.contains("files.qidian.com")) // 2015-4-16: qidian txt 使用cdn加速，如果头里有gzip就会返回错误的gz数据
                 conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
-            } else {
+            else
                 conn.setRequestProperty("Accept-Encoding", "*"); // Android 会自动加上gzip，真坑，使用*覆盖之，起点CDN就能正确处理了
-            }
+
             conn.setRequestProperty("Accept", "*/*");
             conn.setConnectTimeout(5000);
             conn.setReadTimeout(5000);    // 读取超时5s
@@ -579,16 +585,14 @@ public class ToolBookJava {
             // 返回的字段: Content-Encoding: gzip/null 判断是否是gzip
             if (null == conn.getContentEncoding()) { // 不是gzip数据
                 InputStream in = conn.getInputStream();
-                while ((len = in.read(buffer)) != -1) {
+                while ((len = in.read(buffer)) != -1)
                     outStream.write(buffer, 0, len);
-                }
                 in.close();
             } else { // gzip 压缩处理
                 InputStream in = conn.getInputStream();
                 GZIPInputStream gzin = new GZIPInputStream(in);
-                while ((len = gzin.read(buffer)) != -1) {
+                while ((len = gzin.read(buffer)) != -1)
                     outStream.write(buffer, 0, len);
-                }
                 gzin.close();
                 in.close();
             }
@@ -596,7 +600,7 @@ public class ToolBookJava {
             buf = outStream.toByteArray();
             outStream.close();
         } catch (Exception e) { // 错误 是神马
-            e.toString();
+        	System.err.println(e.toString());
         }
         return buf;
     }
@@ -611,5 +615,111 @@ public class ToolBookJava {
         }
         return oStr ;
     }
+
+	/** 
+	 * 上传文件 
+	 * @param urlStr 
+	 * @param fileMap 
+	 * @return 
+	 */  
+	// String filepath = "Q:\\zPrj\\fb.zip";  
+	// String urlStr = "http://linpinger.eicp.net:58080/cgi-bin/ff.lua";  
+	// Map<String, String> textMap = new HashMap<String, String>();  
+	// textMap.put("name", "testname");  
+	// Map<String, String> fileMap = new HashMap<String, String>();  
+	// fileMap.put("f", filepath);  
+	// String ret = formUpload(urlStr, fileMap);  
+	// System.out.println(ret);
+	public static String formUpload(String urlStr, Map<String, String> fileMap) {
+		// http://blog.csdn.net/wangpeng047/article/details/38303865
+	   String res = "";
+	   HttpURLConnection conn = null;
+	   String BOUNDARY = "---------------------------123821742118716"; //boundary就是request头和上传文件内容的分隔符
+	   try {
+		   URL url = new URL(urlStr);
+		   conn = (HttpURLConnection) url.openConnection();
+		   conn.setConnectTimeout(5000);
+		   conn.setReadTimeout(30000);
+		   conn.setDoOutput(true);
+		   conn.setDoInput(true);
+		   conn.setUseCaches(false);
+		   conn.setRequestMethod("POST");
+		   conn.setRequestProperty("Connection", "Keep-Alive");
+		   conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 6.1; zh-CN; rv:1.9.2.6)");
+		   conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
+
+		   OutputStream out = new DataOutputStream(conn.getOutputStream());
+		   // text   
+//           Map<String, String> textMap = null;
+//           if (textMap != null) {  
+//        	   StringBuffer strBuf = new StringBuffer();  
+//        	   Iterator<Map.Entry<String, String>> iter = textMap.entrySet().iterator();  
+//        	   while (iter.hasNext()) {  
+//        		   Map.Entry<String, String> entry = iter.next();  
+//        		   String inputName = (String) entry.getKey();  
+//        		   String inputValue = (String) entry.getValue();  
+//        		   if (inputValue == null) {  
+//        			   continue;  
+//        		   }  
+//        		   strBuf.append("\r\n").append("--").append(BOUNDARY).append("\r\n");  
+//        		   strBuf.append("Content-Disposition: form-data; name=\"" + inputName + "\"\r\n\r\n");  
+//        		   strBuf.append(inputValue);  
+//        	   }  
+//        	   out.write(strBuf.toString().getBytes());  
+//           }  
+
+		   // file    
+		   if (fileMap != null) {
+			   Iterator<Map.Entry<String, String>> iter = fileMap.entrySet().iterator();
+			   while (iter.hasNext()) {
+				   Map.Entry<String, String> entry = iter.next();
+				   String inputName = (String) entry.getKey();
+				   String inputValue = (String) entry.getValue();
+				   if (inputValue == null)
+					   continue;
+				   File file = new File(inputValue);
+				   String filename = file.getName();
+
+				   StringBuffer strBuf = new StringBuffer();
+				   //                   strBuf.append("\r\n").append("--").append(BOUNDARY).append("\r\n");
+				   strBuf.append("--").append(BOUNDARY).append("\r\n");  // 多一个\n会使nanohttpd崩溃的亲
+				   strBuf.append("Content-Disposition: form-data; name=\"" + inputName + "\"; filename=\"" + filename + "\"\r\n");
+				   strBuf.append("Content-Type: application/octet-stream\r\n\r\n");
+
+				   out.write(strBuf.toString().getBytes());
+
+				   DataInputStream in = new DataInputStream(new FileInputStream(file));
+				   int bytes = 0;
+				   byte[] bufferOut = new byte[1024];
+				   while ((bytes = in.read(bufferOut)) != -1)
+					   out.write(bufferOut, 0, bytes);
+				   in.close();
+			   }
+		   }
+
+		   byte[] endData = ("\r\n--" + BOUNDARY + "--\r\n").getBytes();
+		   out.write(endData);
+		   out.flush();
+		   out.close();
+
+		   // 读取返回数据
+		   StringBuffer strBuf = new StringBuffer();
+		   BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+		   String line = null;
+		   while ((line = reader.readLine()) != null)
+			   strBuf.append(line).append("\n");  
+		   res = strBuf.toString();
+		   reader.close();
+		   reader = null;
+	   } catch (Exception e) {
+		   System.err.println("发送POST请求出错。" + urlStr + "\n" + e.toString());
+	   } finally {
+		   if (conn != null) {
+			   conn.disconnect();
+			   conn = null;
+		   }
+	   }
+	   return res;
+	}
 
 } // 类结束

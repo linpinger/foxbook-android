@@ -4,6 +4,12 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.linpinger.tool.Ext_ListActivity_4Eink;
+import com.linpinger.tool.FoxEpubReader;
+import com.linpinger.tool.FoxZipReader;
+import com.linpinger.tool.ToolBookJava;
+
 import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Intent;

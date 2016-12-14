@@ -2,6 +2,10 @@ package com.linpinger.foxbook;
 
 import java.io.File;
 import java.util.Map;
+
+import com.linpinger.tool.ToolBookJava;
+import com.linpinger.tool.site_qidian;
+
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;

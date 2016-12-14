@@ -1,13 +1,16 @@
-package com.linpinger.foxbook;
+package com.linpinger.tool;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.nio.channels.FileChannel;
+import java.security.MessageDigest;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ToolJava {
 
@@ -32,8 +35,8 @@ public class ToolJava {
              }
 			 */
 			br.close();
-		} catch (IOException e) {
-			System.out.println(e.toString());
+		} catch (Exception e) {
+			System.err.println(e.toString());
 		}
 		return retStr.toString();
 	}
@@ -49,8 +52,8 @@ public class ToolJava {
 			bw.write(iStr);
 			bw.flush();
 			bw.close();
-		} catch (IOException e) {
-			System.out.println(e.toString());
+		} catch (Exception e) {
+			System.err.println(e.toString());
 		}
 	}
 
@@ -74,8 +77,8 @@ public class ToolJava {
             if ( chunkStr.length() > 0 )
                 retStr.append(chunkStr).append("\n#####LAST###########\n\n");
             br.close();
-        } catch (IOException e) {
-            System.out.println(e.toString());
+        } catch (Exception e) {
+            System.err.println(e.toString());
         }
         return retStr.toString();
     }
@@ -89,7 +92,7 @@ public class ToolJava {
             in.read(b);
             in.close();
         } catch (Exception e) {
-        	System.out.println(e.toString());
+        	System.err.println(e.toString());
         }
         boolean isGBK = false ;
     if (b[0] == -17 && b[1] == -69 && b[2] == -65) { // UTF-8 BOM : EF BB BF
@@ -192,7 +195,7 @@ UTF8 : 3 : 224-239 128-191 128-191
 //			outImgStream.write(cc.getBytes("UTF-8"));
 //			outImgStream.close();
 //		} catch (Exception e) {
-//			System.out.println(e.toString());
+//			System.err.println(e.toString());
 //		}
 //	}
 
@@ -209,7 +212,7 @@ UTF8 : 3 : 224-239 128-191 128-191
 		try {
 			bDeleted = dir.delete();
 		} catch (Exception e) {
-			System.out.println(e.toString());
+			System.err.println(e.toString());
 		}
 		return bDeleted;
 	}
@@ -297,5 +300,113 @@ UTF8 : 3 : 224-239 128-191 128-191
 //            return false;
 //        }
 //    }
+
+//	public static void copyFileSlow(File fromFile, File toFile) { // 这个复制方法比较慢
+//		try {
+//			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(fromFile));
+//			BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(toFile));
+//			byte[] buf = new byte[1048576]; // 1M
+//			int nn ;
+//			while ( ( nn = bis.read(buf, 0, 1048576)) != -1 )
+//				bos.write(buf, 0, nn);
+//			bis.close();
+//			bos.close();
+//		} catch (Exception e) {
+//			System.err.println(e.toString());
+//		}
+//	}
+
+	public static long copyFile(File fromFile, File toFile) { // 使用channel复制更快，尤其是大文件更明显
+		FileInputStream fis = null;
+		FileOutputStream fos = null;
+		FileChannel in = null;
+		FileChannel out = null;
+		long cSize = 0;
+		try {
+			fis = new FileInputStream(fromFile);
+			fos = new FileOutputStream(toFile);
+			in = fis.getChannel();
+			out = fos.getChannel();
+			in.transferTo(0, in.size(), out); //连接两个通道，并且从in通道读取，然后写入out通道
+		} catch (Exception e) {
+			System.err.println(e.toString());
+		} finally {
+			try {
+				cSize = out.size();
+				fis.close();
+				in.close();
+				fos.close();
+				out.close();
+			} catch (Exception e) {
+				System.err.println(e.toString());
+			}
+		}
+		return cSize;
+	}
+
+	public static boolean renameIfExist(File tarFile) {
+		return renameIfExist(tarFile, ".old");
+	}
+	public static boolean renameIfExist(File tarFile, String addSuffix) { // 如果目标文件存在就重命名，如果新名文件也存在就删除先
+		if ( tarFile.exists() ) {
+			File newFile = new File(tarFile.getPath() + addSuffix);
+			if ( newFile.exists() )
+				newFile.delete();
+			return tarFile.renameTo(newFile);
+		}
+		return true;
+	}
+
+	// 将 IP 转为 广播ip: 例如: 192.168.1.22 -> 192.168.1.255
+	public static String ip2bip(String iIPStr) {
+		String ipHead = "";
+		String RE = "^([0-9]*\\.[0-9]*\\.[0-9]*)\\.([0-9]*)$";
+		Matcher m = Pattern.compile(RE).matcher(iIPStr);
+		while (m.find())
+			ipHead = m.group(1);
+		if ( ipHead.contains(".") ) {
+			return ipHead + ".255" ;
+		} else {
+			return "";
+		}
+	}
+
+	/**
+	 * 
+	 * @param file 
+	 * @param algorithm 所请求算法的名称  for example: MD5, SHA1, SHA-256, SHA-384, SHA-512 etc. 
+	 * @return
+	 */
+	public static String getFileHash(File file, String algorithm) {
+		if (!file.exists() || !file.isFile())
+			return "";
+
+		byte[] buffer = new byte[2048];
+		try {
+			MessageDigest digest = MessageDigest.getInstance(algorithm);
+			FileInputStream in = new FileInputStream(file);
+			while (true) {
+				int len = in.read(buffer, 0, 2048);
+				if (len != -1)
+					digest.update(buffer, 0, len);
+				else
+					break;
+			}
+			in.close();
+
+			byte[] md5Bytes = digest.digest();
+			StringBuilder hexValue = new StringBuilder();
+			for (int i = 0; i < md5Bytes.length; i++) {
+				int val = ((int) md5Bytes[i]) & 0xff;
+				if (val < 16)
+					hexValue.append("0");
+				hexValue.append(Integer.toHexString(val));
+			}
+			return hexValue.toString();
+		} catch (Exception e) {
+			return "";
+		}
+	}
+
 
 }

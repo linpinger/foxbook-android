@@ -1,8 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package com.linpinger.foxbook;
+package com.linpinger.tool;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -13,7 +9,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 
 public class site_qidian {
     // 2015年桌面版改版后已失效
@@ -35,7 +30,7 @@ public class site_qidian {
         try {
             xx = "http://3g.if.qidian.com/api/SearchBooksRmt.ashx?key=" + URLEncoder.encode(BookName, "UTF-8") + "&p=0";
         } catch (Exception e) {
-            e.toString();
+			System.err.println(e.toString());
         }
         return xx;
     }
@@ -53,7 +48,7 @@ public class site_qidian {
                 data.add(item);
             }
         } catch (Exception e) {
-            e.toString();
+			System.err.println(e.toString());
         }
         return data;
     }
@@ -76,7 +71,7 @@ public class site_qidian {
                 data.add(item);
             }
         } catch (Exception e) {
-            e.toString();
+			System.err.println(e.toString());
         }
         return data;
     }

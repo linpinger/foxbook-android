@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import com.linpinger.tool.NanoHTTPD;
+
 public class FoxHTTPD extends NanoHTTPD {
 	private FoxMemDB oDB;
 	private File foxRootDir ;  // nanohttpd 的那个变量是私有的，无法继承

@@ -1,11 +1,10 @@
-package com.linpinger.foxbook;
+package com.linpinger.tool;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 
 public class FoxEpubReader extends FoxZipReader {
 

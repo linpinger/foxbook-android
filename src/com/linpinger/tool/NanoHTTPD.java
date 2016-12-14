@@ -1,4 +1,4 @@
-package com.linpinger.foxbook;
+package com.linpinger.tool;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;

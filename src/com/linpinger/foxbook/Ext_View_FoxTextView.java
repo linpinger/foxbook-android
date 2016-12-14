@@ -3,6 +3,8 @@ package com.linpinger.foxbook;
 import java.io.File;
 import java.util.ArrayList;
 
+import com.linpinger.tool.ToolAndroid;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;

@@ -1,4 +1,4 @@
-package com.linpinger.foxbook;
+package com.linpinger.tool;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -85,7 +85,7 @@ public class FoxEpubWriter {
                 // 缓冲区需要释放
                 cmd.waitFor();
             } catch (Exception e) {
-            	System.out.println(e.toString());
+            	System.err.println(e.toString());
             }
             File tmpF = new File(TmpDir, DefNameNoExt + ".mobi");
             if (tmpF.exists() && tmpF.length() > 555) {

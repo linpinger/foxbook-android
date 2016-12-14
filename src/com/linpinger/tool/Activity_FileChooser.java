@@ -1,4 +1,4 @@
-package com.linpinger.foxbook;
+package com.linpinger.tool;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -8,13 +8,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+//import android.app.ListActivity;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
-// import android.app.ListActivity;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -25,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
@@ -34,13 +33,15 @@ public class Activity_FileChooser extends Ext_ListActivity_4Eink {
 	SimpleAdapter adapter ;
 	List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
 	File nowDir ;
+	private boolean haveFileToCopy = false ;
+	private boolean haveFileToMove = false ; // 是否有文件待移动
+	File fileFromMark ; // 待移动文件
 	private boolean isHideDotFiles = false ;
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void showHomeUp() {
 		getActionBar().setDisplayHomeAsUpEnabled(true);  // 标题栏中添加返回图标
-//		getActionBar().setDisplayShowHomeEnabled(false); // 隐藏程序图标
-	}		// 响应点击事件在onOptionsItemSelected的switch中加入 android.R.id.home   this.finish();
+	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
@@ -48,9 +49,6 @@ public class Activity_FileChooser extends Ext_ListActivity_4Eink {
 		super.onCreate(savedInstanceState);
 		showHomeUp();
 
-//		lv = new ListView(this); 
-//        lv.setId(android.R.id.list);//获得listView的id
-//		this.setContentView(lv);
 		lv = this.getListView();
 		adapter = new SimpleAdapter(this, data,
 				android.R.layout.simple_list_item_2,
@@ -69,8 +67,8 @@ public class Activity_FileChooser extends Ext_ListActivity_4Eink {
 		} else {
 			nowDir = Environment.getExternalStorageDirectory();
 		}
-		getFileList(nowDir);
-		
+
+		showFileList(nowDir);
 	}  // onCreate End
 	
 	public class ComparatorName implements Comparator<Object>{
@@ -95,7 +93,7 @@ public class Activity_FileChooser extends Ext_ListActivity_4Eink {
 	}
 
 	@SuppressLint("SimpleDateFormat")
-	private void getFileList(File nowDir) {
+	private void showFileList(File nowDir) {
 		this.setTitle(nowDir.getPath());
 		
 		data.clear();
@@ -125,7 +123,6 @@ public class Activity_FileChooser extends Ext_ListActivity_4Eink {
 		
 		adapter.notifyDataSetChanged();
 		this.setItemPos4Eink(); // 滚动位置放到头部
-		// refreshListView();
 	}
 
 	@Override
@@ -146,12 +143,36 @@ public class Activity_FileChooser extends Ext_ListActivity_4Eink {
 		}
 		if ( clickFile.isDirectory() ) {
 			nowDir = clickFile ;
-			getFileList(nowDir);
+			showFileList(nowDir);
 		} else {
 			this.setResult(RESULT_OK, new Intent().setData(Uri.fromFile(clickFile))); // 返回文件路径
 			this.finish();
 		}
 		super.onListItemClick(l, v, position, id);
+	}
+	
+	
+	private void renameDialog(final File fRename) {
+		final EditText newName = new EditText(this);
+		newName.setText(fRename.getName());  // 编辑框中内容为原名称
+		Builder dlg = new AlertDialog.Builder(this);
+		dlg.setTitle("重命名: " + fRename.getName());
+		dlg.setView(newName);
+		dlg.setPositiveButton("确定", new DialogInterface.OnClickListener(){
+			@Override
+			public void onClick(DialogInterface arg0, int arg1) {
+				File newFile = new File(fRename.getParentFile(), newName.getText().toString());
+				if ( newFile.exists() ) {
+					foxtip("文件已存在: " + newFile.getName());
+				} else {
+					fRename.renameTo(newFile);
+					foxtip("重命名 " + fRename.getName() + " 为: " + newFile.getName());
+					showFileList(nowDir);
+				}
+			}
+		});
+		dlg.setNegativeButton("取消", null);
+		dlg.show();
 	}
 
 	private void init_LV_item_Long_click() { // 初始化 长击 条目 的行为
@@ -165,11 +186,57 @@ public class Activity_FileChooser extends Ext_ListActivity_4Eink {
 				
 				// builder.setIcon(R.drawable.ic_launcher);
 				builder.setTitle("操作:" + lcName);
-				builder.setItems(new String[] { "刷新", "删除", "复制文件名", "粘贴剪贴板文本到新Txt中" },
+				builder.setItems(new String[] { "刷新", "重命名", "复制", "剪切", "粘贴", "复制文件名", "粘贴剪贴板文本到新Txt中" , "删除"},
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog,int which) {
 								switch (which) {
-								case 1:  // 删除
+								case 0: // 刷新
+									showFileList(nowDir);
+									break;
+								case 1: // 重命名
+									renameDialog(new File(nowDir, lcName));
+									break;
+								case 2: // 复制
+									haveFileToCopy = true;
+									fileFromMark = new File(nowDir, lcName);
+									break;
+								case 3: // 剪切
+									haveFileToMove = true;
+									fileFromMark = new File(nowDir, lcName);
+									foxtip("准备移动: " + lcName + "\n进入想粘贴的目录粘贴\n注意要在同一文件系统内");
+									break;
+								case 4: // 粘贴
+									File fileTo = new File(nowDir, fileFromMark.getName());
+									ToolJava.renameIfExist(fileTo);
+									if (haveFileToCopy) { // 跨文件系统复制
+										if ( fileFromMark.length() == ToolJava.copyFile(fileFromMark, fileTo) ) {
+											haveFileToCopy = false ;
+											showFileList(nowDir);
+										} else {
+											foxtip("复制失败: " + fileTo.getName());
+										}
+									}
+									if ( haveFileToMove ) { // 同文件系统移动
+										if ( fileFromMark.renameTo(fileTo) ) {
+											haveFileToMove = false;
+											showFileList(nowDir);
+										} else {
+											foxtip("移动失败，注意要在同一文件系统内移动\n" + fileFromMark.getName());
+										}
+									}
+									break;
+								case 5: // 复制文件名
+									ToolAndroid.setClipText(lcName, getApplicationContext());
+									foxtip("剪贴板:\n" + lcName);
+									break;
+								case 6:
+									String xx = ToolAndroid.getClipText(getApplicationContext());
+									String txtName = (new java.text.SimpleDateFormat("yyyy-MM-dd_HHmmss")).format(new java.util.Date()) + ".txt";
+									ToolJava.writeText(xx, new File(nowDir, txtName).getPath());
+									showFileList(nowDir);
+									foxtip("保存到: " + txtName);
+									break;
+								case 7:  // 删除
 									if ( ToolJava.deleteDir(new File(nowDir, lcName)) ) {
 										data.remove(lcPos);
 										adapter.notifyDataSetChanged();
@@ -178,19 +245,8 @@ public class Activity_FileChooser extends Ext_ListActivity_4Eink {
 										foxtip("删除失败:\n" + lcName);
 									}
 									break;
-								case 0: // 刷新
-									getFileList(nowDir);
-									break;
-								case 2: // 复制文件名
-									copyToClipboard(lcName);
-									foxtip("剪贴板:\n" + lcName);
-									break;
-								case 3:
-									String xx = getTextFromClipboard();
-									String txtName = (new java.text.SimpleDateFormat("yyyy-MM-dd_HHmmss")).format(new java.util.Date()) + ".txt";
-									ToolJava.writeText(xx, new File(nowDir, txtName).getPath() );
-									getFileList(nowDir);
-									foxtip("保存到: " + txtName);
+								default:
+									foxtip("一脸萌圈");
 									break;
 								}
 							}
@@ -218,13 +274,4 @@ public class Activity_FileChooser extends Ext_ListActivity_4Eink {
 		Toast.makeText(getApplicationContext(), sinfo, Toast.LENGTH_SHORT).show();
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	public void copyToClipboard(String iText) {
-		((ClipboardManager) getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("hello", iText));
-	}
-	
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	public String getTextFromClipboard() {
-		return ((ClipboardManager) getSystemService(CLIPBOARD_SERVICE)).getPrimaryClip().getItemAt(0).getText().toString();
-	}
 }

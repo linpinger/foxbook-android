@@ -7,6 +7,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.linpinger.tool.Ext_ListActivity_4Eink;
+import com.linpinger.tool.ToolAndroid;
+import com.linpinger.tool.ToolBookJava;
+import com.linpinger.tool.site_qidian;
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -458,7 +463,7 @@ if ( isCompareShelf ) {
 									startActivityForResult(intent7, 5);
 									break;
 								case 5:  // 复制书名
-									ToolAndroid.setcliptext(lcName, getApplicationContext());
+									ToolAndroid.setClipText(lcName, getApplicationContext());
 									foxtip("已复制到剪贴板: " + lcName);
 									break;
 								case 6:  // 编辑本书信息
@@ -781,7 +786,10 @@ if ( isCompareShelf ) {
 			break;
 		case R.id.action_foxhttpd: // 启动停止服务器
 			int nowListenPort = 8888 ;
-			String nowIP = FoxUpdatePkg.getLocalIpAddress();
+			String nowIP = "127.0.0.1" ;
+			HashMap<String, String> hmwifi = ToolAndroid.getWifiInfo(getApplicationContext());
+			if ( null != hmwifi )
+				nowIP = hmwifi.get("ip");
 			boolean bStartIt = ! item.isChecked(); // 根据选项是否选中确定是否开启
 			if (bStartIt) {
 				try {

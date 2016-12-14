@@ -1,4 +1,4 @@
-package com.linpinger.foxbook;
+package com.linpinger.tool;
 
 import android.app.ListActivity;
 import android.view.KeyEvent;
@@ -69,5 +69,5 @@ public class Ext_ListActivity_4Eink extends ListActivity {
 
 		return super.dispatchKeyEvent(event);
 	}
-	
+
 }

@@ -15,6 +15,11 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.linpinger.tool.FoxEpubReader;
+import com.linpinger.tool.FoxEpubWriter;
+import com.linpinger.tool.ToolBookJava;
+import com.linpinger.tool.ToolJava;
+import com.linpinger.tool.site_qidian;
 import com.ray.tools.umd.builder.Umd;
 import com.ray.tools.umd.builder.UmdChapters;
 import com.ray.tools.umd.builder.UmdHeader;

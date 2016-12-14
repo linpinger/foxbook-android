@@ -2,6 +2,9 @@ package com.linpinger.foxbook;
 
 import java.util.Map;
 
+import com.linpinger.tool.ToolAndroid;
+import com.linpinger.tool.site_qidian;
+
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ContentValues;
@@ -105,27 +108,27 @@ public class Activity_BookInfo extends Activity {
 			break;
 		case R.id.bi_copyBookName:
 			String bn = edt_bname.getText().toString();
-			ToolAndroid.setcliptext(bn, this);
+			ToolAndroid.setClipText(bn, this);
 			foxtip("¼ôÌù°å: " + bn);
 			break;
 		case R.id.bi_copyQidianID:
 			String bq = edt_qdid.getText().toString();
-			ToolAndroid.setcliptext(bq, this);
+			ToolAndroid.setClipText(bq, this);
 			foxtip("¼ôÌù°å: " + bq);
 			break;
 		case R.id.bi_copyURL: // ¸´ÖÆ
 			String bu = edt_burl.getText().toString();
-			ToolAndroid.setcliptext(bu, this);
+			ToolAndroid.setClipText(bu, this);
 			foxtip("¼ôÌù°å: " + bu);
 			break;
 		case R.id.bi_pasteBookName: // Õ³Ìù
-			edt_bname.setText(ToolAndroid.getcliptext(this));
+			edt_bname.setText(ToolAndroid.getClipText(this));
 			break;
 		case R.id.bi_pasteQidianID:
-			edt_qdid.setText(ToolAndroid.getcliptext(this));
+			edt_qdid.setText(ToolAndroid.getClipText(this));
 			break;
 		case R.id.bi_pasteURL:
-			edt_burl.setText(ToolAndroid.getcliptext(this));
+			edt_burl.setText(ToolAndroid.getClipText(this));
 			break;
 		case android.R.id.home: // ·µ»ØÍ¼±ê
 			onBackPressed();

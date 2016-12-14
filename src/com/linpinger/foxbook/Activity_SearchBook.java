@@ -27,6 +27,10 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 
+import com.linpinger.tool.ToolAndroid;
+import com.linpinger.tool.ToolBookJava;
+import com.linpinger.tool.site_qidian;
+
 public class Activity_SearchBook extends Activity {
 	public static FoxMemDB oDB;
 	private long mExitTime ;
@@ -306,7 +310,7 @@ public class Activity_SearchBook extends Activity {
 	
 	private String funcCopyURL() {
 		String ua = wv.getUrl();
-		ToolAndroid.setcliptext(ua, this);
+		ToolAndroid.setClipText(ua, this);
 		foxtip("¼ôÌù°å:\n" + ua);
 		return ua;
 	}

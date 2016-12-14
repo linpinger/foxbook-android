@@ -8,6 +8,12 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.linpinger.tool.Activity_FileChooser;
+import com.linpinger.tool.FoxZipReader;
+import com.linpinger.tool.ToolAndroid;
+import com.linpinger.tool.ToolBookJava;
+import com.linpinger.tool.site_qidian;
+
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;

@@ -3,6 +3,9 @@ package com.linpinger.foxbook;
 
 import java.io.File;
 
+import com.linpinger.tool.Activity_FileChooser;
+import com.linpinger.tool.ToolAndroid;
+
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.SharedPreferences;

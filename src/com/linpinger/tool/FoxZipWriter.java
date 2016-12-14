@@ -1,6 +1,8 @@
-package com.linpinger.foxbook;
+package com.linpinger.tool;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
@@ -14,7 +16,7 @@ public class FoxZipWriter {
 		try {
 			fos = new FileOutputStream(oZipFile);
 		} catch (Exception e) {
-			System.out.println(e.toString());
+			System.err.println(e.toString());
 		}
 		zos = new ZipOutputStream(fos);
 	}
@@ -27,7 +29,7 @@ public class FoxZipWriter {
 		try {
 			putBinFile(content.getBytes(outEncoding), filename, false);
 		} catch (Exception e) {
-			System.out.println(e.toString());
+			System.err.println(e.toString());
 		}
 	}
 
@@ -49,7 +51,24 @@ public class FoxZipWriter {
 			zos.write(b, 0, b.length);
 			zos.closeEntry();
 		} catch (Exception e) {
-			System.out.println(e.toString());
+			System.err.println(e.toString());
+		}
+	}
+
+	public void putBinFile(File inFile, String filename) {  // 将文件写入zip
+		ZipEntry entry = new ZipEntry(filename);
+		try {
+			zos.putNextEntry(entry);
+			byte buffer[] = new byte[1048576]; // 1M
+			BufferedInputStream in = new BufferedInputStream(new FileInputStream(inFile), 1048576);
+			int realLength;
+			while ((realLength = in.read(buffer)) != -1)
+				zos.write(buffer, 0, realLength);
+			in.close();
+			zos.flush();
+			zos.closeEntry();
+		} catch (Exception e) {
+			System.err.println(e.toString());
 		}
 	}
 
@@ -58,7 +77,7 @@ public class FoxZipWriter {
 			zos.close();
             fos.close();
 		} catch (Exception e) {
-			System.out.println(e.toString());
+			System.err.println(e.toString());
 		}
 	}
 
