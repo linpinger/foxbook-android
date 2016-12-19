@@ -58,6 +58,8 @@ public class Activity_ShowPage4Eink extends Activity {
 	SharedPreferences.Editor editor;
 	private String myBGcolor = "default" ;  // 背景:默认羊皮纸
 	private boolean isMapUpKey = false; // 是否映射上翻为下翻键
+
+	private boolean isShowSettingMenus = true ; // 是否显示 下面的设置菜单项，一般只是在第一次使用的时候需要调整
 	private float fontsize = 36.0f; // 字体大小
 	private float paddingMultip  = 0.5f ; // 页边距 = 字体大小 * paddingMultip
 	private float lineSpaceingMultip = 1.5f ; // 行间距倍数
@@ -199,6 +201,7 @@ public class Activity_ShowPage4Eink extends Activity {
 		tLastPushEinkButton = System.currentTimeMillis();
 
         isMapUpKey = settings.getBoolean("isMapUpKey", isMapUpKey);
+        isShowSettingMenus = settings.getBoolean("isShowSettingMenus", isShowSettingMenus);
 
         fontsize = settings.getFloat("fontsize", (float)ToolAndroid.sp2px(this, 18.5f)); // 字体大小
 		mv.setFontSize(fontsize);
@@ -299,12 +302,45 @@ public class Activity_ShowPage4Eink extends Activity {
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		if ( v == mv ) { // menu.setHeaderTitle("菜单名");
 			getMenuInflater().inflate(R.menu.showpage4eink, menu);
+			int itemcount = menu.size();
+			for ( int i=0; i< itemcount; i++){ // 显示/隐藏菜单
+				switch (menu.getItem(i).getItemId()) {
+					case R.id.sp_set_size_up:
+					case R.id.sp_set_size_down:
+					case R.id.paddingup:
+					case R.id.paddingdown:
+					case R.id.sp_set_linespace_up:
+					case R.id.sp_set_linespace_down:
+						menu.getItem(i).setVisible(isShowSettingMenus);
+						break;
+					case R.id.ck_isShowSettingMenus:
+						menu.getItem(i).setChecked(isShowSettingMenus);
+						if ( isShowSettingMenus )
+							menu.getItem(i).setTitle("已显示字体设置菜单");
+						else
+							menu.getItem(i).setTitle("已隐藏字体设置菜单");
+						break;
+					default:
+						break;
+				}
+			}
 		}
 		super.onCreateContextMenu(menu, v, menuInfo);
 	}
 
 	public boolean onContextItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+		case R.id.ck_isShowSettingMenus:
+			isShowSettingMenus = ! item.isChecked(); // 根据选项是否选中确定是否开启
+			item.setChecked(isShowSettingMenus);
+			if ( isShowSettingMenus )
+				item.setTitle("已显示字体设置菜单");
+			else
+				item.setTitle("已隐藏字体设置菜单");
+			editor.putBoolean("isShowSettingMenus", isShowSettingMenus);
+			editor.commit();
+			foxtip("点开菜单以查看效果");
+			break;
 		case R.id.show_prev:
 			mv.setPrevText(); // 上一章
 			mv.postInvalidate();

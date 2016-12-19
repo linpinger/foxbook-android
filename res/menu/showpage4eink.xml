@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <item
-        android:id="@+id/show_prev"
-        android:title="上一章"/>
-    <item
         android:id="@+id/show_next"
-         android:title="下一章"/>
+         android:title="　　下一章　▶"/>
+    <item
+        android:id="@+id/show_prev"
+        android:title="◀　上一章　"/>
     <item
         android:id="@+id/sp_set_size_up"
         android:title="增大字体"/>
@@ -24,6 +24,13 @@
     <item
         android:id="@+id/sp_set_linespace_down"
         android:title="减行间距"/>
+
+    <item
+        android:id="@+id/ck_isShowSettingMenus"
+        android:checkable="true"
+        android:checked="true"
+        android:title="已显示字体设置菜单" />
+
     <item android:id="@+id/selectFont" android:title="选择字体" />
     <item android:id="@+id/userfont" android:title="使用自定义字体"/>
 	<item android:id="@+id/setting" android:title="设置" />
