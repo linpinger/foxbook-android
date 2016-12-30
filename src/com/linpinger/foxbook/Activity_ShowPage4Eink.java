@@ -8,11 +8,14 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.linpinger.novel.NV;
+import com.linpinger.novel.NovelManager;
+import com.linpinger.novel.Site1024;
+import com.linpinger.novel.SiteQiDian;
 import com.linpinger.tool.Activity_FileChooser;
 import com.linpinger.tool.FoxZipReader;
 import com.linpinger.tool.ToolAndroid;
 import com.linpinger.tool.ToolBookJava;
-import com.linpinger.tool.site_qidian;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -38,21 +41,16 @@ import android.widget.Toast;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class Activity_ShowPage4Eink extends Activity {
-	public static FoxMemDB oDB;
+	private NovelManager nm;
+
+	private int ittAction = 0 ;  // 传入数据
+	private int bookIDX = -1 ; // 翻页时使用
+	private int pageIDX = -1 ; // 翻页时使用
+
 
 	FoxTextView mv;
 	private float cX = 0 ; // 点击View的坐标
 	private float cY = 0 ; // 点击View的坐标
-
-	private int foxfrom = 0 ;  // 1=DB, 2=search 
-	private int bookid = 0 ; // 翻页时使用
-	private int pageid = 0 ;
-	private String pagetext = "暂缺" ;
-	private String pagename = "" ;
-	private String pageurl = "" ;
-
-	private String bookname = "";
-	private String allpagescount = "0" ;
 
 	SharedPreferences settings;
 	SharedPreferences.Editor editor;
@@ -69,68 +67,54 @@ public class Activity_ShowPage4Eink extends Activity {
 
 	private final int IS_REFRESH = 5 ;
 
-	private int SE_TYPE = 1; // 搜索引擎
-	
 	private File ZIPFILE ;
 
 
 	private class FoxTextView extends Ext_View_FoxTextView {
-
 		public FoxTextView(Context context) {
 			super(context);
 		}
 
 		private int setPrevOrNextText(boolean isNextPage) {
-			String strNoMoreTip ;
-			String whereStrA;
-			String whereStrB;
-			String addSQL = " and content is not null ";
-
-			if ( foxfrom == SITES.FROM_ZIP )
-				addSQL = "" ;
-
-			if ( isNextPage ) {
-				strNoMoreTip = "亲，没有下一页了";
-				whereStrA = "id > " + pageid + " and bookid = " + bookid + addSQL + " limit 1" ;
-				whereStrB = "page.bookid=book.id and bookid > " + bookid + addSQL + " order by bookid, id limit 1";
-			} else {
-				strNoMoreTip = "亲，没有上一页了";
-				whereStrA = "id < " + pageid + " and bookid = " + bookid + addSQL + " order by id desc limit 1" ;
-				whereStrB = "page.bookid=book.id and bookid < " + bookid + addSQL + " order by bookid desc, id desc limit 1";
-			}
-
-			if ( 0 == pageid ) {
-				foxtip("亲，ID 为 0");
+			if ( -1 == pageIDX ) { // 网络，应重定义为-1
+				foxtip("亲，ID 为 -1");
 				return -1;
 			}
-			
 
-			Map<String,String> pp ;
-			pp = oDB.getOneRow("select id as id, bookid as bid, name as name, url as url, content as content from page where " + whereStrA); // 本书
-			if ( null == pp.get("id") ) {
-				pp = oDB.getOneRow("select page.id as id, page.bookid as bid, page.name as name, page.url as url, page.content as content, book.name as bnn from book, page where " + whereStrB);
-				if ( null == pp.get("name") ) {
-					foxtip(strNoMoreTip);
-					return -2;
-				}
-				bookname = pp.get("bnn");
+			Map<String, Object> mp ;
+			String strNoMoreTip ;
+			if ( isNextPage ) {
+				mp = nm.getNextPage(bookIDX, pageIDX);
+				strNoMoreTip = "亲，没有下一页了";
+			} else {
+				mp = nm.getPrevPage(bookIDX, pageIDX);
+				strNoMoreTip = "亲，没有上一页了";
 			}
-			pageid = Integer.valueOf(pp.get("id"));
-			bookid = Integer.valueOf(pp.get("bid"));
-			pagename = pp.get("name");
-			pagetext = pp.get("content");
-
-			if ( foxfrom == SITES.FROM_ZIP ) {
-				String html = FoxZipReader.getUtf8TextFromZip(ZIPFILE, pp.get("url"));
-				if ( html.contains("\"tpc_content\"") ) {
-					HashMap<String, Object> cc = ToolBookJava.getPage1024(html);
-					pagetext = cc.get("content").toString();
-					pagename = cc.get("title").toString();
-				}
+			if ( null == mp ) {
+				foxtip(strNoMoreTip);
+				return -2;
 			}
+			if ( ittAction == AC.aShowPageInZip1024 ) {
+				String html = FoxZipReader.getUtf8TextFromZip(ZIPFILE, mp.get(NV.PageURL).toString());
+				if ( html.contains("\"tpc_content\"") )
+					mp.putAll(new Site1024().getContentTitle(html));
+			}
+			String newBookAddWJX = "★" ;
+			if ( (Integer)mp.get(NV.BookIDX) == bookIDX )
+				newBookAddWJX = "" ;
 
+			bookIDX = (Integer) mp.get(NV.BookIDX);
+			pageIDX = (Integer) mp.get(NV.PageIDX);
+			String pagetext = mp.get(NV.Content).toString();
+			if ( pagetext.length() == 0 ) {
+				foxtip("内容未下载: " + mp.get(NV.PageName));
+				return -3;
+			}
 			pagetext = ProcessLongOneLine(pagetext);
-			mv.setText(pagename, "　　" + pagetext.replace("\n", "\n　　"), bookname + "   " + pageid + " / " + allpagescount);
+			mv.setText(newBookAddWJX + mp.get(NV.PageName).toString()
+					, "　　" + pagetext.replace("\n", "\n　　")
+					, nm.getBookInfo(bookIDX).get(NV.BookName).toString()
+					+ "   " + nm.getPagePosAtShelfPages(bookIDX, pageIDX));
 			return 0;
 		}
 
@@ -144,8 +128,6 @@ public class Activity_ShowPage4Eink extends Activity {
 			return setPrevOrNextText(true); // 下一
 		}
 	}
-
-
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -163,6 +145,8 @@ public class Activity_ShowPage4Eink extends Activity {
 		setBGcolor(myBGcolor);
 
 		isProcessLongOneLine = settings.getBoolean("isProcessLongOneLine", isProcessLongOneLine);
+
+		this.nm = ((FoxApp)this.getApplication()).nm;
 
 		mv = new FoxTextView(this); // 自定义View
 		mv.setBodyBold(settings.getBoolean("isBodyBold", false));
@@ -212,88 +196,96 @@ public class Activity_ShowPage4Eink extends Activity {
 		lineSpaceingMultip = settings.getFloat("lineSpaceingMultip", lineSpaceingMultip);
 		mv.setLineSpaceing(String.valueOf(lineSpaceingMultip) + "f");
 
-		Intent itt = getIntent();
-		foxfrom = itt.getIntExtra("iam", 0);       // 必需 表明数据从哪来的
-		pagename = itt.getStringExtra("chapter_name");
-		pageurl = itt.getStringExtra("chapter_url");
-		SE_TYPE = itt.getIntExtra("searchengine", 1) ; // 给出搜索引擎类型
-
 		final Handler handler = new Handler() {
 			public void handleMessage(Message msg) {
-				String sText = (String)msg.obj;
 				if ( msg.what == IS_REFRESH ) {
+					HashMap<String, String> page = (HashMap<String, String>)msg.obj;
+					String sText = page.get(NV.Content);
 					if ( sText.length() < 9 ) {
-						mv.setText("错误", "　　啊噢，可能处理的时候出现问题了哦\n\nURL: " + pageurl + "\nPageName: " + pagename + "\nContent:" + sText);
+						mv.setText("错误", "　　啊噢，可能处理的时候出现问题了哦\n\nURL: "
+								+ page.get(NV.PageFullURL)
+								+ "\nPageName: " + page.get(NV.PageName)
+								+ "\nContent:" + sText);
 					} else {
-						pagetext = ProcessLongOneLine(pagetext);
-						mv.setText(pagename, "　　" + sText.replace("\n", "\n　　"));
+						sText = ProcessLongOneLine(sText);
+						mv.setText(page.get(NV.PageName).toString(), "　　" + sText.replace("\n", "\n　　"));
 					}
 					mv.postInvalidate();
 				}
 			}
 		};
 
-		final Runnable down_page = new Runnable() {
-			@Override
-			public void run() {
-				String text = "";
-				switch(SE_TYPE) {
-				case SITES.SE_QIDIAN_MOBILE:
-					text = ToolBookJava.downhtml(pageurl, "GBK");
-					text = site_qidian.qidian_getTextFromPageJS(text);
-					break;
-				default:
-					text = FoxMemDBHelper.updatepage(-1, pageurl, oDB) ;
-				}
-				Message msg = Message.obtain();
-				msg.what = IS_REFRESH;
-				msg.obj = text;
-				handler.sendMessage(msg);
-			}
-		};
-
-		switch (foxfrom) {
-		case SITES.FROM_DB: // DB
-			pageid =  itt.getIntExtra("chapter_id", 0);
-			Map<String,String> infox = oDB.getOneRow("select page.bookid as bid, page.Content as cc, page.Name as naa, book.name as bnn from book,page where page.bookid=book.id and page.id = " + pageid ); // + " and page.Content is not null");
-			bookid = Integer.valueOf(infox.get("bid")); // 翻页使用
-			pagetext = infox.get("cc") ;
-			pagename = infox.get("naa") ;
-			bookname = infox.get("bnn") ;
-
+		Intent itt = getIntent();
+		ittAction = itt.getIntExtra(AC.action, 0); // 必需 表明动作
+		bookIDX = itt.getIntExtra(NV.BookIDX, -1);
+		pageIDX = itt.getIntExtra(NV.PageIDX, -1);
+		if ( ittAction == AC.aShowPageInMem ) { // 1024DB3
+			if ( nm.getBookInfo(bookIDX).get(NV.BookURL).toString().contains("zip://") )
+				ittAction = AC.aShowPageInZip1024 ;
+		}
+switch (ittAction) {
+		case AC.aShowPageInMem:
+			Map<String, Object> page = nm.getPage(bookIDX, pageIDX);
+			String pagetext = page.get(NV.Content).toString();
 			if ( null == pagetext | pagetext.length() < 5  )
 				pagetext = "本章节内容还没下载，请回到列表，更新本书或本章节" ;
-			allpagescount = oDB.getOneCell("select count(id) from page");
 			pagetext = ProcessLongOneLine(pagetext);
-			mv.setText(pagename, "　　" + pagetext.replace("\n", "\n　　"), bookname + "   " + pageid + " / " + allpagescount);
+			mv.setText(page.get(NV.PageName).toString()
+					, "　　" + pagetext.replace("\n", "\n　　")
+					, nm.getBookInfo(bookIDX).get(NV.BookName).toString()
+					+ "   " + nm.getPagePosAtShelfPages(bookIDX, pageIDX));
 			break;
-		case SITES.FROM_NET: // NET
-			new Thread(down_page).start();
+		case AC.aShowPageOnNet: // NET
+			final String pageTitle = itt.getStringExtra(NV.PageName);
+			final String fullPageURL = itt.getStringExtra(NV.PageFullURL);
+			new Thread( new Runnable() {
+				@Override
+				public void run() {
+					String text = "";
+					if ( fullPageURL.contains("files.qidian.com") )
+						text = new SiteQiDian().getContentFromJS(ToolBookJava.downhtml(fullPageURL, "GBK"));
+					else
+						text = nm.updatePage(fullPageURL) ;
+
+					HashMap<String, String> page = new HashMap<String, String>(2);
+					page.put(NV.PageName, pageTitle);
+					page.put(NV.Content, text);
+					page.put(NV.PageFullURL, fullPageURL);
+
+					Message msg = Message.obtain();
+					msg.what = IS_REFRESH;
+					msg.obj = page;
+					handler.sendMessage(msg);
+				}
+			}).start();
 			break;
-		case SITES.FROM_ZIP: // ZIP文件
-			pageid =  itt.getIntExtra("chapter_id", 0);
-			bookid = Integer.valueOf(oDB.getOneCell("select bookid from page where id = " + pageid )); // 翻页使用
-			allpagescount = oDB.getOneCell("select count(id) from page");
-			
-	    	Matcher mat = Pattern.compile("(?i)^zip://([^@]*?)@([^@]*)$").matcher(pageurl);
+		case AC.aShowPageInZip1024: // ZIP文件
+			String zipPageFullURL = itt.getStringExtra(NV.PageFullURL);
+	    	Matcher mat = Pattern.compile("(?i)^zip://([^@]*?)@([^@]*)$").matcher(zipPageFullURL);
 	    	String zipRelPath = "";
 	    	String zipItemName = "";
 	    	while (mat.find()) {
 	    		zipRelPath = mat.group(1) ;
 	    		zipItemName = mat.group(2) ;
 	    	}
-	    	ZIPFILE = new File(oDB.getDBFile().getParent() + "/" + zipRelPath);
+
+	    	ZIPFILE = new File(nm.getShelfFile().getParent() + "/" + zipRelPath);
 	    	String html = FoxZipReader.getUtf8TextFromZip(ZIPFILE, zipItemName);
+	    	String content = "";
+	    	String pageName = "";
 			if ( html.contains("\"tpc_content\"") ) {
-				HashMap<String, Object> cc = ToolBookJava.getPage1024(html);
-				pagetext = cc.get("content").toString();
-				pagename = cc.get("title").toString();
+				HashMap<String, Object> xx = new Site1024().getContentTitle(html);
+				pageName = xx.get(NV.PageName).toString();
+				content = xx.get(NV.Content).toString();
 			}
-			mv.setText(pagename, "　　" + pagetext.replace("\n", "\n　　"), bookname + "   " + pageid + " / " + allpagescount);
+
+			mv.setText(pageName , "　　" + content.replace("\n", "\n　　")
+					, nm.getBookInfo(bookIDX).get(NV.BookName).toString()
+					+ "   " + nm.getPagePosAtShelfPages(bookIDX, pageIDX));
 			break;
 		default:
 			break;
-		} // switch 结束
+} // switch 结束
 
 	} // oncreate 结束
 
@@ -302,23 +294,33 @@ public class Activity_ShowPage4Eink extends Activity {
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		if ( v == mv ) { // menu.setHeaderTitle("菜单名");
 			getMenuInflater().inflate(R.menu.showpage4eink, menu);
+			MenuItem mit ;
 			int itemcount = menu.size();
 			for ( int i=0; i< itemcount; i++){ // 显示/隐藏菜单
-				switch (menu.getItem(i).getItemId()) {
+				mit = menu.getItem(i);
+				switch ( mit.getItemId() ) {
 					case R.id.sp_set_size_up:
 					case R.id.sp_set_size_down:
 					case R.id.paddingup:
 					case R.id.paddingdown:
 					case R.id.sp_set_linespace_up:
 					case R.id.sp_set_linespace_down:
-						menu.getItem(i).setVisible(isShowSettingMenus);
+					case R.id.userfont:
+					case R.id.selectFont:
+						mit.setVisible(isShowSettingMenus);
+						break;
+					case R.id.show_next:
+					case R.id.show_prev:
+					case R.id.setting:
+					case R.id.group1:
+						mit.setVisible( ! isShowSettingMenus );
 						break;
 					case R.id.ck_isShowSettingMenus:
-						menu.getItem(i).setChecked(isShowSettingMenus);
+						mit.setChecked(isShowSettingMenus);
 						if ( isShowSettingMenus )
-							menu.getItem(i).setTitle("已显示字体设置菜单");
+							mit.setTitle("已显示字体设置菜单");
 						else
-							menu.getItem(i).setTitle("已隐藏字体设置菜单");
+							mit.setTitle("已隐藏字体设置菜单");
 						break;
 					default:
 						break;
@@ -515,6 +517,8 @@ public class Activity_ShowPage4Eink extends Activity {
 //		long sTime = System.currentTimeMillis();
 
 		int sLen = iText.length(); // 字符数
+		if ( sLen == 0 )
+			return "";
 		int lineCount = 0 ; // 行数
 		try {
 			LineNumberReader lnr = new LineNumberReader(new StringReader(iText));

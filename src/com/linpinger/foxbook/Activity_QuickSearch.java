@@ -1,12 +1,12 @@
 package com.linpinger.foxbook;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.linpinger.novel.NV;
 import com.linpinger.tool.Ext_ListActivity_4Eink;
 import com.linpinger.tool.ToolBookJava;
 
@@ -19,14 +19,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.AdapterView.OnItemClickListener;
 
+// Activity_PageList : 单击列表
+
 public class Activity_QuickSearch extends Ext_ListActivity_4Eink {
-	public static FoxMemDB oDB;
 	private ListView lv_sitelist ;
 	SimpleAdapter adapter;
 	private List<Map<String, Object>> data;
@@ -34,7 +36,6 @@ public class Activity_QuickSearch extends Ext_ListActivity_4Eink {
 	private static int IS_REFRESH = 5 ;
 	
 	SharedPreferences settings;
-	private boolean isWhiteActionBar = false; // 白色动作栏
 
 	private String book_name = "" ;
 	private String book_url = "" ;
@@ -50,95 +51,90 @@ public class Activity_QuickSearch extends Ext_ListActivity_4Eink {
 	@Override
 	public void onCreate(Bundle savedInstanceState) { // 入口
 		settings = PreferenceManager.getDefaultSharedPreferences(this);
-		isWhiteActionBar = settings.getBoolean("isWhiteActionBar", isWhiteActionBar);
-		if ( isWhiteActionBar ) {
+		if ( settings.getBoolean("isWhiteActionBar", false) )
 			this.setTheme(android.R.style.Theme_DeviceDefault_Light);
-		}
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_quicksearch);
-		
+		showHomeUp();
+
 		lv_sitelist = getListView();
-		
+
 		Intent itt = getIntent();
-		book_name = itt.getStringExtra("bookname"); // 必需
-		SE_TYPE = itt.getIntExtra("searchengine", 1) ;
-		
+		book_name = itt.getStringExtra(NV.BookName); // 必需
+		SE_TYPE = itt.getIntExtra(AC.searchEngine, 1) ;
+
 		setTitle("搜索: " + book_name);
-		
+
 		data = new ArrayList<Map<String, Object>>();
 		refreshLVAdapter();
-		
-		init_handler() ; // 初始化一个handler 用于处理后台线程的消息
 		
 		init_LV_item_click() ; // 初始化 单击 条目 的行为
 		
 		String seURL = "" ;
 		try {
 			switch (SE_TYPE) { // 1:sogou 2:yahoo 3:bing
-			case SITES.SE_SOGOU:
+			case AC.SE_SOGOU:
 				seURL = "http://www.sogou.com/web?query=" + URLEncoder.encode(book_name, "GB2312") + "&num=50" ;
 				break;
-			case SITES.SE_YAHOO:
+			case AC.SE_YAHOO:
 				seURL = "http://search.yahoo.com/search?n=40&p=" + URLEncoder.encode(book_name, "UTF-8") ;
 				break;
-			case SITES.SE_BING:
+			case AC.SE_BING:
 				seURL = "http://cn.bing.com/search?q=" + URLEncoder.encode(book_name, "UTF-8") ;
 				break;
 			}
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			System.err.println(e.toString());
 		}
-		new Thread(new DownTOC(seURL)).start();
+
+		init_handler() ; // 初始化一个handler 用于处理后台线程的消息
+
+		final String thURL = seURL ;
+		(new Thread(){
+			public void run(){
+				data = ToolBookJava.getSearchEngineHref( ToolBookJava.downhtml(thURL) , book_name); // 搜索引擎网页分析放在这里
+				handler.sendEmptyMessage(IS_REFRESH);
+			}
+		}).start();
+
 	}
 
 	private void refreshLVAdapter() {
 		adapter = new SimpleAdapter(this, data,
-				android.R.layout.simple_list_item_2, new String[] { "name", "url" },
+				android.R.layout.simple_list_item_2, new String[] { NV.BookName, NV.BookURL },
 				new int[] { android.R.id.text1, android.R.id.text2 });
 		lv_sitelist.setAdapter(adapter);
 	}
-	
+
 	private void init_LV_item_click() { // 初始化 单击 条目 的行为
 		OnItemClickListener listener = new OnItemClickListener() {
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				Map<String, Object> chapinfo = (HashMap<String, Object>) parent.getItemAtPosition(position);
-				book_url = (String) chapinfo.get("url");
-				Intent intent = new Intent(Activity_QuickSearch.this, Activity_PageList.class);
-				intent.putExtra("iam", SITES.FROM_NET);
-				intent.putExtra("bookurl", book_url);
-				intent.putExtra("bookname", book_name);
-				intent.putExtra("searchengine", SE_TYPE);
-				Activity_PageList.oDB = oDB;
-				startActivity(intent);
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				Map<String, Object> book = (HashMap<String, Object>) parent.getItemAtPosition(position);
+				book_url = (String) book.get(NV.BookURL);
+				Intent itt = new Intent(Activity_QuickSearch.this, Activity_PageList.class);
+				itt.putExtra(AC.action, AC.aSearchBookOnSite);
+				itt.putExtra(NV.BookURL, book_url);
+				itt.putExtra(NV.BookName, book_name);
+				startActivity(itt);
 			}
 		};
 		lv_sitelist.setOnItemClickListener(listener);
 	}
 
-	
-	public class DownTOC implements Runnable { // 后台线程下载网页
-		private String bookurl = "";
-		
-		public DownTOC(String inbookurl){
-			this.bookurl = inbookurl;
+	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作
+		switch (item.getItemId()) {
+		case android.R.id.home: // 返回图标
+			finish();
+			break;
 		}
-		@Override
-		public void run() {
-			Message msg = Message.obtain();
-			msg.what = IS_REFRESH;
-			msg.obj = ToolBookJava.downhtml(this.bookurl);
-			handler.sendMessage(msg);
-		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	private void init_handler() { // 初始化一个handler 用于处理后台线程的消息
 		handler = new Handler() {
 			public void handleMessage(Message msg) {
 				if ( msg.what == IS_REFRESH ) { // 下载完毕
-					String sHTTP = (String)msg.obj;				
-					data = ToolBookJava.getSearchEngineHref(sHTTP, book_name); // 搜索引擎网页分析放在这里
 					refreshLVAdapter();
 				}
 			}

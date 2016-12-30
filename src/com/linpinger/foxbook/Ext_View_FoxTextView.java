@@ -23,7 +23,7 @@ public class Ext_View_FoxTextView extends View  {
 	private Paint p;
 	
 	// 配置
-	String txt = "木有内容，真是个悲伤的消息";
+	String txt = "木有内容，稍等可能正在下载，如果长时间木有反应，请返回";
 	String firstPageInfoL = "" ;   // 第一页时，在左侧信息处显示的信息
 	String infoL = "我是萌萌哒标题";
 	String infoR = "15:55  0%";

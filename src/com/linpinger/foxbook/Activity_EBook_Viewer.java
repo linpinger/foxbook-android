@@ -5,16 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.linpinger.novel.NV;
+import com.linpinger.novel.NovelManager;
 import com.linpinger.tool.Ext_ListActivity_4Eink;
-import com.linpinger.tool.FoxEpubReader;
-import com.linpinger.tool.FoxZipReader;
-import com.linpinger.tool.ToolBookJava;
-
 import android.annotation.TargetApi;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -24,6 +20,8 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
+
+// Activity_ShowPage4Eink : 单击列表, 显示内容   onListItemClick
 
 public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 	
@@ -35,22 +33,20 @@ public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 	public final int TXT = 200 ;       // 普通txt
 	public final int TXTQIDIAN = 217 ; // 起点txt
 	
-	private int EBOOKTYPE = ZIP ;  // 处理的zip/epub类型
+	private int eBookType = ZIP ;  // 处理的zip/epub类型
 	
 	private List<Map<String, Object>> data;
 	private ListView lv_pagelist ;
 	SimpleAdapter adapter;
-	public FoxMemDB oDB  ; // 默认使用MemDB
+	private NovelManager nm;
 
-	private String eBookPath ;
-	private int tmpBookID = 0; // 读取zip会用到
-	private boolean isNewImportQDtxt = true ; // 使用新版起点txt导入方法
+	private File eBookFile ;
 
 	SharedPreferences settings;
 
 	private void renderListView() { // 刷新LV
 		adapter = new SimpleAdapter(this, data,
-				R.layout.lv_item_pagelist, new String[] { "name", "count" },
+				R.layout.lv_item_pagelist, new String[] { NV.PageName, NV.Size },
 				new int[] { R.id.tvName, R.id.tvCount });
 		lv_pagelist.setAdapter(adapter);
 	}
@@ -73,158 +69,59 @@ public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 		
 		lv_pagelist = getListView();
 		
-		isNewImportQDtxt = settings.getBoolean("isNewImportQDtxt", isNewImportQDtxt);
-		
 		// 获取传入的文件路径
 		Intent itt = getIntent();
-		eBookPath = itt.getData().getPath(); // 从intent获取txt/zip/epub路径
-		if ( eBookPath.toLowerCase().endsWith(".epub"))
-			EBOOKTYPE = EPUB ;
-		if ( eBookPath.toLowerCase().endsWith(".zip"))
-			EBOOKTYPE = ZIP ;
-		if ( eBookPath.toLowerCase().endsWith(".txt"))
-			EBOOKTYPE = TXT ;
-		
-		String eBookPathWithoutExt = eBookPath.replace(".zip", "").replace(".epub", "").replace(".txt", "") ; // Bug: 如果为.Txt, .ZIP 就坑了
-		File DB3File = new File(eBookPathWithoutExt + ".db3");
-		if ( DB3File.exists() ) { // 存在，就重命名一下
-			File bakFile = new File(eBookPathWithoutExt + "_" + System.currentTimeMillis() + ".db3");
-			DB3File.renameTo(bakFile);
-			foxtip("数据库存在，重命名为:\n" + bakFile.getName());
-		}
-		oDB = new FoxMemDB(DB3File, this.getApplicationContext()) ; // 创建内存数据库
-		
-		setTitle(eBookPath);
-		reimport();
-	
-	}
-	
-	private void reimport() {
-		switch (EBOOKTYPE) {
-		case ZIP:
-		case ZIP1024:
-			// TODO: 普通zip处理
-			EBOOKTYPE = ZIP1024 ;
-			tmpBookID = FoxMemDBHelper.insertbook("zip", "http://127.0.0.1/", "5", oDB);
-			FoxZipReader z = new FoxZipReader(new File(eBookPath));
-			data = z.getFileList();
-			z.close();
-			renderListView();  // 处理好data后再刷新列表
-			break;
-		case EPUB:
-		case EPUBQIDIAN:
-		case EPUBFOXMAKE:
-			FoxEpubReader epub = new FoxEpubReader(new File(eBookPath));
-			if ( epub.getTextFile("catalog.html").length() == 0 ) { // 非起点 epub
-				if ( epub.getTextFile("FoxMake.htm").length() == 0 ) { // 非 FoxMake epub
-					EBOOKTYPE = EPUB ;
-					System.out.println("Todo: 暂不支持解析该Epub类型");
-					foxtip("暂不支持解析该Epub类型");
-					return ;
-				} else {
-					EBOOKTYPE = EPUBFOXMAKE;
-					setTitle(FoxMemDBHelper.importFoxMakeEpub(epub, oDB));
-				}
-			} else {
-				EBOOKTYPE = EPUBQIDIAN;
-				setTitle(FoxMemDBHelper.importQidianEpub(epub, oDB));
-			}
-			epub.close();
-			data = FoxMemDBHelper.getPageList("", oDB); // 获取页面列表
+		eBookFile = new File(itt.getData().getPath());  // 从intent获取txt/zip/epub路径
 
-			renderListView();  // 处理好data后再刷新列表
-			break;
-		case TXT:
-		case TXTQIDIAN:
-//			oDB.execSQL("delete from book"); oDB.execSQL("delete from page");
-			setTitle(FoxMemDBHelper.importQidianTxt(eBookPath, oDB, isNewImportQDtxt));
-			data = FoxMemDBHelper.getPageList("", oDB); // 获取页面列表
-			renderListView();  // 处理好data后再刷新列表
-			break;
-		default:
-			break;
-		}
+		if ( eBookFile.getName().toLowerCase().endsWith(".epub"))
+			eBookType = EPUB ;
+		if ( eBookFile.getName().toLowerCase().endsWith(".zip"))
+			eBookType = ZIP ;
+		if ( eBookFile.getName().toLowerCase().endsWith(".txt"))
+			eBookType = TXT ;
+		
+		this.nm = new NovelManager(eBookFile);
+		((FoxApp)this.getApplication()).nm = this.nm;
 
-	}
-	
+		setTitle(nm.getBookInfo(0).get(NV.BookName).toString());
+		data = nm.getPageList(0);
+		renderListView();  // 处理好data后再刷新列表
+
+	} // onCreate end
+
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		Map<String, Object> chapinfo = (HashMap<String, Object>) data.get(position);
-		String tmpname = (String) chapinfo.get("name");
-		String tmpurl = (String) chapinfo.get("url");
-		Integer tmpid = (Integer) chapinfo.get("id");
-		
-		String pagename = "";
-		String pageurl = "";
-		int pageid = 0;
+		Map<String, Object> page = (HashMap<String, Object>) data.get(position);
 
-		switch (EBOOKTYPE) {
+		// 跳到阅读页
+		Intent itt  = new Intent(Activity_EBook_Viewer.this, Activity_ShowPage4Eink.class);
+		switch (eBookType) {
 		case ZIP:
 		case ZIP1024:
-			long sTime = System.currentTimeMillis();
-			String lowname = tmpname.toLowerCase() ;
-			// 处理html 获取标题，内容
-			String html = "";
-			HashMap<String, Object> cc = new HashMap<String, Object>();
-			if ( lowname.endsWith(".html") | lowname.endsWith(".htm") | lowname.endsWith(".txt") ) {
-				html = FoxZipReader.getUtf8TextFromZip(new File(eBookPath), tmpname);
-				if ( html.contains("\"tpc_content\"") )
-					cc = ToolBookJava.getPage1024(html);
+			String zipItemName = page.get(NV.PageName).toString();
+			setTitle(zipItemName);
+			if ( zipItemName.endsWith(".html") | zipItemName.endsWith(".htm") ) {
+				itt.putExtra(NV.PageFullURL, nm.getBookInfo(0).get(NV.BookURL) + "@" + zipItemName);
+		        itt.putExtra(AC.action, AC.aShowPageInZip1024);
+				startActivity(itt);
 			} else {
-				foxtip("暂不支持这种格式的处理");
-				return ;
+				foxtip("暂不支持这种格式的直接查看");
 			}
-
-			pagename = cc.get("title").toString();
-			String content = cc.get("content").toString();
-
-			setTitle(tmpname + " " + (System.currentTimeMillis() - sTime) + "ms " + html.length() + "B " + pagename);
-			
-			// 写入RamDB
-			oDB.execSQL("delete from page");
-			
-	        ContentValues xxx = new ContentValues();
-	        xxx.put("BookID", tmpBookID);
-	        xxx.put("Name", pagename);
-	        xxx.put("URL", tmpname);
-	        xxx.put("CharCount", content.length());
-	        xxx.put("Content", content);
-	        xxx.put("DownTime", 11111);
-	        xxx.put("Mark", "text");
-	        
-	        pageid = (int)oDB.getDB().insert("page", null, xxx);
-	        pageurl = tmpname ;
 			break;
-
 		case EPUB:
 		case EPUBQIDIAN:
 		case EPUBFOXMAKE:
 		case TXT:
 		case TXTQIDIAN:
-			pageid = tmpid;
-			pagename = tmpname;
-			pageurl = tmpurl;
+			setTitle(page.get(NV.PageName).toString());
+			itt.putExtra(AC.action, AC.aShowPageInMem);
+			itt.putExtra(NV.BookIDX, (Integer)page.get(NV.BookIDX)) ;
+			itt.putExtra(NV.PageIDX, (Integer)page.get(NV.PageIDX)) ;
+			startActivity(itt);
 			break;
 		default:
 			break;
 		}
-
-		
-		// 跳到阅读页
-		Intent intent ;
-		if ( settings.getBoolean("isUseNewPageView", true) ) {
-			intent = new Intent(Activity_EBook_Viewer.this, Activity_ShowPage4Eink.class);
-			Activity_ShowPage4Eink.oDB = oDB;
-		} else {
-			intent = new Intent(Activity_EBook_Viewer.this, Activity_ShowPage.class);
-			Activity_ShowPage.oDB = oDB;
-		}
-		intent.putExtra("iam", SITES.FROM_DB); // from DB
-		intent.putExtra("chapter_id", pageid);
-		intent.putExtra("chapter_name", pagename);
-		intent.putExtra("chapter_url", pageurl);
-		intent.putExtra("searchengine", SITES.SE_BING); // SE
-		startActivity(intent);
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu) { // 创建菜单
@@ -232,26 +129,14 @@ public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 		int itemcount = menu.size();
 		for ( int i=0; i< itemcount; i++){
 			switch (menu.getItem(i).getItemId()) {
-			case R.id.is_newimportqdtxt:
-				if ( EBOOKTYPE == TXT || EBOOKTYPE == TXTQIDIAN) {
-					menu.getItem(i).setVisible(true) ; // 显示
-					if ( isNewImportQDtxt )
-						menu.getItem(i).setTitle("旧方法导入起点txt");
-					else
-						menu.getItem(i).setTitle("新方法导入起点txt");
-				} else {
-					menu.getItem(i).setVisible(false) ; // 非txt隐藏
-				}
-				break;
 			case R.id.action_gbk2utf8:
-				if ( EBOOKTYPE == TXT || EBOOKTYPE == TXTQIDIAN)
+				if ( eBookType == TXT || eBookType == TXTQIDIAN)
 					menu.getItem(i).setVisible(true) ; // 显示
 				else
 					menu.getItem(i).setVisible(false) ; // 非txt隐藏
 				break;
 			}
 		}
-
 		return true;
 	}
 	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作
@@ -261,7 +146,9 @@ public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 			System.exit(0);
 			break;
 		case R.id.action_save_exit:
-			oDB.closeMemDB();
+			if ( ! settings.getBoolean("isSaveAsXML", true) )
+				nm.setSaveFormat(NovelManager.SQLITE3);
+			nm.close();
 			this.finish();
 			System.exit(0);
 			break;
@@ -279,21 +166,12 @@ public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 			setItemPos4Eink(midPos);
 			break;
 		case R.id.action_gbk2utf8:  // Txt GBK->UTF-8
-			FoxMemDBHelper.all2txt("all", oDB, eBookPath.replace(".txt", "") + "_UTF8.txt");
-			oDB.getDB().close();
+			nm.exportAsTxt(new File(eBookFile.getPath().replace(".txt", "") + "_UTF8.txt"));
 			this.finish();
 			System.exit(0);
 			break;
-		case R.id.is_newimportqdtxt: // 新旧方式重新导入起点txt
-			isNewImportQDtxt = ! isNewImportQDtxt ;
-			if (isNewImportQDtxt)
-				item.setTitle("旧方法导入起点txt");
-			else
-				item.setTitle("新方法导入起点txt");
-			reimport();
-			Editor editor = settings.edit();
-			editor.putBoolean("isNewImportQDtxt", isNewImportQDtxt);
-			editor.commit();
+		case R.id.settingUI:
+			startActivity(new Intent(Activity_EBook_Viewer.this, Activity_Setting.class));
 			break;
 		}
 		return super.onOptionsItemSelected(item);

@@ -27,12 +27,19 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 
+import com.linpinger.novel.NV;
+import com.linpinger.novel.SiteQiDian;
 import com.linpinger.tool.ToolAndroid;
 import com.linpinger.tool.ToolBookJava;
-import com.linpinger.tool.site_qidian;
+/*
+Activity_PageList :  msg IS_GETQIDIANURL -> Runnable:GetQidianURL : 选项: 快搜:qidian  : aSearchBookOnQiDian, bookname, bookurl
+Activity_PageList :  预览按钮 : aSearchBookOnNet, bookname, bookurl
 
+Activity_QuickSearch : 选项菜单:sogou :  BookName, searchEngine
+Activity_QuickSearch : 选项菜单:bing  :  BookName, searchEngine
+Activity_QuickSearch : 选项菜单:yahoo :  BookName, searchEngine
+*/
 public class Activity_SearchBook extends Activity {
-	public static FoxMemDB oDB;
 	private long mExitTime ;
 	private WebView wv;
 	private EditText et;
@@ -40,26 +47,27 @@ public class Activity_SearchBook extends Activity {
 	private Button btn_pre ;
 	
 	SharedPreferences settings;
-	private boolean isWhiteActionBar = false; // 白色动作栏
-
 	private String book_name = "";
 	private String book_url = "";
 	
 	private final int IS_GETQIDIANURL = 8;
-	private final int IS_DOWNHTML = 5;
 	
 	private static Handler handler;
 	
 	private static final int ItemA1 = Menu.FIRST;
 	private static final int ItemA2 = Menu.FIRST + 1;
 
-	public class GetQidianURL implements Runnable {
+	public class GetQidianURLFromBookName implements Runnable {
+		String bookname ;
+		public GetQidianURLFromBookName(String inBookName) {
+			this.bookname = inBookName;
+		}
 		@Override
 		public void run() {
-			String json = ToolBookJava.downhtml(site_qidian.qidian_getSearchURL_Mobile(book_name), "utf-8");
-            List<Map<String, Object>> qds = site_qidian.json2BookList(json);
-            if ( qds.get(0).get("name").toString().equalsIgnoreCase(book_name) ) { // 第一个结果就是目标书
-            	book_url = qds.get(0).get("url").toString();
+			String json = ToolBookJava.downhtml(new SiteQiDian().getSearchURL_Mobile(this.bookname), "utf-8");
+            List<Map<String, Object>> qds = new SiteQiDian().getJsonBookList(json);
+            if ( qds.get(0).get(NV.BookName).toString().equalsIgnoreCase(this.bookname) ) { // 第一个结果就是目标书
+            	book_url = qds.get(0).get(NV.BookURL).toString();
             }
 
 			Message msg = Message.obtain();
@@ -78,17 +86,15 @@ public class Activity_SearchBook extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		settings = PreferenceManager.getDefaultSharedPreferences(this);
-		isWhiteActionBar = settings.getBoolean("isWhiteActionBar", isWhiteActionBar);
-		if ( isWhiteActionBar ) {
+		if ( settings.getBoolean("isWhiteActionBar", false) )
 			this.setTheme(android.R.style.Theme_DeviceDefault_Light);
-		}
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_search);
 		mExitTime = System.currentTimeMillis();
 		
 		showHomeUp();
-		
+
 		et = (EditText) findViewById(R.id.editText1);
 		wv = (WebView) findViewById(R.id.webView1);
 		btn_search = (ImageButton) findViewById(R.id.button1);
@@ -134,76 +140,31 @@ public class Activity_SearchBook extends Activity {
 						String lcQidianURL = (String)msg.obj;
 						if ( 0 != lcQidianURL.length() ) {
 							Intent intentQD = new Intent(Activity_SearchBook.this, Activity_PageList.class);
-							intentQD.putExtra("iam", SITES.FROM_NET);
-							intentQD.putExtra("bookurl", lcQidianURL);
-							intentQD.putExtra("bookname", book_name);
-							intentQD.putExtra("searchengine", SITES.SE_QIDIAN_MOBILE);
-							Activity_PageList.oDB = oDB;
+							intentQD.putExtra(AC.action, AC.aSearchBookOnQiDian);
+							intentQD.putExtra(NV.BookURL, lcQidianURL);
+							intentQD.putExtra(NV.BookName, book_name);
 							startActivity(intentQD);
 						} else {
 							foxtip("在起点上未搜索到该书名");
 						}
-						break;
-					case IS_DOWNHTML:
-						String html = (String)msg.obj;
-
-						Intent intent = new Intent(Activity_SearchBook.this, Activity_PageList.class);
-						intent.putExtra("iam", SITES.FROM_NET);
-						intent.putExtra("bookurl", book_url);
-						intent.putExtra("bookname", book_name);
-						intent.putExtra("html", html);
-						Activity_PageList.oDB = oDB;
-						startActivity(intent);
 						break;
 				}
 				return false;
 			}
 		});
 
-		final Runnable downHTML = new Runnable() {
-			@Override
-			public void run() {
-				String html = "";
-				if ( book_url.toLowerCase().contains(".qidian.com/") ) { // 起点地址特别处理
-					int qdid = site_qidian.qidian_getBookID_FromURL(book_url);
-					if ( qdid == 0 ) { return ; }
-					book_url = site_qidian.qidian_getIndexURL_Mobile(qdid);
-					html = ToolBookJava.downhtml(book_url, "utf-8");
-				} else {
-					html = ToolBookJava.downhtml(book_url);
-				}
-				
-				Message msg = Message.obtain();
-				msg.what = IS_DOWNHTML;
-				msg.obj = html;
-				handler.sendMessage(msg);
-			}
-		};
-		
-
-
 		btn_pre.setOnClickListener(new OnClickListener() { // 预览按钮
 			public void onClick(View v) {
 				book_url = wv.getUrl();
 				if ( null != book_url ) {
 					setTitle(book_name + " <" + book_url + ">");
-					new Thread(downHTML).start();
+					Intent intent = new Intent(Activity_SearchBook.this, Activity_PageList.class);
+					intent.putExtra(AC.action, AC.aSearchBookOnSite);
+					intent.putExtra(NV.BookURL, book_url);
+					intent.putExtra(NV.BookName, book_name);
+					startActivity(intent);
 				} else { //什么时候会是null？
-					book_url = "";
-					Intent itt = getIntent();
-					book_url = itt.getStringExtra("bookurl");
-					if ( null == book_url ) {
-						book_url = "";
-						setTitle("错误: 当前页面地址为空");
-					} else {
-						// 这里为毛要 get  bookurl bookname ?
-						book_name = itt.getStringExtra("bookname");
-						if ( null == book_name ) {
-							book_name = "";
-						}
-						setTitle("蜜汁下载目录 : " + book_name + " <" + book_url + ">");
-						new Thread(downHTML).start();
-					}
+					setTitle("错误: 当前页面地址为空");
 				}
 			}
 		});
@@ -244,30 +205,27 @@ public class Activity_SearchBook extends Activity {
 			break;
 		case R.id.sm_QuickSearchQidian: // 快搜:起点
 			book_name = et.getText().toString();
-			(new Thread(new GetQidianURL())).start() ;
+			(new Thread(new GetQidianURLFromBookName(book_name))).start() ;
 			break;
 		case R.id.sm_QuickSearchSouGou: // 快搜:搜狗
 			book_name = et.getText().toString();
 			Intent intent = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
-			intent.putExtra("bookname", book_name);
-			intent.putExtra("searchengine", SITES.SE_SOGOU);
-			Activity_QuickSearch.oDB = oDB;
+			intent.putExtra(NV.BookName, book_name);
+			intent.putExtra(AC.searchEngine, AC.SE_SOGOU);
 			startActivity(intent);
 			break;
 		case R.id.sm_QuickSearchBing:  // 快搜:Bing
 			book_name = et.getText().toString();
 			Intent itb = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
-			itb.putExtra("bookname", book_name);
-			itb.putExtra("searchengine", SITES.SE_BING);
-			Activity_QuickSearch.oDB = oDB;
+			itb.putExtra(NV.BookName, book_name);
+			itb.putExtra(AC.searchEngine, AC.SE_BING);
 			startActivity(itb);
 			break;
 		case R.id.sm_QuickSearchYahoo:  // 快搜:雅虎
 			book_name = et.getText().toString();
 			Intent ityh = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
-			ityh.putExtra("bookname", book_name);
-			ityh.putExtra("searchengine", SITES.SE_YAHOO);
-			Activity_QuickSearch.oDB = oDB;
+			ityh.putExtra(NV.BookName, book_name);
+			ityh.putExtra(AC.searchEngine, AC.SE_YAHOO);
 			startActivity(ityh);
 			break;
 		case R.id.link_qidian_mtop:
@@ -318,7 +276,7 @@ public class Activity_SearchBook extends Activity {
 	private void funcDownQDEbook() {
 		String ub = wv.getUrl();
 		if (ub.contains(".qidian.com/")) {
-			String qidianID = String.valueOf(site_qidian.qidian_getBookID_FromURL(ub));
+			String qidianID = new SiteQiDian().getQiDianBookIDFromURL(ub);
 			ToolAndroid.download("http://download.qidian.com/epub/" + qidianID + ".epub", qidianID + ".epub", this);
 			foxtip("开始下载: " + qidianID + ".epub");
 		} else {

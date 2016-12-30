@@ -2,26 +2,21 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <PreferenceCategory android:title="全局设置" >
+        <ListPreference
+            android:defaultValue="/sdcard/FoxBook/"
+            android:dialogTitle="选择数据存储路径"
+            android:entries="@array/defaultDir_Entries"
+            android:entryValues="@array/defaultDir_Values"
+            android:key="defaultDir"
+            android:summary="选择数据存储路径，默认在/sdcard/FoxBook/"
+            android:title="选择数据存储路径" />
+
         <CheckBoxPreference
             android:defaultValue="true"
-            android:key="isMemDB"
-            android:summaryOff="未使用内存数据库"
-            android:summaryOn="使用内存数据库加快处理速度"
-            android:title="内存数据库" />
-        <!--
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="isIntDB"
-            android:summaryOff="数据库在SD卡上"
-            android:summaryOn="数据库在内部空间"
-            android:title="数据库是否在内部空间" />
-        -->
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="isUseNewPageView"
-            android:summaryOff="关闭"
-            android:summaryOn="启用"
-            android:title="新版阅读页" />
+            android:key="isSaveAsXML"
+            android:summaryOff="当前保存为DB3"
+            android:summaryOn="当前保存为XML"
+            android:title="退出保存格式" />
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="isWhiteActionBar"
@@ -32,12 +27,13 @@
     <PreferenceCategory android:title="BookList设置" >
         <ListPreference
             android:defaultValue="orderby_count_desc"
-            android:dialogTitle="选择切换数据库前的动作"
-            android:entries="@array/entries_before_switch_db"
-            android:entryValues="@array/entryvalues_before_switch_db"
-            android:key="beforeSwitchDB3"
-            android:summary="选择切换数据库前的动作，默认倒序"
-            android:title="切换数据库前" />
+            android:dialogTitle="选择切换书架前的动作"
+            android:entries="@array/beforeSwitchShelf_Entries"
+            android:entryValues="@array/beforeSwitchShelf_Values"
+            android:key="beforeSwitchShelf"
+            android:summary="选择切换书架前的动作，默认倒序"
+            android:title="切换书架前" />
+
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="isUpdateBlankPagesFirst"
@@ -80,8 +76,8 @@
         <ListPreference
             android:defaultValue="default"
             android:dialogTitle="选择阅读背景"
-            android:entries="@array/entries_pagebackground"
-            android:entryValues="@array/entryvalues_pagebackground"
+            android:entries="@array/pageBackGround_Entries"
+            android:entryValues="@array/pageBackGround_Values"
             android:key="myBGcolor"
             android:summary="选择阅读背景，默认羊皮纸"
             android:title="阅读背景" />
@@ -92,7 +88,6 @@
             android:summaryOff="保持原功能"
             android:summaryOn="向上翻页键映射为向下翻页"
             android:title="将向上翻页键映射" />
-
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="isBodyBold"
@@ -120,38 +115,12 @@
             android:summaryOn="当字符与换行比大于阈值200处理"
             android:title="是否预处理超长单行" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="旧版阅读页设置" >
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="bHideActionBar"
-            android:summaryOff="显示ActionBar"
-            android:summaryOn="隐藏ActionBar"
-            android:title="显示/隐藏ActionBar" />
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="isCloseSmoothScroll"
-            android:summaryOff="系统默认打开平滑滚动"
-            android:summaryOn="关闭平滑滚动，适合E-ink设备"
-            android:title="关闭平滑滚动" />
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="isShowScrollBar"
-            android:summaryOff="滚动条自动淡出"
-            android:summaryOn="一直显示滚动条"
-            android:title="一直显示滚动条" />
-    </PreferenceCategory>
     <PreferenceCategory android:title="其他设置" >
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="isNewImportQDtxt"
-            android:summaryOff="旧方法，适应性更好"
-            android:summaryOn="新方法，更快，无相关章节"
-            android:title="导入起点txt时使用的方法" />
         <ListPreference
             android:defaultValue="github"
             android:dialogTitle="选择本软件升级线路"
-            android:entries="@array/entries_upgrade_line"
-            android:entryValues="@array/entryvalues_upgrade_line"
+            android:entries="@array/upgradeSite_Entries"
+            android:entryValues="@array/upgradeSite_Values"
             android:key="upgrade_line"
             android:summary="默认github，可选oschina"
             android:title="升级线路" />
@@ -197,7 +166,7 @@
             android:layout="?android:attr/preferenceLayoutChild"
             android:summary="这是一个可见的子类"
             android:title="子类复选框首选项" />
-    </PreferenceCategory>
+    </PreferenceCategory>
     -->
 
 </PreferenceScreen>

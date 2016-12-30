@@ -5,7 +5,7 @@
         android:id="@+id/action_save_exit"
         android:icon="@android:drawable/ic_menu_save"
         android:showAsAction="always"
-        android:title="保存数据库并退出"/>
+        android:title="保存书架并退出"/>
     <item
         android:id="@+id/jumplist_tobottom"
         android:icon="@android:drawable/stat_sys_download_done"
@@ -16,12 +16,11 @@
     <item
         android:id="@+id/jumplist_tomiddle"
         android:title="表中"/>
-
     <item
         android:id="@+id/action_gbk2utf8"
         android:title="转UTF8"/>
     <item
-        android:id="@+id/is_newimportqdtxt"
-        android:title="旧方法导入起点txt"/>
+        android:id="@+id/settingUI"
+        android:title="设置"/>
 
 </menu>

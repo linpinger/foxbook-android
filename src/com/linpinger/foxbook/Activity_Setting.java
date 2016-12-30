@@ -1,6 +1,5 @@
 package com.linpinger.foxbook;
 
-
 import java.io.File;
 
 import com.linpinger.tool.Activity_FileChooser;
@@ -21,24 +20,21 @@ import android.widget.Toast;
 
 public class Activity_Setting extends PreferenceActivity {
 	SharedPreferences settings;
-	private boolean isWhiteActionBar = false; // 白色动作栏
-	
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+
+	@SuppressWarnings("deprecation")
+	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 	protected void onCreate(Bundle savedInstanceState) {
 		settings = PreferenceManager.getDefaultSharedPreferences(this);
-		isWhiteActionBar = settings.getBoolean("isWhiteActionBar", isWhiteActionBar);
-		if ( isWhiteActionBar ) {
+		if ( settings.getBoolean("isWhiteActionBar", false) )
 			this.setTheme(android.R.style.Theme_DeviceDefault_Light);
-		}
 
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences); // 当使用PreferenceActivity时
 		// getFragmentManager().beginTransaction().replace(android.R.id.content, new PrefsFragement()).commit(); 
 
 		getActionBar().setDisplayHomeAsUpEnabled(true);  // 标题栏中添加返回图标
-		
-	}
 
+	}
 
 	@Override
 	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
@@ -46,14 +42,6 @@ public class Activity_Setting extends PreferenceActivity {
 			Intent itt = new Intent(Activity_Setting.this, Activity_FileChooser.class);
 			itt.putExtra("dir", "/sdcard/fonts/");
 			startActivityForResult(itt, 9);
-			//				Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-			//				intent.setType("*/*"); 
-			//				intent.addCategory(Intent.CATEGORY_OPENABLE);
-			//			    try {
-			//			        startActivityForResult( Intent.createChooser(intent, "选择一个字体文件: *.ttf/*.ttc"), 99);
-			//			    } catch (android.content.ActivityNotFoundException ex) {
-			//			    	Toast.makeText(this.getActivity(), "安装一个文件管理器好吧", Toast.LENGTH_SHORT).show();
-			//			    }
 			return true;
 		}
 		if ( preference.getKey().equalsIgnoreCase("exportEinkCFG") ) {

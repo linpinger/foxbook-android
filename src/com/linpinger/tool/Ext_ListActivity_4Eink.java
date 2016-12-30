@@ -5,7 +5,7 @@ import android.view.KeyEvent;
 import android.widget.ListView;
 
 public class Ext_ListActivity_4Eink extends ListActivity {
-	
+
 	ListView lv ;
 	private int showItemPos = 0 ;
 	private long tLastPushEinkButton = System.currentTimeMillis(); ;
@@ -16,10 +16,10 @@ public class Ext_ListActivity_4Eink extends ListActivity {
 	public void setItemPos4Eink(int itemPos) {
 		showItemPos = itemPos ;
 	}
-	
+
 	private void lvPageUP() {
 		lv = getListView();
-		
+
 		if ( showItemPos > 0 ) {
 			if ( lv.getAdapter().getCount() < 1 )
 				return;
@@ -43,23 +43,19 @@ public class Ext_ListActivity_4Eink extends ListActivity {
 		if ( showItemPos >= dataSize )
 			showItemPos = dataSize - 1 ;
 		lv.setSelection(showItemPos);
-//		setTitle("Pos=" + showItemPos);
-//		lv.smoothScrollBy(1000, 600); // 有效
 	}
-	
 
 	public boolean dispatchKeyEvent(KeyEvent event) {
 		int kc = event.getKeyCode() ;
 		if ( ( event.getAction() == KeyEvent.ACTION_UP ) & ( KeyEvent.KEYCODE_PAGE_DOWN == kc | KeyEvent.KEYCODE_PAGE_UP == kc | KeyEvent.KEYCODE_VOLUME_UP == kc | KeyEvent.KEYCODE_VOLUME_DOWN == kc ) ) {
 			if ( System.currentTimeMillis() - tLastPushEinkButton < 1000 ) { // 莫名其妙的会多按，也是醉了
 				tLastPushEinkButton = System.currentTimeMillis();
-					return true ;
+				return true ;
 			}
-			if ( KeyEvent.KEYCODE_PAGE_UP == kc | KeyEvent.KEYCODE_VOLUME_UP == kc ) {
+			if ( KeyEvent.KEYCODE_PAGE_UP == kc | KeyEvent.KEYCODE_VOLUME_UP == kc )
 				lvPageUP();
-			} else {
+			else
 				lvPageDown();
-			}
 			tLastPushEinkButton = System.currentTimeMillis();
 			return true;
 		}

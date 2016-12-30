@@ -34,7 +34,8 @@ public class Activity_FileChooser extends Ext_ListActivity_4Eink {
 			"/sdcard/",
 			"/sdcard/10_usr/",
 			"/sdcard/20_mov/",
-			"/sdcard/99_sync/"
+			"/sdcard/99_sync/",
+			"/sdcard/FoxBook/"
 	}; // 跳转路径列表，可自由增加
 	ListView lv ;
 	SimpleAdapter adapter ;

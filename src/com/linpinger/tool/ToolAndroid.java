@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Properties;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.DownloadManager;
 import android.content.ClipData;
@@ -18,14 +19,32 @@ import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 
 public class ToolAndroid {
 
+	@SuppressLint("SdCardPath")
+	public static File getDefaultDir(SharedPreferences settings) {
+		File defDir = new File(settings.getString("defaultDir", "/sdcard/FoxBook/"));
+		if ( defDir.exists() ) {
+			if ( defDir.isFile() )
+				System.err.println( "默认存储路径，是文件: " + defDir.getPath() );
+			if ( defDir.isDirectory())
+				System.out.println( "默认存储路径，是目录: " + defDir.getPath() );
+			return defDir ;
+		} else { // 文件夹不存在
+			if ( ! defDir.mkdir() ) { // 建立失败
+				System.err.println( "默认存储路径不存在，新建失败，返回: /sdcard/" );
+				return new File("/sdcard/");
+			}
+		}
+		System.out.println( "默认存储绝对路径: " + defDir.getAbsolutePath() );
+		return defDir ;
+	}
+
 	public static boolean myConfigImportExPort(Context ctx, boolean isExport) { // 导入导出阅读页配置，这个调整起来还是有点麻烦的
-		File cfgFile = new File( Environment.getExternalStorageDirectory().getPath() + "/FoxBook.cfg" );
 		SharedPreferences ps = PreferenceManager.getDefaultSharedPreferences(ctx);
+		File cfgFile = new File("/sdcard/FoxBook.cfg" );
 
 		if ( isExport ) { // 导出: DefaultSharedPreferences -> Properties
 			StringBuffer oStr = new StringBuffer();
