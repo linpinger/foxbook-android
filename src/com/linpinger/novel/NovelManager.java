@@ -163,14 +163,12 @@ public class NovelManager {
 		info.put(NV.DelURL, "");
 		info.put(NV.BookStatu, 0);
 		info.put(NV.QDID, "");
-		info.put(NV.BookLoc, "");
 		return info;
 	}
 	public Map<String, Object> addBlankPage() { // 模版 根据NV中字段调整
 		Map<String, Object> page = new HashMap<String, Object>(5);
 		page.put(NV.PageName, "");
 		page.put(NV.PageURL, "");
-		page.put(NV.PageLoc, "");
 		page.put(NV.Content, "");
 		page.put(NV.Size, 0);
 		return page;
@@ -213,7 +211,6 @@ public class NovelManager {
 					item.put(NV.PageName, page.get(NV.PageName));
 
 				item.put(NV.PageURL, page.get(NV.PageURL));
-				item.put(NV.PageLoc, page.get(NV.PageLoc));
 				item.put(NV.BookIDX, bookIDX);
 				item.put(NV.PageIDX, pageIDX);
 				CLen = Integer.valueOf(page.get(NV.Size).toString());
@@ -247,7 +244,6 @@ public class NovelManager {
 			item.put(NV.PageName,	page.get(NV.PageName));
 			item.put(NV.PageURL,	page.get(NV.PageURL));
 			item.put(NV.Size,		page.get(NV.Size));
-			item.put(NV.PageLoc,	page.get(NV.PageLoc));
 			oList.add(item);
 		}
 		return oList;

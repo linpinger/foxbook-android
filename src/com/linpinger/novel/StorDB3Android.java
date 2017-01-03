@@ -37,7 +37,6 @@ public class StorDB3Android extends Stor {
 				info.put(NV.BookStatu, cursorB.getInt(5));
 				info.put(NV.QDID, cursorB.getString(6));
 				info.put(NV.BookAuthor, "noname");
-				info.put(NV.BookLoc, "db3");
 				book.setInfo(info);
 
 				chapters = new ArrayList<Map<String, Object>>();
@@ -47,7 +46,6 @@ public class StorDB3Android extends Stor {
 						page = new HashMap<String, Object>();
 						page.put(NV.PageName, cursorP.getString(0));
 						page.put(NV.PageURL, cursorP.getString(1));
-						page.put(NV.PageLoc, cursorP.getString(1));
 						page.put(NV.Content, cursorP.getString(2));
 						page.put(NV.Size, Integer.valueOf(cursorP.getString(3)));
 						chapters.add(page);

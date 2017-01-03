@@ -42,7 +42,6 @@ public class Stor {
 			info.put(NV.BookStatu,  Integer.valueOf(getValue(strBook, NV.BookStatu)));
 			info.put(NV.QDID,       getValue(strBook, NV.QDID));
 			info.put(NV.BookAuthor, getValue(strBook, NV.BookAuthor));
-			info.put(NV.BookLoc,    getValue(strBook, NV.BookLoc));
 			book.setInfo(info);
 
 			chapters = new ArrayList<Map<String, Object>>();
@@ -54,7 +53,6 @@ public class Stor {
 				page = new HashMap<String, Object>();
 				page.put(NV.PageName, getValue(strPage, NV.PageName));
 				page.put(NV.PageURL,  getValue(strPage, NV.PageURL));
-				page.put(NV.PageLoc,  getValue(strPage, NV.PageLoc));
 				page.put(NV.Content,  getValue(strPage, NV.Content));
 				page.put(NV.Size,     Integer.valueOf(getValue(strPage, NV.Size)));
 
@@ -82,14 +80,12 @@ public class Stor {
 			.append("\t<").append(NV.BookStatu).append(">").append(info.get(NV.BookStatu)).append("</").append(NV.BookStatu).append(">\n")
 			.append("\t<").append(NV.QDID).append(">").append(info.get(NV.QDID)).append("</").append(NV.QDID).append(">\n")
 			.append("\t<").append(NV.BookAuthor).append(">").append(info.get(NV.BookAuthor)).append("</").append(NV.BookAuthor).append(">\n")
-			.append("\t<").append(NV.BookLoc).append(">").append(info.get(NV.BookLoc)).append("</").append(NV.BookLoc).append(">\n")
 			.append("<chapters>\n") ;
 
 			for (Map<String, Object> page : novel.getChapters()) {
 				oo.append("<page>\n")
 				.append("\t<").append(NV.PageName).append(">").append(page.get(NV.PageName)).append("</").append(NV.PageName).append(">\n")
 				.append("\t<").append(NV.PageURL).append(">").append(page.get(NV.PageURL)).append("</").append(NV.PageURL).append(">\n")
-				.append("\t<").append(NV.PageLoc).append(">").append(page.get(NV.PageLoc)).append("</").append(NV.PageLoc).append(">\n")
 				.append("\t<").append(NV.Content).append(">").append(page.get(NV.Content)).append("</").append(NV.Content).append(">\n")
 				.append("\t<").append(NV.Size).append(">").append(page.get(NV.Size)).append("</").append(NV.Size).append(">\n")
 				.append("</page>\n") ;

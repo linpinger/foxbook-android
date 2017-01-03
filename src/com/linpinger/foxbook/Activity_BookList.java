@@ -223,8 +223,8 @@ if ( isCompareShelf ) {
 				handler.sendMessage(msg);
 			}
 
-		if (bDownPage) {
 			List<Map<String, Object>> nbl = nm.addBookBlankPageList(newPages, bookIDX);
+		if (bDownPage) {
 			int cTask = nbl.size() ; // 总任务数
 			
 			if ( cTask > 25 ) { // 当新章节数大于 25章就采用多任务下载模式

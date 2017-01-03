@@ -58,7 +58,6 @@ public class StorTxt extends Stor {
      				page = new HashMap<String, Object>();
     				page.put(NV.PageName, line[titleNum]);
     				page.put(NV.PageURL,  "");
-    				page.put(NV.PageLoc,  "");
     				page.put(NV.Content,  sbd.toString());
     				page.put(NV.Size,     sbd.length());
     				chapters.add(page);
@@ -75,7 +74,6 @@ public class StorTxt extends Stor {
 		info.put(NV.BookStatu,  0);
 		info.put(NV.QDID,       sQidianid);
 		info.put(NV.BookAuthor, "");
-		info.put(NV.BookLoc,    "");
 		book.setInfo(info);
 
         // Log.e("XX", "ºÄÊ±: " + (System.currentTimeMillis() - sTime));
@@ -116,7 +114,6 @@ public class StorTxt extends Stor {
 					page = new HashMap<String, Object>();
 					page.put(NV.PageName, txtEnCoding + "_" + String.valueOf(chunkCount));
 					page.put(NV.PageURL,  "");
-					page.put(NV.PageLoc,  "");
 					page.put(NV.Content,  chunkStr.toString());
 					page.put(NV.Size,     chunkStr.length());
 					chapters.add(page);
@@ -131,7 +128,6 @@ public class StorTxt extends Stor {
 				page = new HashMap<String, Object>();
 				page.put(NV.PageName, txtEnCoding + "_" + String.valueOf(chunkCount));
 				page.put(NV.PageURL,  "");
-				page.put(NV.PageLoc,  "");
 				page.put(NV.Content,  chunkStr.toString());
 				page.put(NV.Size,     chunkStr.length());
 				chapters.add(page);
@@ -153,7 +149,6 @@ public class StorTxt extends Stor {
   		info.put(NV.BookStatu,  0);
   		info.put(NV.QDID,       "");
   		info.put(NV.BookAuthor, "");
-  		info.put(NV.BookLoc,    "");
   		book.setInfo(info);
 
    		lst.add(book);

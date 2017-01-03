@@ -55,7 +55,6 @@ public class StorEpub extends Stor {
 		}
 		info.put(NV.DelURL,     "");
 		info.put(NV.BookStatu,  0);
-		info.put(NV.BookLoc,    "");
 		book.setInfo(info);
 
 		String fileName ;
@@ -74,7 +73,6 @@ public class StorEpub extends Stor {
 				page = new HashMap<String, Object>();
 				page.put(NV.PageName, pageTitle);
 				page.put(NV.PageURL,  fileName);
-				page.put(NV.PageLoc,  "");
 				page.put(NV.Content,  pageText);
 				page.put(NV.Size,     pageText.length());
 
@@ -90,7 +88,6 @@ public class StorEpub extends Stor {
 				page = new HashMap<String, Object>();
 				page.put(NV.PageName, pageTitle);
 				page.put(NV.PageURL,  new SiteQiDian().getContentURLFromIDs(hm.get("pageid").toString(), hm.get("bookid").toString()));
-				page.put(NV.PageLoc,  "");
 				page.put(NV.Content,  pageText);
 				page.put(NV.Size,     pageText.length());
 

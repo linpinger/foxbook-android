@@ -7,7 +7,6 @@ public interface NV {
 	public static final String DelURL = "delurl" ;
 	public static final String BookStatu = "statu" ;
 	public static final String QDID = "qidianBookID" ;
-	public static final String BookLoc = "bookloc" ;
 
 	public static final String BookIDX = "bookIDX";
 	public static final String PageIDX = "pageIDX";
@@ -17,7 +16,6 @@ public interface NV {
 
 	public static final String PageName = "pagename" ; // Novel page π”√
 	public static final String PageURL = "pageurl" ;
-	public static final String PageLoc = "pageloc" ;
 	public static final String Content = "content" ;
 	public static final String Size = "size" ;
 

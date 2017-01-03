@@ -60,6 +60,8 @@ public class Activity_PageList extends Ext_ListActivity_4Eink {
 		}
 		@Override
 		public void run() {
+			if ( tocURL.contains("3g.if.qidian.com") ) // 在线查看，站点是起点手机时
+				ittAction = AC.aListQDPages;
 			if ( ittAction == AC.aListQDPages | ittAction == AC.aSearchBookOnQiDian )
 				data = new SiteQiDian().getJsonTOC( ToolBookJava.downhtml(tocURL, "utf-8") );
 			if ( ittAction == AC.aListSitePages | ittAction == AC.aSearchBookOnSite )
@@ -373,6 +375,10 @@ switch (ittAction) {
 			}
 			if ( ittAction == AC.aListBookPages )
 				nm.clearBook(bookIDX, true);
+			if ( ittAction == AC.aListLess1KPages ) { // 倒序一条条删
+				for ( int i=data.size()-1; i>=0; i-- )
+					nm.clearPage((Integer)data.get(i).get(NV.BookIDX), (Integer)data.get(i).get(NV.PageIDX), true);
+			}
 			data.clear();
 			adapter.notifyDataSetChanged();
 			foxtip("已删除所有并更新记录");
