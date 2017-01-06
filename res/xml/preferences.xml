@@ -13,9 +13,9 @@
 
         <CheckBoxPreference
             android:defaultValue="true"
-            android:key="isSaveAsXML"
+            android:key="isSaveAsFML"
             android:summaryOff="当前保存为DB3"
-            android:summaryOn="当前保存为XML"
+            android:summaryOn="当前保存为FML"
             android:title="退出保存格式" />
         <CheckBoxPreference
             android:defaultValue="false"

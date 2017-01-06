@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.linpinger.foxbook"
     android:versionCode="5"
-    android:versionName="20170103" >
+    android:versionName="20170106" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -34,8 +34,8 @@
                 <data android:scheme="file" /> <!-- content -->
                 <data android:mimeType="*/*" />
                 <data android:host="*" />
-                <data android:pathPattern=".*.xml" />
-                <data android:pathPattern=".*.xml.old" />
+                <data android:pathPattern=".*.fml" />
+                <data android:pathPattern=".*.fml.old" />
                 <data android:pathPattern=".*.db3" />
                 <data android:pathPattern=".*.db3.old" />
             </intent-filter>

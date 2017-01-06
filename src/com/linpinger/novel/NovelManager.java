@@ -15,7 +15,7 @@ import com.linpinger.tool.ToolJava;
 
 public class NovelManager {
 	public static final int SQLITE3 = 3;
-	public static final int XML = 24;
+	public static final int FML = 24;
 	public static final int ZIP = 26;
 	public static final int ZIP1024 = 1024 ;
 	public static final int EPUB = 500 ;      // 普通 epub文件 处理方式待定
@@ -30,7 +30,7 @@ public class NovelManager {
 	private int bookStoreType = 0;
 	
 	private boolean sortBookDesc = true ;
-	private int saveFormat = NovelManager.XML ; // 默认保存格式
+	private int saveFormat = NovelManager.FML ; // 默认保存格式
 
 	public NovelManager(File inShelfFile) {
 		this.open(inShelfFile);
@@ -40,8 +40,8 @@ public class NovelManager {
 		this.shelfFile = inShelfFile;
 
 		String nameLow = this.shelfFile.getName().toLowerCase();
-		if ( nameLow.endsWith(".xml") ) {
-			this.bookStoreType = NovelManager.XML ;
+		if ( nameLow.endsWith(".fml") ) {
+			this.bookStoreType = NovelManager.FML ;
 			this.shelf = new Stor().load(this.shelfFile);
 		} else if ( nameLow.endsWith(".db3") ) {
 			this.bookStoreType = NovelManager.SQLITE3 ;
@@ -67,21 +67,21 @@ public class NovelManager {
 		if ( this.saveFormat == NovelManager.SQLITE3 )
 			outExt = ".db3";
 		else
-			outExt = ".xml";
+			outExt = ".fml";
 
-		String newFileName = this.shelfFile.getName().replace(".db3", "").replace(".xml", "") + outExt;
+		String newFileName = this.shelfFile.getName().replace(".db3", "").replace(".fml", "") + outExt;
 		File saveShelfFile = new File(this.shelfFile.getParentFile(), newFileName);
 		ToolJava.renameIfExist(saveShelfFile);
 
 		if ( this.saveFormat == NovelManager.SQLITE3 )
 			this.exportAsDB3(saveShelfFile);
 		else
-			this.exportAsXML(saveShelfFile);
+			this.exportAsFML(saveShelfFile);
 	}
 	public File switchShelf() { // 切换文件
 		this.close();
 
-		String listExt = ".xml";
+		String listExt = ".fml";
 		if ( this.shelfFile.getName().endsWith(".db3") )
 			listExt = ".db3";
 		ArrayList<File> shelfsList = getShelfsList(this.shelfFile, listExt);
@@ -99,7 +99,7 @@ public class NovelManager {
 	public void exportAsEpub(File oFile) {
 		new StorEpub().save(this.shelf, oFile);
 	}
-	public void exportAsXML(File oFile) {
+	public void exportAsFML(File oFile) {
 		new Stor().save(this.shelf, oFile);
 	}
 	public void exportAsDB3(File oFile) {
@@ -114,7 +114,7 @@ public class NovelManager {
 //	}
 
 	private ArrayList<File> getShelfsList(File oldShelfFile, final String shelfFileExt) {
-		File DBDir = oldShelfFile.getParentFile();
+		File DBDir = oldShelfFile.getAbsoluteFile().getParentFile();
 		final String defaultShelfFileName = "FoxBook" + shelfFileExt;
 
         ArrayList<File> retList = new ArrayList<File>(4);
@@ -545,13 +545,14 @@ public class NovelManager {
 		return count;
 	}
 
-	public void updatePage(int bookIDX, int pageIDX) { // 写入对象，更新用
+	public int updatePage(int bookIDX, int pageIDX) { // 写入对象，更新用
 		Novel book = this.shelf.get(bookIDX);
 	    String pageFullURL = ToolBookJava.getFullURL(book.getInfo().get(NV.BookURL).toString()
 	    		, book.getChapters().get(pageIDX).get(NV.PageURL).toString());
-	    String text = this.updatePage(pageFullURL);
+		String text = this.updatePage(pageFullURL);
 
-	    this.setPageContent(text, bookIDX, pageIDX);
+		this.setPageContent(text, bookIDX, pageIDX);
+		return text.length();
 	}
 	public String updatePage(String pageFullURL) { // 返回内容，不写入对象，用于在线查看
 		String text = "";
@@ -579,7 +580,7 @@ public class NovelManager {
 	public static void main(String[] args) {
 		long sTime = System.currentTimeMillis();
 
-//		NovelManager nm = new NovelManager(new File("Q:\\zPrj\\FoxBook.xml"));
+//		NovelManager nm = new NovelManager(new File("Q:\\zPrj\\FoxBook.fml"));
 
 //		nm.close();
 		System.out.println("Time=" + (System.currentTimeMillis() - sTime));

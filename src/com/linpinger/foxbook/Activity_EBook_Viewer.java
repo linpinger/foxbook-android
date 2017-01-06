@@ -146,7 +146,7 @@ public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 			System.exit(0);
 			break;
 		case R.id.action_save_exit:
-			if ( ! settings.getBoolean("isSaveAsXML", true) )
+			if ( ! settings.getBoolean("isSaveAsFML", true) )
 				nm.setSaveFormat(NovelManager.SQLITE3);
 			nm.close();
 			this.finish();

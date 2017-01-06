@@ -338,14 +338,14 @@ if ( isCompareShelf ) {
 		this.wDir = ToolAndroid.getDefaultDir(settings);
 		this.cookiesFile = new File(wDir, "FoxBook.cookie");
 
-		File inShelfFile; // 传入的路径(db3/xml文件)
+		File inShelfFile; // 传入的路径(db3/fml文件)
         if ( getIntent().getData() == null ) {
         	bShelfFileFromIntent = false;
-        	inShelfFile = new File(this.wDir, "FoxBook.xml");
+        	inShelfFile = new File(this.wDir, "FoxBook.fml");
         	if ( ! inShelfFile.exists() ) {
         		inShelfFile = new File(this.wDir, "FoxBook.db3");
         		if ( ! inShelfFile.exists() )
-        			inShelfFile = new File(this.wDir, "FoxBook.xml");
+        			inShelfFile = new File(this.wDir, "FoxBook.fml");
 			}
          } else {
         	bShelfFileFromIntent = true;
@@ -710,7 +710,7 @@ if ( isCompareShelf ) {
 	}
 
 	private void beforeExitApp() {
-		if ( ! settings.getBoolean("isSaveAsXML", true) )
+		if ( ! settings.getBoolean("isSaveAsFML", true) )
 			nm.setSaveFormat(NovelManager.SQLITE3);
 		nm.close();
 		if (foxHTTPD != null)
