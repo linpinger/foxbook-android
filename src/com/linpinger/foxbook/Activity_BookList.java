@@ -195,7 +195,7 @@ if ( isCompareShelf ) {
 
 			String existList = nm.getPageListStr(bookIDX); // 得到旧 list
 			List<Map<String, Object>> linkList;
-			if ( bookurl.contains("3g.if.qidian.com") ) {
+			if ( bookurl.contains(".if.qidian.com") ) {
 				linkList = new SiteQiDian().getJsonTOC(ToolBookJava.downhtml(bookurl, "utf-8"));
 			} else {
 				linkList = new NovelSite().getTOC(ToolBookJava.downhtml(bookurl)); // 分析获取 list 所有章节

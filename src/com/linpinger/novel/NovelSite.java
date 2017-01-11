@@ -117,14 +117,13 @@ public class NovelSite {
             html = html.replaceAll("(?smi).*?</head>(.*)", "$1"); // 获取正文
         }
 
-        if (html.contains("http://read.qidian.com/BookReader/")) { // 处理起点目录
-            html = html.replaceAll("(?smi).*<div id=\"content\">(.*)<div class=\"book_opt\">.*", "$1"); // 获取列表
+        if (html.contains("http://book.qidian.com/info/")) { // 2017-1-11处理起点目录
+            html = html.replaceAll("(?smi).*<!--start 目录模块-->(.*)<!--end 目录模块-->.*", "$1"); // 获取列表
 
             html = html.replace("\n", " ");
             html = html.replace("<a", "\n<a");
-            html = html.replaceAll("(?i)<a href.*?/Book/.*?>.*?</a>", ""); // 分卷阅读
-            html = html.replaceAll("(?i)<a href.*?/BookReader/vol.*?>.*?</a>", ""); // 分卷阅读
-            html = html.replaceAll("(?i)<a.*?href.*?/vipreader.qidian.com/.*?>", ""); // vip
+            html = html.replaceAll("(?i)<a .*?/BookReader/vol.*?>.*?</a>", ""); // 分卷阅读
+            html = html.replaceAll("(?i)<a href=\"//vipreader.qidian.com/chapter/.*?>", ""); // vip
             html = html.replaceAll("(?smi)<span[^>]*>", ""); // 起点<a></a>之间有span标签
             html = html.replace("</span>", "");
         }

@@ -60,7 +60,7 @@ public class Activity_PageList extends Ext_ListActivity_4Eink {
 		}
 		@Override
 		public void run() {
-			if ( tocURL.contains("3g.if.qidian.com") ) // 在线查看，站点是起点手机时
+			if ( tocURL.contains(".if.qidian.com") ) // 在线查看，站点是起点手机时
 				ittAction = AC.aListQDPages;
 			if ( ittAction == AC.aListQDPages | ittAction == AC.aSearchBookOnQiDian )
 				data = new SiteQiDian().getJsonTOC( ToolBookJava.downhtml(tocURL, "utf-8") );

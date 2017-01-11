@@ -15,10 +15,10 @@ public class SiteQiDian extends NovelSite {
 	public String getQiDianBookIDFromURL(String iURL) {
 	    String sQDID = "";
 	    String RE = "" ;
-	    if ( iURL.contains("3g.if.qidian.com") ) {
-	        RE = "(?i)BookId=([0-9]+)&" ; // http://3g.if.qidian.com/Client/IGetBookInfo.aspx?version=2&BookId=3530623&ChapterId=0
-	    } else if (iURL.contains("m.qidian.com")) {
-	    	RE = "(?i)bookid=([0-9]+)" ;
+	    if ( iURL.contains(".if.qidian.com") ) {
+	        RE = "(?i)BookId=([0-9]+)&" ;
+	    } else if (iURL.contains("m.qidian.com/book/")) { //2017-1-11: m.qidian.com/book/1004179514[/339781806]
+	    	RE = "(?i)/book/([0-9]+)" ;
 	    } else {
 	        RE = "(?i).*/([0-9]+)\\." ; // http://read.qidian.com/BookReader/3059077.aspx
 	    }
@@ -30,16 +30,19 @@ public class SiteQiDian extends NovelSite {
 
 	// 移动版目录地址: 可以用来获取lastPageID后的更新，为0获取所有
     public String getIndexURL_Mobile(String bookID) {
-        return "http://3g.if.qidian.com/Client/IGetBookInfo.aspx?version=2&BookId=" + bookID + "&ChapterId=0";
-    }
-    public String getIndexURL_Mobile(String bookID, String lastPageID) {
-        return "http://3g.if.qidian.com/Client/IGetBookInfo.aspx?version=2&BookId=" + bookID + "&ChapterId=" + lastPageID;
+    	return "http://druid.if.qidian.com/Atom.axd/Api/Book/GetChapterList?BookId=" + bookID + "&timeStamp=0&requestSource=0&md5Signature=" ;
     }
 
+    public String getIndexURL_Desk(String bookID) {
+    	return "http://book.qidian.com/info/" + bookID ;
+    } // Page: http://read.qidian.com/chapter/k8Ysqe1aqVAVDwQbBL_r1g2/LwKggaUrMLi2uJcMpdsVgA2
+
     public String getSearchURL_Mobile(String bookName) {
+    	// 自动完成: http://druid.if.qidian.com/druid/Api/Search/AutoCompleteWithBookList?key=%E6%9C%AA%E6%9D%A5%E5%A4%A9%E7%8E%8B
+    	// http://druid.if.qidian.com/druid/Api/Search/GetBookStoreWithBookList?type=-1&key=%E5%94%90%E6%9C%9D%E5%A5%BD%E5%9C%B0%E4%B8%BB
         String xx = "";
         try {
-            xx = "http://3g.if.qidian.com/api/SearchBooksRmt.ashx?key=" + URLEncoder.encode(bookName, "UTF-8") + "&p=0";
+            xx = "http://druid.if.qidian.com/druid/Api/Search/GetBookStoreWithBookList?type=-1&key=" + URLEncoder.encode(bookName, "UTF-8") ;
         } catch (Exception e) {
 			System.err.println(e.toString());
         }
@@ -49,7 +52,7 @@ public class SiteQiDian extends NovelSite {
     public List<Map<String, Object>> getJsonBookList(String json) { // book:name,url
         List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(55);
         try {
-            JSONArray slist = new JSONObject(json).getJSONObject("Data").getJSONArray("ListSearchBooks");
+            JSONArray slist = new JSONObject(json).getJSONArray("Data");
             int cList = slist.length();
             Map<String, Object> item;
             for (int i = 0; i < cList; i++) {
@@ -67,8 +70,8 @@ public class SiteQiDian extends NovelSite {
     public List<Map<String, Object>> getJsonTOC(String json) { // name,url
         List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(128);
         try {
-            String bookID = String.valueOf(new JSONObject(json).getInt("BookId"));
-            JSONArray slist = new JSONObject(json).getJSONArray("Chapters");
+            String bookID = String.valueOf(new JSONObject(json).getJSONObject("Data").getInt("BookId"));
+            JSONArray slist = new JSONObject(json).getJSONObject("Data").getJSONArray("Chapters");
             int cList = slist.length();
             Map<String, Object> item;
             
@@ -85,8 +88,23 @@ public class SiteQiDian extends NovelSite {
         }
         return data;
     }
+    
+    public String getJsonContent(String json) { // 2017-1-11:  http://druid.if.qidian.com/Atom.axd/Api/Book/GetContent?BookId=1004936518&ChapterId=344096395
+    	String Content = "";
+    	try {
+    		Content = new JSONObject(json).getString("Data");
+    		Content = Content.replace("\\r\\n", "\n");
+    		Content = Content.replace("\r\n", "\n");
+    		Content = Content.replace("　　", "");
+		} catch (Exception e) {
+			System.err.println(e.toString());
+		}
+    	return Content;
+    }
 
     public String getContentURLFromIDs(String pageID, String bookID) {
+    	// 2017-1-11: 旧版的暂时可用，就不修改了
+    	// return "http://druid.if.qidian.com/Atom.axd/Api/Book/GetContent?BookId=" + bookID + "&ChapterId=" + pageID ;
     	return "http://files.qidian.com/Author" + ( 1 + ( Integer.valueOf(bookID) % 8 ) ) + "/" + bookID + "/" + pageID + ".txt";
     }
 
