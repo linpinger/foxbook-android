@@ -199,17 +199,20 @@ public class NovelManager {
 		int CLen = 0 ;
 		int bookIDX = -1 ;
 		int pageIDX ;
+		String bookName ;
 		for (Novel book : this.shelf) {
 			++ bookIDX;
+			bookName = book.getInfo().get(NV.BookName).toString();
 			pageIDX = -1 ;
 			for ( Map<String, Object> page : book.getChapters() ) {
 				++ pageIDX;
 				item = new HashMap<String, Object>(6);
 				if ( 0 == pageIDX & 1 == sMode )
-					item.put(NV.PageName, "бя" + page.get(NV.PageName));
+					item.put(NV.PageName, "бя" + bookName + "бя" + page.get(NV.PageName));
 				else
 					item.put(NV.PageName, page.get(NV.PageName));
 
+				item.put(NV.BookName, bookName);
 				item.put(NV.PageURL, page.get(NV.PageURL));
 				item.put(NV.BookIDX, bookIDX);
 				item.put(NV.PageIDX, pageIDX);
