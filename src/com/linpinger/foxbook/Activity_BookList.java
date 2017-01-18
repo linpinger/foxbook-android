@@ -37,32 +37,33 @@ import android.view.View;
 /*
 传递数据: Action, Datas
 Activity_PageList : 单击列表 		: aListBookPages, bookIDX
-Activity_PageList : 显示所有章 	: aListAllPages
+Activity_PageList : 显示所有章		: aListAllPages
 Activity_PageList : 显示小于1K章	: aListLess1KPages
 Activity_PageList : 在线查看		: aListSitePages, bookIDX
 Activity_PageList : 搜索起点		: aListQDPages, bookIDX, TmpString
+Activity_SearchBook : 搜索起点		: aListQDPages, bookName
 Activity_BookInfo : 编辑信息		: bookIDX
 
-Activity_QuickSearch : 搜索Bing : atSearch,
+Activity_QuickSearch : 搜索Bing		: atSearch
 */
 public class Activity_BookList extends Ext_ListActivity_4Eink {
 
 	private NovelManager nm ;
-	File wDir ;  // 工作目录
-	File cookiesFile ; // 保存有cookie的文件名: FoxBook.cookie
+	File wDir ;			// 工作目录
+	File cookiesFile ;	// 保存有cookie的文件名: FoxBook.cookie
 
-	public int downThread = 9 ;  // 页面下载任务线程数
+	public int downThread = 9 ; // 页面下载任务线程数
 	public int leftThread = downThread ;
 
 	// 设置: 
 	SharedPreferences settings;
 	private String beforeSwitchShelf = "orderby_count_desc" ; // 和 arrays.xml中的beforeSwitchShelf_Values 对应
 	private boolean isUpdateBlankPagesFirst = true; // 更新前先检测是否有空白章节
-	private boolean isCompareShelf = true ;   // 更新前比较书架
-	private boolean isShowIfRoom = false;     // 一直显示菜单图标
+	private boolean isCompareShelf = true ;		// 更新前比较书架
+	private boolean isShowIfRoom = false;		// 一直显示菜单图标
 
-	private FoxHTTPD foxHTTPD  = null;
-	private boolean bShelfFileFromIntent = false;  // 是否是通过文件关联进来的，会修改不保存退出菜单功能
+	private FoxHTTPD foxHTTPD = null;
+	private boolean bShelfFileFromIntent = false; // 是否是通过文件关联进来的，会修改不保存退出菜单功能
 
 	ListView lv_booklist;
 	List<Map<String, Object>> data;
@@ -79,7 +80,7 @@ public class Activity_BookList extends Ext_ListActivity_4Eink {
 	private boolean switchShelfLock = false;
 	private long mExitTime;
 
-	private int upchacount;    // 新增章节计数
+	private int upchacount; // 新增章节计数
 
 	public class UpdateAllBook implements Runnable {
 		public void run() {
@@ -118,7 +119,7 @@ if ( isCompareShelf ) {
 					for ( Map<String, Object> mm : nn ) {
 						nowBookIDX = (Integer)mm.get(NV.BookIDX);
 						nowName = mm.get(NV.BookName).toString();
-						nowURL  = mm.get(NV.BookURL).toString();
+						nowURL = mm.get(NV.BookURL).toString();
 						nowTTT = new Thread(new UpdateBook(nowBookIDX, nowURL, nowName, true));
 						nowTTT.start();
 						try {
@@ -141,11 +142,11 @@ if ( isCompareShelf ) {
 }
 
 			List<Thread> threadList = new ArrayList<Thread>(30);
-            Thread nowT;
+			Thread nowT;
 
-            // 全部更新里面使用的变量
-        	int nowBookIDX = -1;
-        	String anowName, anowURL;
+			// 全部更新里面使用的变量
+			int nowBookIDX = -1;
+			String anowName, anowURL;
 			upchacount = 0 ;
 			for ( Map<String, Object> jj : data ) {
 				nowBookIDX = (Integer) jj.get(NV.BookIDX);
@@ -159,12 +160,12 @@ if ( isCompareShelf ) {
 			}
 
 			for ( Thread nowThread : threadList ) {
-                try {
-                	nowThread.join();
-                } catch (Exception ex) {
-                    System.out.println("等待线程错误: " + ex.toString());
-                }
-            }
+				try {
+					nowThread.join();
+				} catch (Exception ex) {
+					System.out.println("等待线程错误: " + ex.toString());
+				}
+			}
 
 			msg = Message.obtain();
 			msg.what = DO_UPDATEFINISH;
@@ -174,9 +175,9 @@ if ( isCompareShelf ) {
 	}
 
 	public class UpdateBook implements Runnable { // 后台线程更新书
-		private int     bookIDX = 0 ;
-		private String  bookname ;
-		private String  bookurl ;
+		private int bookIDX = 0 ;
+		private String bookname ;
+		private String bookurl ;
 		private boolean bDownPage = true;
 
 		UpdateBook(int inbookidx, String inBookURL, String inbookname, boolean bDownPage) {
@@ -196,7 +197,7 @@ if ( isCompareShelf ) {
 			String existList = nm.getPageListStr(bookIDX); // 得到旧 list
 			List<Map<String, Object>> linkList;
 			if ( bookurl.contains(".if.qidian.com") ) {
-				linkList = new SiteQiDian().getJsonTOC(ToolBookJava.downhtml(bookurl, "utf-8"));
+				linkList = new SiteQiDian().getTOC_Android7(ToolBookJava.downhtml(bookurl, "utf-8"));
 			} else {
 				linkList = new NovelSite().getTOC(ToolBookJava.downhtml(bookurl)); // 分析获取 list 所有章节
 				if ( existList.length() > 3 )
@@ -232,7 +233,7 @@ if ( isCompareShelf ) {
 				int nLeftCount = cTask % downThread ; //剩余任务数
 				int aList[] = new int[downThread] ; // 每个线程中的任务数
 
-				for ( int i = 0; i < downThread; i++ ) {  // 分配任务数
+				for ( int i = 0; i < downThread; i++ ) { // 分配任务数
 					if ( i < nLeftCount )
 						aList[i] = nBaseCount + 1 ;
 					else
@@ -282,7 +283,7 @@ if ( isCompareShelf ) {
 		public FoxTaskDownPage(List<Map<String, Object>> iTaskList) {
 			this.taskList = iTaskList ;
 		}
-	
+
 		public void run() {
 			Message msg;
 			String thName = Thread.currentThread().getName();
@@ -294,10 +295,10 @@ if ( isCompareShelf ) {
 				msg.what = DO_SETTITLE;
 				msg.obj = leftThread + ":" + thName + ":" + locCount + " / " + allCount ;
 				handler.sendMessage(msg);
-	
+
 				nm.updatePage((Integer)tsk.get(NV.BookIDX), (Integer)tsk.get(NV.PageIDX));
 			}
-	
+
 			--leftThread;
 			if ( 0 == leftThread ) { // 所有线程更新完毕
 				msg = Message.obtain();
@@ -312,15 +313,15 @@ if ( isCompareShelf ) {
 		data = nm.getBookList(); // 获取书籍列表
 		lv_booklist.setAdapter(new SimpleAdapter(this, data, R.layout.lv_item_booklist
 			, new String[] { NV.BookName, NV.PagesCount }
-			, new int[]    { R.id.tvName, R.id.tvCount  } )); // 设置listview的Adapter, 当data是原data时才能 adapter.notifyDataSetChanged();
+			, new int[] { R.id.tvName, R.id.tvCount } )); // 设置listview的Adapter, 当data是原data时才能 adapter.notifyDataSetChanged();
 		setItemPos4Eink();
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void showHomeUp() {
-		getActionBar().setDisplayHomeAsUpEnabled(settings.getBoolean("isClickHomeExit", false));  // 标题栏中添加返回图标
+		getActionBar().setDisplayHomeAsUpEnabled(settings.getBoolean("isClickHomeExit", false)); // 标题栏中添加返回图标
 		getActionBar().setDisplayShowHomeEnabled(settings.getBoolean("isShowAppIcon", true)); // 隐藏程序图标
-	}		// 响应点击事件在onOptionsItemSelected的switch中加入 android.R.id.home   this.finish();
+	}		// 响应点击事件在onOptionsItemSelected的switch中加入 android.R.id.home this.finish();
 
 	public void onCreate(Bundle savedInstanceState) {
 		settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -339,22 +340,22 @@ if ( isCompareShelf ) {
 		this.cookiesFile = new File(wDir, "FoxBook.cookie");
 
 		File inShelfFile; // 传入的路径(db3/fml文件)
-        if ( getIntent().getData() == null ) {
-        	bShelfFileFromIntent = false;
-        	inShelfFile = new File(this.wDir, "FoxBook.fml");
-        	if ( ! inShelfFile.exists() ) {
-        		inShelfFile = new File(this.wDir, "FoxBook.db3");
-        		if ( ! inShelfFile.exists() )
-        			inShelfFile = new File(this.wDir, "FoxBook.fml");
+		if ( getIntent().getData() == null ) {
+			bShelfFileFromIntent = false;
+			inShelfFile = new File(this.wDir, "FoxBook.fml");
+			if ( ! inShelfFile.exists() ) {
+				inShelfFile = new File(this.wDir, "FoxBook.db3");
+				if ( ! inShelfFile.exists() )
+					inShelfFile = new File(this.wDir, "FoxBook.fml");
 			}
-         } else {
-        	bShelfFileFromIntent = true;
-        	inShelfFile = new File(getIntent().getData().getPath());
-        	foxtip("注意:\n退出时不会保存修改哦\n如要保存修改，按菜单键并选择菜单");
-        }
-    	setTitle(inShelfFile.getName());
-    	this.nm = new NovelManager(inShelfFile); // Todo: 修改db导入方式
-        ((FoxApp)this.getApplication()).nm = this.nm ;
+		 } else {
+			bShelfFileFromIntent = true;
+			inShelfFile = new File(getIntent().getData().getPath());
+			foxtip("注意:\n退出时不会保存修改哦\n如要保存修改，按菜单键并选择菜单");
+		}
+		setTitle(inShelfFile.getName());
+		this.nm = new NovelManager(inShelfFile); // Todo: 修改db导入方式
+		((FoxApp)this.getApplication()).nm = this.nm ;
 
 		refresh_BookList();
 		init_handler(); // 初始化一个handler 用于处理后台线程的消息
@@ -370,6 +371,10 @@ if ( isCompareShelf ) {
 			}
 		}); // long click end
 
+		if ( 0 == data.size() ) { // 没有书，跳转到搜索页面
+			foxtip("貌似没有书哦，那偶自己打开搜索好了");
+			startActivityForResult(new Intent(Activity_BookList.this, Activity_SearchBook.class),4);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -377,7 +382,7 @@ if ( isCompareShelf ) {
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		Map<String, Object> book = (HashMap<String, Object>) l.getItemAtPosition(position);
 		setTitle(book.get(NV.BookName) + " : " + book.get(NV.BookURL));
-	
+
 		if ( (Integer)book.get(NV.PagesCount) > 0) { // 章节数大于0
 			Intent itt = new Intent(Activity_BookList.this, Activity_PageList.class);
 			itt.putExtra(AC.action, AC.aListBookPages);
@@ -388,10 +393,10 @@ if ( isCompareShelf ) {
 	}
 
 	private void lvItemLongClickDialog(final Map<String, Object> book) { // 长击LV条目弹出的对话框
-		final String lcURL  = book.get(NV.BookURL).toString();
+		final String lcURL = book.get(NV.BookURL).toString();
 		final String lcName = book.get(NV.BookName).toString();
 		final int bookIDX = (Integer)book.get(NV.BookIDX);
-	
+
 		new AlertDialog.Builder(this) //.setIcon(R.drawable.ic_launcher);
 		.setTitle("操作:" + lcName)
 		.setItems(new String[] { "更新本书",
@@ -405,7 +410,7 @@ if ( isCompareShelf ) {
 				new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
 				switch (which) {
-				case 0:  // 更新本书
+				case 0: // 更新本书
 					upchacount = 0 ;
 					new Thread(new UpdateBook(bookIDX, lcURL, lcName, true)).start();
 					foxtip("正在更新: " + lcName);
@@ -423,23 +428,20 @@ if ( isCompareShelf ) {
 					break;
 				case 3: // 搜索:起点
 					String lcQidianID = nm.getBookInfo(bookIDX).get(NV.QDID).toString();
-					String lcQidianURL = "";
-					if ( null == lcQidianID || 0 == lcQidianID.length() ) {
-		                String json = ToolBookJava.downhtml(new SiteQiDian().getSearchURL_Mobile(lcName), "utf-8");
-		                List<Map<String, Object>> qds = new SiteQiDian().getJsonBookList(json);
-		                if ( qds.get(0).get(NV.BookName).toString().equalsIgnoreCase(lcName) ) // 第一个结果就是目标书
-							lcQidianURL = qds.get(0).get(NV.BookURL).toString();
+
+					if ( null == lcQidianID | 0 == lcQidianID.length() | lcQidianID == "0" ) {
+						Intent ittQDS = new Intent(Activity_BookList.this, Activity_SearchBook.class);
+						ittQDS.putExtra(AC.action, AC.aListQDPages);
+						ittQDS.putExtra(NV.BookName, lcName);
+						startActivity(ittQDS);
 					} else { // 存在起点ID
-						lcQidianURL = new SiteQiDian().getIndexURL_Mobile(lcQidianID) ;
-					}
-					if ( 0 != lcQidianURL.length() ) {
+						String lcQidianURL = new SiteQiDian().getTOCURL_Android7(lcQidianID) ;
+
 						Intent ittQD = new Intent(Activity_BookList.this, Activity_PageList.class);
 						ittQD.putExtra(AC.action, AC.aListQDPages);
 						ittQD.putExtra(NV.BookIDX, bookIDX);
 						ittQD.putExtra(NV.TmpString, lcQidianURL);
 						startActivityForResult(ittQD, 1);
-					} else {
-						foxtip("在起点上未搜索到该书名");
 					}
 					break;
 				case 4: // 搜索:bing
@@ -448,11 +450,11 @@ if ( isCompareShelf ) {
 					ittSEB.putExtra(AC.searchEngine, AC.SE_BING);
 					startActivityForResult(ittSEB, 5);
 					break;
-				case 5:  // 复制书名
+				case 5: // 复制书名
 					ToolAndroid.setClipText(lcName, getApplicationContext());
 					foxtip("已复制到剪贴板: " + lcName);
 					break;
-				case 6:  // 编辑本书信息
+				case 6: // 编辑本书信息
 					Intent ittBookInfo = new Intent(Activity_BookList.this,Activity_BookInfo.class);
 					ittBookInfo.putExtra(NV.BookIDX, bookIDX);
 					startActivityForResult(ittBookInfo, 3);
@@ -542,10 +544,10 @@ if ( isCompareShelf ) {
 		}
 		return true;
 	}
-	
+
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void setTypeOfShowAsAction(MenuItem mi) {
-		mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM); // SHOW_AS_ACTION_NEVER  // API > 11
+		mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM); // SHOW_AS_ACTION_NEVER // API > 11
 	}
 
 	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作
@@ -589,21 +591,21 @@ if ( isCompareShelf ) {
 			refresh_BookList(); // 刷新LV中的数据
 			foxtip("ListView已刷新");
 			break;
-		case R.id.action_searchbook:  // 打开搜索书籍
+		case R.id.action_searchbook: // 打开搜索书籍
 			startActivityForResult(new Intent(Activity_BookList.this, Activity_SearchBook.class),4);
 			break;
 
-		case R.id.action_allpagelist:  // 所有章节
+		case R.id.action_allpagelist: // 所有章节
 			Intent ittall = new Intent(Activity_BookList.this, Activity_PageList.class);
 			ittall.putExtra(AC.action, AC.aListAllPages);
 			startActivityForResult(ittall, 2);
 			break;
-		case R.id.action_showokinapl:  // 显示字数少于1K的章节
+		case R.id.action_showokinapl: // 显示字数少于1K的章节
 			Intent ittlok = new Intent(Activity_BookList.this, Activity_PageList.class);
 			ittlok.putExtra(AC.action, AC.aListLess1KPages);
 			startActivityForResult(ittlok, 2);
 			break;
-			
+
 		case R.id.action_sortbook_asc: // 顺序排序
 			this.setTitle("顺序排序");
 			(new Thread(){ public void run(){
@@ -669,7 +671,7 @@ if ( isCompareShelf ) {
 				}
 			}).start();
 			break;
-		case R.id.action_exitwithnosave:  // 不保存数据库退出
+		case R.id.action_exitwithnosave: // 不保存数据库退出
 			if ( bShelfFileFromIntent ) // 保存数据库并退出
 				beforeExitApp();
 			this.finish();

@@ -79,7 +79,7 @@ public class Activity_Setting extends PreferenceActivity {
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
-	
+
 	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作
 		switch (item.getItemId()) {
 		case android.R.id.home: // 返回图标
@@ -88,6 +88,5 @@ public class Activity_Setting extends PreferenceActivity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
 
 }

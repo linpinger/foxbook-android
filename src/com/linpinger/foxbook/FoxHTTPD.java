@@ -2,6 +2,7 @@ package com.linpinger.foxbook;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -16,9 +17,11 @@ public class FoxHTTPD extends NanoHTTPD {
 	private File foxRootDir ;  // nanohttpd 的那个变量是私有的，无法继承
 	private String nowUserAgent = "kindle" ;
 	private final String html_foot = "\n</body>\n</html>\n\n" ;
-	
+
 	private final String LIST_PAGES = "lp" ;
 	private final String SHOW_CONTENT = "sc" ;
+	private final String SHOW_PREV_CONTENT = "spc" ;
+	private final String SHOW_NEXT_CONTENT = "snc" ;
 	private final String DOWN_TXT = "dt" ;
 
 	public FoxHTTPD(int port, File wwwroot, NovelManager nm) throws IOException {
@@ -31,13 +34,13 @@ public class FoxHTTPD extends NanoHTTPD {
 	// 响应
 	@Override
 	public Response serve(String uri, String method, Properties header, Properties parms, Properties files) {
-		
+
 		// 首页列出书籍
 		if (uri.equalsIgnoreCase("/")) {
 			nowUserAgent = header.getProperty("user-agent", "kindle");
 			String action = parms.getProperty("a", "blank");
-			String bookid = parms.getProperty("bid", "0");
-			String pageid = parms.getProperty("pid", "0");
+			String bookid = parms.getProperty("bid", "-1");
+			String pageid = parms.getProperty("pid", "-1");
 			String html = "";
 
 			if ( action.equalsIgnoreCase("blank") )
@@ -48,19 +51,37 @@ public class FoxHTTPD extends NanoHTTPD {
 			if ( action.equalsIgnoreCase(SHOW_CONTENT)) { // 内容
 				html = showContent(bookid, pageid) ;
 			}
+			if ( action.equalsIgnoreCase(SHOW_PREV_CONTENT)) { // 内容
+				Map<String, Object> page = nm.getPrevPage(Integer.valueOf(bookid), Integer.valueOf(pageid));
+				if ( page == null ) {
+					html = "<html><head><title>txt</title><meta http-equiv=\"refresh\" content=\"0; URL=?\"></head><body><a href=\"?\">NoPrev</a></body></html>";
+				} else {
+					String newURL = "?a=" + SHOW_CONTENT + "&bid=" + page.get(NV.BookIDX).toString() + "&pid=" + page.get(NV.PageIDX).toString();
+					html = "<html><head><title>txt</title><meta http-equiv=\"refresh\" content=\"0; URL=" + newURL +"\"></head><body><a href=\"" + newURL + "\">ShowContent</a></body></html>";
+				}
+			}
+			if ( action.equalsIgnoreCase(SHOW_NEXT_CONTENT)) { // 内容
+				Map<String, Object> page = nm.getNextPage(Integer.valueOf(bookid), Integer.valueOf(pageid));
+				if ( page == null ) {
+					html = "<html><head><title>txt</title><meta http-equiv=\"refresh\" content=\"0; URL=?\"></head><body><a href=\"?\">NoNext</a></body></html>";
+				} else {
+					String newURL = "?a=" + SHOW_CONTENT + "&bid=" + page.get(NV.BookIDX).toString() + "&pid=" + page.get(NV.PageIDX).toString();
+					html = "<html><head><title>txt</title><meta http-equiv=\"refresh\" content=\"0; URL=" + newURL +"\"></head><body><a href=\"" + newURL + "\">ShowContent</a></body></html>";
+				}
+			}
 			if ( action.equalsIgnoreCase(DOWN_TXT)) { // 下载txt
 				String txtPath = "/fox.txt" ;
-				nm.exportAsTxt(new File("/sdcard/fox.txt")); // 所有txt
+				nm.exportAsTxt(new File(this.foxRootDir, txtPath)); // 所有txt
 				html = "<html><head><title>txt</title><meta http-equiv=\"refresh\" content=\"0; URL=" + txtPath +"\"></head><body><a href=\"" + txtPath + "\">Download txt</a></body></html>";
 			}
-			
+
 			return new Response( HTTP_OK, MIME_HTML, html ) ;
 		}
 
 		if (uri.equalsIgnoreCase("/L")) {  // 列出/sdcard/
 			return serveFile( "/", header, foxRootDir, true );
 		}
-		
+
 		if (uri.equalsIgnoreCase("/f")) {
 			if ( method.equalsIgnoreCase("get") ) { // 上传页面
 				String title = "上传萌萌哒的文件";
@@ -74,30 +95,30 @@ public class FoxHTTPD extends NanoHTTPD {
 				// 汗，修改了nanohttpd.java 里面的临时路径到/sdcard/，到处都是硬编码，呵呵哒
 				String tmpFilePath = files.getProperty("filename") ; // /sdcard/NanoHTTPD-nnn.upload /data/data/com.linpinger.foxudp/cache/NanoHTTPD-561991304.upload
 				String fileName = parms.getProperty("filename", "NoName.upload") ;    // testUpload.exe
-				File savePath = new File("/sdcard/" + fileName);
+				File savePath = new File(this.foxRootDir, fileName);
 				ToolJava.renameIfExist(savePath);
 				(new File(tmpFilePath)).renameTo(savePath);
 				return new Response( HTTP_OK, MIME_HTML, "<html>\n<head>\n\t<META http-equiv=Content-Type content=\"text/html; charset=utf-8\">\n\t<title>Return Msg</title>\n</head>\n\n<body bgcolor=\"#eefaee\">\n\n" + tmpFilePath + " -> " + savePath.getAbsolutePath() + "\n\n</body>\n</html>\n") ;
 			}
 		}
-		
+
 //		return new Response( HTTP_OK, MIME_PLAINTEXT, "hello" ) ;
 		return serveFile( uri, header, foxRootDir, true );
 	}
-	
+
 	// 内容
 	private String showContent(String iBookIDX, String iPageIDX) {
 		String fontSize = "22px" ;
-		if ( nowUserAgent.contains("Android") ) {
+		if ( nowUserAgent.contains("Android") )
 			fontSize = "18px" ;
-		}
-		StringBuilder html = new StringBuilder();
+
 		Map<String, Object> page = nm.getPage(Integer.valueOf(iBookIDX), Integer.valueOf(iPageIDX));
-		if ( page.isEmpty() ) {
+		if ( page.isEmpty() )
 			return "<html><head><title>txt</title><meta http-equiv=\"refresh\" content=\"0; URL=?\"></head><body>no this ID</body></html>";
-		}
+
 		String title = page.get(NV.PageName).toString() ;
 		String content = page.get(NV.Content).toString() ;
+		StringBuilder html = new StringBuilder();
 		html.append(html_head("utf-8", title, true));
 		html.append("<h2>").append(title).append("</h2>\n")
 		.append("<div class=\"content\" style=\"font-size:").append(fontSize).append("; line-height:150%;font-family: Microsoft YaHei;\">\n")
@@ -105,14 +126,14 @@ public class FoxHTTPD extends NanoHTTPD {
 		.append("</p>\n</div>\n")
 		.append("<p>　　").append(title).append("</p>\n")
 		.append("<div class=\"book_switch\">\n<ul>")
-		.append("\t<li><a href=\"?a=").append(SHOW_CONTENT).append("&pid=").append(Integer.valueOf(iPageIDX) - 1).append("\">上一章</a></li>\n")
+		.append("\t<li><a href=\"?a=").append(SHOW_PREV_CONTENT).append("&bid=").append(iBookIDX).append("&pid=").append(iPageIDX).append("\">上一章</a></li>\n")
 		.append("\t<li><a href=\"?a=").append(LIST_PAGES).append("&bid=").append(iBookIDX).append("\">返回目录</a></li>\n")
 		.append("\t<li><a href=\"?\">返回书架</a></li>\n")
-		.append("\t<li><a href=\"?a=").append(SHOW_CONTENT).append("&pid=").append(Integer.valueOf(iPageIDX) + 1).append("\">下一章</a></li>\n")
+		.append("\t<li><a href=\"?a=").append(SHOW_NEXT_CONTENT).append("&bid=").append(iBookIDX).append("&pid=").append(iPageIDX).append("\">下一章</a></li>\n")
 		.append("</ul>\n</div>\n\n").append(html_foot);
 		return html.toString() ;
 	}
-	
+
 	// 章节列表
 	private String showPageList(String iBookIDX) {
 		StringBuilder html = new StringBuilder();
@@ -142,19 +163,20 @@ public class FoxHTTPD extends NanoHTTPD {
 		html.append(html_head("萌萌哒的书籍列表"));
 		
 		html.append("<br>　　<a href=\"?a=").append(LIST_PAGES)
-			.append("&bid=0\">显示所有章节</a>  <a href=\"?a=")
-			.append(DOWN_TXT).append("&bid=0\">下载txt</a><br>\n<ol>\n");
+			.append("&bid=-1\">显示所有章节</a>  <a href=\"?a=")
+			.append(DOWN_TXT).append("&bid=-1\">下载txt</a><br>\n<ol>\n");
 		List<Map<String, Object>> data = nm.getBookList(); // 获取书籍列表
 		for(Map<String, Object> mm : data ) {
 			html.append("<li><a href=\"?a=").append(LIST_PAGES).append("&bid=")
 				.append(mm.get(NV.BookIDX)).append("\" title=\"").append(mm.get(NV.BookURL)).append("\">")
 				.append(mm.get(NV.BookName)).append("</a> (").append(mm.get(NV.PagesCount)).append(")")
-				.append(" <a href=\"?a=").append(DOWN_TXT).append("&bid=").append(mm.get(NV.BookIDX)).append("\" class=\"yy\">T</a></li>\n");
+				// .append(" <a href=\"?a=").append(DOWN_TXT).append("&bid=").append(mm.get(NV.BookIDX)).append("\" class=\"yy\">T</a>")
+				.append("</li>\n");
 		}
 		html.append("\n</ol>\n").append(html_foot);
 		return html.toString() ;
 	}
-	
+
 	private String html_head(String title) {
 		return html_head("utf-8", title, false);
 	}

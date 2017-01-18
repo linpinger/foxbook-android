@@ -16,33 +16,32 @@ import android.graphics.Typeface;
 import android.view.View;
 
 //在Activity中使用 View.setOnClickListener 绑定点击事件，免得自己来判断
-public class Ext_View_FoxTextView extends View  {
+public class Ext_View_FoxTextView extends View {
 
 	private FoxBroadcastReceiver bc_rcv;
 	private Context ctx ;
 	private Paint p;
-	
+
 	// 配置
 	String txt = "木有内容，稍等可能正在下载，如果长时间木有反应，请返回";
-	String firstPageInfoL = "" ;   // 第一页时，在左侧信息处显示的信息
+	String firstPageInfoL = "" ; // 第一页时，在左侧信息处显示的信息
 	String infoL = "我是萌萌哒标题";
 	String infoR = "15:55  0%";
 	int batteryLevel = 0;
 	float lineSpaceing = 1.5f ;
 	float paddingMulti = 0.5f ;
-	
-	
-//	private boolean bDrawSplitLine = false ;  // 调试用的
+
+//	private boolean bDrawSplitLine = false ; // 调试用的
 	private float fontSize = 36.0f ; // E-ink:26 Mobile:34 Mi:26
 	private boolean bUseUserFont = false ; // 使用用户字体
 	private String userFontPath = "/sdcard/fonts/foxfont.ttf"; // 用户字体路径
-	
+
 //	private float clickX = 0 ;
 //	private float clickY = 0 ;
 	private int nowPageNum = 0 ; // 第一屏为0
 	private boolean isLastPage = false ; //是否在最后一页
 	private boolean isBodyBold = false ; // 正文是否加粗
-	
+
 	private ArrayList<String> lines ;
 	private int lastTxtHashCode = 0 ;
 	private float lastMaxWidth = 0 ;
@@ -50,14 +49,14 @@ public class Ext_View_FoxTextView extends View  {
 	public Ext_View_FoxTextView(Context context) {
 		super(context);
 		ctx = context ;
-		
+
 		p = new Paint();
 		p.setAntiAlias(true);
 		p.setSubpixelText(true); 
-		p.setColor(Color.BLACK);  // 颜色
+		p.setColor(Color.BLACK); // 颜色
 
 		fontSize = (float)ToolAndroid.sp2px(ctx, 18.5f);
-		
+
 		bc_rcv = new FoxBroadcastReceiver();
 		ctx.registerReceiver(bc_rcv, new IntentFilter(Intent.ACTION_BATTERY_CHANGED)); // 电量变动
 		ctx.registerReceiver(bc_rcv, new IntentFilter(Intent.ACTION_TIME_CHANGED)); // 时间变动 ACTION_TIME_TICK
@@ -69,7 +68,7 @@ public class Ext_View_FoxTextView extends View  {
 
 	@Override
 	protected void onDetachedFromWindow() {
-		ctx.unregisterReceiver(bc_rcv);  // 关闭广播接收
+		ctx.unregisterReceiver(bc_rcv); // 关闭广播接收
 		super.onDetachedFromWindow();
 	}
 
@@ -81,7 +80,7 @@ public class Ext_View_FoxTextView extends View  {
 		setText("下章标题", "　　下章内容\n　　么么哒\n");
 		return 0;
 	}
-	
+
 	public void clickPrev() {
 		if ( nowPageNum == 0) { // 第一页，翻上一章
 			if ( 0 == setPrevText() ) // 上一章
@@ -101,7 +100,7 @@ public class Ext_View_FoxTextView extends View  {
 		setInfoR();
 		postInvalidate();
 	}
-	
+
 	public void setInfoR() {
 		infoR = (new java.text.SimpleDateFormat("HH:mm")).format(new java.util.Date()) + "  " + batteryLevel + "%";
 	}
@@ -146,35 +145,35 @@ public class Ext_View_FoxTextView extends View  {
 //canvas.drawBitmap(bg, new Rect(0,0,bg.getWidth(),bg.getHeight()), new Rect(0,0, cw, ch), p);
 	@Override
 	protected void onDraw(Canvas canvas) {
- 		// super.onDraw(canvas);
+		// super.onDraw(canvas);
 		// 计算参数
 		float lineHeight = fontSize * lineSpaceing ;
 		float padding = fontSize * paddingMulti ;
-		
+
 		// 获取画布的大小
 		int cw = canvas.getWidth();
 		int ch = canvas.getHeight();
 //Log.e("OD", "画布: W=" + cw + " H=" + ch);
-		
+
 		// 画一个框
 /*
 		if ( bDrawSplitLine ) {
-			p.setStyle(Paint.Style.STROKE) ; // 空心  FILL
+			p.setStyle(Paint.Style.STROKE) ; // 空心 FILL
 			p.setStrokeWidth(1);
 			Rect textRect = new Rect(new Float(padding).intValue(), new Float(padding).intValue(), new Float(cw - padding).intValue(), new Float(ch - padding).intValue());
 			canvas.drawRect(textRect, p);
 			canvas.drawLine(0, ch/3, cw, 3 + ch / 3, p); // 横线
 			canvas.drawLine(cw/3*2, 0, 3+cw/3*2, ch, p); // 竖线
-			
+
 			if ( clickX > 0 ) { // 绘制点击坐标线
 				canvas.drawLine(0, clickY, cw, clickY+6, p); // 横线
 				canvas.drawLine(clickX, 0, clickX+6, ch, p); // 竖线
 			}
 		}
-*/			
+*/
 		// 设置字体
 		if ( bUseUserFont )
-			p.setTypeface(Typeface.createFromFile(new File(userFontPath)));  // 设置字体
+			p.setTypeface(Typeface.createFromFile(new File(userFontPath))); // 设置字体
 
 		p.setStyle(Paint.Style.FILL) ;
 		p.setTextSize(fontSize);
@@ -192,14 +191,14 @@ public class Ext_View_FoxTextView extends View  {
 
 		// 计算每屏最多行数
 		int linePerScreen = (int) Math.floor( (ch - padding) / lineHeight);
-		int nowPageCount = (int) Math.ceil( lineCount / Double.valueOf((String.valueOf(linePerScreen) + ".0")) );  // 屏数
+		int nowPageCount = (int) Math.ceil( lineCount / Double.valueOf((String.valueOf(linePerScreen) + ".0")) ); // 屏数
 		if (nowPageNum == -6) // 向上翻，回到尾部
 			nowPageNum = nowPageCount - 1 ;
-		int startLineNum = nowPageNum * linePerScreen ; // 0base:包含  
-		int endLineNum   =  ( nowPageNum + 1 ) * linePerScreen  - 1 ; //  0base:包含
+		int startLineNum = nowPageNum * linePerScreen ; // 0base:包含 
+		int endLineNum = ( nowPageNum + 1 ) * linePerScreen - 1 ; // 0base:包含
 		if ( endLineNum >= lineCount - 1 ) {
 			endLineNum = lineCount - 1;
-			isLastPage = true  ; // 表示要向下翻页了
+			isLastPage = true ; // 表示要向下翻页了
 		} else {
 			isLastPage = false ;
 		}
@@ -228,7 +227,7 @@ public class Ext_View_FoxTextView extends View  {
 		}
 
 		// 绘制底部信息
-//		p.setColor(Color.DKGRAY);  // 颜色
+//		p.setColor(Color.DKGRAY); // 颜色
 //		p.setTextSize(fontSize * 0.4f + padding * 0.5f);
 //		float infoY = ch - padding / 2 ;
 		p.setTextSize( (ch - linePerScreen * lineHeight) / 2 );
@@ -247,9 +246,9 @@ public class Ext_View_FoxTextView extends View  {
 				addStr = "…" ;
 			canvas.drawText(newInfoL.substring(0, infoLen) + addStr, padding, infoY, p);
 		}
-//		p.setColor(Color.BLACK);  // 颜色
+//		p.setColor(Color.BLACK); // 颜色
 	} // onDraw结束
-	
+
 	private ArrayList<String> split2lines(String inText, Paint p, float maxWidth) {
 		ArrayList<String> oLine = new ArrayList<String>(50);
 		oLine.add(""); // 第一行当作标题

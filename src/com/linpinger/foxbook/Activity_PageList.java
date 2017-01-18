@@ -63,7 +63,7 @@ public class Activity_PageList extends Ext_ListActivity_4Eink {
 			if ( tocURL.contains(".if.qidian.com") ) // 在线查看，站点是起点手机时
 				ittAction = AC.aListQDPages;
 			if ( ittAction == AC.aListQDPages | ittAction == AC.aSearchBookOnQiDian )
-				data = new SiteQiDian().getJsonTOC( ToolBookJava.downhtml(tocURL, "utf-8") );
+				data = new SiteQiDian().getTOC_Android7( ToolBookJava.downhtml(tocURL, "utf-8") );
 			if ( ittAction == AC.aListSitePages | ittAction == AC.aSearchBookOnSite )
 				data = new NovelSite().getTOC( ToolBookJava.downhtml(tocURL) );  // PageName PageURL
 			handler.sendEmptyMessage(IS_RenderListView);
@@ -270,7 +270,7 @@ public class Activity_PageList extends Ext_ListActivity_4Eink {
 	private void showHomeUp() {
 		getActionBar().setDisplayHomeAsUpEnabled(true);  // 标题栏中添加返回图标
 		getActionBar().setDisplayShowHomeEnabled(false); // 隐藏程序图标
-	}		// 响应点击事件在onOptionsItemSelected的switch中加入 android.R.id.home   this.finish();
+	}
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) { // 入口
@@ -336,13 +336,13 @@ switch (ittAction) {
 		for ( int i=0; i< itemcount; i++){
 			switch (menu.getItem(i).getItemId()) {
 				case R.id.pm_Add:
-					if ( ittAction == AC.aSearchBookOnQiDian | ittAction == AC.aSearchBookOnSite  )
+					if ( ittAction == AC.aListQDPages |ittAction == AC.aSearchBookOnQiDian | ittAction == AC.aSearchBookOnSite  )
 						menu.getItem(i).setVisible(true); // 当是搜索时隐藏添加按钮
 					else
 						menu.getItem(i).setVisible(false);
 					break;
 				case R.id.pm_cleanBook:
-					if ( ittAction == AC.aSearchBookOnQiDian | ittAction == AC.aSearchBookOnSite  )
+					if ( ittAction == AC.aListQDPages |ittAction == AC.aSearchBookOnQiDian | ittAction == AC.aSearchBookOnSite  )
 						menu.getItem(i).setVisible(false); // 当是网络时隐藏删除按钮
 					else
 						menu.getItem(i).setVisible(true);

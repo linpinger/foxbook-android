@@ -85,9 +85,9 @@ public class NovelManager {
 		if ( this.shelfFile.getName().endsWith(".db3") )
 			listExt = ".db3";
 		ArrayList<File> shelfsList = getShelfsList(this.shelfFile, listExt);
-        ++nowShelfNum;
-        if ( nowShelfNum >= shelfsList.size() )
-            nowShelfNum = 0 ;
+		++nowShelfNum;
+		if ( nowShelfNum >= shelfsList.size() )
+			nowShelfNum = 0 ;
 
 		this.open(shelfsList.get(nowShelfNum));
 		return this.shelfFile;
@@ -117,28 +117,28 @@ public class NovelManager {
 		File DBDir = oldShelfFile.getAbsoluteFile().getParentFile();
 		final String defaultShelfFileName = "FoxBook" + shelfFileExt;
 
-        ArrayList<File> retList = new ArrayList<File>(4);
-        retList.add(new File(DBDir.getAbsolutePath() + File.separator + defaultShelfFileName));
+		ArrayList<File> retList = new ArrayList<File>(4);
+		retList.add(new File(DBDir.getAbsolutePath() + File.separator + defaultShelfFileName));
 
-        File[] fff = DBDir.listFiles(new FileFilter() {
-            public boolean accept(File ff) {
-                if (ff.isFile()) {
-                    if (ff.toString().endsWith(shelfFileExt)) {
-                        if (ff.getName().equalsIgnoreCase(defaultShelfFileName)) {
-                            return false;
-                        } else {
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }
-        });
+		File[] fff = DBDir.listFiles(new FileFilter() {
+			public boolean accept(File ff) {
+				if (ff.isFile()) {
+					if (ff.toString().endsWith(shelfFileExt)) {
+						if (ff.getName().equalsIgnoreCase(defaultShelfFileName)) {
+							return false;
+						} else {
+							return true;
+						}
+					}
+				}
+				return false;
+			}
+		});
 
-        for (int i = 0; i < fff.length; i++)
-            retList.add(fff[i]);
-        return retList;
-    }
+		for (int i = 0; i < fff.length; i++)
+			retList.add(fff[i]);
+		return retList;
+	}
 	private void loadZip(File inShelfFile) {
 		this.bookStoreType = NovelManager.ZIP ;
 		this.shelf = new ArrayList<Novel>(1);
@@ -179,11 +179,11 @@ public class NovelManager {
 		int nowBookIDX = -1 ;
 		for (Novel book : this.shelf) {
 			++ nowBookIDX ;
-            item = new HashMap<String, Object>(9);
-            item.putAll(book.getInfo());
-            item.put(NV.PagesCount, book.getChapters().size());
-            item.put(NV.BookIDX, nowBookIDX);
-            data.add(item);
+			item = new HashMap<String, Object>(9);
+			item.putAll(book.getInfo());
+			item.put(NV.PagesCount, book.getChapters().size());
+			item.put(NV.BookIDX, nowBookIDX);
+			data.add(item);
 		}
 		return data ;
 	}
@@ -550,8 +550,8 @@ public class NovelManager {
 
 	public int updatePage(int bookIDX, int pageIDX) { // 写入对象，更新用
 		Novel book = this.shelf.get(bookIDX);
-	    String pageFullURL = ToolBookJava.getFullURL(book.getInfo().get(NV.BookURL).toString()
-	    		, book.getChapters().get(pageIDX).get(NV.PageURL).toString());
+		String pageFullURL = ToolBookJava.getFullURL(book.getInfo().get(NV.BookURL).toString()
+				, book.getChapters().get(pageIDX).get(NV.PageURL).toString());
 		String text = this.updatePage(pageFullURL);
 
 		this.setPageContent(text, bookIDX, pageIDX);
@@ -559,25 +559,25 @@ public class NovelManager {
 	}
 	public String updatePage(String pageFullURL) { // 返回内容，不写入对象，用于在线查看
 		String text = "";
-	    String html = "" ;
+		String html = "" ;
 
-	    if ( pageFullURL.contains("files.qidian.com") ) { // 起点手机站直接用txt地址好了
-	    	html = ToolBookJava.downhtml(pageFullURL, "GBK"); // 下载json
-            text = new SiteQiDian().getContentFromJS(html);
-	    } else if ( pageFullURL.contains(".qidian.com") ) {
-            String nURL = new SiteQiDian().getContentURLFromDeskHtml(ToolBookJava.downhtml(pageFullURL)) ; // 2015-11-17: 起点地址变动，只能下载网页后再获取txt地址
-            if ( nURL.equalsIgnoreCase("") ) {
-                text = "" ;
-            } else {
-                html = ToolBookJava.downhtml(nURL);
-                text = new SiteQiDian().getContentFromJS(html);
-            }
-	    } else {
-	    	html = ToolBookJava.downhtml(pageFullURL); // 下载url
-            text = new NovelSite().getContent(html);       // 分析得到text
-	    }
+		if ( pageFullURL.contains("files.qidian.com") ) { // 起点手机站直接用txt地址好了
+			html = ToolBookJava.downhtml(pageFullURL, "GBK"); // 下载json
+			text = new SiteQiDian().getContent_Desk6(html);
+		} else if ( pageFullURL.contains(".qidian.com") ) {
+			String nURL = new SiteQiDian().getContentURL_Desk5(ToolBookJava.downhtml(pageFullURL)) ; // 2015-11-17: 起点地址变动，只能下载网页后再获取txt地址
+			if ( nURL.equalsIgnoreCase("") ) {
+				text = "" ;
+			} else {
+				html = ToolBookJava.downhtml(nURL);
+				text = new SiteQiDian().getContent_Desk6(html);
+			}
+		} else {
+			html = ToolBookJava.downhtml(pageFullURL); // 下载url
+			text = new NovelSite().getContent(html);       // 分析得到text
+		}
 
-	    return text;
+		return text;
 	}
 
 	public static void main(String[] args) {

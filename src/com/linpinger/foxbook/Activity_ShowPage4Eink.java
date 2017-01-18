@@ -140,8 +140,8 @@ public class Activity_ShowPage4Eink extends Activity {
 		super.onCreate(savedInstanceState);
 //		Settings.System.putInt(this.getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, 180000); // 设置超时时间 3分钟
 //		getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); // 永远亮着
-        myBGcolor = settings.getString("myBGcolor", myBGcolor);
-        editor = settings.edit(); // 获取设置
+		myBGcolor = settings.getString("myBGcolor", myBGcolor);
+		editor = settings.edit(); // 获取设置
 		setBGcolor(myBGcolor);
 
 		isProcessLongOneLine = settings.getBoolean("isProcessLongOneLine", isProcessLongOneLine);
@@ -184,10 +184,10 @@ public class Activity_ShowPage4Eink extends Activity {
 
 		tLastPushEinkButton = System.currentTimeMillis();
 
-        isMapUpKey = settings.getBoolean("isMapUpKey", isMapUpKey);
-        isShowSettingMenus = settings.getBoolean("isShowSettingMenus", isShowSettingMenus);
+		isMapUpKey = settings.getBoolean("isMapUpKey", isMapUpKey);
+		isShowSettingMenus = settings.getBoolean("isShowSettingMenus", isShowSettingMenus);
 
-        fontsize = settings.getFloat("fontsize", (float)ToolAndroid.sp2px(this, 18.5f)); // 字体大小
+		fontsize = settings.getFloat("fontsize", (float)ToolAndroid.sp2px(this, 18.5f)); // 字体大小
 		mv.setFontSize(fontsize);
 
 		paddingMultip = settings.getFloat("paddingMultip", paddingMultip);
@@ -243,7 +243,7 @@ switch (ittAction) {
 				public void run() {
 					String text = "";
 					if ( fullPageURL.contains("files.qidian.com") )
-						text = new SiteQiDian().getContentFromJS(ToolBookJava.downhtml(fullPageURL, "GBK"));
+						text = new SiteQiDian().getContent_Desk6(ToolBookJava.downhtml(fullPageURL, "GBK"));
 					else
 						text = nm.updatePage(fullPageURL) ;
 
@@ -261,18 +261,18 @@ switch (ittAction) {
 			break;
 		case AC.aShowPageInZip1024: // ZIP文件
 			String zipPageFullURL = itt.getStringExtra(NV.PageFullURL);
-	    	Matcher mat = Pattern.compile("(?i)^zip://([^@]*?)@([^@]*)$").matcher(zipPageFullURL);
-	    	String zipRelPath = "";
-	    	String zipItemName = "";
-	    	while (mat.find()) {
-	    		zipRelPath = mat.group(1) ;
-	    		zipItemName = mat.group(2) ;
-	    	}
+			Matcher mat = Pattern.compile("(?i)^zip://([^@]*?)@([^@]*)$").matcher(zipPageFullURL);
+			String zipRelPath = "";
+			String zipItemName = "";
+			while (mat.find()) {
+				zipRelPath = mat.group(1) ;
+				zipItemName = mat.group(2) ;
+			}
 
-	    	ZIPFILE = new File(nm.getShelfFile().getParent() + "/" + zipRelPath);
-	    	String html = FoxZipReader.getUtf8TextFromZip(ZIPFILE, zipItemName);
-	    	String content = "";
-	    	String pageName = "";
+			ZIPFILE = new File(nm.getShelfFile().getParent() + "/" + zipRelPath);
+			String html = FoxZipReader.getUtf8TextFromZip(ZIPFILE, zipItemName);
+			String content = "";
+			String pageName = "";
 			if ( html.contains("\"tpc_content\"") ) {
 				HashMap<String, Object> xx = new Site1024().getContentTitle(html);
 				pageName = xx.get(NV.PageName).toString();
@@ -533,7 +533,7 @@ switch (ittAction) {
 			iText = iText.replace("\n\n", "\n");
 		}
 
-//		Log.e("TT", "Time=" + ( System.currentTimeMillis() - sTime ) ); 
+//		Log.e("TT", "Time=" + ( System.currentTimeMillis() - sTime ) );
 		return iText;
 	}
 

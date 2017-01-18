@@ -32,14 +32,16 @@ import com.linpinger.novel.SiteQiDian;
 import com.linpinger.tool.ToolAndroid;
 import com.linpinger.tool.ToolBookJava;
 /*
-Activity_PageList :  msg IS_GETQIDIANURL -> Runnable:GetQidianURL : 选项: 快搜:qidian  : aSearchBookOnQiDian, bookname, bookurl
-Activity_PageList :  预览按钮 : aSearchBookOnNet, bookname, bookurl
+Activity_PageList : msg IS_GETQIDIANURL -> Runnable:GetQidianURL : 选项: 快搜:qidian : aSearchBookOnQiDian, bookname, bookurl
+Activity_PageList : 预览按钮 : aSearchBookOnNet, bookname, bookurl
 
-Activity_QuickSearch : 选项菜单:sogou :  BookName, searchEngine
-Activity_QuickSearch : 选项菜单:bing  :  BookName, searchEngine
-Activity_QuickSearch : 选项菜单:yahoo :  BookName, searchEngine
+Activity_QuickSearch : 选项菜单:sogou : BookName, searchEngine
+Activity_QuickSearch : 选项菜单:bing  : BookName, searchEngine
+Activity_QuickSearch : 选项菜单:yahoo : BookName, searchEngine
 */
 public class Activity_SearchBook extends Activity {
+
+	private int ittAction = 0 ; // 传入的数据
 	private long mExitTime ;
 	private WebView wv;
 	private EditText et;
@@ -64,11 +66,11 @@ public class Activity_SearchBook extends Activity {
 		}
 		@Override
 		public void run() {
-			String json = ToolBookJava.downhtml(new SiteQiDian().getSearchURL_Mobile(this.bookname), "utf-8");
-            List<Map<String, Object>> qds = new SiteQiDian().getJsonBookList(json);
-            if ( qds.get(0).get(NV.BookName).toString().equalsIgnoreCase(this.bookname) ) { // 第一个结果就是目标书
-            	book_url = qds.get(0).get(NV.BookURL).toString();
-            }
+			String json = ToolBookJava.downhtml(new SiteQiDian().getSearchURL_Android7(this.bookname), "utf-8");
+			List<Map<String, Object>> qds = new SiteQiDian().getSearchBookList_Android7(json);
+			if ( qds.get(0).get(NV.BookName).toString().equalsIgnoreCase(this.bookname) ) { // 第一个结果就是目标书
+				book_url = qds.get(0).get(NV.BookURL).toString();
+			}
 
 			Message msg = Message.obtain();
 			msg.what = IS_GETQIDIANURL;
@@ -79,9 +81,9 @@ public class Activity_SearchBook extends Activity {
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void showHomeUp() {
-		getActionBar().setDisplayHomeAsUpEnabled(true);  // 标题栏中添加返回图标
+		getActionBar().setDisplayHomeAsUpEnabled(true); // 标题栏中添加返回图标
 //		getActionBar().setDisplayShowHomeEnabled(false); // 隐藏程序图标
-	}		// 响应点击事件在onOptionsItemSelected的switch中加入 android.R.id.home   this.finish();
+	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +97,7 @@ public class Activity_SearchBook extends Activity {
 		
 		showHomeUp();
 
-		et = (EditText) findViewById(R.id.editText1);
+		et = (EditText) findViewById(R.id.editText1); // bookname
 		wv = (WebView) findViewById(R.id.webView1);
 		btn_search = (ImageButton) findViewById(R.id.button1);
 		btn_pre = (Button) findViewById(R.id.button2);
@@ -168,7 +170,17 @@ public class Activity_SearchBook extends Activity {
 				}
 			}
 		});
-		
+
+		// 获取传入的数据
+		Intent itt = getIntent();
+		ittAction = itt.getIntExtra(AC.action, 0);
+		switch (ittAction) {
+		case AC.aListQDPages: // 搜索起点
+			book_name = itt.getStringExtra(NV.BookName);
+			et.setText(book_name);
+			(new Thread(new GetQidianURLFromBookName(book_name))).start() ;
+			break;
+		}
 	}
 
 	@Override
@@ -214,14 +226,14 @@ public class Activity_SearchBook extends Activity {
 			intent.putExtra(AC.searchEngine, AC.SE_SOGOU);
 			startActivity(intent);
 			break;
-		case R.id.sm_QuickSearchBing:  // 快搜:Bing
+		case R.id.sm_QuickSearchBing: // 快搜:Bing
 			book_name = et.getText().toString();
 			Intent itb = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
 			itb.putExtra(NV.BookName, book_name);
 			itb.putExtra(AC.searchEngine, AC.SE_BING);
 			startActivity(itb);
 			break;
-		case R.id.sm_QuickSearchYahoo:  // 快搜:雅虎
+		case R.id.sm_QuickSearchYahoo: // 快搜:雅虎
 			book_name = et.getText().toString();
 			Intent ityh = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
 			ityh.putExtra(NV.BookName, book_name);
@@ -276,7 +288,7 @@ public class Activity_SearchBook extends Activity {
 	private void funcDownQDEbook() {
 		String ub = wv.getUrl();
 		if (ub.contains(".qidian.com/")) {
-			String qidianID = new SiteQiDian().getQiDianBookIDFromURL(ub);
+			String qidianID = new SiteQiDian().getBookID_FromURL(ub);
 			ToolAndroid.download("http://download.qidian.com/epub/" + qidianID + ".epub", qidianID + ".epub", this);
 			foxtip("开始下载: " + qidianID + ".epub");
 		} else {
@@ -287,9 +299,9 @@ public class Activity_SearchBook extends Activity {
 	private void funcOpenTopQD(boolean isMobile) {
 		wv.getSettings().setJavaScriptEnabled(true) ; // 允许JS
 		if ( isMobile ) {
-			wv.loadUrl("http://m.qidian.com/top.aspx");
+			wv.loadUrl("http://m.qidian.com/rank/male");
 		} else {
-			wv.loadUrl("http://top.qidian.com");
+			wv.loadUrl("http://r.qidian.com");
 		}
 	}
 

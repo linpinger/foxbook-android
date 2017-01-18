@@ -46,14 +46,14 @@ public class StorEpub extends Stor {
 		case 2:
 			HashMap<String, Object> qhm = epub.getQiDianEpubInfo();
 			info.put(NV.BookName,   qhm.get("bookname"));
-			info.put(NV.BookURL,    new SiteQiDian().getIndexURL_Mobile(qhm.get("qidianid").toString()));
-			info.put(NV.QDID,       qhm.get("qidianid"));
+			info.put(NV.BookURL,	new SiteQiDian().getTOCURL_Android7(qhm.get("qidianid").toString()));
+			info.put(NV.QDID,	   qhm.get("qidianid"));
 			info.put(NV.BookAuthor, qhm.get("author"));
 			break;
 		default:
 			break;
 		}
-		info.put(NV.DelURL,     "");
+		info.put(NV.DelURL,	 "");
 		info.put(NV.BookStatu,  0);
 		book.setInfo(info);
 
@@ -74,7 +74,7 @@ public class StorEpub extends Stor {
 				page.put(NV.PageName, pageTitle);
 				page.put(NV.PageURL,  fileName);
 				page.put(NV.Content,  pageText);
-				page.put(NV.Size,     pageText.length());
+				page.put(NV.Size,	 pageText.length());
 
 				chapters.add(page);
 			}
@@ -87,9 +87,9 @@ public class StorEpub extends Stor {
 
 				page = new HashMap<String, Object>();
 				page.put(NV.PageName, pageTitle);
-				page.put(NV.PageURL,  new SiteQiDian().getContentURLFromIDs(hm.get("pageid").toString(), hm.get("bookid").toString()));
+				page.put(NV.PageURL,  new SiteQiDian().getContentURL_Desk6(hm.get("pageid").toString(), hm.get("bookid").toString()));
 				page.put(NV.Content,  pageText);
-				page.put(NV.Size,     pageText.length());
+				page.put(NV.Size,	 pageText.length());
 
 				chapters.add(page);
 			}
@@ -97,10 +97,10 @@ public class StorEpub extends Stor {
 		default:
 			break;
 		}
-    	book.setChapters(chapters);
+		book.setChapters(chapters);
 
-    	lst.add(book);
-    	epub.close();
+		lst.add(book);
+		epub.close();
 		return lst ;
 	}
 
@@ -109,7 +109,9 @@ public class StorEpub extends Stor {
 
 		for (Novel novel : inList)
 			for (Map<String, Object> page : novel.getChapters())
-				oEpub.addChapter(page.get(NV.PageName).toString(), page.get(NV.Content).toString(), -1);
+				oEpub.addChapter(page.get(NV.PageName).toString()
+						, "\n　　" + page.get(NV.Content).toString().replace("\n", "<br/>\n　　")
+						, -1);
 
 		oEpub.saveAll();
 	}

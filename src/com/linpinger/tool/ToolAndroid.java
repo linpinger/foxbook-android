@@ -122,31 +122,31 @@ public class ToolAndroid {
 		return ( i & 0xFF) + "." + ((i >> 8 ) & 0xFF) + "." + ((i >> 16 ) & 0xFF) + "." + ((i >> 24 ) & 0xFF ) ; 
 	}
 
-    /** 
-     * 将sp值转换为px值，保证文字大小不变 
-     *  
-     * @param spValue 
-     * @param fontScale 
-     *            （DisplayMetrics类中属性scaledDensity） 
-     * @return 
-     */  
-    public static int sp2px(Context context, float spValue) {  
-        final float fontScale = context.getResources().getDisplayMetrics().scaledDensity;  
-        return (int) (spValue * fontScale + 0.5f);  
-    }
+	/** 
+	 * 将sp值转换为px值，保证文字大小不变 
+	 *  
+	 * @param spValue 
+	 * @param fontScale 
+	 *			（DisplayMetrics类中属性scaledDensity） 
+	 * @return 
+	 */  
+	public static int sp2px(Context context, float spValue) {  
+		final float fontScale = context.getResources().getDisplayMetrics().scaledDensity;  
+		return (int) (spValue * fontScale + 0.5f);  
+	}
 
 	/** 
-     * 将px值转换为sp值，保证文字大小不变 
-     *  
-     * @param pxValue 
-     * @param fontScale 
-     *            （DisplayMetrics类中属性scaledDensity） 
-     * @return 
-     */  
-    public static int px2sp(Context context, float pxValue) {  
-        final float fontScale = context.getResources().getDisplayMetrics().scaledDensity;  
-        return (int) (pxValue / fontScale + 0.5f);  
-    }
+	 * 将px值转换为sp值，保证文字大小不变 
+	 *  
+	 * @param pxValue 
+	 * @param fontScale 
+	 *			（DisplayMetrics类中属性scaledDensity） 
+	 * @return 
+	 */  
+	public static int px2sp(Context context, float pxValue) {  
+		final float fontScale = context.getResources().getDisplayMetrics().scaledDensity;  
+		return (int) (pxValue / fontScale + 0.5f);  
+	}
 
 	public static void download(String iURL, String saveName, Context ctx) {
 		download(iURL, saveName, "99_sync", ctx);

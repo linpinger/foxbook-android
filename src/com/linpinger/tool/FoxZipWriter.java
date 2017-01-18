@@ -40,11 +40,11 @@ public class FoxZipWriter {
 	public void putBinFile(byte[] b, String filename, boolean isStored) {
 		ZipEntry entry = new ZipEntry(filename);
 		if ( isStored ) { // ½ö´æ´¢£¬²»Ñ¹Ëõ
-	        entry.setMethod(ZipEntry.STORED);
-	        entry.setCompressedSize(b.length);
-	        CRC32 crc = new CRC32();
-	        crc.update(b);
-	        entry.setCrc(crc.getValue());
+			entry.setMethod(ZipEntry.STORED);
+			entry.setCompressedSize(b.length);
+			CRC32 crc = new CRC32();
+			crc.update(b);
+			entry.setCrc(crc.getValue());
 		}
 		try {
 			zos.putNextEntry(entry);
@@ -75,7 +75,7 @@ public class FoxZipWriter {
 	public void close() {
 		try {
 			zos.close();
-            fos.close();
+			fos.close();
 		} catch (Exception e) {
 			System.err.println(e.toString());
 		}

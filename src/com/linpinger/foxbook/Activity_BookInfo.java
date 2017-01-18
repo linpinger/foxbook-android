@@ -99,7 +99,7 @@ public class Activity_BookInfo extends Activity {
 		case R.id.bi_getQDidFromURL:
 			String url_now = edt_burl.getText().toString();
 			if ( url_now.contains(".qidian.com/") ) {
-				edt_qdid.setText(new SiteQiDian().getQiDianBookIDFromURL(url_now));
+				edt_qdid.setText(new SiteQiDian().getBookID_FromURL(url_now));
 			} else {
 				foxtip("URL²»°üº¬ .qidian.com/");
 			}

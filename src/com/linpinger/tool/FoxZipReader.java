@@ -47,22 +47,22 @@ public class FoxZipReader {
 	}
 
 	public String getTextFile(String utf8file) {
-        return getTextFile(utf8file, "UTF-8");
-    }
+		return getTextFile(utf8file, "UTF-8");
+	}
 
 	public String getTextFile(String filename, String iTextFileEncoding) {
 		StringBuilder retStr = new StringBuilder(174080);
 		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(zf.getInputStream(zf.getEntry(filename)), iTextFileEncoding));
 			char[] chars = new char[4096]; // 这个大小不影响读取速度
-            int length = 0;
-            while ((length = br.read(chars)) > 0) {
-                retStr.append(chars, 0, length);
-            }
-            br.close();
+			int length = 0;
+			while ((length = br.read(chars)) > 0) {
+				retStr.append(chars, 0, length);
+			}
+			br.close();
 		} catch (Exception e) {
 			System.err.println(e.toString());
-        }
+		}
 		return retStr.toString();
 	}
 
@@ -75,10 +75,10 @@ public class FoxZipReader {
 			while ( ( nRead = bis.read(buf) ) != -1 )
 				bos.write(buf, 0, nRead);
 			bos.close();
-            bis.close();
+			bis.close();
 		} catch (Exception e) {
 			System.err.println(e.toString());
-        }
+		}
 	}
 
 	public void close() {

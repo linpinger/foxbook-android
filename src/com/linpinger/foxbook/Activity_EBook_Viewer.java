@@ -21,20 +21,20 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
-// Activity_ShowPage4Eink : 单击列表, 显示内容   onListItemClick
+// Activity_ShowPage4Eink : 单击列表, 显示内容 onListItemClick
 
 public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
-	
-	public final int ZIP = 26 ;        // 普通zip文件
-	public final int ZIP1024 = 1024 ;  // 1024 html 打包的zip
-	public final int EPUB = 500 ;      // 普通 epub文件 处理方式待定
-	public final int EPUBFOXMAKE = 506; //我生成的 epub
-	public final int EPUBQIDIAN = 517; // 起点 epub
-	public final int TXT = 200 ;       // 普通txt
-	public final int TXTQIDIAN = 217 ; // 起点txt
-	
-	private int eBookType = ZIP ;  // 处理的zip/epub类型
-	
+
+	public final int ZIP = 26 ;			// 普通zip文件
+	public final int ZIP1024 = 1024 ;	// 1024 html 打包的zip
+	public final int EPUB = 500 ;		// 普通 epub文件 处理方式待定
+	public final int EPUBFOXMAKE = 506;	// 我生成的 epub
+	public final int EPUBQIDIAN = 517;	// 起点 epub
+	public final int TXT = 200 ;		// 普通txt
+	public final int TXTQIDIAN = 217 ;	// 起点txt
+
+	private int eBookType = ZIP ;		// 处理的zip/epub类型
+
 	private List<Map<String, Object>> data;
 	private ListView lv_pagelist ;
 	SimpleAdapter adapter;
@@ -50,13 +50,13 @@ public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 				new int[] { R.id.tvName, R.id.tvCount });
 		lv_pagelist.setAdapter(adapter);
 	}
-	
+
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void showHomeUp() {
-		getActionBar().setDisplayHomeAsUpEnabled(settings.getBoolean("isClickHomeExit", false));  // 标题栏中添加返回图标
+		getActionBar().setDisplayHomeAsUpEnabled(settings.getBoolean("isClickHomeExit", false)); // 标题栏中添加返回图标
 	}
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) { // 入口
 		settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -66,12 +66,12 @@ public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_ebook_viewer);
 		showHomeUp();
-		
+
 		lv_pagelist = getListView();
-		
+
 		// 获取传入的文件路径
 		Intent itt = getIntent();
-		eBookFile = new File(itt.getData().getPath());  // 从intent获取txt/zip/epub路径
+		eBookFile = new File(itt.getData().getPath()); // 从intent获取txt/zip/epub路径
 
 		if ( eBookFile.getName().toLowerCase().endsWith(".epub"))
 			eBookType = EPUB ;
@@ -79,13 +79,13 @@ public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 			eBookType = ZIP ;
 		if ( eBookFile.getName().toLowerCase().endsWith(".txt"))
 			eBookType = TXT ;
-		
+
 		this.nm = new NovelManager(eBookFile);
 		((FoxApp)this.getApplication()).nm = this.nm;
 
 		setTitle(nm.getBookInfo(0).get(NV.BookName).toString());
 		data = nm.getPageList(0);
-		renderListView();  // 处理好data后再刷新列表
+		renderListView(); // 处理好data后再刷新列表
 
 	} // onCreate end
 
@@ -94,7 +94,7 @@ public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 		Map<String, Object> page = (HashMap<String, Object>) data.get(position);
 
 		// 跳到阅读页
-		Intent itt  = new Intent(Activity_EBook_Viewer.this, Activity_ShowPage4Eink.class);
+		Intent itt = new Intent(Activity_EBook_Viewer.this, Activity_ShowPage4Eink.class);
 		switch (eBookType) {
 		case ZIP:
 		case ZIP1024:
@@ -102,7 +102,7 @@ public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 			setTitle(zipItemName);
 			if ( zipItemName.endsWith(".html") | zipItemName.endsWith(".htm") ) {
 				itt.putExtra(NV.PageFullURL, nm.getBookInfo(0).get(NV.BookURL) + "@" + zipItemName);
-		        itt.putExtra(AC.action, AC.aShowPageInZip1024);
+				itt.putExtra(AC.action, AC.aShowPageInZip1024);
 				startActivity(itt);
 			} else {
 				foxtip("暂不支持这种格式的直接查看");
@@ -165,7 +165,7 @@ public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 			lv_pagelist.setSelection(midPos);
 			setItemPos4Eink(midPos);
 			break;
-		case R.id.action_gbk2utf8:  // Txt GBK->UTF-8
+		case R.id.action_gbk2utf8: // Txt GBK->UTF-8
 			nm.exportAsTxt(new File(eBookFile.getPath().replace(".txt", "") + "_UTF8.txt"));
 			this.finish();
 			System.exit(0);

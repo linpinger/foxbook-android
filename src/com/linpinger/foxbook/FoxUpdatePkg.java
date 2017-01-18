@@ -14,10 +14,10 @@ public class FoxUpdatePkg {
 	private String apkPATH = "/sdcard/FoxBook.apk" ;
 	private String urlVersion = "http://linpinger.github.io/bin/foxbook-android/version";
 	private String urlAPK = "http://linpinger.github.io/bin/foxbook-android/FoxBook.apk";
-	
+
 	public FoxUpdatePkg(Context context) {
 		this.mContext = context;
-		
+
 		// 根据设置选择升级线路，默认:github
 		String upline = PreferenceManager.getDefaultSharedPreferences(context).getString("upgrade_line", "github");
 		if (upline.equalsIgnoreCase("github") ) {
@@ -66,7 +66,7 @@ public class FoxUpdatePkg {
 		} catch (Exception e) {
 			System.err.println(e.toString());
 		}
-	    return Integer.valueOf(versionCode);
+		return Integer.valueOf(versionCode);
 	}
 
 
