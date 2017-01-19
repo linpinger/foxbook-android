@@ -74,7 +74,7 @@ public class Activity_BookInfo extends Activity {
 		// 点击保存按钮保存数据
 		btn_save.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				Map<String, Object> info = nm.addBlankBookInfo();
+				Map<String, Object> info = nm.getBlankBookInfo();
 				info.put(NV.BookName, edt_bname.getText().toString());
 				info.put(NV.BookURL, edt_burl.getText().toString());
 				info.put(NV.DelURL, edt_delurl.getText().toString());

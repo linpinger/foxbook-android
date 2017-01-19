@@ -12,7 +12,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-public class StorDB3Android extends Stor {
+public class StorDB3 extends Stor {
 
 	public List<Novel> load(File inFile) {
 		File tmpBakFile = new File(inFile.getPath() + ".faksdj");

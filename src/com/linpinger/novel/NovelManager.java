@@ -46,7 +46,7 @@ public class NovelManager {
 		} else if ( nameLow.endsWith(".db3") ) {
 			this.bookStoreType = NovelManager.SQLITE3 ;
 			// Todo: 根据系统类型，选择不同的平台导入方式，需要反射来loadClass
-			this.shelf = new StorDB3Android().load(this.shelfFile);
+			this.shelf = new StorDB3().load(this.shelfFile);
 		} else if ( nameLow.endsWith(".zip") ) {
 			loadZip(this.shelfFile);
 		} else if ( nameLow.endsWith(".epub") ) {
@@ -103,7 +103,7 @@ public class NovelManager {
 		new Stor().save(this.shelf, oFile);
 	}
 	public void exportAsDB3(File oFile) {
-		new StorDB3Android().save(this.shelf, oFile);
+		new StorDB3().save(this.shelf, oFile);
 	}
 
 	public File getShelfFile() {
@@ -147,7 +147,7 @@ public class NovelManager {
 		Map<String, Object> page;
 		FoxZipReader z = new FoxZipReader(inShelfFile);
 		for( Map<String, Object> zItem : z.getFileList() ) {
-			page = this.addBlankPage();
+			page = this.getBlankPage();
 			page.put(NV.PageName, zItem.get("name"));
 			page.put(NV.Size, zItem.get("count"));
 			chapters.add(page);
@@ -155,7 +155,7 @@ public class NovelManager {
 		z.close();
 		this.shelf.get(tmpZipBookIDX).setChapters(chapters);
 	}
-	public Map<String, Object> addBlankBookInfo() { // 模版 根据NV中字段调整
+	public Map<String, Object> getBlankBookInfo() { // 模版 根据NV中字段调整
 		Map<String, Object> info = new HashMap<String, Object>(7);
 		info.put(NV.BookName, "");
 		info.put(NV.BookURL, "");
@@ -165,7 +165,7 @@ public class NovelManager {
 		info.put(NV.QDID, "");
 		return info;
 	}
-	public Map<String, Object> addBlankPage() { // 模版 根据NV中字段调整
+	public Map<String, Object> getBlankPage() { // 模版 根据NV中字段调整
 		Map<String, Object> page = new HashMap<String, Object>(5);
 		page.put(NV.PageName, "");
 		page.put(NV.PageURL, "");
@@ -173,6 +173,25 @@ public class NovelManager {
 		page.put(NV.Size, 0);
 		return page;
 	}
+	public int addBook(String bookName, String bookURL, String qidianID) {
+		Novel newBook = new Novel();
+		Map<String, Object> info = this.getBlankBookInfo();
+		info.put(NV.BookName, bookName);
+		info.put(NV.BookURL, bookURL);
+		info.put(NV.QDID, qidianID);
+		newBook.setInfo(info);
+		this.shelf.add(newBook);
+		return this.shelf.indexOf(newBook);
+	}
+	public int addPage(Map<String, Object> page, int bookIDX, int pageIDX) { // 在pageIDX后追加新章
+		List<Map<String, Object>> pages = this.shelf.get(bookIDX).getChapters();
+		if ( pageIDX >= pages.size() )
+			pages.add(page);
+		else
+			pages.add(pageIDX, page);
+		return pages.indexOf(page);
+	}
+
 	public List<Map<String, Object>> getBookList(){ // 获取书籍列表
 		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(20);
 		Map<String, Object> item;
@@ -252,39 +271,6 @@ public class NovelManager {
 		return oList;
 	}
 
-	public List<Map<String, Object>> addBookBlankPageList(List<Map<String, Object>> data, int inBookIDX) {
-		Novel book = this.shelf.get(inBookIDX);
-		String bookURL = book.getInfo().get(NV.BookURL).toString();
-
-		List<Map<String, Object>> chapters = book.getChapters();
-		Map<String, Object> nPage;
-
-		List<Map<String, Object>> oList = new ArrayList<Map<String, Object>>();
-		Map<String, Object> oPage;
-
-		String nowTitle;
-		String nowPageURL;
-		int pageIDX;
-		for ( Map<String, Object> blankPage : data ) {
-			nowTitle = blankPage.get(NV.PageName).toString();
-			nowPageURL = blankPage.get(NV.PageURL).toString();
-
-			nPage = this.addBlankPage();
-			nPage.put(NV.PageName, nowTitle);
-			nPage.put(NV.PageURL, nowPageURL);
-			chapters.add(nPage);
-			pageIDX = chapters.size() - 1;
-
-			oPage = new HashMap<String, Object>(8);
-			oPage.putAll(nPage);
-			oPage.put(NV.PageFullURL, ToolBookJava.getFullURL(bookURL, nowPageURL) );
-			oPage.put(NV.BookIDX, inBookIDX);
-			oPage.put(NV.PageIDX, pageIDX);
-			oList.add(oPage);
-		}
-		return oList;
-	}
-
 	public void deleteBook(int bookIdx) { // 已: 验证 position 基本等于 idx
 		this.shelf.remove(bookIdx);
 	}
@@ -332,17 +318,6 @@ public class NovelManager {
 			}
 		}
 	}
-	public int addBook(String bookName, String bookURL, String qidianID) {
-		Novel newBook = new Novel();
-		Map<String, Object> info = this.addBlankBookInfo();
-		info.put(NV.BookName, bookName);
-		info.put(NV.BookURL, bookURL);
-		info.put(NV.QDID, qidianID);
-		newBook.setInfo(info);
-		this.shelf.add(newBook);
-		return this.shelf.indexOf(newBook);
-	}
-
 	public Map<String, Object> getBookInfo(int bookIDX) {
 		return this.shelf.get(bookIDX).getInfo();
 	}
@@ -353,9 +328,9 @@ public class NovelManager {
 	public Map<String, Object> getPage(int bookIDX, int pageIDX) {
 		return this.shelf.get(bookIDX).getChapters().get(pageIDX) ;
 	}
-//	public void setPage(Map<String, Object> page, int bookIDX, int pageIDX) {
-//		this.shelf.get(bookIDX).getChapters().get(pageIDX).putAll(page);
-//	}
+	public void setPage(Map<String, Object> page, int bookIDX, int pageIDX) {
+		this.shelf.get(bookIDX).getChapters().get(pageIDX).putAll(page);
+	}
 	public void setPageContent(String content, int bookIDX, int pageIDX) { // synchronized
 		Map<String, Object> hm = this.shelf.get(bookIDX).getChapters().get(pageIDX);
 		hm.put(NV.Content, content);
@@ -419,24 +394,6 @@ public class NovelManager {
 			ret.put(NV.PageIDX, nextPageIDX);
 		}
 		return ret;
-	}
-
-	public String getPagePosAtShelfPages(int bookIDX, int pageIDX) {
-		int all = 0 ; // 页面总数
-		int pos = 0 ; // 页面在总页数的位置
-		int nowBookPagesCount = 0 ;
-		int nowBookIDX = -1 ;
-		for (Novel book : this.shelf) {
-			nowBookPagesCount = book.getChapters().size() ;
-			all += nowBookPagesCount ;
-			++ nowBookIDX;
-			if ( nowBookIDX == bookIDX ) {
-				pos += pageIDX + 1 ;
-			} else if ( nowBookIDX < bookIDX ) {
-				pos += nowBookPagesCount;
-			}
-		}
-		return pos + " / " + all ;
 	}
 
 	public String getPageListStr(int bookIDX) { // 获取 url,name 列表
@@ -518,6 +475,35 @@ public class NovelManager {
 		}
 	}
 
+	public int getLess1KCount(){
+		int count = 0 ;
+		for (Novel book : this.shelf) {
+			for (Map<String, Object> page : book.getChapters()) {
+				if ( Integer.valueOf(page.get(NV.Size).toString()) < 999 )
+					++count;
+			}
+		}
+		return count;
+	}
+
+	public String getPagePosAtShelfPages(int bookIDX, int pageIDX) {
+		int all = 0 ; // 页面总数
+		int pos = 0 ; // 页面在总页数的位置
+		int nowBookPagesCount = 0 ;
+		int nowBookIDX = -1 ;
+		for (Novel book : this.shelf) {
+			nowBookPagesCount = book.getChapters().size() ;
+			all += nowBookPagesCount ;
+			++ nowBookIDX;
+			if ( nowBookIDX == bookIDX ) {
+				pos += pageIDX + 1 ;
+			} else if ( nowBookIDX < bookIDX ) {
+				pos += nowBookPagesCount;
+			}
+		}
+		return pos + " / " + all ;
+	}
+
 	public List<Map<String, Object>> getBookListForShelf() { // 比较网站书架用
 		List<Map<String, Object>> oo = new ArrayList<Map<String, Object>>();
 		Map<String, Object> obook ;
@@ -537,15 +523,37 @@ public class NovelManager {
 		}
 		return oo;
 	}
-	public int getLess1KCount(){
-		int count = 0 ;
-		for (Novel book : this.shelf) {
-			for (Map<String, Object> page : book.getChapters()) {
-				if ( Integer.valueOf(page.get(NV.Size).toString()) < 999 )
-					++count;
-			}
+	public List<Map<String, Object>> addBookBlankPageList(List<Map<String, Object>> data, int inBookIDX) {
+		Novel book = this.shelf.get(inBookIDX);
+		String bookURL = book.getInfo().get(NV.BookURL).toString();
+	
+		List<Map<String, Object>> chapters = book.getChapters();
+		Map<String, Object> nPage;
+	
+		List<Map<String, Object>> oList = new ArrayList<Map<String, Object>>();
+		Map<String, Object> oPage;
+	
+		String nowTitle;
+		String nowPageURL;
+		int pageIDX;
+		for ( Map<String, Object> blankPage : data ) {
+			nowTitle = blankPage.get(NV.PageName).toString();
+			nowPageURL = blankPage.get(NV.PageURL).toString();
+	
+			nPage = this.getBlankPage();
+			nPage.put(NV.PageName, nowTitle);
+			nPage.put(NV.PageURL, nowPageURL);
+			chapters.add(nPage);
+			pageIDX = chapters.size() - 1;
+	
+			oPage = new HashMap<String, Object>(8);
+			oPage.putAll(nPage);
+			oPage.put(NV.PageFullURL, ToolBookJava.getFullURL(bookURL, nowPageURL) );
+			oPage.put(NV.BookIDX, inBookIDX);
+			oPage.put(NV.PageIDX, pageIDX);
+			oList.add(oPage);
 		}
-		return count;
+		return oList;
 	}
 
 	public int updatePage(int bookIDX, int pageIDX) { // 写入对象，更新用
