@@ -17,6 +17,7 @@ public class NovelSite {
 	public static final int Site13xs = 13;
 	public static final int SiteBiquge = 29;
 	public static final int SiteDajiadu = 41;
+	public static final int SitePiaotian = 16;
 
 	public String getValue(String text, String label) {
 		String ret = "";
@@ -63,6 +64,11 @@ public class NovelSite {
 			urlShelf = "http://www.dajiadu.net/modules/article/bookcase.php";
 			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)&index.*?\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
 			cookie = getValue(xml, "dajiadu");
+		} else if ( bookURL.contains(".piaotian.com") ) {
+			siteType = NovelSite.SitePiaotian;
+			urlShelf = "http://www.piaotian.com/modules/article/bookcase.php";
+			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
+			cookie = getValue(xml, "piaotian");
 		}
 
 		if ( NovelSite.SiteNobody == siteType )
@@ -79,13 +85,12 @@ public class NovelSite {
 		while (mat.find()) {
 			switch (siteType) {
 			case NovelSite.Site13xs:
+			case NovelSite.SiteDajiadu:
+			case NovelSite.SitePiaotian:
 				shelfBook.put(mat.group(2), mat.group(3) + ".html");
 				break;
 			case NovelSite.SiteBiquge:
 				shelfBook.put(mat.group(2), mat.group(3));
-				break;
-			case NovelSite.SiteDajiadu:
-				shelfBook.put(mat.group(2), mat.group(3) + ".html");
 				break;
 			}
 		}
