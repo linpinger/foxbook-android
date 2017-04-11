@@ -85,8 +85,8 @@ public class ToolAndroid {
 		NetworkInfo info = cm.getActiveNetworkInfo();
 		if ( info != null && info.isAvailable() ) {
 			WifiManager wifimanage = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);// ªÒ»°WifiManager
-			if (!wifimanage.isWifiEnabled())
-				wifimanage.setWifiEnabled(true);
+//			if (!wifimanage.isWifiEnabled())
+//				wifimanage.setWifiEnabled(true);
 			WifiInfo wifiinfo = wifimanage.getConnectionInfo();
 			hm.put("ip", intToIp(wifiinfo.getIpAddress()) );
 			String wifiId = wifiinfo != null ? wifiinfo.getSSID() : null;

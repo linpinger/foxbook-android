@@ -27,7 +27,7 @@ public class Activity_BookInfo extends Activity {
 	private int bookIDX = -1;
 	private Button btn_save;
 	private TextView tv_bid;
-	private EditText edt_bname, edt_isend, edt_qdid, edt_burl, edt_delurl;
+	private EditText edt_bname, edt_bauthor, edt_isend, edt_qdid, edt_burl, edt_delurl;
 
 	SharedPreferences settings;
 
@@ -35,6 +35,7 @@ public class Activity_BookInfo extends Activity {
 		btn_save = (Button) findViewById(R.id.btn_save);
 		tv_bid = (TextView) findViewById(R.id.tv_bid);
 		edt_bname = (EditText) findViewById(R.id.edt_bname);
+		edt_bauthor = (EditText) findViewById(R.id.edt_bauthor);
 		edt_isend = (EditText) findViewById(R.id.edt_isend);
 		edt_qdid = (EditText) findViewById(R.id.edt_qdid);
 		edt_burl = (EditText) findViewById(R.id.edt_burl);
@@ -66,6 +67,7 @@ public class Activity_BookInfo extends Activity {
 		// ÏÔÊ¾Êý¾Ý
 		tv_bid.setText(String.valueOf(bookIDX)) ;
 		edt_bname.setText(info.get(NV.BookName).toString()) ;
+		edt_bauthor.setText(info.get(NV.BookAuthor).toString()) ;
 		edt_isend.setText(String.valueOf(info.get(NV.BookStatu))) ;
 		edt_qdid.setText(info.get(NV.QDID).toString()) ;
 		edt_burl.setText(info.get(NV.BookURL).toString()) ;
@@ -76,6 +78,7 @@ public class Activity_BookInfo extends Activity {
 			public void onClick(View v) {
 				Map<String, Object> info = nm.getBlankBookInfo();
 				info.put(NV.BookName, edt_bname.getText().toString());
+				info.put(NV.BookAuthor, edt_bauthor.getText().toString());
 				info.put(NV.BookURL, edt_burl.getText().toString());
 				info.put(NV.DelURL, edt_delurl.getText().toString());
 				info.put(NV.QDID, edt_qdid.getText().toString());
@@ -104,10 +107,18 @@ public class Activity_BookInfo extends Activity {
 				foxtip("URL²»°üº¬ .qidian.com/");
 			}
 			break;
+		case R.id.bi_clearDelURL:
+			edt_delurl.setText("");
+			break;
 		case R.id.bi_copyBookName:
 			String bn = edt_bname.getText().toString();
 			ToolAndroid.setClipText(bn, this);
 			foxtip("¼ôÌù°å: " + bn);
+			break;
+		case R.id.bi_copyBookAuthor:
+			String ba = edt_bauthor.getText().toString();
+			ToolAndroid.setClipText(ba, this);
+			foxtip("¼ôÌù°å: " + ba);
 			break;
 		case R.id.bi_copyQidianID:
 			String bq = edt_qdid.getText().toString();
@@ -121,6 +132,9 @@ public class Activity_BookInfo extends Activity {
 			break;
 		case R.id.bi_pasteBookName: // Õ³Ìù
 			edt_bname.setText(ToolAndroid.getClipText(this));
+			break;
+		case R.id.bi_pasteBookAuthor:
+			edt_bauthor.setText(ToolAndroid.getClipText(this));
 			break;
 		case R.id.bi_pasteQidianID:
 			edt_qdid.setText(ToolAndroid.getClipText(this));

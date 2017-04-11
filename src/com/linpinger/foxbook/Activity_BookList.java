@@ -200,8 +200,10 @@ if ( isCompareShelf ) {
 				linkList = new SiteQiDian().getTOC_Android7(ToolBookJava.downhtml(bookurl, "utf-8"));
 			} else {
 				linkList = new NovelSite().getTOC(ToolBookJava.downhtml(bookurl)); // 分析获取 list 所有章节
-				if ( existList.length() > 3 )
-					linkList = ToolBookJava.getLastNPage(linkList, 55); // 获取 list 最后55章
+				if ( existList.length() > 3 ) {
+					if ( nm.getBookInfo(bookIDX).get(NV.BookAuthor).toString().length() > 1 ) // 无作者名，表示为新书
+						linkList = ToolBookJava.getLastNPage(linkList, 55); // 获取 list 最后55章
+				}
 			}
 
 			List<Map<String, Object>> newPages = ToolBookJava.compare2GetNewPages(linkList, existList) ;
