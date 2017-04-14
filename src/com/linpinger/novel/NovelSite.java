@@ -18,6 +18,8 @@ public class NovelSite {
 	public static final int SiteBiquge = 29;
 	public static final int SiteDajiadu = 41;
 	public static final int SitePiaotian = 16;
+	public static final int SiteXxBiquge = 24;
+	public static final int SiteXQqxs = 15;
 
 	public String getValue(String text, String label) {
 		String ret = "";
@@ -54,6 +56,16 @@ public class NovelSite {
 			urlShelf = "http://www.13xs.com/shujia.aspx";
 			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)&index.*?\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
 			cookie = getValue(xml, "13xs");
+		} else if ( bookURL.contains(".xqqxs.com") ) {
+			siteType = NovelSite.SiteXQqxs;
+			urlShelf = "http://www.xqqxs.com/modules/article/bookcase.php?delid=604" ;
+			reShelf = "(?smi)<tr>.*?&indexflag=(.*?)\"[^>]*>([^<]*)<.*?[^>]<a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
+			cookie = getValue(xml, "xqqxs");
+		} else if ( bookURL.contains(".xxbiquge.com") ) {
+			siteType = NovelSite.SiteXxBiquge;
+			urlShelf = "http://www.xxbiquge.com/bookcase.php" ;
+			reShelf = "(?smi)\"s2\"><a href=\"([^\"]+)\"[^>]*>([^<]*)<.*?\"s4\"><a href=\"([^\"]+)\"";
+			cookie = getValue(xml, "xxbiquge");
 		} else if ( bookURL.contains(".biquge.com.tw") ) {
 			siteType = NovelSite.SiteBiquge;
 			urlShelf = "http://www.biquge.com.tw/modules/article/bookcase.php";
@@ -76,7 +88,14 @@ public class NovelSite {
 		if ( cookie.length() < 9 )
 			return null ;
 
-		String html = ToolBookJava.downhtml(urlShelf, "gbk", "GET", ToolBookJava.cookie2Field(cookie)) ;
+		String html = "";
+		if (siteType == NovelSite.SiteXxBiquge) {
+			html = html + ToolBookJava.downhtml(urlShelf, "UTF-8", "GET", ToolBookJava.cookie2Field(cookie)) ;
+			html = html + ToolBookJava.downhtml(urlShelf + "?page=2", "UTF-8", "GET", ToolBookJava.cookie2Field(cookie)) ;
+			html = html + ToolBookJava.downhtml(urlShelf + "?page=3", "UTF-8", "GET", ToolBookJava.cookie2Field(cookie)) ;
+		} else {
+			html = ToolBookJava.downhtml(urlShelf, "gbk", "GET", ToolBookJava.cookie2Field(cookie)) ;
+		}
 		if ( html.length() < 5 )
 			return null ;
 
@@ -87,9 +106,11 @@ public class NovelSite {
 			case NovelSite.Site13xs:
 			case NovelSite.SiteDajiadu:
 			case NovelSite.SitePiaotian:
+			case NovelSite.SiteXQqxs:
 				shelfBook.put(mat.group(2), mat.group(3) + ".html");
 				break;
 			case NovelSite.SiteBiquge:
+			case NovelSite.SiteXxBiquge:
 				shelfBook.put(mat.group(2), mat.group(3));
 				break;
 			}
