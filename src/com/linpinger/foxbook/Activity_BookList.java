@@ -113,6 +113,7 @@ if ( isCompareShelf ) {
 				if ( 0 == nnSize ) {
 					return ;
 				} else { 
+					List<Thread> threadListA = new ArrayList<Thread>(30);
 					int nowBookIDX = -1;
 					String nowName, nowURL;
 					Thread nowTTT;
@@ -120,18 +121,25 @@ if ( isCompareShelf ) {
 						nowBookIDX = (Integer)mm.get(NV.BookIDX);
 						nowName = mm.get(NV.BookName).toString();
 						nowURL = mm.get(NV.BookURL).toString();
+
+						msg = Message.obtain();
+						msg.what = DO_SETTITLE;
+						msg.obj = "更新: " + nowName;
+						handler.sendMessage(msg);
+
 						nowTTT = new Thread(new UpdateBook(nowBookIDX, nowURL, nowName, true));
 						nowTTT.start();
+						threadListA.add(nowTTT);
+
+					}
+					for ( Thread nowThread : threadListA ) {
 						try {
-							nowTTT.join();
-							msg = Message.obtain();
-							msg.what = DO_SETTITLE;
-							msg.obj = "更新: " + nowName;
-							handler.sendMessage(msg);
-						} catch (InterruptedException e) {
-							e.toString();
+							nowThread.join();
+						} catch (Exception ex) {
+							System.out.println("等待线程错误: " + ex.toString());
 						}
 					}
+
 					msg = Message.obtain();
 					msg.what = DO_UPDATEFINISH;
 					msg.obj = "完毕: " + nnSize + " 已更新" ;
