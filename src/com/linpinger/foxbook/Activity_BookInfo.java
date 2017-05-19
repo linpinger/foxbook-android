@@ -135,6 +135,7 @@ public class Activity_BookInfo extends Activity {
 			break;
 		case R.id.bi_pasteBookAuthor:
 			edt_bauthor.setText(ToolAndroid.getClipText(this));
+			foxtip("若作者留空，表示是新书，更新时不会只下载最后55章");
 			break;
 		case R.id.bi_pasteQidianID:
 			edt_qdid.setText(ToolAndroid.getClipText(this));

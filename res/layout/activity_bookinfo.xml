@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="作者" >
+            android:hint="作者若空为新书" >
         </EditText>
     </LinearLayout>
 
