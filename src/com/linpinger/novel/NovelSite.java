@@ -15,11 +15,12 @@ import com.linpinger.tool.ToolJava;
 public class NovelSite {
 	public static final int SiteNobody = 0;
 	public static final int Site13xs = 13;
-	public static final int SiteBiquge = 29;
-	public static final int SiteDajiadu = 41;
+	public static final int Site13xxs = 14;
+	public static final int SiteXQqxs = 15;
 	public static final int SitePiaotian = 16;
 	public static final int SiteXxBiquge = 24;
-	public static final int SiteXQqxs = 15;
+	public static final int SiteBiquge = 29;
+	public static final int SiteDajiadu = 41;
 
 	public String getValue(String text, String label) {
 		String ret = "";
@@ -56,6 +57,11 @@ public class NovelSite {
 			urlShelf = "http://www.13xs.com/shujia.aspx";
 			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)&index.*?\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
 			cookie = getValue(xml, "13xs");
+		} else if ( bookURL.contains(".13xxs.com") ) {
+			siteType = NovelSite.Site13xxs;
+			urlShelf = "http://www.13xxs.com/modules/article/bookcase.php?classid=0";
+			reShelf = "(?smi)<tr>.*?href=\"([^\"]*)\"[^>]*>([^<]*)<.*?href=\"[^\"]*/([0-9]*.html)\"[^>]*>([^<]*)<";
+			cookie = getValue(xml, "13xxs");
 		} else if ( bookURL.contains(".xqqxs.com") ) {
 			siteType = NovelSite.SiteXQqxs;
 			urlShelf = "http://www.xqqxs.com/modules/article/bookcase.php?delid=604" ;
@@ -111,6 +117,7 @@ public class NovelSite {
 				break;
 			case NovelSite.SiteBiquge:
 			case NovelSite.SiteXxBiquge:
+			case NovelSite.Site13xxs:
 				shelfBook.put(mat.group(2), mat.group(3));
 				break;
 			}
