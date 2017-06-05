@@ -242,8 +242,8 @@ switch (ittAction) {
 				@Override
 				public void run() {
 					String text = "";
-					if ( fullPageURL.contains("files.qidian.com") )
-						text = new SiteQiDian().getContent_Desk6(ToolBookJava.downhtml(fullPageURL, "GBK"));
+					if ( fullPageURL.contains("druid.if.qidian.com/") )
+						text = new SiteQiDian().getContent_Android7(ToolBookJava.downhtml(fullPageURL, "utf-8"));
 					else
 						text = nm.updatePage(fullPageURL) ;
 

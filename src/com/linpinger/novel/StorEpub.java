@@ -87,7 +87,7 @@ public class StorEpub extends Stor {
 
 				page = new HashMap<String, Object>();
 				page.put(NV.PageName, pageTitle);
-				page.put(NV.PageURL,  new SiteQiDian().getContentURL_Desk6(hm.get("pageid").toString(), hm.get("bookid").toString()));
+				page.put(NV.PageURL,  new SiteQiDian().getContentURL_Android7(hm.get("pageid").toString(), hm.get("bookid").toString()));
 				page.put(NV.Content,  pageText);
 				page.put(NV.Size,	 pageText.length());
 

@@ -28,7 +28,7 @@ public class SiteQiDian extends NovelSite {
 			for (int i = 0; i < cList; i++) {
 				item = new HashMap<String, Object>(2);
 				item.put(NV.PageName, slist.getJSONObject(i).getString("n"));
-				item.put(NV.PageURL, getContentURL_Desk6(String.valueOf(slist.getJSONObject(i).getInt("c")), bookID));
+				item.put(NV.PageURL, getContentURL_Android7(String.valueOf(slist.getJSONObject(i).getInt("c")), bookID));
 				if (1 == slist.getJSONObject(i).getInt("v")) // VIP章节
 					break;
 				data.add(item);
@@ -38,7 +38,7 @@ public class SiteQiDian extends NovelSite {
 		}
 		return data;
 	}
-
+/*
 	public String getTOCURL_Desk7(String bookID) {
 		return "http://book.qidian.com/info/" + bookID ;
 	} // Page: http://read.qidian.com/chapter/k8Ysqe1aqVAVDwQbBL_r1g2/LwKggaUrMLi2uJcMpdsVgA2
@@ -55,43 +55,12 @@ public class SiteQiDian extends NovelSite {
 		}
 		return aLink;
 	}
-
-	/**
-	* 日期: 2015-11-17  , 2016-12-18: 改版后疑似过时
-	* @param html 类似 /b7zJ1_AnAJ41,Nw1qx8_dKSIex0RJOkJclQ2.aspx 的网页内容
-	* @return http://files.qidian.com/Author7/1939238/53927617.txt
-	 */
-	public String getContentURL_Desk5(String html) {
-		Matcher mat = Pattern.compile("(?i)(http://files.qidian.com/.*/[0-9]*/[0-9]*.txt)").matcher(html);
-		String txtURL = "";
-		while (mat.find())
-			txtURL = mat.group(1);
-		return txtURL;
-	}
-
-	public String getContentURL_Desk6(String pageID, String bookID) {
-		// 2017-1-11: 旧版的暂时可用，就不修改了
+*/
+	public String getContentURL_Android7(String pageID, String bookID) {
+		// 2017-6-5: 旧版的接口不见了
+		// return "http://files.qidian.com/Author" + ( 1 + ( Integer.valueOf(bookID) % 8 ) ) + "/" + bookID + "/" + pageID + ".txt";
 		// return "http://druid.if.qidian.com/Atom.axd/Api/Book/GetContent?BookId=" + bookID + "&ChapterId=" + pageID ;
-		return "http://files.qidian.com/Author" + ( 1 + ( Integer.valueOf(bookID) % 8 ) ) + "/" + bookID + "/" + pageID + ".txt";
-	}
-
-	/**
-	*
-	* @param jsStr http://files.qidian.com/Author7/1939238/53927617.txt 中的内容
-	* @return 文本，可直接使用
-	*/
-	public String getContent_Desk6(String jsStr) {
-		jsStr = jsStr.replace("&lt;", "<");
-		jsStr = jsStr.replace("&gt;", ">");
-		jsStr = jsStr.replace("document.write('", "");
-		jsStr = jsStr.replace("<a>手机用户请到m.qidian.com阅读。</a>", "");
-		jsStr = jsStr.replace("<a href=http://www.qidian.com>起点中文网www.qidian.com欢迎广大书友光临阅读，最新、最快、最火的连载作品尽在起点原创！</a>", "");
-		jsStr = jsStr.replace("<a href=http://www.qidian.com>起点中文网 www.qidian.com 欢迎广大书友光临阅读，最新、最快、最火的连载作品尽在起点原创！</a>", "");
-		jsStr = jsStr.replace("<ahref=http://www.qidian.com>起点中文网www.qidian.com欢迎广大书友光临阅读，最新、最快、最火的连载作品尽在起点原创！</a>", "");
-		jsStr = jsStr.replace("');", "");
-		jsStr = jsStr.replace("<p>", "\n");
-		jsStr = jsStr.replace("　　", "");
-		return jsStr;
+		return "GetContent?BookId=" + bookID + "&ChapterId=" + pageID ;
 	}
 
 	public String getContent_Android7(String json) { // 2017-1-11:  http://druid.if.qidian.com/Atom.axd/Api/Book/GetContent?BookId=1004936518&ChapterId=344096395

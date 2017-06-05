@@ -569,17 +569,9 @@ public class NovelManager {
 		String text = "";
 		String html = "" ;
 
-		if ( pageFullURL.contains("files.qidian.com") ) { // 起点手机站直接用txt地址好了
-			html = ToolBookJava.downhtml(pageFullURL, "GBK"); // 下载json
-			text = new SiteQiDian().getContent_Desk6(html);
-		} else if ( pageFullURL.contains(".qidian.com") ) {
-			String nURL = new SiteQiDian().getContentURL_Desk5(ToolBookJava.downhtml(pageFullURL)) ; // 2015-11-17: 起点地址变动，只能下载网页后再获取txt地址
-			if ( nURL.equalsIgnoreCase("") ) {
-				text = "" ;
-			} else {
-				html = ToolBookJava.downhtml(nURL);
-				text = new SiteQiDian().getContent_Desk6(html);
-			}
+		if ( pageFullURL.contains("druid.if.qidian.com/") ) {
+			html = ToolBookJava.downhtml(pageFullURL, "utf-8"); // 下载json
+			text = new SiteQiDian().getContent_Android7(html);
 		} else {
 			html = ToolBookJava.downhtml(pageFullURL); // 下载url
 			text = new NovelSite().getContent(html);       // 分析得到text
