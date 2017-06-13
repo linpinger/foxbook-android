@@ -60,9 +60,10 @@ public class FoxEpubReader extends FoxZipReader {
 		txt = txt.replace("<p>手机用户请到m.qidian.com阅读。</p>", "")
 				.replace("<p>手机阅读器、看书更方便。【<a href=\"http://download.qidian.com/apk/QDReader.apk?k=e\" target=\"_blank\">安卓版</a>】</p>", "");
 		txt = txt.replace("\r", "")
-				.replace("\n", "")
+				.replace("\n　　", "\n")
 				.replace("<p>", "")
-				.replace("</p>", "\n");
+				.replace("</p>", "\n")
+				.replace("\n\n", "\n");
 		return txt;
 	}
 
