@@ -490,6 +490,11 @@ if ( isCompareShelf ) {
 					if ( xCount > 0 ) {
 						setTitle(xCount + ":" + (String)msg.obj);
 						foxtip("有 " + xCount + " 章节短于1K");
+
+						// 显示短章节
+						Intent ittlok = new Intent(Activity_BookList.this, Activity_PageList.class);
+						ittlok.putExtra(AC.action, AC.aListLess1KPages);
+						startActivityForResult(ittlok, 2);
 					}
 					break;
 				case DO_SETTITLE:

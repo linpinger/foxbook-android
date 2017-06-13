@@ -305,6 +305,9 @@ switch (ittAction) {
 		case AC.aListLess1KPages:
 			data = nm.getPageList(999);
 			setTitle("共 " + String.valueOf(data.size()) + " 章");
+			if ( 0 == data.size() ) {
+				onBackPressed();
+			}
 			break;
 		case AC.aListSitePages:
 			new Thread(new DownTOC( nm.getBookInfo(bookIDX).get(NV.BookURL).toString() )).start();  // 在线查看目录
