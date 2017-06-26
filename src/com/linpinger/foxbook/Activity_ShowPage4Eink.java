@@ -307,20 +307,20 @@ switch (ittAction) {
 					case R.id.sp_set_linespace_down:
 					case R.id.userfont:
 					case R.id.selectFont:
+					case R.id.setting:
+					case R.id.group1:
 						mit.setVisible(isShowSettingMenus);
 						break;
 					case R.id.show_next:
 					case R.id.show_prev:
-					case R.id.setting:
-					case R.id.group1:
 						mit.setVisible( ! isShowSettingMenus );
 						break;
 					case R.id.ck_isShowSettingMenus:
 						mit.setChecked(isShowSettingMenus);
 						if ( isShowSettingMenus )
-							mit.setTitle("已显示字体设置菜单");
+							mit.setTitle("已显示设置菜单");
 						else
-							mit.setTitle("已隐藏字体设置菜单");
+							mit.setTitle("已隐藏设置菜单");
 						break;
 					default:
 						break;
@@ -336,9 +336,9 @@ switch (ittAction) {
 			isShowSettingMenus = ! item.isChecked(); // 根据选项是否选中确定是否开启
 			item.setChecked(isShowSettingMenus);
 			if ( isShowSettingMenus )
-				item.setTitle("已显示字体设置菜单");
+				item.setTitle("已显示设置菜单");
 			else
-				item.setTitle("已隐藏字体设置菜单");
+				item.setTitle("已隐藏设置菜单");
 			editor.putBoolean("isShowSettingMenus", isShowSettingMenus);
 			editor.commit();
 			foxtip("点开菜单以查看效果");

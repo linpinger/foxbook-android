@@ -56,6 +56,6 @@
         android:id="@+id/ck_isShowSettingMenus"
         android:checkable="true"
         android:checked="true"
-        android:title="已显示字体设置菜单"/>
+        android:title="已显示设置菜单"/>
 
 </menu>
