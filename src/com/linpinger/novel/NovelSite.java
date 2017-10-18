@@ -21,6 +21,7 @@ public class NovelSite {
 	public static final int SiteXxBiquge = 24;
 	public static final int SiteBiquge = 29;
 	public static final int SiteDajiadu = 41;
+	public static final int SiteWutuxs = 42;
 
 	public String getValue(String text, String label) {
 		String ret = "";
@@ -87,6 +88,12 @@ public class NovelSite {
 			urlShelf = "http://www.piaotian.com/modules/article/bookcase.php";
 			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
 			cookie = getValue(xml, "piaotian");
+		} else if ( bookURL.contains(".wutuxs.com") ) {
+			siteType = NovelSite.SiteWutuxs;
+			urlShelf = "http://www.wutuxs.com/modules/article/bookcase.php";
+			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
+			cookie = getValue(xml, "rawwutuxs").replace("\r", "").replace("\n", "");
+			// 正则分析网页，合成 得到 书地址, 书名, 新章节地址, 新章节名
 		}
 
 		if ( NovelSite.SiteNobody == siteType )
@@ -99,6 +106,8 @@ public class NovelSite {
 			html = html + ToolBookJava.downhtml(urlShelf, "UTF-8", "GET", ToolBookJava.cookie2Field(cookie)) ;
 			html = html + ToolBookJava.downhtml(urlShelf + "?page=2", "UTF-8", "GET", ToolBookJava.cookie2Field(cookie)) ;
 			html = html + ToolBookJava.downhtml(urlShelf + "?page=3", "UTF-8", "GET", ToolBookJava.cookie2Field(cookie)) ;
+		} else if (siteType == NovelSite.SiteWutuxs) {
+			html = ToolBookJava.downhtml(urlShelf, "gbk", "GET", cookie) ;
 		} else {
 			html = ToolBookJava.downhtml(urlShelf, "gbk", "GET", ToolBookJava.cookie2Field(cookie)) ;
 		}
@@ -113,6 +122,7 @@ public class NovelSite {
 			case NovelSite.SiteDajiadu:
 			case NovelSite.SitePiaotian:
 			case NovelSite.SiteXQqxs:
+			case NovelSite.SiteWutuxs:
 				shelfBook.put(mat.group(2), mat.group(3) + ".html");
 				break;
 			case NovelSite.SiteBiquge:
@@ -128,8 +138,13 @@ public class NovelSite {
 		for(Map<String, Object> mm : booksInfo) {
 			nowBookName = mm.get(NV.BookName).toString();
 			nowPageList = mm.get(NV.DelURL).toString(); // 这里的DelURL内容: 已删除+未读列表
-			if ( ! nowPageList.contains("\n" + shelfBook.get(nowBookName) + "|") )
-				newPages.add(mm);
+			if ( siteType == NovelSite.SiteWutuxs ) {
+				if ( ! nowPageList.contains("/" + shelfBook.get(nowBookName) + "|") )
+					newPages.add(mm);
+			} else {
+				if ( ! nowPageList.contains("\n" + shelfBook.get(nowBookName) + "|") )
+					newPages.add(mm);
+			}
 		}
 		return newPages;
 	}
