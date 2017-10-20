@@ -105,13 +105,23 @@ public class StorEpub extends Stor {
 	}
 
 	public void save(List<Novel> inList , File outFile) {
-		FoxEpubWriter oEpub = new FoxEpubWriter(outFile);
+		String bookName = outFile.getName();
+		bookName = bookName.substring(0, bookName.lastIndexOf('.')); // 书名为文件名不带后缀
 
-		for (Novel novel : inList)
-			for (Map<String, Object> page : novel.getChapters())
-				oEpub.addChapter(page.get(NV.PageName).toString()
-						, "\n　　" + page.get(NV.Content).toString().replace("\n", "<br/>\n　　")
-						, -1);
+		FoxEpubWriter oEpub = new FoxEpubWriter(outFile, bookName);
+
+		int pageCount = 0 ;
+		for (Novel book : inList) {
+			pageCount = 0 ;
+			for (Map<String, Object> page : book.getChapters()) {
+				++pageCount ;
+				if ( 1 == pageCount ) { // 第一章
+					oEpub.addChapter("●" + book.getInfo().get(NV.BookName).toString() + "●" + page.get(NV.PageName).toString(), "\n　　" + page.get(NV.Content).toString().replace("\n", "<br />\n　　"), -1, 1);
+				} else {
+					oEpub.addChapter(page.get(NV.PageName).toString(), "\n　　" + page.get(NV.Content).toString().replace("\n", "<br />\n　　"), -1, 2);
+				}
+			}
+		}
 
 		oEpub.saveAll();
 	}

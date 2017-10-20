@@ -54,7 +54,7 @@ public class FoxEpubReader extends FoxZipReader {
 	public String getQiDianEpubPage(String itemName){
 		String txt = "";
 		String html = getTextFile(itemName);
-		Matcher mat = Pattern.compile("(?smi)<div class=\"content\">(.*?)</div>").matcher(html);
+		Matcher mat = Pattern.compile("(?smi)<div class=\"content\">[\r\n]*(.*?)</div>").matcher(html);
 		while (mat.find())
 			txt = mat.group(1);
 		txt = txt.replace("<p>手机用户请到m.qidian.com阅读。</p>", "")

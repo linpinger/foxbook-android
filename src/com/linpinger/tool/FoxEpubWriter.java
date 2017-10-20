@@ -11,9 +11,9 @@ import java.util.Iterator;
 
 public class FoxEpubWriter {
 
-	private File ePubFile ;  // 生成的epub文件
+	private File ePubFile ; // 生成的epub文件
 	private FoxZipWriter zw ; // epub 写为 zip文件
-	private File TmpDir;   // mobi 临时目录
+	private File TmpDir ; // mobi 临时目录
 
 	private boolean isEpub = true;
 
@@ -21,9 +21,9 @@ public class FoxEpubWriter {
 	private String BookName = "狐狸之书";
 	private String BookCreator = "爱尔兰之狐";
 	private String DefNameNoExt = "FoxMake"; //默认文件名
+ 	private String BodyFontStyle="\t\t@font-face { font-family: \"hei\"; src: local(\"Zfull-GB\"); }\n\t\t.content { font-family: \"hei\"; }\n";
 
-	ArrayList<HashMap<String, Object>> Chapter = new ArrayList<HashMap<String, Object>>(200); //章节结构:1:ID 2:Title
-	int ChapterCount = 0; //章节数
+	ArrayList<HashMap<String, Object>> Chapter = new ArrayList<HashMap<String, Object>>(200); //章节结构:1:ID 2:Title 3:Level
 	int ChapterID = 100; //章节ID
 
 	public FoxEpubWriter(File oEpubFile) {
@@ -36,8 +36,9 @@ public class FoxEpubWriter {
 
 		isEpub = ePubFile.getName().toLowerCase().endsWith(".epub") ;
 
-		if ( ePubFile.exists() )
+		if ( ePubFile.exists() ) {
 			ePubFile.renameTo(new File(ePubFile.getPath() + System.currentTimeMillis()));
+		}
 		if ( isEpub ) {
 			zw = new FoxZipWriter(ePubFile);
 		} else { // mobi
@@ -50,16 +51,23 @@ public class FoxEpubWriter {
 			}
 		}
 	}
-
+	public void addChapter(String Title, String Content) {
+		addChapter(Title, Content, -1, 1);
+	}
 	public void addChapter(String Title, String Content, int iPageID) {
-		if (iPageID < 0)
+		addChapter(Title, Content, iPageID, 1);
+	}
+	public void addChapter(String Title, String Content, int iPageID, int iLevel) {
+		if (iPageID < 0) {
 			++this.ChapterID;
-		else
+		} else {
 			this.ChapterID = iPageID;
+		}
 
 		HashMap<String, Object> cc = new HashMap<String, Object>();
 		cc.put("id", this.ChapterID);
 		cc.put("name", Title);
+		cc.put("level", iLevel);
 		Chapter.add(cc);
 
 		this._CreateChapterHTML(Title, Content, this.ChapterID); //写入文件
@@ -102,27 +110,54 @@ public class FoxEpubWriter {
 		HashMap<String, Object> mm;
 		int nowID = 0;
 		String nowTitle = "";
-		Iterator<HashMap<String, Object>> itr = Chapter.iterator();
-		while (itr.hasNext()) {
-			mm = itr.next();
+ 		int nowLevel = 0;
+ 		int nextLevel = 0;
+
+		int chapterCount = Chapter.size();
+		int lastIDX = chapterCount - 1;
+		for (int i = 0; i < chapterCount; i++) {
+			mm = Chapter.get(i);
 			nowID = (Integer) mm.get("id");
 			nowTitle = (String) mm.get("name");
+			nowLevel = (Integer) mm.get("level");
+
 			++DisOrder;
-			NCXList.append("\t<navPoint id=\"").append(nowID)
-					.append("\" playOrder=\"").append(DisOrder)
-					.append("\"><navLabel><text>").append(nowTitle)
-					.append("</text></navLabel><content src=\"html/").append(nowID)
-					.append(".html\" /></navPoint>\n");
-		}
+			if (i == lastIDX) { // 最后一个
+				nextLevel = 1;
+			} else {
+				nextLevel = (Integer) Chapter.get(1 + i).get("level");
+			}
+
+			if (nowLevel < nextLevel) {
+				NCXList.append("\t<navPoint id=\"").append(nowID)
+						.append("\" playOrder=\"").append(DisOrder)
+						.append("\"><navLabel><text>").append(nowTitle)
+						.append("</text></navLabel><content src=\"html/").append(nowID)
+						.append(".html\" />\n");
+			} else if (nowLevel == nextLevel) {
+				NCXList.append("\t\t<navPoint id=\"").append(nowID)
+						.append("\" playOrder=\"").append(DisOrder)
+						.append("\"><navLabel><text>").append(nowTitle)
+						.append("</text></navLabel><content src=\"html/").append(nowID)
+						.append(".html\" /></navPoint>\n");
+			} else if (nowLevel > nextLevel) {
+				NCXList.append("\t\t<navPoint id=\"").append(nowID)
+						.append("\" playOrder=\"").append(DisOrder)
+						.append("\"><navLabel><text>").append(nowTitle)
+						.append("</text></navLabel><content src=\"html/").append(nowID)
+						.append(".html\" /></navPoint>\n\t</navPoint>\n");
+			}
+
+	}
 
 		StringBuffer XML = new StringBuffer(4096);
 		XML.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE ncx PUBLIC \"-//NISO//DTD ncx 2005-1//EN\" \"http://www.daisy.org/z3986/2005/ncx-2005-1.dtd\">\n<ncx xmlns=\"http://www.daisy.org/z3986/2005/ncx/\" version=\"2005-1\" xml:lang=\"zh-cn\">\n<head>\n\t<meta name=\"dtb:uid\" content=\"")
-				.append(BookUUID).append("\"/>\n\t<meta name=\"dtb:depth\" content=\"1\"/>\n\t<meta name=\"dtb:totalPageCount\" content=\"0\"/>\n\t<meta name=\"dtb:maxPageNumber\" content=\"0\"/>\n\t<meta name=\"dtb:generator\" content=\"")
-				.append(BookCreator).append("\"/>\n</head>\n<docTitle><text>")
-				.append(BookName).append("</text></docTitle>\n<docAuthor><text>")
-				.append(BookCreator).append("</text></docAuthor>\n<navMap>\n\t<navPoint id=\"toc\" playOrder=\"1\"><navLabel><text>目录:")
-				.append(BookName).append("</text></navLabel><content src=\"").append(DefNameNoExt).append(".htm\"/></navPoint>\n")
-				.append(NCXList).append("\n</navMap></ncx>\n");
+			.append(BookUUID).append("\"/>\n\t<meta name=\"dtb:depth\" content=\"1\"/>\n\t<meta name=\"dtb:totalPageCount\" content=\"0\"/>\n\t<meta name=\"dtb:maxPageNumber\" content=\"0\"/>\n\t<meta name=\"dtb:generator\" content=\"")
+			.append(BookCreator).append("\"/>\n</head>\n<docTitle><text>")
+			.append(BookName).append("</text></docTitle>\n<docAuthor><text>")
+			.append(BookCreator).append("</text></docAuthor>\n<navMap>\n\t<navPoint id=\"toc\" playOrder=\"1\"><navLabel><text>目录:")
+			.append(BookName).append("</text></navLabel><content src=\"").append(DefNameNoExt).append(".htm\"/></navPoint>\n")
+			.append(NCXList).append("\n</navMap></ncx>\n");
 
 		saveFile(XML.toString(), DefNameNoExt + ".ncx");
 	}
@@ -144,8 +179,9 @@ public class FoxEpubWriter {
 
 		// 图片列表加载这里
 		String NowImgMenifest = "";
-		if ( ! isEpub )
+		if ( ! isEpub ) {
 			AddXMetaData = "\t<x-metadata><output encoding=\"utf-8\"></output></x-metadata>\n";
+		}
 
 		StringBuffer XML = new StringBuffer(4096);
 		XML.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<package xmlns=\"http://www.idpf.org/2007/opf\" version=\"2.0\" unique-identifier=\"FoxUUID\">\n<metadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:opf=\"http://www.idpf.org/2007/opf\">\n\t<dc:title>")
@@ -163,10 +199,11 @@ public class FoxEpubWriter {
 	}
 
 	private void _CreateEpubMiscFiles() { //生成 epub 必须文件 mimetype, container.xml
-		if (isEpub)
+		if (isEpub) {
 			zw.putBinFile("application/epub+zip".getBytes(), "mimetype", true); // epub规范，第一个文件必须为stored
-		else
+		} else {
 			ToolJava.writeText("application/epub+zip", TmpDir.getPath() + File.separator + "mimetype");
+		}
 
 		StringBuffer XML = new StringBuffer(256);
 		XML.append("<?xml version=\"1.0\"?>\n<container version=\"1.0\" xmlns=\"urn:oasis:names:tc:opendocument:xmlns:container\">\n\t<rootfiles>\n\t\t<rootfile full-path=\"")
@@ -180,9 +217,12 @@ public class FoxEpubWriter {
 
 		HTML.append("<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"zh-CN\">\n<head>\n\t<title>")
 				.append(Title)
-				.append("</title>\n\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n\t<style type=\"text/css\">\n\t\th2,h3,h4{text-align:center;}\n\t\tp { text-indent: 2em; line-height: 0.5em; }\n\t</style>\n</head>\n<body>\n<h4>")
+				.append("</title>\n\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n\t<style type=\"text/css\">\n\t\th2,h3,h4{text-align:center;}\n")
+				.append(BodyFontStyle)
+				// .append("\t\tp { text-indent: 2em; line-height: 0.5em; }\n\t</style>\n</head>\n<body>\n<h3>")
+				.append("\t</style>\n</head>\n<body>\n<h3>")
 				.append(Title)
-				.append("</h4>\n<div class=\"content\">\n\n\n")
+				.append("</h3>\n<div class=\"content\">\n\n\n")
 				.append(Content)
 				.append("\n\n\n</div>\n</body>\n</html>\n");
 		saveFile(HTML.toString(), "html/" + iPageID + ".html");
@@ -210,10 +250,11 @@ public class FoxEpubWriter {
 	}
 
 	private void saveFile(String content, String saveRelatePath) {
-		if (isEpub) // epub
+		if (isEpub) { // epub
 			zw.putTextFile(content, saveRelatePath);
-		else  // mobi
+		} else { // mobi
 			ToolJava.writeText(content, new File(TmpDir, saveRelatePath).getPath());
+		}
 	}
 
 	public static void main(String[] args) {
