@@ -44,9 +44,12 @@ public class ToolJava {
 	public static void writeText(String iUtf8Str, String filePath) {
 		writeText(iUtf8Str, filePath, "UTF-8");
 	}
-	// 写入指定编码，速度快点
 	public static void writeText(String iStr, String filePath, String oFileEncoding) {
-		boolean bAppend = false;
+		writeText(iStr, filePath, oFileEncoding, false);
+	}
+	// 写入指定编码，速度快点
+	public static void writeText(String iStr, String filePath, String oFileEncoding, boolean bAppend) {
+//		boolean bAppend = false;
 		try {
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath, bAppend), oFileEncoding));
 			bw.write(iStr);

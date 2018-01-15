@@ -64,6 +64,7 @@ public class Activity_BookList extends Ext_ListActivity_4Eink {
 
 	private FoxHTTPD foxHTTPD = null;
 	private boolean bShelfFileFromIntent = false; // 是否是通过文件关联进来的，会修改不保存退出菜单功能
+	private boolean isSaveWhenOpenY = false ; // 非默认路径的选项菜单 不显示且不保存
 
 	ListView lv_booklist;
 	List<Map<String, Object>> data;
@@ -343,6 +344,7 @@ if ( isCompareShelf ) {
 
 		showHomeUp();
 		isShowIfRoom = settings.getBoolean("isShowIfRoom", isShowIfRoom);
+		isSaveWhenOpenY = settings.getBoolean("isSaveWhenOpenY", isSaveWhenOpenY);
 		lv_booklist = getListView(); // 获取LV
 // GUI 布局显示完毕
 		mExitTime = System.currentTimeMillis(); // 当前时间，便于两次退出
@@ -361,7 +363,8 @@ if ( isCompareShelf ) {
 		 } else {
 			bShelfFileFromIntent = true;
 			inShelfFile = new File(getIntent().getData().getPath());
-			foxtip("注意:\n退出时不会保存修改哦\n如要保存修改，按菜单键并选择菜单");
+			if ( ! isSaveWhenOpenY )
+				foxtip("注意:\n退出时不会保存修改哦\n如要保存修改，按菜单键并选择菜单");
 		}
 		setTitle(inShelfFile.getName());
 		this.nm = new NovelManager(inShelfFile); // Todo: 修改db导入方式
@@ -538,11 +541,11 @@ if ( isCompareShelf ) {
 		for ( int i=0; i< itemcount; i++){
 			switch (menu.getItem(i).getItemId()) {
 				case R.id.action_exitwithnosave:
-					if ( bShelfFileFromIntent )
+					if ( bShelfFileFromIntent && ( ! isSaveWhenOpenY ) )
 						menu.getItem(i).setTitle("保存并退出");
 					break;
 				case R.id.action_switchShelf:
-					if ( bShelfFileFromIntent )
+					if ( bShelfFileFromIntent && ( ! isSaveWhenOpenY ) )
 						menu.getItem(i).setVisible(false);
 					if ( isShowIfRoom )
 						setTypeOfShowAsAction(menu.getItem(i));
@@ -592,7 +595,7 @@ if ( isCompareShelf ) {
 								nm.sortBooks(false);
 							nm.simplifyAllDelList();
 						}
-						String nowPath = nm.switchShelf().getName();
+						String nowPath = nm.switchShelf( ( ! bShelfFileFromIntent ) || isSaveWhenOpenY).getName();
 						switchShelfLock = false;
 						Message msg = Message.obtain();
 						msg.what = DO_REFRESH_SETTITLE;
@@ -687,7 +690,7 @@ if ( isCompareShelf ) {
 			}).start();
 			break;
 		case R.id.action_exitwithnosave: // 不保存数据库退出
-			if ( bShelfFileFromIntent ) // 保存数据库并退出
+			if ( bShelfFileFromIntent && ( ! isSaveWhenOpenY ) ) // 保存数据库并退出
 				beforeExitApp();
 			this.finish();
 			System.exit(0);
@@ -740,7 +743,7 @@ if ( isCompareShelf ) {
 			foxtip("再按一次退出程序");
 			mExitTime = System.currentTimeMillis();
 		} else {
-			if ( ! bShelfFileFromIntent ) // 不保存数据库并退出
+			if ( ( ! bShelfFileFromIntent) || isSaveWhenOpenY ) // 不保存数据库并退出
 				beforeExitApp();
 			this.finish();
 			System.exit(0);

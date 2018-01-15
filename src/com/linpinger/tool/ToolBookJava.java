@@ -359,7 +359,7 @@ public class ToolBookJava {
 			conn.setConnectTimeout(5000);
 			conn.setReadTimeout(5000);	// 读取超时5s
 			conn.setUseCaches(false);	 // Cache-Control: no-cache	 Pragma: no-cache
-			
+
 			conn.connect();  // 开始连接
 			if ("GET" != PostData) {  // 发送PostData
 				conn.getOutputStream().write(PostData.getBytes("UTF-8"));

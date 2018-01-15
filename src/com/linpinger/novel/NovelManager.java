@@ -1,7 +1,6 @@
 package com.linpinger.novel;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -25,7 +24,6 @@ public class NovelManager {
 	public static final int TXTQIDIAN = 217 ; // 起点txt
 
 	private File shelfFile ;
-	private int nowShelfNum = 0 ;
 	private List<Novel> shelf ;
 	private int bookStoreType = 0;
 	
@@ -78,15 +76,23 @@ public class NovelManager {
 		else
 			this.exportAsFML(saveShelfFile);
 	}
-	public File switchShelf() { // 切换文件
-		this.close();
+	public File switchShelf(boolean isSave) { // 切换文件
+		if ( isSave )
+			this.close();
 
 		String listExt = ".fml";
 		if ( this.shelfFile.getName().endsWith(".db3") )
 			listExt = ".db3";
-		ArrayList<File> shelfsList = getShelfsList(this.shelfFile, listExt);
-		++nowShelfNum;
-		if ( nowShelfNum >= shelfsList.size() )
+		ArrayList<File> shelfsList = getShelfsList(this.shelfFile, listExt); // 获取文件列表
+		int nowShelfNum = -1 ;
+		for( File nowFile : shelfsList ) {  // 获取当前文件在列表中的位置
+			++nowShelfNum;
+			if ( nowFile.getName().equalsIgnoreCase(this.shelfFile.getName()) ) {
+				break ;
+			}
+		}
+		++nowShelfNum; // 下个文件的位置
+		if ( nowShelfNum >= shelfsList.size() ) // 如果下个文件超出列表，从头开始
 			nowShelfNum = 0 ;
 
 		this.open(shelfsList.get(nowShelfNum));
@@ -114,31 +120,31 @@ public class NovelManager {
 //	}
 
 	private ArrayList<File> getShelfsList(File oldShelfFile, final String shelfFileExt) {
-		File DBDir = oldShelfFile.getAbsoluteFile().getParentFile();
-		final String defaultShelfFileName = "FoxBook" + shelfFileExt;
+		File filesDir = oldShelfFile.getAbsoluteFile().getParentFile();
+		List<File> retList = new ArrayList<File>(4);
+		for ( File nowFile : filesDir.listFiles() ) {
+			if ( nowFile.isDirectory() ) {
+				continue ;
+			}
+			if ( nowFile.getName().endsWith(shelfFileExt) ) {
+				retList.add(nowFile) ;
+			}
+		}
 
-		ArrayList<File> retList = new ArrayList<File>(4);
-		retList.add(new File(DBDir.getAbsolutePath() + File.separator + defaultShelfFileName));
-
-		File[] fff = DBDir.listFiles(new FileFilter() {
-			public boolean accept(File ff) {
-				if (ff.isFile()) {
-					if (ff.toString().endsWith(shelfFileExt)) {
-						if (ff.getName().equalsIgnoreCase(defaultShelfFileName)) {
-							return false;
-						} else {
-							return true;
-						}
-					}
-				}
-				return false;
+		Collections.sort(retList, new Comparator<File>() { // 排序
+			@Override
+			public int compare(File o1, File o2) {
+				if (o1.isDirectory() && o2.isFile())
+					return -1;
+				if (o1.isFile() && o2.isDirectory())
+					return 1;
+				return o2.getName().compareTo(o1.getName());
 			}
 		});
-
-		for (int i = 0; i < fff.length; i++)
-			retList.add(fff[i]);
-		return retList;
+		
+		return (ArrayList<File>) retList ;
 	}
+
 	private void loadZip(File inShelfFile) {
 		this.bookStoreType = NovelManager.ZIP ;
 		this.shelf = new ArrayList<Novel>(1);
