@@ -522,7 +522,7 @@ if ( isCompareShelf ) {
 					setTitle((String)msg.obj);
 					try {
 						Intent i = new Intent(Intent.ACTION_VIEW);
-						i.setDataAndType(Uri.fromFile(new File(wDir, "FoxBook.apk")), "application/vnd.android.package-archive"); 
+						i.setDataAndType(Uri.fromFile(new File("/sdcard/FoxBook.apk")), "application/vnd.android.package-archive"); 
 						startActivity(i);
 					} catch(Exception e) {
 						e.toString();
