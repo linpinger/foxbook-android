@@ -120,6 +120,12 @@
             android:summaryOff="不处理"
             android:summaryOn="当字符与换行比大于阈值200处理"
             android:title="是否预处理超长单行" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="isAdd2CNSpaceBeforeLine"
+            android:summaryOff="不添加"
+            android:summaryOn="添加"
+            android:title="正文是否添加两中文空白" />
     </PreferenceCategory>
     <PreferenceCategory android:title="其他设置" >
         <ListPreference

@@ -47,15 +47,15 @@ public class Activity_SearchBook extends Activity {
 	private EditText et;
 	private ImageButton btn_search;
 	private Button btn_pre ;
-	
+
 	SharedPreferences settings;
 	private String book_name = "";
 	private String book_url = "";
-	
+
 	private final int IS_GETQIDIANURL = 8;
-	
+
 	private static Handler handler;
-	
+
 	private static final int ItemA1 = Menu.FIRST;
 	private static final int ItemA2 = Menu.FIRST + 1;
 
@@ -84,7 +84,7 @@ public class Activity_SearchBook extends Activity {
 		getActionBar().setDisplayHomeAsUpEnabled(true); // 标题栏中添加返回图标
 //		getActionBar().setDisplayShowHomeEnabled(false); // 隐藏程序图标
 	}
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -94,7 +94,7 @@ public class Activity_SearchBook extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_search);
 		mExitTime = System.currentTimeMillis();
-		
+
 		showHomeUp();
 
 		et = (EditText) findViewById(R.id.editText1); // bookname
@@ -102,7 +102,7 @@ public class Activity_SearchBook extends Activity {
 		btn_search = (ImageButton) findViewById(R.id.button1);
 		btn_pre = (Button) findViewById(R.id.button2);
 		this.registerForContextMenu(btn_pre);
-		
+
 //		wv.loadUrl("about:blank");
 //		wv.loadDataWithBaseURL("http://www.autohotkey.net/~linpinger/index.html?s=FoxBook_Android", "用法说明:", "text/html", "utf-8", "");
 
@@ -112,7 +112,7 @@ public class Activity_SearchBook extends Activity {
 				return true;
 			}
 		});
-		
+
 		// 说明
 //		wv.getSettings().setDefaultTextEncodingName("UTF-8");
 		String html = "<!DOCTYPE html>\n<html>\n<head>\t<META http-equiv=Content-Type content=\"text/html; charset=utf-8\">\n<title>萌萌哒说明</title>\n</head>\n<body bgcolor=\"#eefaee\">\n<h2>说明:</h2>\n\n<h3>使用搜索引擎搜索:</h3>\n<ul>\n<li>输入要搜索的书名，按搜索按钮，然后在这里会显示搜索引擎结果</li>\n<li>点击链接直到目录页，然后按按钮“预”</li>\n</ul>\n\n<h3>使用快速搜索:</h3>\n<ul>\n<li>输入要搜索的书名</li>\n<li>按菜单键，在出来的菜单中选择一个搜索即可</li>\n</ul>\n\n<p>　如果出现列表正常的话，按加号添加书，之后按保存按钮</p>\n<p>　然后回到主界面即可看到新添加的书</p>\n\n</body>\n</html>" ;
@@ -277,14 +277,14 @@ public class Activity_SearchBook extends Activity {
 			menu.add(9, ItemA2, 9, "下载起点Epub");
 		}
 	}
-	
+
 	private String funcCopyURL() {
 		String ua = wv.getUrl();
 		ToolAndroid.setClipText(ua, this);
 		foxtip("剪贴板:\n" + ua);
 		return ua;
 	}
-	
+
 	private void funcDownQDEbook() {
 		String ub = wv.getUrl();
 		if (ub.contains(".qidian.com/")) {
@@ -295,7 +295,7 @@ public class Activity_SearchBook extends Activity {
 			foxtip("非起点URL:\n" + ub);
 		}
 	}
-	
+
 	private void funcOpenTopQD(boolean isMobile) {
 		wv.getSettings().setJavaScriptEnabled(true) ; // 允许JS
 		if ( isMobile ) {

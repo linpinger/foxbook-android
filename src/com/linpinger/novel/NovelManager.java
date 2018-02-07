@@ -26,7 +26,7 @@ public class NovelManager {
 	private File shelfFile ;
 	private List<Novel> shelf ;
 	private int bookStoreType = 0;
-	
+
 	private boolean sortBookDesc = true ;
 	private int saveFormat = NovelManager.FML ; // 默认保存格式
 
@@ -141,7 +141,7 @@ public class NovelManager {
 				return o1.getName().compareTo(o2.getName());
 			}
 		});
-		
+
 		return (ArrayList<File>) retList ;
 	}
 
@@ -280,7 +280,7 @@ public class NovelManager {
 	public void deleteBook(int bookIdx) { // 已: 验证 position 基本等于 idx
 		this.shelf.remove(bookIdx);
 	}
-	
+
 	public void sortBooks(boolean isDesc){
 		this.sortBookDesc = isDesc ;
 		Collections.sort(this.shelf, new ComparePageCount()); // 排序
@@ -532,26 +532,26 @@ public class NovelManager {
 	public List<Map<String, Object>> addBookBlankPageList(List<Map<String, Object>> data, int inBookIDX) {
 		Novel book = this.shelf.get(inBookIDX);
 		String bookURL = book.getInfo().get(NV.BookURL).toString();
-	
+
 		List<Map<String, Object>> chapters = book.getChapters();
 		Map<String, Object> nPage;
-	
+
 		List<Map<String, Object>> oList = new ArrayList<Map<String, Object>>();
 		Map<String, Object> oPage;
-	
+
 		String nowTitle;
 		String nowPageURL;
 		int pageIDX;
 		for ( Map<String, Object> blankPage : data ) {
 			nowTitle = blankPage.get(NV.PageName).toString();
 			nowPageURL = blankPage.get(NV.PageURL).toString();
-	
+
 			nPage = this.getBlankPage();
 			nPage.put(NV.PageName, nowTitle);
 			nPage.put(NV.PageURL, nowPageURL);
 			chapters.add(nPage);
 			pageIDX = chapters.size() - 1;
-	
+
 			oPage = new HashMap<String, Object>(8);
 			oPage.putAll(nPage);
 			oPage.put(NV.PageFullURL, ToolBookJava.getFullURL(bookURL, nowPageURL) );

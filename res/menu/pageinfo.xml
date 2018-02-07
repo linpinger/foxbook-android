@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/pi_save_exit"
+        android:icon="@android:drawable/ic_menu_save"
+        android:showAsAction="always"
+        android:title="保存章节并退出"/>
+    <item
+        android:id="@+id/pi_copyPageName"
+        android:title="复制章节名"/>
+    <item
+        android:id="@+id/pi_copyURL"
+        android:title="复制网址"/>
+    <item
+        android:id="@+id/pi_copyContent"
+        android:title="复制内容"/>
+    <item
+        android:id="@+id/pi_clearContent"
+        android:title="清空内容"/>
+    <item
+        android:id="@+id/pi_pastePageName"
+        android:title="粘贴章节名"/>
+    <item
+        android:id="@+id/pi_pasteURL"
+        android:title="粘贴网址"/>
+    <item
+        android:id="@+id/pi_pasteContent"
+        android:title="粘贴内容"/>
+
+</menu>

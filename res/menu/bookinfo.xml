@@ -2,6 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
+        android:id="@+id/bi_save_exit"
+        android:icon="@android:drawable/ic_menu_save"
+        android:showAsAction="always"
+        android:title="保存书架并退出"/>
+    <item
         android:id="@+id/bi_copyBookName"
         android:title="复制书名"/>
     <item
@@ -15,7 +20,7 @@
         android:title="复制网址"/>
     <item
         android:id="@+id/bi_getQDidFromURL"
-        android:title="从地址获取起点ID"/>
+        android:title="从网址获取起点ID"/>
     <item
         android:id="@+id/bi_clearDelURL"
         android:title="清空已删除列表"/>

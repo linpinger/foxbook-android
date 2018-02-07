@@ -43,7 +43,7 @@ import android.widget.Toast;
 public class Activity_ShowPage4Eink extends Activity {
 	private NovelManager nm;
 
-	private int ittAction = 0 ;  // 传入数据
+	private int ittAction = 0; // 传入数据
 	private int bookIDX = -1 ; // 翻页时使用
 	private int pageIDX = -1 ; // 翻页时使用
 
@@ -54,14 +54,15 @@ public class Activity_ShowPage4Eink extends Activity {
 
 	SharedPreferences settings;
 	SharedPreferences.Editor editor;
-	private String myBGcolor = "default" ;  // 背景:默认羊皮纸
-	private boolean isMapUpKey = false; // 是否映射上翻为下翻键
+	private String myBGcolor = "default"; // 背景:默认羊皮纸
+	private boolean isMapUpKey = false;   // 是否映射上翻为下翻键
 
 	private boolean isShowSettingMenus = true ; // 是否显示 下面的设置菜单项，一般只是在第一次使用的时候需要调整
 	private float fontsize = 36.0f; // 字体大小
-	private float paddingMultip  = 0.5f ; // 页边距 = 字体大小 * paddingMultip
+	private float paddingMultip = 0.5f ; // 页边距 = 字体大小 * paddingMultip
 	private float lineSpaceingMultip = 1.5f ; // 行间距倍数
 	private boolean isProcessLongOneLine = true; // 处理超长单行 > 4K
+	private boolean isAdd2CNSpaceBeforeLine = true ; // 自动添加两空白
 
 	private long tLastPushEinkButton ;
 
@@ -111,10 +112,17 @@ public class Activity_ShowPage4Eink extends Activity {
 				return -3;
 			}
 			pagetext = ProcessLongOneLine(pagetext);
-			mv.setText(newBookAddWJX + mp.get(NV.PageName).toString()
+			if ( isAdd2CNSpaceBeforeLine ) {
+				mv.setText(newBookAddWJX + mp.get(NV.PageName).toString()
 					, "　　" + pagetext.replace("\n", "\n　　")
 					, nm.getBookInfo(bookIDX).get(NV.BookName).toString()
 					+ "   " + nm.getPagePosAtShelfPages(bookIDX, pageIDX));
+			} else {
+				mv.setText(newBookAddWJX + mp.get(NV.PageName).toString()
+						, pagetext
+						, nm.getBookInfo(bookIDX).get(NV.BookName).toString()
+						+ "   " + nm.getPagePosAtShelfPages(bookIDX, pageIDX));
+			}
 			return 0;
 		}
 
@@ -145,6 +153,7 @@ public class Activity_ShowPage4Eink extends Activity {
 		setBGcolor(myBGcolor);
 
 		isProcessLongOneLine = settings.getBoolean("isProcessLongOneLine", isProcessLongOneLine);
+		isAdd2CNSpaceBeforeLine = settings.getBoolean("isAdd2CNSpaceBeforeLine", isAdd2CNSpaceBeforeLine);
 
 		this.nm = ((FoxApp)this.getApplication()).nm;
 
@@ -158,11 +167,11 @@ public class Activity_ShowPage4Eink extends Activity {
 			public boolean onTouch(View arg0, MotionEvent arg1) {
 //				if ( arg1.getAction() == MotionEvent.ACTION_DOWN )
 				cX = arg1.getX(); // 获取的坐标给click使用
-				cY = arg1.getY(); // getRawX  getRawY
+				cY = arg1.getY(); // getRawX getRawY
 				return false;
 			}
 		});
-		mv.setOnClickListener(new OnClickListener(){  // 单击事件
+		mv.setOnClickListener(new OnClickListener(){ // 单击事件
 			@Override
 			public void onClick(View arg0) {
 //				foxtip("c=" + cX + ":" + cY + "/" + arg0.getWidth() + ":" + arg0.getHeight() + "\n" + arg0.toString());
@@ -208,7 +217,11 @@ public class Activity_ShowPage4Eink extends Activity {
 								+ "\nContent:" + sText);
 					} else {
 						sText = ProcessLongOneLine(sText);
-						mv.setText(page.get(NV.PageName).toString(), "　　" + sText.replace("\n", "\n　　"));
+						if ( isAdd2CNSpaceBeforeLine ) {
+							mv.setText(page.get(NV.PageName).toString(), "　　" + sText.replace("\n", "\n　　"));
+						} else {
+							mv.setText(page.get(NV.PageName).toString(), sText);
+						}
 					}
 					mv.postInvalidate();
 				}
@@ -227,13 +240,20 @@ switch (ittAction) {
 		case AC.aShowPageInMem:
 			Map<String, Object> page = nm.getPage(bookIDX, pageIDX);
 			String pagetext = page.get(NV.Content).toString();
-			if ( null == pagetext | pagetext.length() < 5  )
+			if ( null == pagetext | pagetext.length() < 5 )
 				pagetext = "本章节内容还没下载，请回到列表，更新本书或本章节" ;
 			pagetext = ProcessLongOneLine(pagetext);
+			if ( isAdd2CNSpaceBeforeLine ) {
 			mv.setText(page.get(NV.PageName).toString()
 					, "　　" + pagetext.replace("\n", "\n　　")
 					, nm.getBookInfo(bookIDX).get(NV.BookName).toString()
 					+ "   " + nm.getPagePosAtShelfPages(bookIDX, pageIDX));
+			} else {
+				mv.setText(page.get(NV.PageName).toString()
+						, pagetext
+						, nm.getBookInfo(bookIDX).get(NV.BookName).toString()
+						+ "   " + nm.getPagePosAtShelfPages(bookIDX, pageIDX));
+			}
 			break;
 		case AC.aShowPageOnNet: // NET
 			final String pageTitle = itt.getStringExtra(NV.PageName);
@@ -241,11 +261,7 @@ switch (ittAction) {
 			new Thread( new Runnable() {
 				@Override
 				public void run() {
-					String text = "";
-					if ( fullPageURL.contains("druid.if.qidian.com/") )
-						text = new SiteQiDian().getContent_Android7(ToolBookJava.downhtml(fullPageURL, "utf-8"));
-					else
-						text = nm.updatePage(fullPageURL) ;
+					String text = nm.updatePage(fullPageURL) ;
 
 					HashMap<String, String> page = new HashMap<String, String>(2);
 					page.put(NV.PageName, pageTitle);
@@ -279,9 +295,15 @@ switch (ittAction) {
 				content = xx.get(NV.Content).toString();
 			}
 
+			if ( isAdd2CNSpaceBeforeLine ) {
 			mv.setText(pageName , "　　" + content.replace("\n", "\n　　")
 					, nm.getBookInfo(bookIDX).get(NV.BookName).toString()
 					+ "   " + nm.getPagePosAtShelfPages(bookIDX, pageIDX));
+			} else {
+				mv.setText(pageName , content
+						, nm.getBookInfo(bookIDX).get(NV.BookName).toString()
+						+ "   " + nm.getPagePosAtShelfPages(bookIDX, pageIDX));
+			}
 			break;
 		default:
 			break;
@@ -367,7 +389,7 @@ switch (ittAction) {
 			editor.commit();
 			foxtip("字体大小: " + fontsize);
 			break;
-		case R.id.paddingup:  // 增大页边距
+		case R.id.paddingup: // 增大页边距
 			paddingMultip += 0.1f ;
 			mv.setPadding(String.valueOf(paddingMultip) + "f");
 			mv.postInvalidate();
@@ -375,7 +397,7 @@ switch (ittAction) {
 			editor.commit();
 			foxtip("页边距: " + paddingMultip);
 			break;
-		case R.id.paddingdown:  // 减小页边距
+		case R.id.paddingdown: // 减小页边距
 			paddingMultip -= 0.1f ;
 			mv.setPadding(String.valueOf(paddingMultip) + "f");
 			mv.postInvalidate();
@@ -433,7 +455,7 @@ switch (ittAction) {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
-		case 9:  // 响应文件选择器的选择
+		case 9: // 响应文件选择器的选择
 			if (resultCode == RESULT_OK) {
 				Uri uri = data.getData();
 				// 判断文件名后缀

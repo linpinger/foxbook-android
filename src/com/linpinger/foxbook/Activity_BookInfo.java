@@ -15,9 +15,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,14 +22,12 @@ import android.widget.Toast;
 public class Activity_BookInfo extends Activity {
 	private NovelManager nm;
 	private int bookIDX = -1;
-	private Button btn_save;
 	private TextView tv_bid;
 	private EditText edt_bname, edt_bauthor, edt_isend, edt_qdid, edt_burl, edt_delurl;
 
 	SharedPreferences settings;
 
 	private void init_controls() { // 初始化各控件
-		btn_save = (Button) findViewById(R.id.btn_save);
 		tv_bid = (TextView) findViewById(R.id.tv_bid);
 		edt_bname = (EditText) findViewById(R.id.edt_bname);
 		edt_bauthor = (EditText) findViewById(R.id.edt_bauthor);
@@ -44,7 +39,7 @@ public class Activity_BookInfo extends Activity {
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void showHomeUp() {
-		getActionBar().setDisplayHomeAsUpEnabled(true);  // 标题栏中添加返回图标
+		getActionBar().setDisplayHomeAsUpEnabled(true); // 标题栏中添加返回图标
 	}
 
 	public void onCreate(Bundle savedInstanceState) { // 界面初始化
@@ -72,22 +67,6 @@ public class Activity_BookInfo extends Activity {
 		edt_qdid.setText(info.get(NV.QDID).toString()) ;
 		edt_burl.setText(info.get(NV.BookURL).toString()) ;
 		edt_delurl.setText(info.get(NV.DelURL).toString()) ;
-
-		// 点击保存按钮保存数据
-		btn_save.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				Map<String, Object> info = nm.getBlankBookInfo();
-				info.put(NV.BookName, edt_bname.getText().toString());
-				info.put(NV.BookAuthor, edt_bauthor.getText().toString());
-				info.put(NV.BookURL, edt_burl.getText().toString());
-				info.put(NV.DelURL, edt_delurl.getText().toString());
-				info.put(NV.QDID, edt_qdid.getText().toString());
-				info.put(NV.BookStatu, Integer.valueOf(edt_isend.getText().toString()));
-				nm.setBookInfo(info, bookIDX);
-
-				onBackPressed();
-			}
-		});
 
 	}
 
@@ -144,6 +123,18 @@ public class Activity_BookInfo extends Activity {
 			edt_burl.setText(ToolAndroid.getClipText(this));
 			break;
 		case android.R.id.home: // 返回图标
+			onBackPressed();
+			break;
+		case R.id.bi_save_exit:
+			Map<String, Object> info = nm.getBlankBookInfo();
+			info.put(NV.BookName, edt_bname.getText().toString());
+			info.put(NV.BookAuthor, edt_bauthor.getText().toString());
+			info.put(NV.BookURL, edt_burl.getText().toString());
+			info.put(NV.DelURL, edt_delurl.getText().toString());
+			info.put(NV.QDID, edt_qdid.getText().toString());
+			info.put(NV.BookStatu, Integer.valueOf(edt_isend.getText().toString()));
+			nm.setBookInfo(info, bookIDX);
+
 			onBackPressed();
 			break;
 		}

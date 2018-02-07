@@ -13,9 +13,6 @@ import com.linpinger.tool.Ext_ListActivity_4Eink;
 import com.linpinger.tool.ToolBookJava;
 
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -23,17 +20,18 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemLongClickListener;
 
-// Activity_ShowPage4Eink : 单击列表，显示内容  aShowPageInMem|aShowPageOnNet, bookIDX, pageIDX, [pageName, pageFullUrl]
-// Activity_BookInfo  : 添加书籍
+// Activity_ShowPage4Eink : 单击列表，显示内容 aShowPageInMem|aShowPageOnNet, bookIDX, pageIDX, [pageName, pageFullUrl]
+// Activity_BookInfo : 添加书籍
 public class Activity_PageList extends Ext_ListActivity_4Eink {
 	private NovelManager nm;
 
@@ -41,6 +39,8 @@ public class Activity_PageList extends Ext_ListActivity_4Eink {
 
 	private List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
 	private ListView lv_pagelist ;
+	private int posLongClick = -1 ;
+	private boolean isOnLine = true; // 是否在线
 
 	SimpleAdapter adapter;
 	private Handler handler;
@@ -65,12 +65,15 @@ public class Activity_PageList extends Ext_ListActivity_4Eink {
 			if ( ittAction == AC.aListQDPages | ittAction == AC.aSearchBookOnQiDian )
 				data = new SiteQiDian().getTOC_Android7( ToolBookJava.downhtml(tocURL, "utf-8") );
 			if ( ittAction == AC.aListSitePages | ittAction == AC.aSearchBookOnSite )
-				data = new NovelSite().getTOC( ToolBookJava.downhtml(tocURL) );  // PageName PageURL
+				data = new NovelSite().getTOC( ToolBookJava.downhtml(tocURL) ); // PageName PageURL
 			handler.sendEmptyMessage(IS_RenderListView);
 		}
 	}
 
 	private void renderListView() { // 刷新LV
+		if ( ! isOnLine && data.size() == 0 ) { // 当记录删除完后，结束本Activity
+			onBackPressed();
+		}
 		switch (ittAction) {
 		case AC.aListBookPages:
 		case AC.aListAllPages:
@@ -126,7 +129,7 @@ public class Activity_PageList extends Ext_ListActivity_4Eink {
 			itt.putExtra(NV.BookIDX, bookIDX);
 			itt.putExtra(NV.PageIDX, -1);
 			itt.putExtra(NV.PageName, page.get(NV.PageName).toString() );
-			itt.putExtra(NV.PageFullURL, page.get(NV.PageURL).toString() );
+			itt.putExtra(NV.PageFullURL, new SiteQiDian().getContentFullURL_Android7(page.get(NV.PageURL).toString()) );
 			break;
 		case AC.aSearchBookOnSite:
 			itt.putExtra(AC.action, AC.aShowPageOnNet);
@@ -145,116 +148,7 @@ public class Activity_PageList extends Ext_ListActivity_4Eink {
 		super.onListItemClick(l, v, position, id);
 	}
 
-	private void init_LV_item_Long_click() { // 初始化 长击 条目 的行为
-		final Builder builder = new AlertDialog.Builder(this);
-		OnItemLongClickListener longlistener = new OnItemLongClickListener() {
-			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-				@SuppressWarnings("unchecked")
-				Map<String, Object> page = (HashMap<String, Object>) parent.getItemAtPosition(position);
 
-				if ( bookIDX == -1 ) { // 从网络下载临时的条目没有ID
-					if ( ittAction != AC.aListAllPages & ittAction != AC.aListLess1KPages ) {
-						foxtip("从网络下载临时的条目没有ID");
-						return true;
-					}
-				}
-
-				final String lcName = page.get(NV.PageName).toString();
-				final int bookIDX = (Integer) page.get(NV.BookIDX);
-				final int pageIDX = (Integer) page.get(NV.PageIDX);
-
-				setTitle(lcName + " : " + page.get(NV.PageURL));
-
-				// builder.setIcon(R.drawable.ic_launcher);
-				builder.setTitle("操作:" + lcName);
-				builder.setItems(new String[] { "删除本章", "删除本章并不写入Dellist"
-						, "删除本章及以上", "删除本章及以上并不写入Dellist"
-						, "删除本章及以下", "删除本章及以下并不写入Dellist"
-						, "更新本章" },
-						new DialogInterface.OnClickListener() {
-							@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-							public void onClick(DialogInterface dialog,	 int which) {
-								switch (which) {
-								case 0:
-									nm.clearPage(bookIDX, pageIDX, true);
-									foxtip("已删除并记录: " + lcName);
-									break;
-								case 1:
-									nm.clearPage(bookIDX, pageIDX, false);
-									foxtip("已删除: " + lcName);
-									break;
-								case 2:
-									if ( ittAction == AC.aListBookPages )
-										nm.clearBookPages(bookIDX, pageIDX, true, true);
-									if ( ittAction == AC.aListAllPages | ittAction == AC.aListLess1KPages )
-										nm.clearShelfPages(bookIDX, pageIDX, true, true);
-									foxtip("已删除并记录: <= " + lcName);
-									break;
-								case 3:
-									if ( ittAction == AC.aListBookPages )
-										nm.clearBookPages(bookIDX, pageIDX, true, false);
-									if ( ittAction == AC.aListAllPages | ittAction == AC.aListLess1KPages )
-										nm.clearShelfPages(bookIDX, pageIDX, true, false);
-									foxtip("已删除: <= " + lcName);
-									break;
-								case 4:
-									if ( ittAction == AC.aListBookPages )
-										nm.clearBookPages(bookIDX, pageIDX, false, true);
-									if ( ittAction == AC.aListAllPages | ittAction == AC.aListLess1KPages )
-										nm.clearShelfPages(bookIDX, pageIDX, false, true);
-									foxtip("已删除并记录: >= " + lcName);
-									break;
-								case 5:
-									if ( ittAction == AC.aListBookPages )
-										nm.clearBookPages(bookIDX, pageIDX, false, false);
-									if ( ittAction == AC.aListAllPages | ittAction == AC.aListLess1KPages )
-										nm.clearShelfPages(bookIDX, pageIDX, false, false);
-									foxtip("已删除: >= " + lcName);
-									break;
-								case 6:  // 更新章节
-									if ( bookIDX == -1 )
-										break;
-									setTitle("正在更新: " + lcName);
-									(new Thread(){
-										public void run(){
-											nm.updatePage(bookIDX, pageIDX);
-											Message msg = Message.obtain();
-											msg.what = IS_UPDATEPAGE;
-											msg.obj = lcName ;
-											handler.sendMessage(msg);
-										}
-									}).start();
-									break;
-								} // switch end
-
-								switch (ittAction) { // 更新data数据
-								case AC.aListBookPages:
-									data = nm.getBookPageList( bookIDX ); // 获取页面列表
-									break;
-								case AC.aListAllPages:
-									data = nm.getPageList(1);
-									break;
-								case AC.aListLess1KPages:
-									data = nm.getPageList(999);
-									break;
-								default:
-									break;
-								}
-								setItemPos4Eink(); // 滚动位置放到头部
-								renderListView();
-
-								if ( data.size() == 0 )  // 当记录删除完后，结束本Activity
-									onBackPressed();
-							} // onClick end
-						});
-				builder.create().show();
-				return true;
-			}
-
-		};
-		lv_pagelist.setOnItemLongClickListener(longlistener);
-	}
-	
 	private void init_handler() { // 初始化一个handler 用于处理后台线程的消息
 		handler = new Handler() {
 			public void handleMessage(Message msg) {
@@ -271,7 +165,7 @@ public class Activity_PageList extends Ext_ListActivity_4Eink {
 		getActionBar().setDisplayHomeAsUpEnabled(true);  // 标题栏中添加返回图标
 		getActionBar().setDisplayShowHomeEnabled(false); // 隐藏程序图标
 	}
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) { // 入口
 		settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -283,6 +177,7 @@ public class Activity_PageList extends Ext_ListActivity_4Eink {
 
 		showHomeUp();
 		lv_pagelist = getListView();
+		this.registerForContextMenu(lv_pagelist); // ListView注册上下文菜单
 
 		this.nm = ((FoxApp)this.getApplication()).nm;
 		init_handler() ; // 初始化一个handler 用于处理后台线程的消息
@@ -293,24 +188,24 @@ public class Activity_PageList extends Ext_ListActivity_4Eink {
 		bookIDX = itt.getIntExtra(NV.BookIDX, -1);
 switch (ittAction) {
 		case AC.aListBookPages:
+			isOnLine = false ;
 			data = nm.getBookPageList( bookIDX ); // 获取页面列表
 			Map<String, Object> info = nm.getBookInfo(bookIDX);
 
 			setTitle(info.get(NV.BookName) + " : " + info.get(NV.BookURL));
 			break;
 		case AC.aListAllPages:
+			isOnLine = false ;
 			data = nm.getPageList(1);
 			setTitle("共 " + String.valueOf(data.size()) + " 章");
 			break;
 		case AC.aListLess1KPages:
+			isOnLine = false ;
 			data = nm.getPageList(999);
 			setTitle("共 " + String.valueOf(data.size()) + " 章");
-			if ( 0 == data.size() ) {
-				onBackPressed();
-			}
 			break;
 		case AC.aListSitePages:
-			new Thread(new DownTOC( nm.getBookInfo(bookIDX).get(NV.BookURL).toString() )).start();  // 在线查看目录
+			new Thread(new DownTOC( nm.getBookInfo(bookIDX).get(NV.BookURL).toString() )).start(); // 在线查看目录
 			setTitle("在线看: " + nm.getBookInfo(bookIDX).get(NV.BookName).toString() );
 			break;
 		case AC.aListQDPages:
@@ -329,7 +224,6 @@ switch (ittAction) {
 }
 
 		renderListView();
-		init_LV_item_Long_click() ; // 初始化 长击 条目 的行为
 	}
 
 
@@ -339,13 +233,13 @@ switch (ittAction) {
 		for ( int i=0; i< itemcount; i++){
 			switch (menu.getItem(i).getItemId()) {
 				case R.id.pm_Add:
-					if ( ittAction == AC.aListQDPages |ittAction == AC.aSearchBookOnQiDian | ittAction == AC.aSearchBookOnSite  )
+					if ( ittAction == AC.aListQDPages |ittAction == AC.aSearchBookOnQiDian | ittAction == AC.aSearchBookOnSite )
 						menu.getItem(i).setVisible(true); // 当是搜索时隐藏添加按钮
 					else
 						menu.getItem(i).setVisible(false);
 					break;
 				case R.id.pm_cleanBook:
-					if ( ittAction == AC.aListQDPages |ittAction == AC.aSearchBookOnQiDian | ittAction == AC.aSearchBookOnSite  )
+					if ( ittAction == AC.aListQDPages |ittAction == AC.aSearchBookOnQiDian | ittAction == AC.aSearchBookOnSite )
 						menu.getItem(i).setVisible(false); // 当是网络时隐藏删除按钮
 					else
 						menu.getItem(i).setVisible(true);
@@ -422,10 +316,124 @@ switch (ittAction) {
 			setItemPos4Eink(midPos);
 			break;
 		}
-		
+
 		return super.onOptionsItemSelected(item);
 	}
-	
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+//		if ( bookIDX == -1 ) { // intent传来的bookIDX, 从网络下载临时的条目没有ID
+//			foxtip("itent 传入的 bookIDX = -1\n\n从网络下载临时的条目没有ID");
+//			return super.onContextItemSelected(item);
+//		}
+
+		Map<String, Object> page = data.get(posLongClick);
+		final String lcName = page.get(NV.PageName).toString(); // final 便于线程中使用
+		final int bookIDX = (Integer) page.get(NV.BookIDX);
+		final int pageIDX = (Integer) page.get(NV.PageIDX);
+
+		setTitle(lcName + " : " + page.get(NV.PageURL));
+
+		String itemName = item.getTitle().toString();
+		if ( itemName.equalsIgnoreCase("删除本章") ) {
+			nm.clearPage(bookIDX, pageIDX, true);
+			foxtip("已删除并记录: " + lcName);
+		} else if ( itemName.equalsIgnoreCase("删除本章并不写入Dellist") ) {
+			nm.clearPage(bookIDX, pageIDX, false);
+			foxtip("已删除: " + lcName);
+		} else if ( itemName.equalsIgnoreCase("删除本章及以上") ) {
+			if ( ittAction == AC.aListBookPages )
+				nm.clearBookPages(bookIDX, pageIDX, true, true);
+			if ( ittAction == AC.aListAllPages )
+				nm.clearShelfPages(bookIDX, pageIDX, true, true);
+			foxtip("已删除并记录: <= " + lcName);
+		} else if ( itemName.equalsIgnoreCase("删除本章及以上并不写入Dellist") ) {
+			if ( ittAction == AC.aListBookPages )
+				nm.clearBookPages(bookIDX, pageIDX, true, false);
+			if ( ittAction == AC.aListAllPages )
+				nm.clearShelfPages(bookIDX, pageIDX, true, false);
+			foxtip("已删除: <= " + lcName);
+		} else if ( itemName.equalsIgnoreCase("删除本章及以下") ) {
+			if ( ittAction == AC.aListBookPages )
+				nm.clearBookPages(bookIDX, pageIDX, false, true);
+			if ( ittAction == AC.aListAllPages )
+				nm.clearShelfPages(bookIDX, pageIDX, false, true);
+			foxtip("已删除并记录: >= " + lcName);
+		} else if ( itemName.equalsIgnoreCase("删除本章及以下并不写入Dellist") ) {
+			if ( ittAction == AC.aListBookPages )
+				nm.clearBookPages(bookIDX, pageIDX, false, false);
+			if ( ittAction == AC.aListAllPages )
+				nm.clearShelfPages(bookIDX, pageIDX, false, false);
+			foxtip("已删除: >= " + lcName);
+		} else if ( itemName.equalsIgnoreCase("更新本章") ) {
+			if ( bookIDX != -1 ) {
+				setTitle("正在更新: " + lcName);
+				(new Thread(){
+					public void run(){
+						nm.updatePage(bookIDX, pageIDX);
+						updateLocalData(bookIDX) ; // 更新data数据
+						Message msg = Message.obtain();
+						msg.what = IS_UPDATEPAGE;
+						msg.obj = lcName ;
+						handler.sendMessage(msg);
+					}
+				}).start();
+			}
+		} else if ( itemName.equalsIgnoreCase("编辑本章") ) {
+			Intent ittPageInfo = new Intent(Activity_PageList.this,Activity_PageInfo.class);
+			ittPageInfo.putExtra(NV.BookIDX, bookIDX);
+			ittPageInfo.putExtra(NV.PageIDX, pageIDX);
+			startActivity(ittPageInfo);
+		} else {
+			foxtip("一脸萌圈，还没实现这个菜单呐:\n" + itemName);
+		}
+
+		updateLocalData(bookIDX) ; // 更新data数据
+
+		setItemPos4Eink(); // 滚动位置放到头部
+		renderListView();
+
+		return super.onContextItemSelected(item);
+	}
+
+	void updateLocalData(int inBookIDX) {
+		switch (ittAction) { // 更新data数据
+		case AC.aListBookPages:
+			data = nm.getBookPageList( inBookIDX ); // 获取页面列表
+			break;
+		case AC.aListAllPages:
+			data = nm.getPageList(1);
+			break;
+		case AC.aListLess1KPages:
+			data = nm.getPageList(999);
+			break;
+		}
+	}
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+
+		if ( isOnLine ) {
+			return ; // 在线的就不显示menu
+		}
+
+		posLongClick = ( (AdapterContextMenuInfo) menuInfo ).position; //（position 代表点击列表中第几项出现的上下文菜单）
+		menu.setHeaderTitle("操作:" + data.get(posLongClick).get(NV.PageName).toString());
+
+		menu.add("删除本章");
+		menu.add("删除本章并不写入Dellist");
+		if ( ittAction != AC.aListLess1KPages ) {
+		menu.add("删除本章及以上");
+		menu.add("删除本章及以上并不写入Dellist");
+		menu.add("删除本章及以下");
+		menu.add("删除本章及以下并不写入Dellist");
+		}
+		menu.add("编辑本章");
+		menu.add("更新本章");
+
+	}
+
 	@Override
 	public void onBackPressed() { // 返回键被按
 		setResult(RESULT_OK);

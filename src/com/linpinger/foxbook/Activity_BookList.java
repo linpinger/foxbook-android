@@ -238,7 +238,7 @@ if ( isCompareShelf ) {
 			List<Map<String, Object>> nbl = nm.addBookBlankPageList(newPages, bookIDX);
 		if (bDownPage) {
 			int cTask = nbl.size() ; // 总任务数
-			
+
 			if ( cTask > 25 ) { // 当新章节数大于 25章就采用多任务下载模式
 				int nBaseCount = cTask / downThread ; //每线程基础任务数
 				int nLeftCount = cTask % downThread ; //剩余任务数
@@ -290,7 +290,7 @@ if ( isCompareShelf ) {
 
 	public class FoxTaskDownPage implements Runnable { // 多线程任务更新页面列表
 		List<Map<String, Object>> taskList;
-	
+
 		public FoxTaskDownPage(List<Map<String, Object>> iTaskList) {
 			this.taskList = iTaskList ;
 		}

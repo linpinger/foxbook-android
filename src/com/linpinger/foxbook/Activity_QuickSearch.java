@@ -34,20 +34,20 @@ public class Activity_QuickSearch extends Ext_ListActivity_4Eink {
 	private List<Map<String, Object>> data;
 	private Handler handler;
 	private static int IS_REFRESH = 5 ;
-	
+
 	SharedPreferences settings;
 
 	private String book_name = "" ;
 	private String book_url = "" ;
-	
+
 	private int SE_TYPE = 1; // 搜索引擎
-	
+
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void showHomeUp() {
 		getActionBar().setDisplayHomeAsUpEnabled(true);  // 标题栏中添加返回图标
 //		getActionBar().setDisplayShowHomeEnabled(false); // 隐藏程序图标
-	}		// 响应点击事件在onOptionsItemSelected的switch中加入 android.R.id.home   this.finish();
-	
+	}		// 响应点击事件在onOptionsItemSelected的switch中加入 android.R.id.home this.finish();
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) { // 入口
 		settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -68,9 +68,9 @@ public class Activity_QuickSearch extends Ext_ListActivity_4Eink {
 
 		data = new ArrayList<Map<String, Object>>();
 		refreshLVAdapter();
-		
+
 		init_LV_item_click() ; // 初始化 单击 条目 的行为
-		
+
 		String seURL = "" ;
 		try {
 			switch (SE_TYPE) { // 1:sogou 2:yahoo 3:bing

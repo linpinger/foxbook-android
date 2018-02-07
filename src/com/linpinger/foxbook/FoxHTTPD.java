@@ -2,7 +2,6 @@ package com.linpinger.foxbook;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -14,7 +13,7 @@ import com.linpinger.tool.ToolJava;
 
 public class FoxHTTPD extends NanoHTTPD {
 	private NovelManager nm ;
-	private File foxRootDir ;  // nanohttpd 的那个变量是私有的，无法继承
+	private File foxRootDir ; // nanohttpd 的那个变量是私有的，无法继承
 	private String nowUserAgent = "kindle" ;
 	private final String html_foot = "\n</body>\n</html>\n\n" ;
 
@@ -44,7 +43,7 @@ public class FoxHTTPD extends NanoHTTPD {
 			String html = "";
 
 			if ( action.equalsIgnoreCase("blank") )
-				html = showBookList() ;  //书架
+				html = showBookList() ; //书架
 			if ( action.equalsIgnoreCase(LIST_PAGES)) { // 章节列表
 				html = showPageList(bookid) ; // 章节列表
 			}
@@ -78,7 +77,7 @@ public class FoxHTTPD extends NanoHTTPD {
 			return new Response( HTTP_OK, MIME_HTML, html ) ;
 		}
 
-		if (uri.equalsIgnoreCase("/L")) {  // 列出/sdcard/
+		if (uri.equalsIgnoreCase("/L")) { // 列出/sdcard/
 			return serveFile( "/", header, foxRootDir, true );
 		}
 
@@ -94,7 +93,7 @@ public class FoxHTTPD extends NanoHTTPD {
 			} else { // 处理文件上传
 				// 汗，修改了nanohttpd.java 里面的临时路径到/sdcard/，到处都是硬编码，呵呵哒
 				String tmpFilePath = files.getProperty("filename") ; // /sdcard/NanoHTTPD-nnn.upload /data/data/com.linpinger.foxudp/cache/NanoHTTPD-561991304.upload
-				String fileName = parms.getProperty("filename", "NoName.upload") ;    // testUpload.exe
+				String fileName = parms.getProperty("filename", "NoName.upload") ; // testUpload.exe
 				File savePath = new File(this.foxRootDir, fileName);
 				ToolJava.renameIfExist(savePath);
 				(new File(tmpFilePath)).renameTo(savePath);
@@ -161,7 +160,7 @@ public class FoxHTTPD extends NanoHTTPD {
 	private String showBookList() {
 		StringBuilder html = new StringBuilder();
 		html.append(html_head("萌萌哒的书籍列表"));
-		
+
 		html.append("<br>　　<a href=\"?a=").append(LIST_PAGES)
 			.append("&bid=-1\">显示所有章节</a>  <a href=\"?a=")
 			.append(DOWN_TXT).append("&bid=-1\">下载txt</a><br>\n<ol>\n");
@@ -217,5 +216,5 @@ public class FoxHTTPD extends NanoHTTPD {
 			.append("<body bgcolor=\"#eefaee\">\n\n");
 		return html.toString();
 	}
-	
+
 }

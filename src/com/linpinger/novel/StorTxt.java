@@ -80,7 +80,7 @@ public class StorTxt extends Stor {
 		lst.add(book);
 		return lst ;
 	}
-	
+
 	private List<Novel> importNormalTxt(File inFile, String txtEnCoding) {
 //		String txtEnCoding = ToolBookJava.detectTxtEncoding(txtPath) ; // 猜测中文文本编码 返回: "GBK" 或 "UTF-8"
 //		String txt = ToolBookJava.readText(txtPath, txtEnCoding) ;

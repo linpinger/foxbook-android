@@ -43,7 +43,7 @@ public class ToolBookJava {
 			return DelList;
 		}
 		int MaxLineCount = xx.length - 9;
-	
+
 		StringBuffer newList = new StringBuffer(1024);
 		for (int i = 0; i < 9; i++) {
 			newList.append(xx[MaxLineCount + i]).append("\n");
@@ -55,7 +55,7 @@ public class ToolBookJava {
 		}
 	}
 */
-	
+
 
 /*
 	public static List compare2GetNewPages2(List<Map<String, Object>> xx, String existList) {
@@ -170,11 +170,11 @@ public class ToolBookJava {
 			return listURLName ;
 		if ( ! DelList.contains("|") ) // 当DelList为空，返回原数组
 			return listURLName ;
-		
+
 		// 获取 DelList 第一行的 URL : BaseLineURL
 		int fFF = DelList.indexOf("|");
 		String BaseLineURL = DelList.substring(1 + DelList.lastIndexOf("\n", fFF), fFF);
-		
+
 		// 查到数组aHTML中等于BaseLineURL的行号，并删除1到该行号的所有元素
 		int EndIdx = 0 ;
 		String nowURL ;
@@ -189,7 +189,7 @@ public class ToolBookJava {
 			listURLName.remove(nowIdx);
 		}
 		linkSize = listURLName.size();
-		
+
 		// 对比剩余的aHTML和DelList，得到新的aNewRet并返回
 		List<Map<String, Object>> aNewRet = new ArrayList<Map<String, Object>>(30);
 		for (int nowIdx = 0; nowIdx < linkSize; nowIdx++) {
@@ -197,7 +197,7 @@ public class ToolBookJava {
 			if ( ! DelList.contains("\n" + nowURL + "|") )
 				aNewRet.add(listURLName.get(nowIdx));
 		}
-		
+
 		return aNewRet ;
 	}
 
@@ -366,7 +366,7 @@ public class ToolBookJava {
 				conn.getOutputStream().flush();
 				conn.getOutputStream().close();
 			}
-			
+
 			// 这个判断返回状态，本来想判断错误，结果简单的重新connect不行，不如重新来过吧
 			/*
 			int responseCode = conn.getResponseCode();
@@ -402,7 +402,7 @@ public class ToolBookJava {
 		}
 		return buf;
 	}
-	
+
 	// Wget Cookie 转为HTTP头中Cookie字段
 	public static String cookie2Field(String iCookie) {
 		String oStr = "" ;

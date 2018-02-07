@@ -24,7 +24,7 @@ public class SiteQiDian extends NovelSite {
 			JSONArray slist = new JSONObject(json).getJSONObject("Data").getJSONArray("Chapters");
 			int cList = slist.length();
 			Map<String, Object> item;
-			
+
 			for (int i = 0; i < cList; i++) {
 				item = new HashMap<String, Object>(2);
 				item.put(NV.PageName, slist.getJSONObject(i).getString("n"));
@@ -61,6 +61,14 @@ public class SiteQiDian extends NovelSite {
 		// return "http://files.qidian.com/Author" + ( 1 + ( Integer.valueOf(bookID) % 8 ) ) + "/" + bookID + "/" + pageID + ".txt";
 		// return "http://druid.if.qidian.com/Atom.axd/Api/Book/GetContent?BookId=" + bookID + "&ChapterId=" + pageID ;
 		return "GetContent?BookId=" + bookID + "&ChapterId=" + pageID ;
+	}
+
+	public String getContentFullURL_Android7(String shortPageURL) {
+		String fullURL = shortPageURL;
+		if ( fullURL.startsWith("GetContent?BookId=") ) {
+			fullURL = "http://druid.if.qidian.com/Atom.axd/Api/Book/" + fullURL ;
+		}
+		return fullURL;
 	}
 
 	public String getContent_Android7(String json) { // 2017-1-11:  http://druid.if.qidian.com/Atom.axd/Api/Book/GetContent?BookId=1004936518&ChapterId=344096395

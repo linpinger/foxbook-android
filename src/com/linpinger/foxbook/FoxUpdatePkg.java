@@ -61,7 +61,7 @@ public class FoxUpdatePkg {
 
 	private int getVersion(Context context) {
 		String versionCode = "";
-		try {  // 获取软件版本号，返回类似: 20140101
+		try { // 获取软件版本号，返回类似: 20140101
 			versionCode = context.getPackageManager().getPackageInfo("com.linpinger.foxbook", 0).versionName;
 		} catch (Exception e) {
 			System.err.println(e.toString());

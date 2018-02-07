@@ -32,7 +32,7 @@ public class Activity_Setting extends PreferenceActivity {
 		addPreferencesFromResource(R.xml.preferences); // 当使用PreferenceActivity时
 		// getFragmentManager().beginTransaction().replace(android.R.id.content, new PrefsFragement()).commit(); 
 
-		getActionBar().setDisplayHomeAsUpEnabled(true);  // 标题栏中添加返回图标
+		getActionBar().setDisplayHomeAsUpEnabled(true); // 标题栏中添加返回图标
 
 	}
 
@@ -60,7 +60,7 @@ public class Activity_Setting extends PreferenceActivity {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
-		case 9:  // 响应文件选择器的选择
+		case 9: // 响应文件选择器的选择
 			if (resultCode == RESULT_OK) {
 				Uri uri = data.getData();
 				String newFont = new File(uri.getPath()).getAbsolutePath();
