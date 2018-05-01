@@ -19,11 +19,17 @@
         android:id="@+id/bi_copyURL"
         android:title="复制网址"/>
     <item
+        android:id="@+id/bi_copyALL"
+        android:title="复制全部"/>
+    <item
         android:id="@+id/bi_getQDidFromURL"
         android:title="从网址获取起点ID"/>
     <item
         android:id="@+id/bi_clearDelURL"
         android:title="清空已删除列表"/>
+    <item
+        android:id="@+id/bi_pasteALL"
+        android:title="粘贴全部"/>
     <item
         android:id="@+id/bi_pasteBookName"
         android:title="粘贴书名"/>

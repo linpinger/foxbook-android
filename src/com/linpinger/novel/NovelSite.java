@@ -62,32 +62,32 @@ public class NovelSite {
 			siteType = NovelSite.Site13xxs;
 			urlShelf = "http://www.13xxs.com/modules/article/bookcase.php?classid=0";
 			reShelf = "(?smi)<tr>.*?href=\"([^\"]*)\"[^>]*>([^<]*)<.*?href=\"[^\"]*/([0-9]*.html)\"[^>]*>([^<]*)<";
-			cookie = getValue(xml, "13xxs");
+			cookie = getValue(xml, "raw13xxs").replace("\r", "").replace("\n", "");
 		} else if ( bookURL.contains(".xqqxs.com") ) {
 			siteType = NovelSite.SiteXQqxs;
 			urlShelf = "http://www.xqqxs.com/modules/article/bookcase.php?delid=604" ;
 			reShelf = "(?smi)<tr>.*?&indexflag=(.*?)\"[^>]*>([^<]*)<.*?[^>]<a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
-			cookie = getValue(xml, "xqqxs");
+			cookie = getValue(xml, "rawxqqxs").replace("\r", "").replace("\n", "");
 		} else if ( bookURL.contains(".xxbiquge.com") ) {
 			siteType = NovelSite.SiteXxBiquge;
-			urlShelf = "http://www.xxbiquge.com/bookcase.php" ;
+			urlShelf = "https://www.xxbiquge.com/bookcase.php" ;
 			reShelf = "(?smi)\"s2\"><a href=\"([^\"]+)\"[^>]*>([^<]*)<.*?\"s4\"><a href=\"([^\"]+)\"";
-			cookie = getValue(xml, "xxbiquge");
+			cookie = getValue(xml, "rawxxbiquge").replace("\r", "").replace("\n", "");
 		} else if ( bookURL.contains(".biquge.com.tw") ) {
 			siteType = NovelSite.SiteBiquge;
 			urlShelf = "http://www.biquge.com.tw/modules/article/bookcase.php";
 			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"([^\"]*)\"[^>]*>([^<]*)<";
-			cookie = getValue(xml, "biquge");
+			cookie = getValue(xml, "rawbiquge").replace("\r", "").replace("\n", "");
 		} else if ( bookURL.contains(".dajiadu.net") ) {
 			siteType = NovelSite.SiteDajiadu;
 			urlShelf = "http://www.dajiadu.net/modules/article/bookcase.php";
 			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)&index.*?\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
-			cookie = getValue(xml, "dajiadu");
+			cookie = getValue(xml, "rawdajiadu").replace("\r", "").replace("\n", "");
 		} else if ( bookURL.contains(".piaotian.com") ) {
 			siteType = NovelSite.SitePiaotian;
-			urlShelf = "http://www.piaotian.com/modules/article/bookcase.php";
+			urlShelf = "https://www.piaotian.com/modules/article/bookcase.php";
 			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
-			cookie = getValue(xml, "piaotian");
+			cookie = getValue(xml, "rawpiaotian").replace("\r", "").replace("\n", "");
 		} else if ( bookURL.contains(".wutuxs.com") ) {
 			siteType = NovelSite.SiteWutuxs;
 			urlShelf = "http://www.wutuxs.com/modules/article/bookcase.php";
@@ -103,13 +103,14 @@ public class NovelSite {
 
 		String html = "";
 		if (siteType == NovelSite.SiteXxBiquge) {
-			html = html + ToolBookJava.downhtml(urlShelf, "UTF-8", "GET", ToolBookJava.cookie2Field(cookie)) ;
-			html = html + ToolBookJava.downhtml(urlShelf + "?page=2", "UTF-8", "GET", ToolBookJava.cookie2Field(cookie)) ;
-			html = html + ToolBookJava.downhtml(urlShelf + "?page=3", "UTF-8", "GET", ToolBookJava.cookie2Field(cookie)) ;
+			html = html + ToolBookJava.downhtml(urlShelf, "UTF-8", "GET", cookie) ;
+			html = html + ToolBookJava.downhtml(urlShelf + "?page=2", "UTF-8", "GET", cookie) ;
+			html = html + ToolBookJava.downhtml(urlShelf + "?page=3", "UTF-8", "GET", cookie) ;
 		} else if (siteType == NovelSite.SiteWutuxs) {
 			html = ToolBookJava.downhtml(urlShelf, "gbk", "GET", cookie) ;
 		} else {
-			html = ToolBookJava.downhtml(urlShelf, "gbk", "GET", ToolBookJava.cookie2Field(cookie)) ;
+			html = ToolBookJava.downhtml(urlShelf, "gbk", "GET", cookie) ;
+//			html = ToolBookJava.downhtml(urlShelf, "gbk", "GET", ToolBookJava.cookie2Field(cookie)) ;
 		}
 		if ( html.length() < 5 )
 			return null ;

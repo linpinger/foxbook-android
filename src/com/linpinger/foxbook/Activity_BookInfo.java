@@ -109,6 +109,33 @@ public class Activity_BookInfo extends Activity {
 			ToolAndroid.setClipText(bu, this);
 			foxtip("剪贴板: " + bu);
 			break;
+		case R.id.bi_copyALL: // 复制全部
+			String fbs = "FoxBook>" + edt_bname.getText().toString() + ">"
+					+ edt_bauthor.getText().toString() + ">"
+					+ edt_qdid.getText().toString() + ">"
+					+ edt_burl.getText().toString() + ">"
+					+ edt_delurl.getText().toString();
+			ToolAndroid.setClipText(fbs, this);
+			foxtip("剪贴板: " + fbs);
+			break;
+		case R.id.bi_pasteALL: // 粘贴全部
+			String nowfbs = ToolAndroid.getClipText(this);
+			if ( ! nowfbs.contains("FoxBook>") ) {
+				foxtip("剪贴板中的内容格式不对哟");
+				break;
+			}
+			String xx[] = nowfbs.split(">");
+			edt_bname.setText(xx[1]);
+			edt_bauthor.setText(xx[2]);
+			edt_qdid.setText(xx[3]);
+			if ( edt_burl.getText().toString().contains("http") ) {
+				ToolAndroid.setClipText(xx[4], this);
+				foxtip("剪贴板: " + xx[4]);
+			} else {
+				edt_burl.setText(xx[4]);
+				edt_delurl.setText(xx[5]);
+			}
+			break;
 		case R.id.bi_pasteBookName: // 粘贴
 			edt_bname.setText(ToolAndroid.getClipText(this));
 			break;

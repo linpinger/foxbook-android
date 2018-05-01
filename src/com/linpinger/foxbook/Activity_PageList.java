@@ -209,8 +209,10 @@ switch (ittAction) {
 			setTitle("在线看: " + nm.getBookInfo(bookIDX).get(NV.BookName).toString() );
 			break;
 		case AC.aListQDPages:
-			new Thread(new DownTOC(itt.getStringExtra(NV.TmpString))).start(); // 查看起点
-			setTitle("起点: " + nm.getBookInfo(bookIDX).get(NV.BookName).toString() );
+			this.searchBookName = nm.getBookInfo(bookIDX).get(NV.BookName).toString();
+			this.searchBookURL = itt.getStringExtra(NV.TmpString) ;
+			new Thread(new DownTOC(this.searchBookURL)).start(); // 查看起点
+			setTitle("起点: " + this.searchBookName );
 			break;
 		case AC.aSearchBookOnQiDian:
 		case AC.aSearchBookOnSite:
