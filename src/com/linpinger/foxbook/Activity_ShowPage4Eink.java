@@ -11,12 +11,9 @@ import java.util.regex.Pattern;
 import com.linpinger.novel.NV;
 import com.linpinger.novel.NovelManager;
 import com.linpinger.novel.Site1024;
-import com.linpinger.novel.SiteQiDian;
 import com.linpinger.tool.Activity_FileChooser;
 import com.linpinger.tool.FoxZipReader;
 import com.linpinger.tool.ToolAndroid;
-import com.linpinger.tool.ToolBookJava;
-
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
@@ -28,15 +25,19 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.view.ContextMenu;
+import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.view.WindowManager;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -161,7 +162,6 @@ public class Activity_ShowPage4Eink extends Activity {
 		mv.setBodyBold(settings.getBoolean("isBodyBold", false));
 
 		setContentView(mv);
-		this.registerForContextMenu(mv); // 绑定上下文菜单
 		mv.setOnTouchListener(new OnTouchListener(){ // 触摸事件
 			@Override
 			public boolean onTouch(View arg0, MotionEvent arg1) {
@@ -189,6 +189,15 @@ public class Activity_ShowPage4Eink extends Activity {
 					mv.clickNext();
 				}
 			}
+		});
+		mv.setOnLongClickListener(new OnLongClickListener(){
+			@Override
+			public boolean onLongClick(View v) {
+				// showMenu();
+				showEinkPopupWindow(v);
+				return false;
+			}
+			
 		});
 
 		tLastPushEinkButton = System.currentTimeMillis();
@@ -311,48 +320,90 @@ switch (ittAction) {
 
 	} // oncreate 结束
 
-
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-		if ( v == mv ) { // menu.setHeaderTitle("菜单名");
-			getMenuInflater().inflate(R.menu.showpage4eink, menu);
-			MenuItem mit ;
-			int itemcount = menu.size();
-			for ( int i=0; i< itemcount; i++){ // 显示/隐藏菜单
-				mit = menu.getItem(i);
-				switch ( mit.getItemId() ) {
-					case R.id.sp_set_size_up:
-					case R.id.sp_set_size_down:
-					case R.id.paddingup:
-					case R.id.paddingdown:
-					case R.id.sp_set_linespace_up:
-					case R.id.sp_set_linespace_down:
-					case R.id.userfont:
-					case R.id.selectFont:
-					case R.id.setting:
-					case R.id.group1:
-						mit.setVisible(isShowSettingMenus);
-						break;
-					case R.id.show_next:
-					case R.id.show_prev:
-						mit.setVisible( ! isShowSettingMenus );
-						break;
-					case R.id.ck_isShowSettingMenus:
-						mit.setChecked(isShowSettingMenus);
-						if ( isShowSettingMenus )
-							mit.setTitle("已显示设置菜单");
-						else
-							mit.setTitle("已隐藏设置菜单");
-						break;
-					default:
-						break;
-				}
+	private void showEinkPopupWindow(View view) {
+		// 一个自定义的布局，作为显示的内容
+		View popView = LayoutInflater.from(getApplicationContext()).inflate(R.layout.popup_window_showpage, null);
+		
+		// 设置按钮的点击事件
+		popView.findViewById(R.id.popFO).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mv.clickPrev(); // 上一页
 			}
-		}
-		super.onCreateContextMenu(menu, v, menuInfo);
+		});
+
+		final PopupWindow popupWindow = new PopupWindow(popView, 
+				LayoutParams.WRAP_CONTENT,
+				LayoutParams.WRAP_CONTENT,
+				true); // MATCH_PARENT
+
+		popupWindow.setTouchable(true);
+
+		popupWindow.setTouchInterceptor(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View arg0, MotionEvent arg1) {
+				return false; // 这里如果返回true的话，touch事件将被拦截，拦截后 PopupWindow的onTouchEvent不被调用，这样点击外部区域无法dismiss
+			}
+		});
+
+
+		// 如果不设置PopupWindow的背景，无论是点击外部区域还是Back键都无法dismiss弹框
+		// 我觉得这里是API的一个bug
+		popupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.showpage_popup_bakcround));
+
+		// 设置好参数之后再show
+		//popupWindow.showAsDropDown(view);
+//		int[] location = new int[2];
+//		view.getLocationOnScreen(location);
+//		popupWindow.showAtLocation(view, Gravity.NO_GRAVITY, 0, location[1]); // 左上角
+		popupWindow.showAtLocation(view, Gravity.BOTTOM|Gravity.CENTER, 0, 0); // 底部中间
 	}
 
-	public boolean onContextItemSelected(MenuItem item) {
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.showpage4eink, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		MenuItem mit ;
+		int itemcount = menu.size();
+		for ( int i=0; i< itemcount; i++){ // 显示/隐藏菜单
+			mit = menu.getItem(i);
+			switch ( mit.getItemId() ) {
+				case R.id.sp_set_size_up:
+				case R.id.sp_set_size_down:
+				case R.id.paddingup:
+				case R.id.paddingdown:
+				case R.id.sp_set_linespace_up:
+				case R.id.sp_set_linespace_down:
+				case R.id.userfont:
+				case R.id.selectFont:
+				case R.id.setting:
+				case R.id.group1:
+					mit.setVisible(isShowSettingMenus);
+					break;
+				case R.id.show_next:
+				case R.id.show_prev:
+					mit.setVisible( ! isShowSettingMenus );
+					break;
+				case R.id.ck_isShowSettingMenus:
+					mit.setChecked(isShowSettingMenus);
+					if ( isShowSettingMenus )
+						mit.setTitle("已显示设置菜单");
+					else
+						mit.setTitle("已隐藏设置菜单");
+					break;
+				default:
+					break;
+			}
+		}
+		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.ck_isShowSettingMenus:
 			isShowSettingMenus = ! item.isChecked(); // 根据选项是否选中确定是否开启
@@ -449,7 +500,7 @@ switch (ittAction) {
 			startActivityForResult(itt, 9);
 			break;
 		}
-		return true;
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -502,9 +553,9 @@ switch (ittAction) {
 		if ( KeyEvent.KEYCODE_PAGE_DOWN == kc | KeyEvent.KEYCODE_PAGE_UP == kc | KeyEvent.KEYCODE_VOLUME_UP == kc | KeyEvent.KEYCODE_VOLUME_DOWN == kc ) {
 			return true;
 		}
-		if ( KeyEvent.KEYCODE_MENU == kc & event.getAction() == KeyEvent.ACTION_UP ) {
-			this.showMenu();
-		}
+//		if ( KeyEvent.KEYCODE_MENU == kc & event.getAction() == KeyEvent.ACTION_UP ) {
+//			this.showMenu();
+//		}
 		return super.dispatchKeyEvent(event);
 	}
 
@@ -515,7 +566,7 @@ switch (ittAction) {
 		this.finish();
 	}
 	private void showMenu() {
-		this.openContextMenu(mv);
+		this.openOptionsMenu();
 	}
 	private void setBGcolor(String bgcolor) {
 		myBGcolor = bgcolor ;
