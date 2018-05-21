@@ -18,7 +18,7 @@ public class FoxUpdatePkg {
 	public FoxUpdatePkg(Context context) {
 		this.mContext = context;
 
-		// ¸ù¾İÉèÖÃÑ¡ÔñÉı¼¶ÏßÂ·£¬Ä¬ÈÏ:github
+		// æ ¹æ®è®¾ç½®é€‰æ‹©å‡çº§çº¿è·¯ï¼Œé»˜è®¤:github
 		String upline = PreferenceManager.getDefaultSharedPreferences(context).getString("upgrade_line", "github");
 		if (upline.equalsIgnoreCase("github") ) {
 			this.urlVersion = "http://linpinger.github.io/bin/foxbook-android/version" ;
@@ -32,17 +32,17 @@ public class FoxUpdatePkg {
 
 	public int FoxCheckUpdate() {
 		HashMap<String, Object> remoteVer = getRemoteVersion();
-		int newVer = Integer.valueOf((String)remoteVer.get("date")); // Ô¶³ÌÈÕÆÚ
+		int newVer = Integer.valueOf((String)remoteVer.get("date")); // è¿œç¨‹æ—¥æœŸ
 		String newURL = (String)remoteVer.get("url");
 		String newSHA1 = (String)remoteVer.get("sha1");
-		int oldVer = getVersion(mContext); // ±¾³ÌĞòÈÕÆÚ
+		int oldVer = getVersion(mContext); // æœ¬ç¨‹åºæ—¥æœŸ
 		if ( newVer <= oldVer ) { return 0 ; }
 		if ( newURL == "" )
 			ToolBookJava.saveHTTPFile(urlAPK, apkPATH);
 		else
 			ToolBookJava.saveHTTPFile(newURL, apkPATH) ;
 		String realSHA1 = ToolJava.getFileHash(new File(apkPATH), "SHA1") ;
-		if ( newSHA1.compareToIgnoreCase(realSHA1) != 0 ) { return 0 ; } // sha1Öµ²»¶Ô
+		if ( newSHA1.compareToIgnoreCase(realSHA1) != 0 ) { return 0 ; } // sha1å€¼ä¸å¯¹
 		return newVer;
 	}
 
@@ -61,7 +61,7 @@ public class FoxUpdatePkg {
 
 	private int getVersion(Context context) {
 		String versionCode = "";
-		try { // »ñÈ¡Èí¼ş°æ±¾ºÅ£¬·µ»ØÀàËÆ: 20140101
+		try { // è·å–è½¯ä»¶ç‰ˆæœ¬å·ï¼Œè¿”å›ç±»ä¼¼: 20140101
 			versionCode = context.getPackageManager().getPackageInfo("com.linpinger.foxbook", 0).versionName;
 		} catch (Exception e) {
 			System.err.println(e.toString());

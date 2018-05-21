@@ -76,7 +76,7 @@ public class StorDB3 extends Stor {
 		Map<String, Object> info;
 		ContentValues vv ;
 		long bookid = 0 ;
-		db.beginTransaction();// ¿ªÆôÊÂÎñ
+		db.beginTransaction();// å¼€å¯äº‹åŠ¡
 		try {
 			for (Novel novel : inList) {
 				info = novel.getInfo();
@@ -97,7 +97,7 @@ public class StorDB3 extends Stor {
 							, page.get(NV.Size) });
 				}
 			}
-			db.setTransactionSuccessful();// ÉèÖÃÊÂÎñµÄ±êÖ¾ÎªTrue
+			db.setTransactionSuccessful();// è®¾ç½®äº‹åŠ¡çš„æ ‡å¿—ä¸ºTrue
 		} finally {
 			db.endTransaction();
 		}

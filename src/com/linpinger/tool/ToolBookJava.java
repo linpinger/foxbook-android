@@ -27,11 +27,11 @@ import com.linpinger.novel.NV;
 public class ToolBookJava {
 
 /*
-	public static String simplifyDelList2(String DelList) { // ¾«¼ò DelList
+	public static String simplifyDelList2(String DelList) { // ç²¾ç®€ DelList
 		int qi = 0;
 		int zhi = 0;
-		if (DelList.contains("ÆğÖ¹=")) {
-			Matcher mat = Pattern.compile("(?i)ÆğÖ¹=([0-9\\-]+),([0-9\\-]+)").matcher(DelList);
+		if (DelList.contains("èµ·æ­¢=")) {
+			Matcher mat = Pattern.compile("(?i)èµ·æ­¢=([0-9\\-]+),([0-9\\-]+)").matcher(DelList);
 			while (mat.find()) {
 				qi = Integer.valueOf(mat.group(1));
 				zhi = Integer.valueOf(mat.group(2));
@@ -49,9 +49,9 @@ public class ToolBookJava {
 			newList.append(xx[MaxLineCount + i]).append("\n");
 		}
 		if (zhi > 0) {
-			return "ÆğÖ¹=" + qi + "," + String.valueOf(zhi + MaxLineCount - 1) + "\n" + newList.toString();
+			return "èµ·æ­¢=" + qi + "," + String.valueOf(zhi + MaxLineCount - 1) + "\n" + newList.toString();
 		} else {
-			return "ÆğÖ¹=" + qi + "," + String.valueOf(zhi + MaxLineCount) + "\n" + newList.toString();
+			return "èµ·æ­¢=" + qi + "," + String.valueOf(zhi + MaxLineCount) + "\n" + newList.toString();
 		}
 	}
 */
@@ -61,8 +61,8 @@ public class ToolBookJava {
 	public static List compare2GetNewPages2(List<Map<String, Object>> xx, String existList) {
 		existList = existList.toLowerCase();
 		int xxSize = xx.size();
-		if (existList.contains("ÆğÖ¹=")) { // ¸ù¾İ ÆğÖ¹ ¹ıÂËÒ»ÏÂ xx
-			Matcher mat = Pattern.compile("(?i)ÆğÖ¹=([0-9-]+),([0-9-]+)").matcher(existList);
+		if (existList.contains("èµ·æ­¢=")) { // æ ¹æ® èµ·æ­¢ è¿‡æ»¤ä¸€ä¸‹ xx
+			Matcher mat = Pattern.compile("(?i)èµ·æ­¢=([0-9-]+),([0-9-]+)").matcher(existList);
 			int qz_1 = 0;
 			int qz_2 = 0;
 			while (mat.find()) {
@@ -71,7 +71,7 @@ public class ToolBookJava {
 			}
 
 			ArrayList<Map<String, Object>> nXX = new ArrayList<Map<String, Object>>(30);
-			// ÏÂÃæµÄ³õÊ¼Öµ¼°ÅĞ¶ÏË³Ğò×îºÃ²»ÒªËæ±ã±ä¶¯
+			// ä¸‹é¢çš„åˆå§‹å€¼åŠåˆ¤æ–­é¡ºåºæœ€å¥½ä¸è¦éšä¾¿å˜åŠ¨
 			int sIdx = 0;
 			int eIdx = xxSize;
 			int leftIdx = 0;
@@ -90,10 +90,10 @@ public class ToolBookJava {
 					nXX.add(xx.get(nSIdx));
 				}
 				xx = nXX;
-			} else { // ÕÂ½ÚÊıÁ¿Îª¸º
+			} else { // ç« èŠ‚æ•°é‡ä¸ºè´Ÿ
 				if (55 == xxSize) {
 					String jj[] = existList.split("\n");
-					if (jj.length > 2) { // ½ØÈ¡ÒÑÉ¾³ı¼ÇÂ¼ÖĞµÚÒ»ÌõÖ®ºóµÄ¼ÇÂ¼£¬Èç¹ûĞÂÕÂ½Ú>55¿ÉÄÜ»á±¯¾ç
+					if (jj.length > 2) { // æˆªå–å·²åˆ é™¤è®°å½•ä¸­ç¬¬ä¸€æ¡ä¹‹åçš„è®°å½•ï¼Œå¦‚æœæ–°ç« èŠ‚>55å¯èƒ½ä¼šæ‚²å‰§
 						String sToBeComp = jj[jj.length - 2];
 						ArrayList<Map<String, Object>> nX2 = new ArrayList<Map<String, Object>>(30);
 						Iterator itr = xx.iterator();
@@ -115,27 +115,27 @@ public class ToolBookJava {
 					} else {
 						System.out.println("error: jj < 2 : " + jj.length);
 					}
-				} else {  // ÏÂÃæ·ÅµÄ´úÂëÊÇÃ»ÓĞĞÂÕÂ½ÚµÄ´¦Àí·½·¨
+				} else {  // ä¸‹é¢æ”¾çš„ä»£ç æ˜¯æ²¡æœ‰æ–°ç« èŠ‚çš„å¤„ç†æ–¹æ³•
 					return new ArrayList<HashMap<String, Object>>();
 				}
 			}
 		}
 
-		// ±È½ÏµÃµ½ĞÂÕÂ½Ú
+		// æ¯”è¾ƒå¾—åˆ°æ–°ç« èŠ‚
 		String nowURL;
 		ArrayList<HashMap<String, Object>> newPages = new ArrayList<HashMap<String, Object>>();
 		Iterator<Map<String, Object>> itr = xx.iterator();
 		while (itr.hasNext()) {
 			HashMap<String, Object> mm = (HashMap<String, Object>) itr.next();
 			nowURL = (String) mm.get("url");
-			if (!existList.contains(nowURL.toLowerCase() + "|")) { // ĞÂÕÂ½Ú
+			if (!existList.contains(nowURL.toLowerCase() + "|")) { // æ–°ç« èŠ‚
 				newPages.add(mm);
 			}
 		}
 		return newPages;
 	}
 */
-	public static String simplifyDelList(String DelList) { // ¾«¼ò DelList
+	public static String simplifyDelList(String DelList) { // ç²¾ç®€ DelList
 		int nLastItem = 9;
 		DelList = DelList.replace("\r", "").replace("\n\n", "\n");
 		String[] xx = DelList.split("\n");
@@ -151,7 +151,7 @@ public class ToolBookJava {
 		return newList.toString();
 	}
 
-	// È¡µ¹Êı¼¸¸öÔªËØ£¬±»ÉÏÃæÕâ¸öµ÷ÓÃ
+	// å–å€’æ•°å‡ ä¸ªå…ƒç´ ï¼Œè¢«ä¸Šé¢è¿™ä¸ªè°ƒç”¨
 	public static List<Map<String, Object>> getLastNPage(List<Map<String, Object>> inArrayList, int lastNpage) {
 		int aSize = inArrayList.size();
 		if (aSize <= lastNpage || lastNpage <= 0) {
@@ -166,16 +166,16 @@ public class ToolBookJava {
 
 	public static List<Map<String, Object>> compare2GetNewPages(List<Map<String, Object>> listURLName, String DelList) {
 		int linkSize = listURLName.size();
-		if ( 0 == linkSize ) // aHTMLÎª¿Õ(¿ÉÄÜÍøÒ³ÏÂÔØÓĞÎÊÌâ)
+		if ( 0 == linkSize ) // aHTMLä¸ºç©º(å¯èƒ½ç½‘é¡µä¸‹è½½æœ‰é—®é¢˜)
 			return listURLName ;
-		if ( ! DelList.contains("|") ) // µ±DelListÎª¿Õ£¬·µ»ØÔ­Êı×é
+		if ( ! DelList.contains("|") ) // å½“DelListä¸ºç©ºï¼Œè¿”å›åŸæ•°ç»„
 			return listURLName ;
 
-		// »ñÈ¡ DelList µÚÒ»ĞĞµÄ URL : BaseLineURL
+		// è·å– DelList ç¬¬ä¸€è¡Œçš„ URL : BaseLineURL
 		int fFF = DelList.indexOf("|");
 		String BaseLineURL = DelList.substring(1 + DelList.lastIndexOf("\n", fFF), fFF);
 
-		// ²éµ½Êı×éaHTMLÖĞµÈÓÚBaseLineURLµÄĞĞºÅ£¬²¢É¾³ı1µ½¸ÃĞĞºÅµÄËùÓĞÔªËØ
+		// æŸ¥åˆ°æ•°ç»„aHTMLä¸­ç­‰äºBaseLineURLçš„è¡Œå·ï¼Œå¹¶åˆ é™¤1åˆ°è¯¥è¡Œå·çš„æ‰€æœ‰å…ƒç´ 
 		int EndIdx = 0 ;
 		String nowURL ;
 		for (int nowIdx = 0; nowIdx < linkSize; nowIdx++) {
@@ -190,7 +190,7 @@ public class ToolBookJava {
 		}
 		linkSize = listURLName.size();
 
-		// ¶Ô±ÈÊ£ÓàµÄaHTMLºÍDelList£¬µÃµ½ĞÂµÄaNewRet²¢·µ»Ø
+		// å¯¹æ¯”å‰©ä½™çš„aHTMLå’ŒDelListï¼Œå¾—åˆ°æ–°çš„aNewRetå¹¶è¿”å›
 		List<Map<String, Object>> aNewRet = new ArrayList<Map<String, Object>>(30);
 		for (int nowIdx = 0; nowIdx < linkSize; nowIdx++) {
 			nowURL = listURLName.get(nowIdx).get(NV.PageURL).toString();
@@ -203,11 +203,11 @@ public class ToolBookJava {
 
 
 /*
-	public static String simplifyDelList2(String DelList) { // ¾«¼ò DelList
+	public static String simplifyDelList2(String DelList) { // ç²¾ç®€ DelList
 		int qi = 0;
 		int zhi = 0;
-		if (DelList.contains("ÆğÖ¹=")) {
-			Matcher mat = Pattern.compile("(?i)ÆğÖ¹=([0-9\\-]+),([0-9\\-]+)").matcher(DelList);
+		if (DelList.contains("èµ·æ­¢=")) {
+			Matcher mat = Pattern.compile("(?i)èµ·æ­¢=([0-9\\-]+),([0-9\\-]+)").matcher(DelList);
 			while (mat.find()) {
 				qi = Integer.valueOf(mat.group(1));
 				zhi = Integer.valueOf(mat.group(2));
@@ -225,14 +225,14 @@ public class ToolBookJava {
 			newList.append(xx[MaxLineCount + i]).append("\n");
 		}
 		if (zhi > 0) {
-			return "ÆğÖ¹=" + qi + "," + String.valueOf(zhi + MaxLineCount - 1) + "\n" + newList.toString();
+			return "èµ·æ­¢=" + qi + "," + String.valueOf(zhi + MaxLineCount - 1) + "\n" + newList.toString();
 		} else {
-			return "ÆğÖ¹=" + qi + "," + String.valueOf(zhi + MaxLineCount) + "\n" + newList.toString();
+			return "èµ·æ­¢=" + qi + "," + String.valueOf(zhi + MaxLineCount) + "\n" + newList.toString();
 		}
 	}
 */
 
-	public static List<Map<String, Object>> getSearchEngineHref(String html, String KeyWord) { // String KeyWord = "Èı½çÑª¸è" ;
+	public static List<Map<String, Object>> getSearchEngineHref(String html, String KeyWord) { // String KeyWord = "ä¸‰ç•Œè¡€æ­Œ" ;
 		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(64);
 		Map<String, Object> item;
 
@@ -247,7 +247,7 @@ public class ToolBookJava {
 		html = html.replace("<strong>", "");
 		html = html.replace("</strong>", "");
 
-		// »ñÈ¡Á´½Ó ²¢´æÈë½á¹¹ÖĞ
+		// è·å–é“¾æ¥ å¹¶å­˜å…¥ç»“æ„ä¸­
 		Matcher mat = Pattern.compile("(?smi)href *= *[\"']?([^>\"']+)[\"']?[^>]*> *([^<]+)<").matcher(html);
 		while (mat.find()) {
 			if (2 == mat.groupCount()) {
@@ -270,7 +270,7 @@ public class ToolBookJava {
 		return data;
 	}
 
-	public static String getFullURL(String baseURL, String subURL) { // »ñÈ¡ÍêÕûÂ·¾¶
+	public static String getFullURL(String baseURL, String subURL) { // è·å–å®Œæ•´è·¯å¾„
 		String allURL = "";
 		try {
 			allURL = (new URL(new URL(baseURL), subURL)).toString();
@@ -280,7 +280,7 @@ public class ToolBookJava {
 		return allURL;
 	}
 
-	//»ñÈ¡ÍøÂçÎÄ¼ş£¬×ª´æµ½outPathÖĞ£¬outPathĞèÒª´øÎÄ¼şºó×ºÃû£¬·µ»ØÎÄ¼ş´óĞ¡
+	//è·å–ç½‘ç»œæ–‡ä»¶ï¼Œè½¬å­˜åˆ°outPathä¸­ï¼ŒoutPathéœ€è¦å¸¦æ–‡ä»¶åç¼€åï¼Œè¿”å›æ–‡ä»¶å¤§å°
 	public static int saveHTTPFile(String inURL, String outPath) {
 		int oLen = 0 ;
 		File toFile = new File(outPath);
@@ -318,13 +318,13 @@ public class ToolBookJava {
 			String html = "";
 			if (pageCharSet == "") {
 				html = new String(buf, "gbk");
-				if (html.matches("(?smi).*<meta[^>]*charset=[\"]?(utf8|utf-8)[\"]?.*")) // Ì½²â±àÂë
+				if (html.matches("(?smi).*<meta[^>]*charset=[\"]?(utf8|utf-8)[\"]?.*")) // æ¢æµ‹ç¼–ç 
 					html = new String(buf, "utf-8");
 			} else {
 				html = new String(buf, pageCharSet);
 			}
 			return html;
-		} catch (Exception e) { // ´íÎó ÊÇÉñÂí
+		} catch (Exception e) { // é”™è¯¯ æ˜¯ç¥é©¬
 			System.err.println(e.toString());
 			return "";
 		}
@@ -346,28 +346,28 @@ public class ToolBookJava {
 				conn.setRequestProperty("Cookie", iCookie);
 
 			if (inURL.contains(".13xs."))
-				conn.setRequestProperty("User-Agent", "ZhuiShuShenQi/3.26"); // 2015-10-27: qqxsÊ¹ÓÃ¼ÓËÙ±¦£¬´øJavaµÄÍ·»á±»ºÍĞ³
+				conn.setRequestProperty("User-Agent", "ZhuiShuShenQi/3.26"); // 2015-10-27: qqxsä½¿ç”¨åŠ é€Ÿå®ï¼Œå¸¦Javaçš„å¤´ä¼šè¢«å’Œè°
 			else
-				conn.setRequestProperty("User-Agent", "ZhuiShuShenQi/3.26 Java/1.6.0_55"); // Android×Ô´øÍ·²¿ºÍIE8Í·²¿»áµ¼ÖÂyahooËÑË÷½á¹ûÁ´½ÓÎª×·×ÙÁ´½Ó
+				conn.setRequestProperty("User-Agent", "ZhuiShuShenQi/3.26 Java/1.6.0_55"); // Androidè‡ªå¸¦å¤´éƒ¨å’ŒIE8å¤´éƒ¨ä¼šå¯¼è‡´yahooæœç´¢ç»“æœé“¾æ¥ä¸ºè¿½è¸ªé“¾æ¥
 
-			if (!inURL.contains("files.qidian.com")) // 2015-4-16: qidian txt Ê¹ÓÃcdn¼ÓËÙ£¬Èç¹ûÍ·ÀïÓĞgzip¾Í»á·µ»Ø´íÎóµÄgzÊı¾İ
+			if (!inURL.contains("files.qidian.com")) // 2015-4-16: qidian txt ä½¿ç”¨cdnåŠ é€Ÿï¼Œå¦‚æœå¤´é‡Œæœ‰gzipå°±ä¼šè¿”å›é”™è¯¯çš„gzæ•°æ®
 				conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
 			else
-				conn.setRequestProperty("Accept-Encoding", "*"); // Android »á×Ô¶¯¼ÓÉÏgzip£¬Õæ¿Ó£¬Ê¹ÓÃ*¸²¸ÇÖ®£¬ÆğµãCDN¾ÍÄÜÕıÈ·´¦ÀíÁË
+				conn.setRequestProperty("Accept-Encoding", "*"); // Android ä¼šè‡ªåŠ¨åŠ ä¸Šgzipï¼ŒçœŸå‘ï¼Œä½¿ç”¨*è¦†ç›–ä¹‹ï¼Œèµ·ç‚¹CDNå°±èƒ½æ­£ç¡®å¤„ç†äº†
 
 			conn.setRequestProperty("Accept", "*/*");
 			conn.setConnectTimeout(5000);
-			conn.setReadTimeout(5000);	// ¶ÁÈ¡³¬Ê±5s
+			conn.setReadTimeout(5000);	// è¯»å–è¶…æ—¶5s
 			conn.setUseCaches(false);	 // Cache-Control: no-cache	 Pragma: no-cache
 
-			conn.connect();  // ¿ªÊ¼Á¬½Ó
-			if ("GET" != PostData) {  // ·¢ËÍPostData
+			conn.connect();  // å¼€å§‹è¿æ¥
+			if ("GET" != PostData) {  // å‘é€PostData
 				conn.getOutputStream().write(PostData.getBytes("UTF-8"));
 				conn.getOutputStream().flush();
 				conn.getOutputStream().close();
 			}
 
-			// Õâ¸öÅĞ¶Ï·µ»Ø×´Ì¬£¬±¾À´ÏëÅĞ¶Ï´íÎó£¬½á¹û¼òµ¥µÄÖØĞÂconnect²»ĞĞ£¬²»ÈçÖØĞÂÀ´¹ı°É
+			// è¿™ä¸ªåˆ¤æ–­è¿”å›çŠ¶æ€ï¼Œæœ¬æ¥æƒ³åˆ¤æ–­é”™è¯¯ï¼Œç»“æœç®€å•çš„é‡æ–°connectä¸è¡Œï¼Œä¸å¦‚é‡æ–°æ¥è¿‡å§
 			/*
 			int responseCode = conn.getResponseCode();
 			if (responseCode != HttpURLConnection.HTTP_OK) {
@@ -376,17 +376,17 @@ public class ToolBookJava {
 			}
 			*/
 
-			// ÅĞ¶Ï·µ»ØµÄÊÇ·ñÊÇgzipÊı¾İ
+			// åˆ¤æ–­è¿”å›çš„æ˜¯å¦æ˜¯gzipæ•°æ®
 			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 			byte[] buffer = new byte[8192];
 			int len = 0;
-			// ·µ»ØµÄ×Ö¶Î: Content-Encoding: gzip/null ÅĞ¶ÏÊÇ·ñÊÇgzip
-			if (null == conn.getContentEncoding()) { // ²»ÊÇgzipÊı¾İ
+			// è¿”å›çš„å­—æ®µ: Content-Encoding: gzip/null åˆ¤æ–­æ˜¯å¦æ˜¯gzip
+			if (null == conn.getContentEncoding()) { // ä¸æ˜¯gzipæ•°æ®
 				InputStream in = conn.getInputStream();
 				while ((len = in.read(buffer)) != -1)
 					outStream.write(buffer, 0, len);
 				in.close();
-			} else { // gzip Ñ¹Ëõ´¦Àí
+			} else { // gzip å‹ç¼©å¤„ç†
 				InputStream in = conn.getInputStream();
 				GZIPInputStream gzin = new GZIPInputStream(in);
 				while ((len = gzin.read(buffer)) != -1)
@@ -397,13 +397,13 @@ public class ToolBookJava {
 
 			buf = outStream.toByteArray();
 			outStream.close();
-		} catch (Exception e) { // ´íÎó ÊÇÉñÂí
+		} catch (Exception e) { // é”™è¯¯ æ˜¯ç¥é©¬
 			System.err.println(e.toString());
 		}
 		return buf;
 	}
 
-	// Wget Cookie ×ªÎªHTTPÍ·ÖĞCookie×Ö¶Î
+	// Wget Cookie è½¬ä¸ºHTTPå¤´ä¸­Cookieå­—æ®µ
 	public static String cookie2Field(String iCookie) {
 		String oStr = "" ;
 		Matcher mat = Pattern.compile("(?smi)\t[0-9]*\t([^\t]*)\t([^\r\n]*)").matcher(iCookie);
@@ -415,7 +415,7 @@ public class ToolBookJava {
 	}
 
 	/**
-	 * ÉÏ´«ÎÄ¼ş
+	 * ä¸Šä¼ æ–‡ä»¶
 	 * @param urlStr
 	 * @param fileMap
 	 * @return
@@ -432,7 +432,7 @@ public class ToolBookJava {
 		// http://blog.csdn.net/wangpeng047/article/details/38303865
 		String res = "";
 		HttpURLConnection conn = null;
-		String BOUNDARY = "---------------------------123821742118716"; //boundary¾ÍÊÇrequestÍ·ºÍÉÏ´«ÎÄ¼şÄÚÈİµÄ·Ö¸ô·û
+		String BOUNDARY = "---------------------------123821742118716"; //boundaryå°±æ˜¯requestå¤´å’Œä¸Šä¼ æ–‡ä»¶å†…å®¹çš„åˆ†éš”ç¬¦
 		try {
 			URL url = new URL(urlStr);
 			conn = (HttpURLConnection) url.openConnection();
@@ -480,7 +480,7 @@ public class ToolBookJava {
 
 					StringBuffer strBuf = new StringBuffer();
 					//strBuf.append("\r\n").append("--").append(BOUNDARY).append("\r\n");
-					strBuf.append("--").append(BOUNDARY).append("\r\n");  // ¶àÒ»¸ö\n»áÊ¹nanohttpd±ÀÀ£µÄÇ×
+					strBuf.append("--").append(BOUNDARY).append("\r\n");  // å¤šä¸€ä¸ª\nä¼šä½¿nanohttpdå´©æºƒçš„äº²
 					strBuf.append("Content-Disposition: form-data; name=\"" + inputName + "\"; filename=\"" + filename + "\"\r\n");
 					strBuf.append("Content-Type: application/octet-stream\r\n\r\n");
 
@@ -500,7 +500,7 @@ public class ToolBookJava {
 			out.flush();
 			out.close();
 
-			// ¶ÁÈ¡·µ»ØÊı¾İ
+			// è¯»å–è¿”å›æ•°æ®
 			StringBuffer strBuf = new StringBuffer();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 			String line = null;
@@ -510,7 +510,7 @@ public class ToolBookJava {
 			reader.close();
 			reader = null;
 		} catch (Exception e) {
-			System.err.println("·¢ËÍPOSTÇëÇó³ö´í¡£" + urlStr + "\n" + e.toString());
+			System.err.println("å‘é€POSTè¯·æ±‚å‡ºé”™ã€‚" + urlStr + "\n" + e.toString());
 		} finally {
 			if (conn != null) {
 				conn.disconnect();
@@ -520,4 +520,4 @@ public class ToolBookJava {
 		return res;
 	}
 
-} // Àà½áÊø
+} // ç±»ç»“æŸ

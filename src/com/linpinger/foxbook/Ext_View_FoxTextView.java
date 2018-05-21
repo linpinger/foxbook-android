@@ -15,32 +15,32 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.view.View;
 
-//ÔÚActivityÖĞÊ¹ÓÃ View.setOnClickListener °ó¶¨µã»÷ÊÂ¼ş£¬ÃâµÃ×Ô¼ºÀ´ÅĞ¶Ï
+//åœ¨Activityä¸­ä½¿ç”¨ View.setOnClickListener ç»‘å®šç‚¹å‡»äº‹ä»¶ï¼Œå…å¾—è‡ªå·±æ¥åˆ¤æ–­
 public class Ext_View_FoxTextView extends View {
 
 	private FoxBroadcastReceiver bc_rcv;
 	private Context ctx ;
 	private Paint p;
 
-	// ÅäÖÃ
-	String txt = "Ä¾ÓĞÄÚÈİ£¬ÉÔµÈ¿ÉÄÜÕıÔÚÏÂÔØ£¬Èç¹û³¤Ê±¼äÄ¾ÓĞ·´Ó¦£¬Çë·µ»Ø";
-	String firstPageInfoL = "" ; // µÚÒ»Ò³Ê±£¬ÔÚ×ó²àĞÅÏ¢´¦ÏÔÊ¾µÄĞÅÏ¢
-	String infoL = "ÎÒÊÇÃÈÃÈßÕ±êÌâ";
+	// é…ç½®
+	String txt = "æœ¨æœ‰å†…å®¹ï¼Œç¨ç­‰å¯èƒ½æ­£åœ¨ä¸‹è½½ï¼Œå¦‚æœé•¿æ—¶é—´æœ¨æœ‰ååº”ï¼Œè¯·è¿”å›";
+	String firstPageInfoL = "" ; // ç¬¬ä¸€é¡µæ—¶ï¼Œåœ¨å·¦ä¾§ä¿¡æ¯å¤„æ˜¾ç¤ºçš„ä¿¡æ¯
+	String infoL = "æˆ‘æ˜¯èŒèŒå“’æ ‡é¢˜";
 	String infoR = "15:55  0%";
 	int batteryLevel = 0;
 	float lineSpaceing = 1.5f ;
 	float paddingMulti = 0.5f ;
 
-//	private boolean bDrawSplitLine = false ; // µ÷ÊÔÓÃµÄ
+//	private boolean bDrawSplitLine = false ; // è°ƒè¯•ç”¨çš„
 	private float fontSize = 36.0f ; // E-ink:26 Mobile:34 Mi:26
-	private boolean bUseUserFont = false ; // Ê¹ÓÃÓÃ»§×ÖÌå
-	private String userFontPath = "/sdcard/fonts/foxfont.ttf"; // ÓÃ»§×ÖÌåÂ·¾¶
+	private boolean bUseUserFont = false ; // ä½¿ç”¨ç”¨æˆ·å­—ä½“
+	private String userFontPath = "/sdcard/fonts/foxfont.ttf"; // ç”¨æˆ·å­—ä½“è·¯å¾„
 
 //	private float clickX = 0 ;
 //	private float clickY = 0 ;
-	private int nowPageNum = 0 ; // µÚÒ»ÆÁÎª0
-	private boolean isLastPage = false ; //ÊÇ·ñÔÚ×îºóÒ»Ò³
-	private boolean isBodyBold = false ; // ÕıÎÄÊÇ·ñ¼Ó´Ö
+	private int nowPageNum = 0 ; // ç¬¬ä¸€å±ä¸º0
+	private boolean isLastPage = false ; //æ˜¯å¦åœ¨æœ€åä¸€é¡µ
+	private boolean isBodyBold = false ; // æ­£æ–‡æ˜¯å¦åŠ ç²—
 
 	private ArrayList<String> lines ;
 	private int lastTxtHashCode = 0 ;
@@ -53,13 +53,13 @@ public class Ext_View_FoxTextView extends View {
 		p = new Paint();
 		p.setAntiAlias(true);
 		p.setSubpixelText(true); 
-		p.setColor(Color.BLACK); // ÑÕÉ«
+		p.setColor(Color.BLACK); // é¢œè‰²
 
 		fontSize = (float)ToolAndroid.sp2px(ctx, 18.5f);
 
 		bc_rcv = new FoxBroadcastReceiver();
-		ctx.registerReceiver(bc_rcv, new IntentFilter(Intent.ACTION_BATTERY_CHANGED)); // µçÁ¿±ä¶¯
-		ctx.registerReceiver(bc_rcv, new IntentFilter(Intent.ACTION_TIME_CHANGED)); // Ê±¼ä±ä¶¯ ACTION_TIME_TICK
+		ctx.registerReceiver(bc_rcv, new IntentFilter(Intent.ACTION_BATTERY_CHANGED)); // ç”µé‡å˜åŠ¨
+		ctx.registerReceiver(bc_rcv, new IntentFilter(Intent.ACTION_TIME_CHANGED)); // æ—¶é—´å˜åŠ¨ ACTION_TIME_TICK
 	}
 
 	public void setBodyBold(boolean bBold) {
@@ -68,23 +68,23 @@ public class Ext_View_FoxTextView extends View {
 
 	@Override
 	protected void onDetachedFromWindow() {
-		ctx.unregisterReceiver(bc_rcv); // ¹Ø±Õ¹ã²¥½ÓÊÕ
+		ctx.unregisterReceiver(bc_rcv); // å…³é—­å¹¿æ’­æ¥æ”¶
 		super.onDetachedFromWindow();
 	}
 
-	public int setPrevText() { // Ğè±»¸²¸Ç
-		setText("ÉÏÕÂ±êÌâ", "¡¡¡¡ÉÏÕÂÄÚÈİ\n¡¡¡¡Ã´Ã´ßÕ\n");
+	public int setPrevText() { // éœ€è¢«è¦†ç›–
+		setText("ä¸Šç« æ ‡é¢˜", "ã€€ã€€ä¸Šç« å†…å®¹\nã€€ã€€ä¹ˆä¹ˆå“’\n");
 		return 0;
 	}
-	public int setNextText() { // Ğè±»¸²¸Ç
-		setText("ÏÂÕÂ±êÌâ", "¡¡¡¡ÏÂÕÂÄÚÈİ\n¡¡¡¡Ã´Ã´ßÕ\n");
+	public int setNextText() { // éœ€è¢«è¦†ç›–
+		setText("ä¸‹ç« æ ‡é¢˜", "ã€€ã€€ä¸‹ç« å†…å®¹\nã€€ã€€ä¹ˆä¹ˆå“’\n");
 		return 0;
 	}
 
 	public void clickPrev() {
-		if ( nowPageNum == 0) { // µÚÒ»Ò³£¬·­ÉÏÒ»ÕÂ
-			if ( 0 == setPrevText() ) // ÉÏÒ»ÕÂ
-				nowPageNum = -6 ; // »Øµ½ÉÏÕÂÎ²²¿
+		if ( nowPageNum == 0) { // ç¬¬ä¸€é¡µï¼Œç¿»ä¸Šä¸€ç« 
+			if ( 0 == setPrevText() ) // ä¸Šä¸€ç« 
+				nowPageNum = -6 ; // å›åˆ°ä¸Šç« å°¾éƒ¨
 		} else {
 			-- this.nowPageNum ;
 		}
@@ -92,7 +92,7 @@ public class Ext_View_FoxTextView extends View {
 		postInvalidate();
 	}
 	public void clickNext() {
-		if ( isLastPage ) { // ÏÂÒ»ÕÂ
+		if ( isLastPage ) { // ä¸‹ä¸€ç« 
 			setNextText();
 		} else {
 			++ this.nowPageNum ;
@@ -138,80 +138,80 @@ public class Ext_View_FoxTextView extends View {
 		return bUseUserFont;
 	}
 
-//»æÖÆÎÄ±¾API: http://www.cnblogs.com/tianzhijiexian/p/4297664.html
-//canvas.drawColor(Color.WHITE); // °×É«±³¾°
-//canvas.drawColor(Color.parseColor("#EFF8D6")); // ÂÌÉ«
+//ç»˜åˆ¶æ–‡æœ¬API: http://www.cnblogs.com/tianzhijiexian/p/4297664.html
+//canvas.drawColor(Color.WHITE); // ç™½è‰²èƒŒæ™¯
+//canvas.drawColor(Color.parseColor("#EFF8D6")); // ç»¿è‰²
 //Bitmap bg = BitmapFactory.decodeResource(getResources(), R.drawable.parchment_paper);
 //canvas.drawBitmap(bg, new Rect(0,0,bg.getWidth(),bg.getHeight()), new Rect(0,0, cw, ch), p);
 	@Override
 	protected void onDraw(Canvas canvas) {
 		// super.onDraw(canvas);
-		// ¼ÆËã²ÎÊı
+		// è®¡ç®—å‚æ•°
 		float lineHeight = fontSize * lineSpaceing ;
 		float padding = fontSize * paddingMulti ;
 
-		// »ñÈ¡»­²¼µÄ´óĞ¡
+		// è·å–ç”»å¸ƒçš„å¤§å°
 		int cw = canvas.getWidth();
 		int ch = canvas.getHeight();
-//Log.e("OD", "»­²¼: W=" + cw + " H=" + ch);
+//Log.e("OD", "ç”»å¸ƒ: W=" + cw + " H=" + ch);
 
-		// »­Ò»¸ö¿ò
+		// ç”»ä¸€ä¸ªæ¡†
 /*
 		if ( bDrawSplitLine ) {
-			p.setStyle(Paint.Style.STROKE) ; // ¿ÕĞÄ FILL
+			p.setStyle(Paint.Style.STROKE) ; // ç©ºå¿ƒ FILL
 			p.setStrokeWidth(1);
 			Rect textRect = new Rect(new Float(padding).intValue(), new Float(padding).intValue(), new Float(cw - padding).intValue(), new Float(ch - padding).intValue());
 			canvas.drawRect(textRect, p);
-			canvas.drawLine(0, ch/3, cw, 3 + ch / 3, p); // ºáÏß
-			canvas.drawLine(cw/3*2, 0, 3+cw/3*2, ch, p); // ÊúÏß
+			canvas.drawLine(0, ch/3, cw, 3 + ch / 3, p); // æ¨ªçº¿
+			canvas.drawLine(cw/3*2, 0, 3+cw/3*2, ch, p); // ç«–çº¿
 
-			if ( clickX > 0 ) { // »æÖÆµã»÷×ø±êÏß
-				canvas.drawLine(0, clickY, cw, clickY+6, p); // ºáÏß
-				canvas.drawLine(clickX, 0, clickX+6, ch, p); // ÊúÏß
+			if ( clickX > 0 ) { // ç»˜åˆ¶ç‚¹å‡»åæ ‡çº¿
+				canvas.drawLine(0, clickY, cw, clickY+6, p); // æ¨ªçº¿
+				canvas.drawLine(clickX, 0, clickX+6, ch, p); // ç«–çº¿
 			}
 		}
 */
-		// ÉèÖÃ×ÖÌå
+		// è®¾ç½®å­—ä½“
 		if ( bUseUserFont )
-			p.setTypeface(Typeface.createFromFile(new File(userFontPath))); // ÉèÖÃ×ÖÌå
+			p.setTypeface(Typeface.createFromFile(new File(userFontPath))); // è®¾ç½®å­—ä½“
 
 		p.setStyle(Paint.Style.FILL) ;
 		p.setTextSize(fontSize);
 
-		// ¼ÆËãtxtÄÚÈİ¼°maxwidthÊÇ·ñºÍÉÏ´ÎÏàÍ¬£¬ÈôÓĞ²»Í¬ÔòÖØĞÂÉú³Élines£¬Ò²¾ÍÊÇËµÖ»ÔÚµÚÒ»´ÎÉú³É£¬±ÜÃâÃ¿´Î»æÖÆ¶¼Éú³ÉÒ»´Î£¬Õâ¿ÉÊÇ¸öºÄÊ±´ó»§
+		// è®¡ç®—txtå†…å®¹åŠmaxwidthæ˜¯å¦å’Œä¸Šæ¬¡ç›¸åŒï¼Œè‹¥æœ‰ä¸åŒåˆ™é‡æ–°ç”Ÿæˆlinesï¼Œä¹Ÿå°±æ˜¯è¯´åªåœ¨ç¬¬ä¸€æ¬¡ç”Ÿæˆï¼Œé¿å…æ¯æ¬¡ç»˜åˆ¶éƒ½ç”Ÿæˆä¸€æ¬¡ï¼Œè¿™å¯æ˜¯ä¸ªè€—æ—¶å¤§æˆ·
 		int nowTxtHashCode = txt.hashCode();
 		float nowMaxWidth = cw - 2 * padding ;
 		if ( ( lastTxtHashCode != nowTxtHashCode ) || ( lastMaxWidth != nowMaxWidth ) ) {
-			lines = split2lines(txt, p, cw - 2 * padding); // ½«ÄÚÈİ²ğ³ÉĞĞ
+			lines = split2lines(txt, p, cw - 2 * padding); // å°†å†…å®¹æ‹†æˆè¡Œ
 			lastTxtHashCode = nowTxtHashCode ;
 			lastMaxWidth = nowMaxWidth ;
 		}
 
 		int lineCount = lines.size();
 
-		// ¼ÆËãÃ¿ÆÁ×î¶àĞĞÊı
+		// è®¡ç®—æ¯å±æœ€å¤šè¡Œæ•°
 		int linePerScreen = (int) Math.floor( (ch - padding) / lineHeight);
-		int nowPageCount = (int) Math.ceil( lineCount / Double.valueOf((String.valueOf(linePerScreen) + ".0")) ); // ÆÁÊı
-		if (nowPageNum == -6) // ÏòÉÏ·­£¬»Øµ½Î²²¿
+		int nowPageCount = (int) Math.ceil( lineCount / Double.valueOf((String.valueOf(linePerScreen) + ".0")) ); // å±æ•°
+		if (nowPageNum == -6) // å‘ä¸Šç¿»ï¼Œå›åˆ°å°¾éƒ¨
 			nowPageNum = nowPageCount - 1 ;
-		int startLineNum = nowPageNum * linePerScreen ; // 0base:°üº¬ 
-		int endLineNum = ( nowPageNum + 1 ) * linePerScreen - 1 ; // 0base:°üº¬
+		int startLineNum = nowPageNum * linePerScreen ; // 0base:åŒ…å« 
+		int endLineNum = ( nowPageNum + 1 ) * linePerScreen - 1 ; // 0base:åŒ…å«
 		if ( endLineNum >= lineCount - 1 ) {
 			endLineNum = lineCount - 1;
-			isLastPage = true ; // ±íÊ¾ÒªÏòÏÂ·­Ò³ÁË
+			isLastPage = true ; // è¡¨ç¤ºè¦å‘ä¸‹ç¿»é¡µäº†
 		} else {
 			isLastPage = false ;
 		}
 
 //Log.e("XO", "LPS=" + linePerScreen + " STN=" + startLineNum + " ETN=" + endLineNum + " C=" + lineCount);
-		// °´¼ÆËã»æÖÆ
+		// æŒ‰è®¡ç®—ç»˜åˆ¶
 		int drawCount = 0;
 		for ( int lineidx = startLineNum; lineidx < lineCount; lineidx++) {
 //Log.e("XX", "LC=" + lineidx + " DC=" + drawCount + " text=" + line);
 			if ( lineidx > endLineNum )
 				break;
 			++ drawCount;
-			if ( lineidx == 0 ) { // µÚÒ»ĞĞµ±×÷±êÌâ
+			if ( lineidx == 0 ) { // ç¬¬ä¸€è¡Œå½“ä½œæ ‡é¢˜
 				p.setFakeBoldText(true);
 				p.setTextSize(lineHeight - padding * 0.5f );
 				float titleX = ( cw - p.measureText(infoL)) / 2;
@@ -226,38 +226,38 @@ public class Ext_View_FoxTextView extends View {
 			}
 		}
 
-		// »æÖÆµ×²¿ĞÅÏ¢
-//		p.setColor(Color.DKGRAY); // ÑÕÉ«
+		// ç»˜åˆ¶åº•éƒ¨ä¿¡æ¯
+//		p.setColor(Color.DKGRAY); // é¢œè‰²
 //		p.setTextSize(fontSize * 0.4f + padding * 0.5f);
 //		float infoY = ch - padding / 2 ;
 		p.setTextSize( (ch - linePerScreen * lineHeight) / 2 );
 		float infoY = ch - (ch - linePerScreen * lineHeight) / 4 ;
 		float infoRLen = p.measureText(infoR);
-		canvas.drawText(infoR, cw - padding - infoRLen , infoY, p); // ÓÒ²àÊ±¼ä µçÁ¿
-		// ×ó²àĞÅÏ¢
-		if ( 0 == nowPageNum ) { // Ê×Ò³
+		canvas.drawText(infoR, cw - padding - infoRLen , infoY, p); // å³ä¾§æ—¶é—´ ç”µé‡
+		// å·¦ä¾§ä¿¡æ¯
+		if ( 0 == nowPageNum ) { // é¦–é¡µ
 			canvas.drawText("1 / " + nowPageCount + "  " + firstPageInfoL, padding, infoY, p);
-			// canvas.drawText("±¾ÕÂ¹² " + nowPageCount + " Ò³    " + firstPageInfoL, padding, ch - padding / 2, p);
-		} else { // ·ÇÊ×Ò³£¬½Ø¶Ï¹ı³¤±êÌâ
+			// canvas.drawText("æœ¬ç« å…± " + nowPageCount + " é¡µ    " + firstPageInfoL, padding, ch - padding / 2, p);
+		} else { // éé¦–é¡µï¼Œæˆªæ–­è¿‡é•¿æ ‡é¢˜
 			String newInfoL = ( nowPageNum + 1 ) + " / " + nowPageCount + "  " + infoL ;
 			int infoLen = p.breakText(newInfoL, true, cw - 2 * padding - infoRLen - fontSize, null);
 			String addStr = "";
 			if ( infoLen < newInfoL.length() )
-				addStr = "¡­" ;
+				addStr = "â€¦" ;
 			canvas.drawText(newInfoL.substring(0, infoLen) + addStr, padding, infoY, p);
 		}
-//		p.setColor(Color.BLACK); // ÑÕÉ«
-	} // onDraw½áÊø
+//		p.setColor(Color.BLACK); // é¢œè‰²
+	} // onDrawç»“æŸ
 
 	private ArrayList<String> split2lines(String inText, Paint p, float maxWidth) {
 		ArrayList<String> oLine = new ArrayList<String>(50);
-		oLine.add(""); // µÚÒ»ĞĞµ±×÷±êÌâ
+		oLine.add(""); // ç¬¬ä¸€è¡Œå½“ä½œæ ‡é¢˜
 		String inLine[] = inText.replace("\r", "").split("\n");
 		int lineLen = 0;
 		int count = 0;
 		for ( String line : inLine ) {
 			 while(true) {
-				lineLen = line.length(); // ĞĞ³¤
+				lineLen = line.length(); // è¡Œé•¿
 				count = p.breakText(line, true, maxWidth, null);
 				if ( count >= lineLen ) {
 					oLine.add(line);
@@ -269,12 +269,12 @@ public class Ext_View_FoxTextView extends View {
 			}
 		}
 
-		// É¾³ıÎ²²¿¿ÕĞĞ
+		// åˆ é™¤å°¾éƒ¨ç©ºè¡Œ
 		int oS = oLine.size();
 		String aa ;
 		for ( int i=1; i<5; i++) {
 			aa = (String)oLine.get(oS-i) ;
-			if ( 0 == aa.length() | aa.equalsIgnoreCase("¡¡¡¡") ) {
+			if ( 0 == aa.length() | aa.equalsIgnoreCase("ã€€ã€€") ) {
 				oLine.remove(oS-i);
 			} else {
 				break;
@@ -300,5 +300,5 @@ public class Ext_View_FoxTextView extends View {
 		}
 	}
 
-} // ×Ô¶¨ÒåView½áÊø
+} // è‡ªå®šä¹‰Viewç»“æŸ
 

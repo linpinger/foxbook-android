@@ -29,10 +29,10 @@ public class Activity_Setting extends PreferenceActivity {
 			this.setTheme(android.R.style.Theme_DeviceDefault_Light);
 
 		super.onCreate(savedInstanceState);
-		addPreferencesFromResource(R.xml.preferences); // µ±Ê¹ÓÃPreferenceActivityÊ±
+		addPreferencesFromResource(R.xml.preferences); // å½“ä½¿ç”¨PreferenceActivityæ—¶
 		// getFragmentManager().beginTransaction().replace(android.R.id.content, new PrefsFragement()).commit(); 
 
-		getActionBar().setDisplayHomeAsUpEnabled(true); // ±êÌâÀ¸ÖĞÌí¼Ó·µ»ØÍ¼±ê
+		getActionBar().setDisplayHomeAsUpEnabled(true); // æ ‡é¢˜æ ä¸­æ·»åŠ è¿”å›å›¾æ ‡
 
 	}
 
@@ -46,12 +46,12 @@ public class Activity_Setting extends PreferenceActivity {
 		}
 		if ( preference.getKey().equalsIgnoreCase("exportEinkCFG") ) {
 			ToolAndroid.myConfigImportExPort(this, true);
-			Toast.makeText(this, "ÒÑµ¼³öµ½ FoxBook.cfg", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, "å·²å¯¼å‡ºåˆ° FoxBook.cfg", Toast.LENGTH_SHORT).show();
 			return true;
 		}
 		if ( preference.getKey().equalsIgnoreCase("importEinkCFG") ) {
 			ToolAndroid.myConfigImportExPort(this, false);
-			Toast.makeText(this, "ÒÑ´Ó FoxBook.cfg µ¼Èë", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, "å·²ä» FoxBook.cfg å¯¼å…¥", Toast.LENGTH_SHORT).show();
 			return true;
 		}
 		return super.onPreferenceTreeClick(preferenceScreen, preference);
@@ -60,7 +60,7 @@ public class Activity_Setting extends PreferenceActivity {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
-		case 9: // ÏìÓ¦ÎÄ¼şÑ¡ÔñÆ÷µÄÑ¡Ôñ
+		case 9: // å“åº”æ–‡ä»¶é€‰æ‹©å™¨çš„é€‰æ‹©
 			if (resultCode == RESULT_OK) {
 				Uri uri = data.getData();
 				String newFont = new File(uri.getPath()).getAbsolutePath();
@@ -71,7 +71,7 @@ public class Activity_Setting extends PreferenceActivity {
 					editor.commit();
 					Toast.makeText(this, newFont, Toast.LENGTH_SHORT).show();
 				} else {
-					Toast.makeText(this, "ÒªÑ¡Ôñºó×ºÎª.ttf/.ttc/.otfµÄ×ÖÌåÎÄ¼ş", Toast.LENGTH_SHORT).show();
+					Toast.makeText(this, "è¦é€‰æ‹©åç¼€ä¸º.ttf/.ttc/.otfçš„å­—ä½“æ–‡ä»¶", Toast.LENGTH_SHORT).show();
 				}
 			}
 			break;
@@ -80,9 +80,9 @@ public class Activity_Setting extends PreferenceActivity {
 	}
 
 
-	public boolean onOptionsItemSelected(MenuItem item) { // ÏìÓ¦Ñ¡Ôñ²Ëµ¥µÄ¶¯×÷
+	public boolean onOptionsItemSelected(MenuItem item) { // å“åº”é€‰æ‹©èœå•çš„åŠ¨ä½œ
 		switch (item.getItemId()) {
-		case android.R.id.home: // ·µ»ØÍ¼±ê
+		case android.R.id.home: // è¿”å›å›¾æ ‡
 			this.finish();
 			break;
 		}

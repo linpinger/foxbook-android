@@ -26,7 +26,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.AdapterView.OnItemClickListener;
 
-// Activity_PageList : µ¥»÷ÁĞ±í
+// Activity_PageList : å•å‡»åˆ—è¡¨
 
 public class Activity_QuickSearch extends Ext_ListActivity_4Eink {
 	private ListView lv_sitelist ;
@@ -40,16 +40,16 @@ public class Activity_QuickSearch extends Ext_ListActivity_4Eink {
 	private String book_name = "" ;
 	private String book_url = "" ;
 
-	private int SE_TYPE = 1; // ËÑË÷ÒıÇæ
+	private int SE_TYPE = 1; // æœç´¢å¼•æ“
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void showHomeUp() {
-		getActionBar().setDisplayHomeAsUpEnabled(true);  // ±êÌâÀ¸ÖĞÌí¼Ó·µ»ØÍ¼±ê
-//		getActionBar().setDisplayShowHomeEnabled(false); // Òş²Ø³ÌĞòÍ¼±ê
-	}		// ÏìÓ¦µã»÷ÊÂ¼şÔÚonOptionsItemSelectedµÄswitchÖĞ¼ÓÈë android.R.id.home this.finish();
+		getActionBar().setDisplayHomeAsUpEnabled(true);  // æ ‡é¢˜æ ä¸­æ·»åŠ è¿”å›å›¾æ ‡
+//		getActionBar().setDisplayShowHomeEnabled(false); // éšè—ç¨‹åºå›¾æ ‡
+	}		// å“åº”ç‚¹å‡»äº‹ä»¶åœ¨onOptionsItemSelectedçš„switchä¸­åŠ å…¥ android.R.id.home this.finish();
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) { // Èë¿Ú
+	public void onCreate(Bundle savedInstanceState) { // å…¥å£
 		settings = PreferenceManager.getDefaultSharedPreferences(this);
 		if ( settings.getBoolean("isWhiteActionBar", false) )
 			this.setTheme(android.R.style.Theme_DeviceDefault_Light);
@@ -61,15 +61,15 @@ public class Activity_QuickSearch extends Ext_ListActivity_4Eink {
 		lv_sitelist = getListView();
 
 		Intent itt = getIntent();
-		book_name = itt.getStringExtra(NV.BookName); // ±ØĞè
+		book_name = itt.getStringExtra(NV.BookName); // å¿…éœ€
 		SE_TYPE = itt.getIntExtra(AC.searchEngine, 1) ;
 
-		setTitle("ËÑË÷: " + book_name);
+		setTitle("æœç´¢: " + book_name);
 
 		data = new ArrayList<Map<String, Object>>();
 		refreshLVAdapter();
 
-		init_LV_item_click() ; // ³õÊ¼»¯ µ¥»÷ ÌõÄ¿ µÄĞĞÎª
+		init_LV_item_click() ; // åˆå§‹åŒ– å•å‡» æ¡ç›® çš„è¡Œä¸º
 
 		String seURL = "" ;
 		try {
@@ -88,12 +88,12 @@ public class Activity_QuickSearch extends Ext_ListActivity_4Eink {
 			System.err.println(e.toString());
 		}
 
-		init_handler() ; // ³õÊ¼»¯Ò»¸öhandler ÓÃÓÚ´¦ÀíºóÌ¨Ïß³ÌµÄÏûÏ¢
+		init_handler() ; // åˆå§‹åŒ–ä¸€ä¸ªhandler ç”¨äºå¤„ç†åå°çº¿ç¨‹çš„æ¶ˆæ¯
 
 		final String thURL = seURL ;
 		(new Thread(){
 			public void run(){
-				data = ToolBookJava.getSearchEngineHref( ToolBookJava.downhtml(thURL) , book_name); // ËÑË÷ÒıÇæÍøÒ³·ÖÎö·ÅÔÚÕâÀï
+				data = ToolBookJava.getSearchEngineHref( ToolBookJava.downhtml(thURL) , book_name); // æœç´¢å¼•æ“ç½‘é¡µåˆ†ææ”¾åœ¨è¿™é‡Œ
 				handler.sendEmptyMessage(IS_REFRESH);
 			}
 		}).start();
@@ -107,7 +107,7 @@ public class Activity_QuickSearch extends Ext_ListActivity_4Eink {
 		lv_sitelist.setAdapter(adapter);
 	}
 
-	private void init_LV_item_click() { // ³õÊ¼»¯ µ¥»÷ ÌõÄ¿ µÄĞĞÎª
+	private void init_LV_item_click() { // åˆå§‹åŒ– å•å‡» æ¡ç›® çš„è¡Œä¸º
 		OnItemClickListener listener = new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				Map<String, Object> book = (HashMap<String, Object>) parent.getItemAtPosition(position);
@@ -122,19 +122,19 @@ public class Activity_QuickSearch extends Ext_ListActivity_4Eink {
 		lv_sitelist.setOnItemClickListener(listener);
 	}
 
-	public boolean onOptionsItemSelected(MenuItem item) { // ÏìÓ¦Ñ¡Ôñ²Ëµ¥µÄ¶¯×÷
+	public boolean onOptionsItemSelected(MenuItem item) { // å“åº”é€‰æ‹©èœå•çš„åŠ¨ä½œ
 		switch (item.getItemId()) {
-		case android.R.id.home: // ·µ»ØÍ¼±ê
+		case android.R.id.home: // è¿”å›å›¾æ ‡
 			finish();
 			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
 
-	private void init_handler() { // ³õÊ¼»¯Ò»¸öhandler ÓÃÓÚ´¦ÀíºóÌ¨Ïß³ÌµÄÏûÏ¢
+	private void init_handler() { // åˆå§‹åŒ–ä¸€ä¸ªhandler ç”¨äºå¤„ç†åå°çº¿ç¨‹çš„æ¶ˆæ¯
 		handler = new Handler() {
 			public void handleMessage(Message msg) {
-				if ( msg.what == IS_REFRESH ) { // ÏÂÔØÍê±Ï
+				if ( msg.what == IS_REFRESH ) { // ä¸‹è½½å®Œæ¯•
 					refreshLVAdapter();
 				}
 			}

@@ -21,19 +21,19 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
-// Activity_ShowPage4Eink : µ¥»÷ÁĞ±í, ÏÔÊ¾ÄÚÈİ onListItemClick
+// Activity_ShowPage4Eink : å•å‡»åˆ—è¡¨, æ˜¾ç¤ºå†…å®¹ onListItemClick
 
 public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 
-	public final int ZIP = 26 ;			// ÆÕÍ¨zipÎÄ¼ş
-	public final int ZIP1024 = 1024 ;	// 1024 html ´ò°üµÄzip
-	public final int EPUB = 500 ;		// ÆÕÍ¨ epubÎÄ¼ş ´¦Àí·½Ê½´ı¶¨
-	public final int EPUBFOXMAKE = 506;	// ÎÒÉú³ÉµÄ epub
-	public final int EPUBQIDIAN = 517;	// Æğµã epub
-	public final int TXT = 200 ;		// ÆÕÍ¨txt
-	public final int TXTQIDIAN = 217 ;	// Æğµãtxt
+	public final int ZIP = 26 ;			// æ™®é€šzipæ–‡ä»¶
+	public final int ZIP1024 = 1024 ;	// 1024 html æ‰“åŒ…çš„zip
+	public final int EPUB = 500 ;		// æ™®é€š epubæ–‡ä»¶ å¤„ç†æ–¹å¼å¾…å®š
+	public final int EPUBFOXMAKE = 506;	// æˆ‘ç”Ÿæˆçš„ epub
+	public final int EPUBQIDIAN = 517;	// èµ·ç‚¹ epub
+	public final int TXT = 200 ;		// æ™®é€štxt
+	public final int TXTQIDIAN = 217 ;	// èµ·ç‚¹txt
 
-	private int eBookType = ZIP ;		// ´¦ÀíµÄzip/epubÀàĞÍ
+	private int eBookType = ZIP ;		// å¤„ç†çš„zip/epubç±»å‹
 
 	private List<Map<String, Object>> data;
 	private ListView lv_pagelist ;
@@ -44,7 +44,7 @@ public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 
 	SharedPreferences settings;
 
-	private void renderListView() { // Ë¢ĞÂLV
+	private void renderListView() { // åˆ·æ–°LV
 		adapter = new SimpleAdapter(this, data,
 				R.layout.lv_item_pagelist, new String[] { NV.PageName, NV.Size },
 				new int[] { R.id.tvName, R.id.tvCount });
@@ -54,11 +54,11 @@ public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void showHomeUp() {
-		getActionBar().setDisplayHomeAsUpEnabled(settings.getBoolean("isClickHomeExit", false)); // ±êÌâÀ¸ÖĞÌí¼Ó·µ»ØÍ¼±ê
+		getActionBar().setDisplayHomeAsUpEnabled(settings.getBoolean("isClickHomeExit", false)); // æ ‡é¢˜æ ä¸­æ·»åŠ è¿”å›å›¾æ ‡
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) { // Èë¿Ú
+	public void onCreate(Bundle savedInstanceState) { // å…¥å£
 		settings = PreferenceManager.getDefaultSharedPreferences(this);
 		if ( settings.getBoolean("isWhiteActionBar", false) )
 			this.setTheme(android.R.style.Theme_DeviceDefault_Light);
@@ -69,9 +69,9 @@ public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 
 		lv_pagelist = getListView();
 
-		// »ñÈ¡´«ÈëµÄÎÄ¼şÂ·¾¶
+		// è·å–ä¼ å…¥çš„æ–‡ä»¶è·¯å¾„
 		Intent itt = getIntent();
-		eBookFile = new File(itt.getData().getPath()); // ´Óintent»ñÈ¡txt/zip/epubÂ·¾¶
+		eBookFile = new File(itt.getData().getPath()); // ä»intentè·å–txt/zip/epubè·¯å¾„
 
 		if ( eBookFile.getName().toLowerCase().endsWith(".epub"))
 			eBookType = EPUB ;
@@ -85,7 +85,7 @@ public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 
 		setTitle(nm.getBookInfo(0).get(NV.BookName).toString());
 		data = nm.getPageList(0);
-		renderListView(); // ´¦ÀíºÃdataºóÔÙË¢ĞÂÁĞ±í
+		renderListView(); // å¤„ç†å¥½dataåå†åˆ·æ–°åˆ—è¡¨
 
 	} // onCreate end
 
@@ -93,7 +93,7 @@ public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		Map<String, Object> page = (HashMap<String, Object>) data.get(position);
 
-		// Ìøµ½ÔÄ¶ÁÒ³
+		// è·³åˆ°é˜…è¯»é¡µ
 		Intent itt = new Intent(Activity_EBook_Viewer.this, Activity_ShowPage4Eink.class);
 		switch (eBookType) {
 		case ZIP:
@@ -105,7 +105,7 @@ public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 				itt.putExtra(AC.action, AC.aShowPageInZip1024);
 				startActivity(itt);
 			} else {
-				foxtip("Ôİ²»Ö§³ÖÕâÖÖ¸ñÊ½µÄÖ±½Ó²é¿´");
+				foxtip("æš‚ä¸æ”¯æŒè¿™ç§æ ¼å¼çš„ç›´æ¥æŸ¥çœ‹");
 			}
 			break;
 		case EPUB:
@@ -124,22 +124,22 @@ public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 		}
 	}
 
-	public boolean onCreateOptionsMenu(Menu menu) { // ´´½¨²Ëµ¥
+	public boolean onCreateOptionsMenu(Menu menu) { // åˆ›å»ºèœå•
 		getMenuInflater().inflate(R.menu.ebook_viewer, menu);
 		int itemcount = menu.size();
 		for ( int i=0; i< itemcount; i++){
 			switch (menu.getItem(i).getItemId()) {
 			case R.id.action_gbk2utf8:
 				if ( eBookType == TXT || eBookType == TXTQIDIAN)
-					menu.getItem(i).setVisible(true) ; // ÏÔÊ¾
+					menu.getItem(i).setVisible(true) ; // æ˜¾ç¤º
 				else
-					menu.getItem(i).setVisible(false) ; // ·ÇtxtÒş²Ø
+					menu.getItem(i).setVisible(false) ; // étxtéšè—
 				break;
 			}
 		}
 		return true;
 	}
-	public boolean onOptionsItemSelected(MenuItem item) { // ÏìÓ¦Ñ¡Ôñ²Ëµ¥µÄ¶¯×÷
+	public boolean onOptionsItemSelected(MenuItem item) { // å“åº”é€‰æ‹©èœå•çš„åŠ¨ä½œ
 		switch (item.getItemId()) {
 		case android.R.id.home:
 			this.finish();
@@ -158,7 +158,7 @@ public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 			break;
 		case R.id.jumplist_totop:
 			lv_pagelist.setSelection(0);
-			setItemPos4Eink(); // ¹ö¶¯Î»ÖÃ·Åµ½Í·²¿
+			setItemPos4Eink(); // æ»šåŠ¨ä½ç½®æ”¾åˆ°å¤´éƒ¨
 			break;
 		case R.id.jumplist_tomiddle:
 			int midPos = adapter.getCount() / 2 - 1 ;
@@ -177,7 +177,7 @@ public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 		return super.onOptionsItemSelected(item);
 	}
 
-	private void foxtip(String sinfo) { // ToastÏûÏ¢
+	private void foxtip(String sinfo) { // Toastæ¶ˆæ¯
 		Toast.makeText(getApplicationContext(), sinfo, Toast.LENGTH_SHORT).show();
 	}
 

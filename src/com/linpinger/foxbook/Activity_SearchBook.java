@@ -32,16 +32,16 @@ import com.linpinger.novel.SiteQiDian;
 import com.linpinger.tool.ToolAndroid;
 import com.linpinger.tool.ToolBookJava;
 /*
-Activity_PageList : msg IS_GETQIDIANURL -> Runnable:GetQidianURL : Ñ¡Ïî: ¿ìËÑ:qidian : aSearchBookOnQiDian, bookname, bookurl
-Activity_PageList : Ô¤ÀÀ°´Å¥ : aSearchBookOnNet, bookname, bookurl
+Activity_PageList : msg IS_GETQIDIANURL -> Runnable:GetQidianURL : é€‰é¡¹: å¿«æœ:qidian : aSearchBookOnQiDian, bookname, bookurl
+Activity_PageList : é¢„è§ˆæŒ‰é’® : aSearchBookOnNet, bookname, bookurl
 
-Activity_QuickSearch : Ñ¡Ïî²Ëµ¥:sogou : BookName, searchEngine
-Activity_QuickSearch : Ñ¡Ïî²Ëµ¥:bing  : BookName, searchEngine
-Activity_QuickSearch : Ñ¡Ïî²Ëµ¥:yahoo : BookName, searchEngine
+Activity_QuickSearch : é€‰é¡¹èœå•:sogou : BookName, searchEngine
+Activity_QuickSearch : é€‰é¡¹èœå•:bing  : BookName, searchEngine
+Activity_QuickSearch : é€‰é¡¹èœå•:yahoo : BookName, searchEngine
 */
 public class Activity_SearchBook extends Activity {
 
-	private int ittAction = 0 ; // ´«ÈëµÄÊı¾İ
+	private int ittAction = 0 ; // ä¼ å…¥çš„æ•°æ®
 	private long mExitTime ;
 	private WebView wv;
 	private EditText et;
@@ -68,7 +68,7 @@ public class Activity_SearchBook extends Activity {
 		public void run() {
 			String json = ToolBookJava.downhtml(new SiteQiDian().getSearchURL_Android7(this.bookname), "utf-8");
 			List<Map<String, Object>> qds = new SiteQiDian().getSearchBookList_Android7(json);
-			if ( qds.get(0).get(NV.BookName).toString().equalsIgnoreCase(this.bookname) ) { // µÚÒ»¸ö½á¹û¾ÍÊÇÄ¿±êÊé
+			if ( qds.get(0).get(NV.BookName).toString().equalsIgnoreCase(this.bookname) ) { // ç¬¬ä¸€ä¸ªç»“æœå°±æ˜¯ç›®æ ‡ä¹¦
 				book_url = qds.get(0).get(NV.BookURL).toString();
 			}
 
@@ -81,8 +81,8 @@ public class Activity_SearchBook extends Activity {
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void showHomeUp() {
-		getActionBar().setDisplayHomeAsUpEnabled(true); // ±êÌâÀ¸ÖĞÌí¼Ó·µ»ØÍ¼±ê
-//		getActionBar().setDisplayShowHomeEnabled(false); // Òş²Ø³ÌĞòÍ¼±ê
+		getActionBar().setDisplayHomeAsUpEnabled(true); // æ ‡é¢˜æ ä¸­æ·»åŠ è¿”å›å›¾æ ‡
+//		getActionBar().setDisplayShowHomeEnabled(false); // éšè—ç¨‹åºå›¾æ ‡
 	}
 
 	@Override
@@ -104,24 +104,24 @@ public class Activity_SearchBook extends Activity {
 		this.registerForContextMenu(btn_pre);
 
 //		wv.loadUrl("about:blank");
-//		wv.loadDataWithBaseURL("http://www.autohotkey.net/~linpinger/index.html?s=FoxBook_Android", "ÓÃ·¨ËµÃ÷:", "text/html", "utf-8", "");
+//		wv.loadDataWithBaseURL("http://www.autohotkey.net/~linpinger/index.html?s=FoxBook_Android", "ç”¨æ³•è¯´æ˜:", "text/html", "utf-8", "");
 
-		wv.setWebViewClient(new WebViewClient() { // ÔÚµ±Ç°webviewÀïÃæÌø×ª
+		wv.setWebViewClient(new WebViewClient() { // åœ¨å½“å‰webviewé‡Œé¢è·³è½¬
 			public boolean shouldOverrideUrlLoading(WebView wb, String url) {
 				wb.loadUrl(url);
 				return true;
 			}
 		});
 
-		// ËµÃ÷
+		// è¯´æ˜
 //		wv.getSettings().setDefaultTextEncodingName("UTF-8");
-		String html = "<!DOCTYPE html>\n<html>\n<head>\t<META http-equiv=Content-Type content=\"text/html; charset=utf-8\">\n<title>ÃÈÃÈßÕËµÃ÷</title>\n</head>\n<body bgcolor=\"#eefaee\">\n<h2>ËµÃ÷:</h2>\n\n<h3>Ê¹ÓÃËÑË÷ÒıÇæËÑË÷:</h3>\n<ul>\n<li>ÊäÈëÒªËÑË÷µÄÊéÃû£¬°´ËÑË÷°´Å¥£¬È»ºóÔÚÕâÀï»áÏÔÊ¾ËÑË÷ÒıÇæ½á¹û</li>\n<li>µã»÷Á´½ÓÖ±µ½Ä¿Â¼Ò³£¬È»ºó°´°´Å¥¡°Ô¤¡±</li>\n</ul>\n\n<h3>Ê¹ÓÃ¿ìËÙËÑË÷:</h3>\n<ul>\n<li>ÊäÈëÒªËÑË÷µÄÊéÃû</li>\n<li>°´²Ëµ¥¼ü£¬ÔÚ³öÀ´µÄ²Ëµ¥ÖĞÑ¡ÔñÒ»¸öËÑË÷¼´¿É</li>\n</ul>\n\n<p>¡¡Èç¹û³öÏÖÁĞ±íÕı³£µÄ»°£¬°´¼ÓºÅÌí¼ÓÊé£¬Ö®ºó°´±£´æ°´Å¥</p>\n<p>¡¡È»ºó»Øµ½Ö÷½çÃæ¼´¿É¿´µ½ĞÂÌí¼ÓµÄÊé</p>\n\n</body>\n</html>" ;
+		String html = "<!DOCTYPE html>\n<html>\n<head>\t<META http-equiv=Content-Type content=\"text/html; charset=utf-8\">\n<title>èŒèŒå“’è¯´æ˜</title>\n</head>\n<body bgcolor=\"#eefaee\">\n<h2>è¯´æ˜:</h2>\n\n<h3>ä½¿ç”¨æœç´¢å¼•æ“æœç´¢:</h3>\n<ul>\n<li>è¾“å…¥è¦æœç´¢çš„ä¹¦åï¼ŒæŒ‰æœç´¢æŒ‰é’®ï¼Œç„¶ååœ¨è¿™é‡Œä¼šæ˜¾ç¤ºæœç´¢å¼•æ“ç»“æœ</li>\n<li>ç‚¹å‡»é“¾æ¥ç›´åˆ°ç›®å½•é¡µï¼Œç„¶åæŒ‰æŒ‰é’®â€œé¢„â€</li>\n</ul>\n\n<h3>ä½¿ç”¨å¿«é€Ÿæœç´¢:</h3>\n<ul>\n<li>è¾“å…¥è¦æœç´¢çš„ä¹¦å</li>\n<li>æŒ‰èœå•é”®ï¼Œåœ¨å‡ºæ¥çš„èœå•ä¸­é€‰æ‹©ä¸€ä¸ªæœç´¢å³å¯</li>\n</ul>\n\n<p>ã€€å¦‚æœå‡ºç°åˆ—è¡¨æ­£å¸¸çš„è¯ï¼ŒæŒ‰åŠ å·æ·»åŠ ä¹¦ï¼Œä¹‹åæŒ‰ä¿å­˜æŒ‰é’®</p>\n<p>ã€€ç„¶åå›åˆ°ä¸»ç•Œé¢å³å¯çœ‹åˆ°æ–°æ·»åŠ çš„ä¹¦</p>\n\n</body>\n</html>" ;
 		wv.loadData(html, "text/html; charset=UTF-8", null);
 
-		btn_search.setOnClickListener(new OnClickListener() { // µã»÷°´Å¥ËÑË÷ // ĞèÒª×ª»»±àÂë
+		btn_search.setOnClickListener(new OnClickListener() { // ç‚¹å‡»æŒ‰é’®æœç´¢ // éœ€è¦è½¬æ¢ç¼–ç 
 			public void onClick(View v) {
 				book_name = et.getText().toString();
-				if ( book_name.length() == 0 ) { // µ±Î´ÊäÈëÊéÃû£¬È¥ÅÅĞĞ¿´¿´
+				if ( book_name.length() == 0 ) { // å½“æœªè¾“å…¥ä¹¦åï¼Œå»æ’è¡Œçœ‹çœ‹
 					funcOpenTopQD(true);
 					return ;
 				}
@@ -147,7 +147,7 @@ public class Activity_SearchBook extends Activity {
 							intentQD.putExtra(NV.BookName, book_name);
 							startActivity(intentQD);
 						} else {
-							foxtip("ÔÚÆğµãÉÏÎ´ËÑË÷µ½¸ÃÊéÃû");
+							foxtip("åœ¨èµ·ç‚¹ä¸Šæœªæœç´¢åˆ°è¯¥ä¹¦å");
 						}
 						break;
 				}
@@ -155,7 +155,7 @@ public class Activity_SearchBook extends Activity {
 			}
 		});
 
-		btn_pre.setOnClickListener(new OnClickListener() { // Ô¤ÀÀ°´Å¥
+		btn_pre.setOnClickListener(new OnClickListener() { // é¢„è§ˆæŒ‰é’®
 			public void onClick(View v) {
 				book_url = wv.getUrl();
 				if ( null != book_url ) {
@@ -165,17 +165,17 @@ public class Activity_SearchBook extends Activity {
 					intent.putExtra(NV.BookURL, book_url);
 					intent.putExtra(NV.BookName, book_name);
 					startActivity(intent);
-				} else { //Ê²Ã´Ê±ºò»áÊÇnull£¿
-					setTitle("´íÎó: µ±Ç°Ò³ÃæµØÖ·Îª¿Õ");
+				} else { //ä»€ä¹ˆæ—¶å€™ä¼šæ˜¯nullï¼Ÿ
+					setTitle("é”™è¯¯: å½“å‰é¡µé¢åœ°å€ä¸ºç©º");
 				}
 			}
 		});
 
-		// »ñÈ¡´«ÈëµÄÊı¾İ
+		// è·å–ä¼ å…¥çš„æ•°æ®
 		Intent itt = getIntent();
 		ittAction = itt.getIntExtra(AC.action, 0);
 		switch (ittAction) {
-		case AC.aListQDPages: // ËÑË÷Æğµã
+		case AC.aListQDPages: // æœç´¢èµ·ç‚¹
 			book_name = itt.getStringExtra(NV.BookName);
 			et.setText(book_name);
 			(new Thread(new GetQidianURLFromBookName(book_name))).start() ;
@@ -184,13 +184,13 @@ public class Activity_SearchBook extends Activity {
 	}
 
 	@Override
-	public void onBackPressed() { // ·µ»Ø¼ü±»°´
+	public void onBackPressed() { // è¿”å›é”®è¢«æŒ‰
 		if ((System.currentTimeMillis() - mExitTime) > 2000) {
 			if ( wv.canGoBack() ) {
-				foxtip("ºóÍËÖĞ...");
-				wv.goBack(); // goBack()±íÊ¾·µ»ØwebViewµÄÉÏÒ»Ò³Ãæ
+				foxtip("åé€€ä¸­...");
+				wv.goBack(); // goBack()è¡¨ç¤ºè¿”å›webViewçš„ä¸Šä¸€é¡µé¢
 			} else {
-				foxtip("ÔÙ°´Ò»´ÎÍË³öËÑË÷");
+				foxtip("å†æŒ‰ä¸€æ¬¡é€€å‡ºæœç´¢");
 				mExitTime = System.currentTimeMillis();
 			}
 		} else {
@@ -204,36 +204,36 @@ public class Activity_SearchBook extends Activity {
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) { // ´´½¨²Ëµ¥
+	public boolean onCreateOptionsMenu(Menu menu) { // åˆ›å»ºèœå•
 		getMenuInflater().inflate(R.menu.search, menu);
 		return true;
 	}
 
 
-	public boolean onOptionsItemSelected(MenuItem item) { // ÏìÓ¦Ñ¡Ôñ²Ëµ¥µÄ¶¯×÷
+	public boolean onOptionsItemSelected(MenuItem item) { // å“åº”é€‰æ‹©èœå•çš„åŠ¨ä½œ
 		switch (item.getItemId()) {
-		case android.R.id.home: // ·µ»ØÍ¼±ê
+		case android.R.id.home: // è¿”å›å›¾æ ‡
 			exitMe();
 			break;
-		case R.id.sm_QuickSearchQidian: // ¿ìËÑ:Æğµã
+		case R.id.sm_QuickSearchQidian: // å¿«æœ:èµ·ç‚¹
 			book_name = et.getText().toString();
 			(new Thread(new GetQidianURLFromBookName(book_name))).start() ;
 			break;
-		case R.id.sm_QuickSearchSouGou: // ¿ìËÑ:ËÑ¹·
+		case R.id.sm_QuickSearchSouGou: // å¿«æœ:æœç‹—
 			book_name = et.getText().toString();
 			Intent intent = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
 			intent.putExtra(NV.BookName, book_name);
 			intent.putExtra(AC.searchEngine, AC.SE_SOGOU);
 			startActivity(intent);
 			break;
-		case R.id.sm_QuickSearchBing: // ¿ìËÑ:Bing
+		case R.id.sm_QuickSearchBing: // å¿«æœ:Bing
 			book_name = et.getText().toString();
 			Intent itb = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
 			itb.putExtra(NV.BookName, book_name);
 			itb.putExtra(AC.searchEngine, AC.SE_BING);
 			startActivity(itb);
 			break;
-		case R.id.sm_QuickSearchYahoo: // ¿ìËÑ:ÑÅ»¢
+		case R.id.sm_QuickSearchYahoo: // å¿«æœ:é›…è™
 			book_name = et.getText().toString();
 			Intent ityh = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
 			ityh.putExtra(NV.BookName, book_name);
@@ -272,16 +272,16 @@ public class Activity_SearchBook extends Activity {
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		if ( v == this.btn_pre ) {
-			menu.setHeaderTitle("²Ù×÷");
-			menu.add(9, ItemA1, 9, "¸´ÖÆÍøÖ·µ½¼ôÌù°å"); // int groupId, int itemId, int order, CharSequence title
-			menu.add(9, ItemA2, 9, "ÏÂÔØÆğµãEpub");
+			menu.setHeaderTitle("æ“ä½œ");
+			menu.add(9, ItemA1, 9, "å¤åˆ¶ç½‘å€åˆ°å‰ªè´´æ¿"); // int groupId, int itemId, int order, CharSequence title
+			menu.add(9, ItemA2, 9, "ä¸‹è½½èµ·ç‚¹Epub");
 		}
 	}
 
 	private String funcCopyURL() {
 		String ua = wv.getUrl();
 		ToolAndroid.setClipText(ua, this);
-		foxtip("¼ôÌù°å:\n" + ua);
+		foxtip("å‰ªè´´æ¿:\n" + ua);
 		return ua;
 	}
 
@@ -290,14 +290,14 @@ public class Activity_SearchBook extends Activity {
 		if (ub.contains(".qidian.com/")) {
 			String qidianID = new SiteQiDian().getBookID_FromURL(ub);
 			ToolAndroid.download("http://download.qidian.com/epub/" + qidianID + ".epub", qidianID + ".epub", this);
-			foxtip("¿ªÊ¼ÏÂÔØ: " + qidianID + ".epub");
+			foxtip("å¼€å§‹ä¸‹è½½: " + qidianID + ".epub");
 		} else {
-			foxtip("·ÇÆğµãURL:\n" + ub);
+			foxtip("éèµ·ç‚¹URL:\n" + ub);
 		}
 	}
 
 	private void funcOpenTopQD(boolean isMobile) {
-		wv.getSettings().setJavaScriptEnabled(true) ; // ÔÊĞíJS
+		wv.getSettings().setJavaScriptEnabled(true) ; // å…è®¸JS
 		if ( isMobile ) {
 			wv.loadUrl("http://m.qidian.com/rank/male");
 		} else {
@@ -305,7 +305,7 @@ public class Activity_SearchBook extends Activity {
 		}
 	}
 
-	private void foxtip(String sinfo) { // ToastÏûÏ¢
+	private void foxtip(String sinfo) { // Toastæ¶ˆæ¯
 		Toast.makeText(getApplicationContext(), sinfo, Toast.LENGTH_SHORT).show();
 	}
 }

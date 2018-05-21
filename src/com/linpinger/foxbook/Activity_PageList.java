@@ -10,9 +10,13 @@ import com.linpinger.novel.NovelManager;
 import com.linpinger.novel.NovelSite;
 import com.linpinger.novel.SiteQiDian;
 import com.linpinger.tool.Ext_ListActivity_4Eink;
+import com.linpinger.tool.ToolAndroid;
 import com.linpinger.tool.ToolBookJava;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -20,18 +24,21 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.view.View.OnTouchListener;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
-// Activity_ShowPage4Eink : µ¥»÷ÁĞ±í£¬ÏÔÊ¾ÄÚÈİ aShowPageInMem|aShowPageOnNet, bookIDX, pageIDX, [pageName, pageFullUrl]
-// Activity_BookInfo : Ìí¼ÓÊé¼®
+// Activity_ShowPage4Eink : å•å‡»åˆ—è¡¨ï¼Œæ˜¾ç¤ºå†…å®¹ aShowPageInMem|aShowPageOnNet, bookIDX, pageIDX, [pageName, pageFullUrl]
+// Activity_BookInfo : æ·»åŠ ä¹¦ç±
 public class Activity_PageList extends Ext_ListActivity_4Eink {
 	private NovelManager nm;
 
@@ -40,7 +47,8 @@ public class Activity_PageList extends Ext_ListActivity_4Eink {
 	private List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
 	private ListView lv_pagelist ;
 	private int posLongClick = -1 ;
-	private boolean isOnLine = true; // ÊÇ·ñÔÚÏß
+	private float clickX = 0 ; // ç”¨æ¥ç¡®å®šç‚¹å‡»æ¨ªåæ ‡ä»¥å®ç°ä¸åŒLVä¸åŒåŒºåŸŸç‚¹å‡»æ•ˆæœ
+	private boolean isOnLine = true; // æ˜¯å¦åœ¨çº¿
 
 	SimpleAdapter adapter;
 	private Handler handler;
@@ -48,19 +56,19 @@ public class Activity_PageList extends Ext_ListActivity_4Eink {
 	private static int IS_UPDATEPAGE = 88;
 	private static int IS_RenderListView = 5;
 
-	private int ittAction = 0 ; // ´«ÈëµÄÊı¾İ
+	private int ittAction = 0 ; // ä¼ å…¥çš„æ•°æ®
 	private int bookIDX = -1 ;
 	private String searchBookName = "";
 	private String searchBookURL = "";
 
-	public class DownTOC implements Runnable { // ºóÌ¨Ïß³ÌÏÂÔØÍøÒ³
+	public class DownTOC implements Runnable { // åå°çº¿ç¨‹ä¸‹è½½ç½‘é¡µ
 		private String tocURL ;
 		public DownTOC(String inURL){
 			this.tocURL = inURL;
 		}
 		@Override
 		public void run() {
-			if ( tocURL.contains(".if.qidian.com") ) // ÔÚÏß²é¿´£¬Õ¾µãÊÇÆğµãÊÖ»úÊ±
+			if ( tocURL.contains(".if.qidian.com") ) // åœ¨çº¿æŸ¥çœ‹ï¼Œç«™ç‚¹æ˜¯èµ·ç‚¹æ‰‹æœºæ—¶
 				ittAction = AC.aListQDPages;
 			if ( ittAction == AC.aListQDPages | ittAction == AC.aSearchBookOnQiDian )
 				data = new SiteQiDian().getTOC_Android7( ToolBookJava.downhtml(tocURL, "utf-8") );
@@ -70,8 +78,8 @@ public class Activity_PageList extends Ext_ListActivity_4Eink {
 		}
 	}
 
-	private void renderListView() { // Ë¢ĞÂLV
-		if ( ! isOnLine && data.size() == 0 ) { // µ±¼ÇÂ¼É¾³ıÍêºó£¬½áÊø±¾Activity
+	private void renderListView() { // åˆ·æ–°LV
+		if ( ! isOnLine && data.size() == 0 ) { // å½“è®°å½•åˆ é™¤å®Œåï¼Œç»“æŸæœ¬Activity
 			onBackPressed();
 		}
 		switch (ittAction) {
@@ -89,7 +97,7 @@ public class Activity_PageList extends Ext_ListActivity_4Eink {
 			adapter = new SimpleAdapter(this, data, android.R.layout.simple_list_item_1,
 					new String[] { NV.PageName }, new int[] { android.R.id.text1 });
 			lv_pagelist.setAdapter(adapter);
-			lv_pagelist.setSelection(adapter.getCount() - 1); // ÍøÂçÁĞ±íÌøµ½Î²²¿
+			lv_pagelist.setSelection(adapter.getCount() - 1); // ç½‘ç»œåˆ—è¡¨è·³åˆ°å°¾éƒ¨
 			break;
 		default:
 			break;
@@ -98,7 +106,7 @@ public class Activity_PageList extends Ext_ListActivity_4Eink {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) { // ³õÊ¼»¯ µ¥»÷ ÌõÄ¿ µÄĞĞÎª
+	protected void onListItemClick(ListView l, View v, int position, long id) { // åˆå§‹åŒ– å•å‡» æ¡ç›® çš„è¡Œä¸º
 		Map<String, Object> page = (HashMap<String, Object>) l.getItemAtPosition(position);
 
 		Intent itt = new Intent(Activity_PageList.this, Activity_ShowPage4Eink.class);
@@ -149,12 +157,12 @@ public class Activity_PageList extends Ext_ListActivity_4Eink {
 	}
 
 
-	private void init_handler() { // ³õÊ¼»¯Ò»¸öhandler ÓÃÓÚ´¦ÀíºóÌ¨Ïß³ÌµÄÏûÏ¢
+	private void init_handler() { // åˆå§‹åŒ–ä¸€ä¸ªhandler ç”¨äºå¤„ç†åå°çº¿ç¨‹çš„æ¶ˆæ¯
 		handler = new Handler() {
 			public void handleMessage(Message msg) {
-				if ( msg.what == IS_UPDATEPAGE ) // ¸üĞÂÕÂ½ÚÍê±Ï
-					setTitle("¸üĞÂÍê±Ï : " + (String)msg.obj );
-				if ( msg.what == IS_RenderListView ) // ÏÂÔØÄ¿Â¼Íê±Ï
+				if ( msg.what == IS_UPDATEPAGE ) // æ›´æ–°ç« èŠ‚å®Œæ¯•
+					setTitle("æ›´æ–°å®Œæ¯• : " + (String)msg.obj );
+				if ( msg.what == IS_RenderListView ) // ä¸‹è½½ç›®å½•å®Œæ¯•
 					renderListView();
 			}
 		};
@@ -162,12 +170,12 @@ public class Activity_PageList extends Ext_ListActivity_4Eink {
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void showHomeUp() {
-		getActionBar().setDisplayHomeAsUpEnabled(true);  // ±êÌâÀ¸ÖĞÌí¼Ó·µ»ØÍ¼±ê
-		getActionBar().setDisplayShowHomeEnabled(false); // Òş²Ø³ÌĞòÍ¼±ê
+		getActionBar().setDisplayHomeAsUpEnabled(true);  // æ ‡é¢˜æ ä¸­æ·»åŠ è¿”å›å›¾æ ‡
+		getActionBar().setDisplayShowHomeEnabled(false); // éšè—ç¨‹åºå›¾æ ‡
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) { // Èë¿Ú
+	public void onCreate(Bundle savedInstanceState) { // å…¥å£
 		settings = PreferenceManager.getDefaultSharedPreferences(this);
 		if ( settings.getBoolean("isWhiteActionBar", false) )
 			this.setTheme(android.R.style.Theme_DeviceDefault_Light);
@@ -177,19 +185,26 @@ public class Activity_PageList extends Ext_ListActivity_4Eink {
 
 		showHomeUp();
 		lv_pagelist = getListView();
-		this.registerForContextMenu(lv_pagelist); // ListView×¢²áÉÏÏÂÎÄ²Ëµ¥
+		init_LV_item_Long_click(); // åˆå§‹åŒ– é•¿å‡» æ¡ç›® çš„è¡Œä¸º
+		lv_pagelist.setOnTouchListener(new OnTouchListener(){
+			@Override
+			public boolean onTouch(View v, MotionEvent arg1) {
+				clickX = arg1.getX(); // ç‚¹å‡»æ¨ªåæ ‡
+				return false;
+			}
+		});
 
 		this.nm = ((FoxApp)this.getApplication()).nm;
-		init_handler() ; // ³õÊ¼»¯Ò»¸öhandler ÓÃÓÚ´¦ÀíºóÌ¨Ïß³ÌµÄÏûÏ¢
+		init_handler() ; // åˆå§‹åŒ–ä¸€ä¸ªhandler ç”¨äºå¤„ç†åå°çº¿ç¨‹çš„æ¶ˆæ¯
 
-		// »ñÈ¡´«ÈëµÄÊı¾İ
+		// è·å–ä¼ å…¥çš„æ•°æ®
 		Intent itt = getIntent();
 		ittAction = itt.getIntExtra(AC.action, AC.aListBookPages);
 		bookIDX = itt.getIntExtra(NV.BookIDX, -1);
 switch (ittAction) {
 		case AC.aListBookPages:
 			isOnLine = false ;
-			data = nm.getBookPageList( bookIDX ); // »ñÈ¡Ò³ÃæÁĞ±í
+			data = nm.getBookPageList( bookIDX ); // è·å–é¡µé¢åˆ—è¡¨
 			Map<String, Object> info = nm.getBookInfo(bookIDX);
 
 			setTitle(info.get(NV.BookName) + " : " + info.get(NV.BookURL));
@@ -197,59 +212,162 @@ switch (ittAction) {
 		case AC.aListAllPages:
 			isOnLine = false ;
 			data = nm.getPageList(1);
-			setTitle("¹² " + String.valueOf(data.size()) + " ÕÂ");
+			setTitle("å…± " + String.valueOf(data.size()) + " ç« ");
 			break;
 		case AC.aListLess1KPages:
 			isOnLine = false ;
 			data = nm.getPageList(999);
-			setTitle("¹² " + String.valueOf(data.size()) + " ÕÂ");
+			setTitle("å…± " + String.valueOf(data.size()) + " ç« ");
 			break;
 		case AC.aListSitePages:
-			new Thread(new DownTOC( nm.getBookInfo(bookIDX).get(NV.BookURL).toString() )).start(); // ÔÚÏß²é¿´Ä¿Â¼
-			setTitle("ÔÚÏß¿´: " + nm.getBookInfo(bookIDX).get(NV.BookName).toString() );
+			new Thread(new DownTOC( nm.getBookInfo(bookIDX).get(NV.BookURL).toString() )).start(); // åœ¨çº¿æŸ¥çœ‹ç›®å½•
+			setTitle("åœ¨çº¿çœ‹: " + nm.getBookInfo(bookIDX).get(NV.BookName).toString() );
 			break;
 		case AC.aListQDPages:
 			this.searchBookName = nm.getBookInfo(bookIDX).get(NV.BookName).toString();
 			this.searchBookURL = itt.getStringExtra(NV.TmpString) ;
-			new Thread(new DownTOC(this.searchBookURL)).start(); // ²é¿´Æğµã
-			setTitle("Æğµã: " + this.searchBookName );
+			new Thread(new DownTOC(this.searchBookURL)).start(); // æŸ¥çœ‹èµ·ç‚¹
+			setTitle("èµ·ç‚¹: " + this.searchBookName );
 			break;
 		case AC.aSearchBookOnQiDian:
 		case AC.aSearchBookOnSite:
 			this.searchBookName = itt.getStringExtra(NV.BookName);
 			this.searchBookURL = itt.getStringExtra(NV.BookURL);
-			new Thread(new DownTOC( this.searchBookURL )).start(); // ËÑË÷ Ò»°ãTOC
-			setTitle("ËÑË÷: " + this.searchBookName );
+			new Thread(new DownTOC( this.searchBookURL )).start(); // æœç´¢ ä¸€èˆ¬TOC
+			setTitle("æœç´¢: " + this.searchBookName );
 			break;
 		default:
 			break;
 }
-
 		renderListView();
 	}
 
+	private void init_LV_item_Long_click() { // åˆå§‹åŒ– é•¿å‡» æ¡ç›® çš„è¡Œä¸º
+		final Builder builder = new AlertDialog.Builder(this);
+		OnItemLongClickListener longlistener = new OnItemLongClickListener() {
+			public boolean onItemLongClick(AdapterView<?> adptv, View view, int position, long id) {
+				if ( isOnLine ) {
+					return true ; // åœ¨çº¿çš„å°±ä¸æ˜¾ç¤ºmenu
+				}
 
-	public boolean onCreateOptionsMenu(Menu menu) { // ´´½¨²Ëµ¥
+				if ( ToolAndroid.isEink() ) {
+					if ( clickX > lv_pagelist.getWidth() * 0.7 ) { // å³è¾¹é€€å‡º
+						onBackPressed();
+						return true;
+					}
+				}
+
+				posLongClick = position;
+				builder.setTitle("æ“ä½œ:" + data.get(posLongClick).get(NV.PageName).toString());
+				final ArrayList<String> menu = new ArrayList<String>();
+				menu.add("åˆ é™¤æœ¬ç« ");
+				menu.add("åˆ é™¤æœ¬ç« å¹¶ä¸å†™å…¥Dellist");
+				if ( ittAction != AC.aListLess1KPages ) {
+				menu.add("åˆ é™¤æœ¬ç« åŠä»¥ä¸Š");
+				menu.add("åˆ é™¤æœ¬ç« åŠä»¥ä¸Šå¹¶ä¸å†™å…¥Dellist");
+				menu.add("åˆ é™¤æœ¬ç« åŠä»¥ä¸‹");
+				menu.add("åˆ é™¤æœ¬ç« åŠä»¥ä¸‹å¹¶ä¸å†™å…¥Dellist");
+				}
+				menu.add("ç¼–è¾‘æœ¬ç« ");
+				menu.add("æ›´æ–°æœ¬ç« ");
+				ListAdapter listdapter = new ArrayAdapter<String>(lv_pagelist.getContext(), android.R.layout.simple_list_item_1, menu);
+
+				builder.setAdapter(listdapter, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog,int which) {
+						Map<String, Object> page = data.get(posLongClick);
+						final String lcName = page.get(NV.PageName).toString(); // final ä¾¿äºçº¿ç¨‹ä¸­ä½¿ç”¨
+						final int bookIDX = (Integer) page.get(NV.BookIDX);
+						final int pageIDX = (Integer) page.get(NV.PageIDX);
+						setTitle(lcName + " : " + page.get(NV.PageURL));
+
+						String itemName = menu.get(which).toString();
+						if ( itemName.equalsIgnoreCase("åˆ é™¤æœ¬ç« ") ) {
+							nm.clearPage(bookIDX, pageIDX, true);
+							foxtip("å·²åˆ é™¤å¹¶è®°å½•: " + lcName);
+						} else if ( itemName.equalsIgnoreCase("åˆ é™¤æœ¬ç« å¹¶ä¸å†™å…¥Dellist") ) {
+							nm.clearPage(bookIDX, pageIDX, false);
+							foxtip("å·²åˆ é™¤: " + lcName);
+						} else if ( itemName.equalsIgnoreCase("åˆ é™¤æœ¬ç« åŠä»¥ä¸Š") ) {
+							if ( ittAction == AC.aListBookPages )
+								nm.clearBookPages(bookIDX, pageIDX, true, true);
+							if ( ittAction == AC.aListAllPages )
+								nm.clearShelfPages(bookIDX, pageIDX, true, true);
+							foxtip("å·²åˆ é™¤å¹¶è®°å½•: <= " + lcName);
+						} else if ( itemName.equalsIgnoreCase("åˆ é™¤æœ¬ç« åŠä»¥ä¸Šå¹¶ä¸å†™å…¥Dellist") ) {
+							if ( ittAction == AC.aListBookPages )
+								nm.clearBookPages(bookIDX, pageIDX, true, false);
+							if ( ittAction == AC.aListAllPages )
+								nm.clearShelfPages(bookIDX, pageIDX, true, false);
+							foxtip("å·²åˆ é™¤: <= " + lcName);
+						} else if ( itemName.equalsIgnoreCase("åˆ é™¤æœ¬ç« åŠä»¥ä¸‹") ) {
+							if ( ittAction == AC.aListBookPages )
+								nm.clearBookPages(bookIDX, pageIDX, false, true);
+							if ( ittAction == AC.aListAllPages )
+								nm.clearShelfPages(bookIDX, pageIDX, false, true);
+							foxtip("å·²åˆ é™¤å¹¶è®°å½•: >= " + lcName);
+						} else if ( itemName.equalsIgnoreCase("åˆ é™¤æœ¬ç« åŠä»¥ä¸‹å¹¶ä¸å†™å…¥Dellist") ) {
+							if ( ittAction == AC.aListBookPages )
+								nm.clearBookPages(bookIDX, pageIDX, false, false);
+							if ( ittAction == AC.aListAllPages )
+								nm.clearShelfPages(bookIDX, pageIDX, false, false);
+							foxtip("å·²åˆ é™¤: >= " + lcName);
+						} else if ( itemName.equalsIgnoreCase("æ›´æ–°æœ¬ç« ") ) {
+							if ( bookIDX != -1 ) {
+								setTitle("æ­£åœ¨æ›´æ–°: " + lcName);
+								(new Thread(){
+									public void run(){
+										nm.updatePage(bookIDX, pageIDX);
+										updateLocalData(bookIDX) ; // æ›´æ–°dataæ•°æ®
+										Message msg = Message.obtain();
+										msg.what = IS_UPDATEPAGE;
+										msg.obj = lcName ;
+										handler.sendMessage(msg);
+									}
+								}).start();
+							}
+						} else if ( itemName.equalsIgnoreCase("ç¼–è¾‘æœ¬ç« ") ) {
+							Intent ittPageInfo = new Intent(Activity_PageList.this,Activity_PageInfo.class);
+							ittPageInfo.putExtra(NV.BookIDX, bookIDX);
+							ittPageInfo.putExtra(NV.PageIDX, pageIDX);
+							startActivity(ittPageInfo);
+						} else {
+							foxtip("ä¸€è„¸èŒåœˆï¼Œè¿˜æ²¡å®ç°è¿™ä¸ªèœå•å‘:\n" + itemName);
+						}
+
+						updateLocalData(bookIDX) ; // æ›´æ–°dataæ•°æ®
+
+						setItemPos4Eink(); // æ»šåŠ¨ä½ç½®æ”¾åˆ°å¤´éƒ¨
+						renderListView();
+					}
+				});
+				builder.create().show();
+				return true;
+			}
+		};
+		lv_pagelist.setOnItemLongClickListener(longlistener);
+	}
+
+	public boolean onCreateOptionsMenu(Menu menu) { // åˆ›å»ºèœå•
 		getMenuInflater().inflate(R.menu.pagelist, menu);
 		int itemcount = menu.size();
 		for ( int i=0; i< itemcount; i++){
 			switch (menu.getItem(i).getItemId()) {
 				case R.id.pm_Add:
 					if ( ittAction == AC.aListQDPages |ittAction == AC.aSearchBookOnQiDian | ittAction == AC.aSearchBookOnSite )
-						menu.getItem(i).setVisible(true); // µ±ÊÇËÑË÷Ê±Òş²ØÌí¼Ó°´Å¥
+						menu.getItem(i).setVisible(true); // å½“æ˜¯æœç´¢æ—¶éšè—æ·»åŠ æŒ‰é’®
 					else
 						menu.getItem(i).setVisible(false);
 					break;
 				case R.id.pm_cleanBook:
 					if ( ittAction == AC.aListQDPages |ittAction == AC.aSearchBookOnQiDian | ittAction == AC.aSearchBookOnSite )
-						menu.getItem(i).setVisible(false); // µ±ÊÇÍøÂçÊ±Òş²ØÉ¾³ı°´Å¥
+						menu.getItem(i).setVisible(false); // å½“æ˜¯ç½‘ç»œæ—¶éšè—åˆ é™¤æŒ‰é’®
 					else
 						menu.getItem(i).setVisible(true);
 					break;
 				case R.id.pm_cleanBookND:
 					if ( ittAction == AC.aSearchBookOnQiDian | ittAction == AC.aSearchBookOnSite
 						| ittAction == AC.aListAllPages | ittAction == AC.aListLess1KPages )
-						menu.getItem(i).setVisible(false); // µ±ÊÇÍøÂçÊ±Òş²ØÉ¾³ı°´Å¥
+						menu.getItem(i).setVisible(false); // å½“æ˜¯ç½‘ç»œæ—¶éšè—åˆ é™¤æŒ‰é’®
 					else
 						menu.getItem(i).setVisible(true);
 					break;
@@ -259,9 +377,9 @@ switch (ittAction) {
 		return true;
 	}
 
-	public boolean onOptionsItemSelected(MenuItem item) { // ÏìÓ¦²Ëµ¥
+	public boolean onOptionsItemSelected(MenuItem item) { // å“åº”èœå•
 		switch (item.getItemId()) {
-		case android.R.id.home: // ·µ»ØÍ¼±ê
+		case android.R.id.home: // è¿”å›å›¾æ ‡
 			onBackPressed();
 			break;
 		case R.id.pl_finish:
@@ -270,29 +388,29 @@ switch (ittAction) {
 		case R.id.pm_cleanBook:
 			if ( ittAction == AC.aListAllPages) {
 				nm.clearShelf(true);
-				nm.simplifyAllDelList(); // ¾«¼òËùÓĞDelList
+				nm.simplifyAllDelList(); // ç²¾ç®€æ‰€æœ‰DelList
 			}
 			if ( ittAction == AC.aListBookPages )
 				nm.clearBook(bookIDX, true);
-			if ( ittAction == AC.aListLess1KPages ) { // µ¹ĞòÒ»ÌõÌõÉ¾
+			if ( ittAction == AC.aListLess1KPages ) { // å€’åºä¸€æ¡æ¡åˆ 
 				for ( int i=data.size()-1; i>=0; i-- )
 					nm.clearPage((Integer)data.get(i).get(NV.BookIDX), (Integer)data.get(i).get(NV.PageIDX), true);
 			}
 			data.clear();
 			adapter.notifyDataSetChanged();
-			foxtip("ÒÑÉ¾³ıËùÓĞ²¢¸üĞÂ¼ÇÂ¼");
+			foxtip("å·²åˆ é™¤æ‰€æœ‰å¹¶æ›´æ–°è®°å½•");
 			onBackPressed();
 			break;
 		case R.id.pm_cleanBookND:
 			if ( ittAction == AC.aListBookPages )
 				nm.clearBook(bookIDX, false);
-			foxtip("ÒÑÉ¾³ıËùÓĞ");
+			foxtip("å·²åˆ é™¤æ‰€æœ‰");
 			onBackPressed();
 			break;
 		case R.id.pm_Add:
 			if ( "" != this.searchBookURL && "" != this.searchBookName ) {
 				int nBookIDX = -1 ;
-				nBookIDX = nm.addBook(this.searchBookName, this.searchBookURL, ""); // ĞÂÔö£¬²¢»ñÈ¡·µ»Øbookidx
+				nBookIDX = nm.addBook(this.searchBookName, this.searchBookURL, ""); // æ–°å¢ï¼Œå¹¶è·å–è¿”å›bookidx
 				if ( nBookIDX < 0 )
 					break ;
 
@@ -301,7 +419,7 @@ switch (ittAction) {
 				startActivity(itti);
 				onBackPressed();
 			} else {
-				setTitle("ĞÅÏ¢²»ÍêÕû@ĞÂÔö : " + this.searchBookName + " <" + this.searchBookURL + ">");
+				setTitle("ä¿¡æ¯ä¸å®Œæ•´@æ–°å¢ : " + this.searchBookName + " <" + this.searchBookURL + ">");
 			}
 			break;
 		case R.id.jumplist_tobottom:
@@ -310,7 +428,7 @@ switch (ittAction) {
 			break;
 		case R.id.jumplist_totop:
 			lv_pagelist.setSelection(0);
-			setItemPos4Eink(); // ¹ö¶¯Î»ÖÃ·Åµ½Í·²¿
+			setItemPos4Eink(); // æ»šåŠ¨ä½ç½®æ”¾åˆ°å¤´éƒ¨
 			break;
 		case R.id.jumplist_tomiddle:
 			int midPos = adapter.getCount() / 2 - 1 ;
@@ -322,86 +440,10 @@ switch (ittAction) {
 		return super.onOptionsItemSelected(item);
 	}
 
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-//		if ( bookIDX == -1 ) { // intent´«À´µÄbookIDX, ´ÓÍøÂçÏÂÔØÁÙÊ±µÄÌõÄ¿Ã»ÓĞID
-//			foxtip("itent ´«ÈëµÄ bookIDX = -1\n\n´ÓÍøÂçÏÂÔØÁÙÊ±µÄÌõÄ¿Ã»ÓĞID");
-//			return super.onContextItemSelected(item);
-//		}
-
-		Map<String, Object> page = data.get(posLongClick);
-		final String lcName = page.get(NV.PageName).toString(); // final ±ãÓÚÏß³ÌÖĞÊ¹ÓÃ
-		final int bookIDX = (Integer) page.get(NV.BookIDX);
-		final int pageIDX = (Integer) page.get(NV.PageIDX);
-
-		setTitle(lcName + " : " + page.get(NV.PageURL));
-
-		String itemName = item.getTitle().toString();
-		if ( itemName.equalsIgnoreCase("É¾³ı±¾ÕÂ") ) {
-			nm.clearPage(bookIDX, pageIDX, true);
-			foxtip("ÒÑÉ¾³ı²¢¼ÇÂ¼: " + lcName);
-		} else if ( itemName.equalsIgnoreCase("É¾³ı±¾ÕÂ²¢²»Ğ´ÈëDellist") ) {
-			nm.clearPage(bookIDX, pageIDX, false);
-			foxtip("ÒÑÉ¾³ı: " + lcName);
-		} else if ( itemName.equalsIgnoreCase("É¾³ı±¾ÕÂ¼°ÒÔÉÏ") ) {
-			if ( ittAction == AC.aListBookPages )
-				nm.clearBookPages(bookIDX, pageIDX, true, true);
-			if ( ittAction == AC.aListAllPages )
-				nm.clearShelfPages(bookIDX, pageIDX, true, true);
-			foxtip("ÒÑÉ¾³ı²¢¼ÇÂ¼: <= " + lcName);
-		} else if ( itemName.equalsIgnoreCase("É¾³ı±¾ÕÂ¼°ÒÔÉÏ²¢²»Ğ´ÈëDellist") ) {
-			if ( ittAction == AC.aListBookPages )
-				nm.clearBookPages(bookIDX, pageIDX, true, false);
-			if ( ittAction == AC.aListAllPages )
-				nm.clearShelfPages(bookIDX, pageIDX, true, false);
-			foxtip("ÒÑÉ¾³ı: <= " + lcName);
-		} else if ( itemName.equalsIgnoreCase("É¾³ı±¾ÕÂ¼°ÒÔÏÂ") ) {
-			if ( ittAction == AC.aListBookPages )
-				nm.clearBookPages(bookIDX, pageIDX, false, true);
-			if ( ittAction == AC.aListAllPages )
-				nm.clearShelfPages(bookIDX, pageIDX, false, true);
-			foxtip("ÒÑÉ¾³ı²¢¼ÇÂ¼: >= " + lcName);
-		} else if ( itemName.equalsIgnoreCase("É¾³ı±¾ÕÂ¼°ÒÔÏÂ²¢²»Ğ´ÈëDellist") ) {
-			if ( ittAction == AC.aListBookPages )
-				nm.clearBookPages(bookIDX, pageIDX, false, false);
-			if ( ittAction == AC.aListAllPages )
-				nm.clearShelfPages(bookIDX, pageIDX, false, false);
-			foxtip("ÒÑÉ¾³ı: >= " + lcName);
-		} else if ( itemName.equalsIgnoreCase("¸üĞÂ±¾ÕÂ") ) {
-			if ( bookIDX != -1 ) {
-				setTitle("ÕıÔÚ¸üĞÂ: " + lcName);
-				(new Thread(){
-					public void run(){
-						nm.updatePage(bookIDX, pageIDX);
-						updateLocalData(bookIDX) ; // ¸üĞÂdataÊı¾İ
-						Message msg = Message.obtain();
-						msg.what = IS_UPDATEPAGE;
-						msg.obj = lcName ;
-						handler.sendMessage(msg);
-					}
-				}).start();
-			}
-		} else if ( itemName.equalsIgnoreCase("±à¼­±¾ÕÂ") ) {
-			Intent ittPageInfo = new Intent(Activity_PageList.this,Activity_PageInfo.class);
-			ittPageInfo.putExtra(NV.BookIDX, bookIDX);
-			ittPageInfo.putExtra(NV.PageIDX, pageIDX);
-			startActivity(ittPageInfo);
-		} else {
-			foxtip("Ò»Á³ÃÈÈ¦£¬»¹Ã»ÊµÏÖÕâ¸ö²Ëµ¥ÄÅ:\n" + itemName);
-		}
-
-		updateLocalData(bookIDX) ; // ¸üĞÂdataÊı¾İ
-
-		setItemPos4Eink(); // ¹ö¶¯Î»ÖÃ·Åµ½Í·²¿
-		renderListView();
-
-		return super.onContextItemSelected(item);
-	}
-
 	void updateLocalData(int inBookIDX) {
-		switch (ittAction) { // ¸üĞÂdataÊı¾İ
+		switch (ittAction) { // æ›´æ–°dataæ•°æ®
 		case AC.aListBookPages:
-			data = nm.getBookPageList( inBookIDX ); // »ñÈ¡Ò³ÃæÁĞ±í
+			data = nm.getBookPageList( inBookIDX ); // è·å–é¡µé¢åˆ—è¡¨
 			break;
 		case AC.aListAllPages:
 			data = nm.getPageList(1);
@@ -413,36 +455,12 @@ switch (ittAction) {
 	}
 
 	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
-
-		if ( isOnLine ) {
-			return ; // ÔÚÏßµÄ¾Í²»ÏÔÊ¾menu
-		}
-
-		posLongClick = ( (AdapterContextMenuInfo) menuInfo ).position; //£¨position ´ú±íµã»÷ÁĞ±íÖĞµÚ¼¸Ïî³öÏÖµÄÉÏÏÂÎÄ²Ëµ¥£©
-		menu.setHeaderTitle("²Ù×÷:" + data.get(posLongClick).get(NV.PageName).toString());
-
-		menu.add("É¾³ı±¾ÕÂ");
-		menu.add("É¾³ı±¾ÕÂ²¢²»Ğ´ÈëDellist");
-		if ( ittAction != AC.aListLess1KPages ) {
-		menu.add("É¾³ı±¾ÕÂ¼°ÒÔÉÏ");
-		menu.add("É¾³ı±¾ÕÂ¼°ÒÔÉÏ²¢²»Ğ´ÈëDellist");
-		menu.add("É¾³ı±¾ÕÂ¼°ÒÔÏÂ");
-		menu.add("É¾³ı±¾ÕÂ¼°ÒÔÏÂ²¢²»Ğ´ÈëDellist");
-		}
-		menu.add("±à¼­±¾ÕÂ");
-		menu.add("¸üĞÂ±¾ÕÂ");
-
-	}
-
-	@Override
-	public void onBackPressed() { // ·µ»Ø¼ü±»°´
+	public void onBackPressed() { // è¿”å›é”®è¢«æŒ‰
 		setResult(RESULT_OK);
 		finish();
 	}
 
-	private void foxtip(String sinfo) { // ToastÏûÏ¢
+	private void foxtip(String sinfo) { // Toastæ¶ˆæ¯
 		Toast.makeText(getApplicationContext(), sinfo, Toast.LENGTH_SHORT).show();
 	}
 }

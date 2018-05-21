@@ -33,13 +33,13 @@ public class FoxZipWriter {
 		}
 	}
 
-	public void setLevel(int level){  // Ñ¹Ëõ¼¶±ğ: 0-9
+	public void setLevel(int level){  // å‹ç¼©çº§åˆ«: 0-9
 		zos.setLevel(level);
 	}
 
 	public void putBinFile(byte[] b, String filename, boolean isStored) {
 		ZipEntry entry = new ZipEntry(filename);
-		if ( isStored ) { // ½ö´æ´¢£¬²»Ñ¹Ëõ
+		if ( isStored ) { // ä»…å­˜å‚¨ï¼Œä¸å‹ç¼©
 			entry.setMethod(ZipEntry.STORED);
 			entry.setCompressedSize(b.length);
 			CRC32 crc = new CRC32();
@@ -55,7 +55,7 @@ public class FoxZipWriter {
 		}
 	}
 
-	public void putBinFile(File inFile, String filename) {  // ½«ÎÄ¼şĞ´Èëzip
+	public void putBinFile(File inFile, String filename) {  // å°†æ–‡ä»¶å†™å…¥zip
 		ZipEntry entry = new ZipEntry(filename);
 		try {
 			zos.putNextEntry(entry);
@@ -85,7 +85,7 @@ public class FoxZipWriter {
 		long sTime = System.currentTimeMillis();
 
 		FoxZipWriter zip = new FoxZipWriter(new File("C:\\xx.zip"));
-		zip.putBinFile("application/epub+zip".getBytes(), "mimetype", true); // epub¹æ·¶£¬µÚÒ»¸öÎÄ¼ş±ØĞëÎªstored
+		zip.putBinFile("application/epub+zip".getBytes(), "mimetype", true); // epubè§„èŒƒï¼Œç¬¬ä¸€ä¸ªæ–‡ä»¶å¿…é¡»ä¸ºstored
 		zip.setLevel(9);
 		zip.putTextFile("<html>\n</html>\n", "index.html");
 		zip.close();

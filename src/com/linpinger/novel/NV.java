@@ -1,7 +1,7 @@
 package com.linpinger.novel;
 
 public interface NV {
-	public static final String BookName = "bookname" ; // Novel info使用
+	public static final String BookName = "bookname" ; // Novel info浣跨敤
 	public static final String BookURL = "bookurl" ;
 	public static final String BookAuthor = "author" ;
 	public static final String DelURL = "delurl" ;
@@ -10,11 +10,11 @@ public interface NV {
 
 	public static final String BookIDX = "bookIDX";
 	public static final String PageIDX = "pageIDX";
-	public static final String PagesCount = "pagesCount";   // BookList使用
-	public static final String PageFullURL = "pageFullURL"; // addBookBlankPageList 使用
-	public static final String TmpString = "tmpString";     // 临时使用: 搜索起点
+	public static final String PagesCount = "pagesCount";   // BookList浣跨敤
+	public static final String PageFullURL = "pageFullURL"; // addBookBlankPageList 浣跨敤
+	public static final String TmpString = "tmpString";     // 涓存椂浣跨敤: 鎼滅储璧风偣
 
-	public static final String PageName = "pagename" ; // Novel page使用
+	public static final String PageName = "pagename" ; // Novel page浣跨敤
 	public static final String PageURL = "pageurl" ;
 	public static final String Content = "content" ;
 	public static final String Size = "size" ;

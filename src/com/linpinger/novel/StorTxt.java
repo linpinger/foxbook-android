@@ -15,14 +15,14 @@ public class StorTxt extends Stor {
 	public List<Novel> load(File inFile) {
 		// boolean isNew = true;
 		//long sTime = System.currentTimeMillis();
-		// µÚÒ»²½¼ì²â±àÂë£¬·ÇGBK¾ÍÊÇUTF-8£¬ÆäËû²»Óè¿¼ÂÇ
-		String txtEnCoding = ToolJava.detectTxtEncoding(inFile.getPath()) ; // ²Â²âÖĞÎÄÎÄ±¾±àÂë ·µ»Ø: "GBK" »ò "UTF-8"
-		String txt = ToolJava.readText(inFile.getPath(), txtEnCoding).replace("\r", "").replace("¡¡", ""); // ÎªÆğµãtxtÔ¤´¦Àí
+		// ç¬¬ä¸€æ­¥æ£€æµ‹ç¼–ç ï¼ŒéGBKå°±æ˜¯UTF-8ï¼Œå…¶ä»–ä¸äºˆè€ƒè™‘
+		String txtEnCoding = ToolJava.detectTxtEncoding(inFile.getPath()) ; // çŒœæµ‹ä¸­æ–‡æ–‡æœ¬ç¼–ç  è¿”å›: "GBK" æˆ– "UTF-8"
+		String txt = ToolJava.readText(inFile.getPath(), txtEnCoding).replace("\r", "").replace("ã€€", ""); // ä¸ºèµ·ç‚¹txté¢„å¤„ç†
 
-		if ( ! txt.contains("¸üĞÂÊ±¼ä") ) // ·ÇÆğµãÎÄ±¾
+		if ( ! txt.contains("æ›´æ–°æ—¶é—´") ) // éèµ·ç‚¹æ–‡æœ¬
 			return importNormalTxt(inFile, txtEnCoding);
 
-		String sQidianid = inFile.getName().replace(".txt", ""); // ÎÄ¼şÃû
+		String sQidianid = inFile.getName().replace(".txt", ""); // æ–‡ä»¶å
 		String sQidianURL = new SiteQiDian().getTOCURL_Android7(sQidianid); // URL
 		String sBookName = sQidianid;
 
@@ -32,23 +32,23 @@ public class StorTxt extends Stor {
 		List<Map<String, Object>> chapters = new ArrayList<Map<String, Object>>();
 		Map<String, Object> page;
 
-		// ĞÂ°æÒª¿ìºÜ¶à£¬¶øÇÒÉÙÁËÍ·²¿µÄÎŞÓÃÕÂ½Ú
-		// ²»¹ıÈç¹ûÒÔºóÆğµãtxtÓĞ½á¹¹±ä¶¯µÄ»°£¬ÊÊÓ¦ĞÔ¿ÉÄÜ²»Èç¾É°æ£¬¹Ê±£Áô¾É°æ
+		// æ–°ç‰ˆè¦å¿«å¾ˆå¤šï¼Œè€Œä¸”å°‘äº†å¤´éƒ¨çš„æ— ç”¨ç« èŠ‚
+		// ä¸è¿‡å¦‚æœä»¥åèµ·ç‚¹txtæœ‰ç»“æ„å˜åŠ¨çš„è¯ï¼Œé€‚åº”æ€§å¯èƒ½ä¸å¦‚æ—§ç‰ˆï¼Œæ•…ä¿ç•™æ—§ç‰ˆ
 		String line[] = txt.split("\n");
 		int lineCount = line.length;
 		sBookName = line[0] ;
-		int titleNum = 0 ; // base:0 °üº¬
-		int headNum = 0 ; // base:0  °üº¬
+		int titleNum = 0 ; // base:0 åŒ…å«
+		int headNum = 0 ; // base:0  åŒ…å«
 		int lastEndNum = 0 ;
-		for ( int i=3; i<lineCount; i++) { // ´ÓµÚËÄĞĞ¿ªÊ¼
-			if (line[i].startsWith("¸üĞÂÊ±¼ä")) { // ÉÏÒ»ĞĞÎª±êÌâĞĞ
+		for ( int i=3; i<lineCount; i++) { // ä»ç¬¬å››è¡Œå¼€å§‹
+			if (line[i].startsWith("æ›´æ–°æ—¶é—´")) { // ä¸Šä¸€è¡Œä¸ºæ ‡é¢˜è¡Œ
 				titleNum = i - 1 ;
 				headNum = i + 2 ;
-			} else { // ·Ç±êÌâĞĞ
+			} else { // éæ ‡é¢˜è¡Œ
 				if ( line[i].startsWith("<a href=") ) {
-					if ( i - lastEndNum < 5 ) // ÓĞĞ©txtÕÂ½ÚÎ²²¿ÓĞÁ½ĞĞÁ´½Ó£¬×íÁË
+					if ( i - lastEndNum < 5 ) // æœ‰äº›txtç« èŠ‚å°¾éƒ¨æœ‰ä¸¤è¡Œé“¾æ¥ï¼Œé†‰äº†
 						continue;
-					// ÔÚÕâÀï»ñÈ¡±êÌâĞĞ£¬ÄÚÈİĞĞ
+					// åœ¨è¿™é‡Œè·å–æ ‡é¢˜è¡Œï¼Œå†…å®¹è¡Œ
 					// System.out.println(titleNum + " : " + headNum + " - " + i );
 					StringBuilder sbd = new StringBuilder();
 					for ( int j=headNum; j<i; j++)
@@ -76,16 +76,16 @@ public class StorTxt extends Stor {
 		info.put(NV.BookAuthor, "");
 		book.setInfo(info);
 
-		// Log.e("XX", "ºÄÊ±: " + (System.currentTimeMillis() - sTime));
+		// Log.e("XX", "è€—æ—¶: " + (System.currentTimeMillis() - sTime));
 		lst.add(book);
 		return lst ;
 	}
 
 	private List<Novel> importNormalTxt(File inFile, String txtEnCoding) {
-//		String txtEnCoding = ToolBookJava.detectTxtEncoding(txtPath) ; // ²Â²âÖĞÎÄÎÄ±¾±àÂë ·µ»Ø: "GBK" »ò "UTF-8"
+//		String txtEnCoding = ToolBookJava.detectTxtEncoding(txtPath) ; // çŒœæµ‹ä¸­æ–‡æ–‡æœ¬ç¼–ç  è¿”å›: "GBK" æˆ– "UTF-8"
 //		String txt = ToolBookJava.readText(txtPath, txtEnCoding) ;
 
-		String fileName = inFile.getName().replace(".txt", ""); // ÎÄ¼şÃû
+		String fileName = inFile.getName().replace(".txt", ""); // æ–‡ä»¶å
 
 		List<Novel> lst = new ArrayList<Novel>();
 		Novel book = new Novel();
@@ -103,12 +103,12 @@ public class StorTxt extends Stor {
 			String line = null;
 			int lineLen = 0;
 			while ((line = br.readLine()) != null) {
-				if ( line.startsWith("¡¡¡¡") ) // È¥µô¿ªÍ·µÄ¿Õ°×
-				line = line.replaceFirst("¡¡¡¡*", "");
+				if ( line.startsWith("ã€€ã€€") ) // å»æ‰å¼€å¤´çš„ç©ºç™½
+				line = line.replaceFirst("ã€€ã€€*", "");
 
 				lineLen = line.length() ;
 				chunkLen = chunkStr.length();
-				if ( chunkLen > 2200 && lineLen < 22 && ( line.startsWith("µÚ") || line.contains("¾í") || line.contains("ÕÂ") || line.contains("½Ú") || line.contains("»Ø") || line.contains("Æ·") || lineLen > 2 ) ) {
+				if ( chunkLen > 2200 && lineLen < 22 && ( line.startsWith("ç¬¬") || line.contains("å·") || line.contains("ç« ") || line.contains("èŠ‚") || line.contains("å›") || line.contains("å“") || lineLen > 2 ) ) {
 					++ chunkCount;
 
 					page = new HashMap<String, Object>();

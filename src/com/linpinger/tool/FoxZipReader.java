@@ -54,7 +54,7 @@ public class FoxZipReader {
 		StringBuilder retStr = new StringBuilder(174080);
 		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(zf.getInputStream(zf.getEntry(filename)), iTextFileEncoding));
-			char[] chars = new char[4096]; // 这个大小不影响读取速度
+			char[] chars = new char[4096]; // 杩欎釜澶у皬涓嶅奖鍝嶈鍙栭�熷害
 			int length = 0;
 			while ((length = br.read(chars)) > 0) {
 				retStr.append(chars, 0, length);

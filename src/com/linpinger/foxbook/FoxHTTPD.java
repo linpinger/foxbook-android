@@ -13,7 +13,7 @@ import com.linpinger.tool.ToolJava;
 
 public class FoxHTTPD extends NanoHTTPD {
 	private NovelManager nm ;
-	private File foxRootDir ; // nanohttpd µÄÄÇ¸ö±äÁ¿ÊÇË½ÓĞµÄ£¬ÎŞ·¨¼Ì³Ğ
+	private File foxRootDir ; // nanohttpd çš„é‚£ä¸ªå˜é‡æ˜¯ç§æœ‰çš„ï¼Œæ— æ³•ç»§æ‰¿
 	private String nowUserAgent = "kindle" ;
 	private final String html_foot = "\n</body>\n</html>\n\n" ;
 
@@ -30,11 +30,11 @@ public class FoxHTTPD extends NanoHTTPD {
 	}
 
 
-	// ÏìÓ¦
+	// å“åº”
 	@Override
 	public Response serve(String uri, String method, Properties header, Properties parms, Properties files) {
 
-		// Ê×Ò³ÁĞ³öÊé¼®
+		// é¦–é¡µåˆ—å‡ºä¹¦ç±
 		if (uri.equalsIgnoreCase("/")) {
 			nowUserAgent = header.getProperty("user-agent", "kindle");
 			String action = parms.getProperty("a", "blank");
@@ -43,14 +43,14 @@ public class FoxHTTPD extends NanoHTTPD {
 			String html = "";
 
 			if ( action.equalsIgnoreCase("blank") )
-				html = showBookList() ; //Êé¼Ü
-			if ( action.equalsIgnoreCase(LIST_PAGES)) { // ÕÂ½ÚÁĞ±í
-				html = showPageList(bookid) ; // ÕÂ½ÚÁĞ±í
+				html = showBookList() ; //ä¹¦æ¶
+			if ( action.equalsIgnoreCase(LIST_PAGES)) { // ç« èŠ‚åˆ—è¡¨
+				html = showPageList(bookid) ; // ç« èŠ‚åˆ—è¡¨
 			}
-			if ( action.equalsIgnoreCase(SHOW_CONTENT)) { // ÄÚÈİ
+			if ( action.equalsIgnoreCase(SHOW_CONTENT)) { // å†…å®¹
 				html = showContent(bookid, pageid) ;
 			}
-			if ( action.equalsIgnoreCase(SHOW_PREV_CONTENT)) { // ÄÚÈİ
+			if ( action.equalsIgnoreCase(SHOW_PREV_CONTENT)) { // å†…å®¹
 				Map<String, Object> page = nm.getPrevPage(Integer.valueOf(bookid), Integer.valueOf(pageid));
 				if ( page == null ) {
 					html = "<html><head><title>txt</title><meta http-equiv=\"refresh\" content=\"0; URL=?\"></head><body><a href=\"?\">NoPrev</a></body></html>";
@@ -59,7 +59,7 @@ public class FoxHTTPD extends NanoHTTPD {
 					html = "<html><head><title>txt</title><meta http-equiv=\"refresh\" content=\"0; URL=" + newURL +"\"></head><body><a href=\"" + newURL + "\">ShowContent</a></body></html>";
 				}
 			}
-			if ( action.equalsIgnoreCase(SHOW_NEXT_CONTENT)) { // ÄÚÈİ
+			if ( action.equalsIgnoreCase(SHOW_NEXT_CONTENT)) { // å†…å®¹
 				Map<String, Object> page = nm.getNextPage(Integer.valueOf(bookid), Integer.valueOf(pageid));
 				if ( page == null ) {
 					html = "<html><head><title>txt</title><meta http-equiv=\"refresh\" content=\"0; URL=?\"></head><body><a href=\"?\">NoNext</a></body></html>";
@@ -68,30 +68,30 @@ public class FoxHTTPD extends NanoHTTPD {
 					html = "<html><head><title>txt</title><meta http-equiv=\"refresh\" content=\"0; URL=" + newURL +"\"></head><body><a href=\"" + newURL + "\">ShowContent</a></body></html>";
 				}
 			}
-			if ( action.equalsIgnoreCase(DOWN_TXT)) { // ÏÂÔØtxt
+			if ( action.equalsIgnoreCase(DOWN_TXT)) { // ä¸‹è½½txt
 				String txtPath = "/fox.txt" ;
-				nm.exportAsTxt(new File(this.foxRootDir, txtPath)); // ËùÓĞtxt
+				nm.exportAsTxt(new File(this.foxRootDir, txtPath)); // æ‰€æœ‰txt
 				html = "<html><head><title>txt</title><meta http-equiv=\"refresh\" content=\"0; URL=" + txtPath +"\"></head><body><a href=\"" + txtPath + "\">Download txt</a></body></html>";
 			}
 
 			return new Response( HTTP_OK, MIME_HTML, html ) ;
 		}
 
-		if (uri.equalsIgnoreCase("/L")) { // ÁĞ³ö/sdcard/
+		if (uri.equalsIgnoreCase("/L")) { // åˆ—å‡º/sdcard/
 			return serveFile( "/", header, foxRootDir, true );
 		}
 
 		if (uri.equalsIgnoreCase("/f")) {
-			if ( method.equalsIgnoreCase("get") ) { // ÉÏ´«Ò³Ãæ
-				String title = "ÉÏ´«ÃÈÃÈßÕµÄÎÄ¼ş";
+			if ( method.equalsIgnoreCase("get") ) { // ä¸Šä¼ é¡µé¢
+				String title = "ä¸Šä¼ èŒèŒå“’çš„æ–‡ä»¶";
 				StringBuilder html = new StringBuilder();
 				html.append("<!DOCTYPE html>\n<html>\n<head>\n\t<META http-equiv=Content-Type content=\"text/html; charset=utf-8\">\n\t<meta name=\"viewport\" content=\"width=device-width; initial-scale=1.0; minimum-scale=0.1; maximum-scale=3.0; \"/>\n\t<meta http-equiv=\"X-UA-Compatible\" content=\"IE=Edge\">\n\t<title>");
 				html.append(title).append("</title>\n</head>\n\n<body bgcolor=\"#eefaee\">\n\n");
-				html.append("<h3>ÉÏ´«ÎÄ¼şµ½ /sdcard/ £¬Ö§³ÖÖĞÎÄÎÄ¼şÃû</h3>\n\n<form action=\"/f\" enctype=\"multipart/form-data\" method=\"post\">\n\t<input name=\"filename\" type=\"file\" />\n\t<input type=\"submit\" value=\"ÉÏ´«\" />\n</form>\n");
+				html.append("<h3>ä¸Šä¼ æ–‡ä»¶åˆ° /sdcard/ ï¼Œæ”¯æŒä¸­æ–‡æ–‡ä»¶å</h3>\n\n<form action=\"/f\" enctype=\"multipart/form-data\" method=\"post\">\n\t<input name=\"filename\" type=\"file\" />\n\t<input type=\"submit\" value=\"ä¸Šä¼ \" />\n</form>\n");
 				html.append("\n</body>\n</html>\n");
 				return new Response( HTTP_OK, MIME_HTML, html.toString() ) ;
-			} else { // ´¦ÀíÎÄ¼şÉÏ´«
-				// º¹£¬ĞŞ¸ÄÁËnanohttpd.java ÀïÃæµÄÁÙÊ±Â·¾¶µ½/sdcard/£¬µ½´¦¶¼ÊÇÓ²±àÂë£¬ºÇºÇßÕ
+			} else { // å¤„ç†æ–‡ä»¶ä¸Šä¼ 
+				// æ±—ï¼Œä¿®æ”¹äº†nanohttpd.java é‡Œé¢çš„ä¸´æ—¶è·¯å¾„åˆ°/sdcard/ï¼Œåˆ°å¤„éƒ½æ˜¯ç¡¬ç¼–ç ï¼Œå‘µå‘µå“’
 				String tmpFilePath = files.getProperty("filename") ; // /sdcard/NanoHTTPD-nnn.upload /data/data/com.linpinger.foxudp/cache/NanoHTTPD-561991304.upload
 				String fileName = parms.getProperty("filename", "NoName.upload") ; // testUpload.exe
 				File savePath = new File(this.foxRootDir, fileName);
@@ -105,7 +105,7 @@ public class FoxHTTPD extends NanoHTTPD {
 		return serveFile( uri, header, foxRootDir, true );
 	}
 
-	// ÄÚÈİ
+	// å†…å®¹
 	private String showContent(String iBookIDX, String iPageIDX) {
 		String fontSize = "22px" ;
 		if ( nowUserAgent.contains("Android") )
@@ -123,20 +123,20 @@ public class FoxHTTPD extends NanoHTTPD {
 		.append("<div class=\"content\" style=\"font-size:").append(fontSize).append("; line-height:150%;font-family: Microsoft YaHei;\">\n")
 		.append("<p>").append(content.replace("\n", "</p>\n<p>"))
 		.append("</p>\n</div>\n")
-		.append("<p>¡¡¡¡").append(title).append("</p>\n")
+		.append("<p>ã€€ã€€").append(title).append("</p>\n")
 		.append("<div class=\"book_switch\">\n<ul>")
-		.append("\t<li><a href=\"?a=").append(SHOW_PREV_CONTENT).append("&bid=").append(iBookIDX).append("&pid=").append(iPageIDX).append("\">ÉÏÒ»ÕÂ</a></li>\n")
-		.append("\t<li><a href=\"?a=").append(LIST_PAGES).append("&bid=").append(iBookIDX).append("\">·µ»ØÄ¿Â¼</a></li>\n")
-		.append("\t<li><a href=\"?\">·µ»ØÊé¼Ü</a></li>\n")
-		.append("\t<li><a href=\"?a=").append(SHOW_NEXT_CONTENT).append("&bid=").append(iBookIDX).append("&pid=").append(iPageIDX).append("\">ÏÂÒ»ÕÂ</a></li>\n")
+		.append("\t<li><a href=\"?a=").append(SHOW_PREV_CONTENT).append("&bid=").append(iBookIDX).append("&pid=").append(iPageIDX).append("\">ä¸Šä¸€ç« </a></li>\n")
+		.append("\t<li><a href=\"?a=").append(LIST_PAGES).append("&bid=").append(iBookIDX).append("\">è¿”å›ç›®å½•</a></li>\n")
+		.append("\t<li><a href=\"?\">è¿”å›ä¹¦æ¶</a></li>\n")
+		.append("\t<li><a href=\"?a=").append(SHOW_NEXT_CONTENT).append("&bid=").append(iBookIDX).append("&pid=").append(iPageIDX).append("\">ä¸‹ä¸€ç« </a></li>\n")
 		.append("</ul>\n</div>\n\n").append(html_foot);
 		return html.toString() ;
 	}
 
-	// ÕÂ½ÚÁĞ±í
+	// ç« èŠ‚åˆ—è¡¨
 	private String showPageList(String iBookIDX) {
 		StringBuilder html = new StringBuilder();
-		html.append(html_head("ÃÈÃÈßÕµÄÕÂ½ÚÁĞ±í"));
+		html.append(html_head("èŒèŒå“’çš„ç« èŠ‚åˆ—è¡¨"));
 
 		List<Map<String, Object>> data ;
 		if ( Integer.valueOf(iBookIDX) >= 0 )
@@ -156,15 +156,15 @@ public class FoxHTTPD extends NanoHTTPD {
 		html.append("\n</ol>\n").append(html_foot);
 		return html.toString() ;
 	}
-	// Êé¼Ü
+	// ä¹¦æ¶
 	private String showBookList() {
 		StringBuilder html = new StringBuilder();
-		html.append(html_head("ÃÈÃÈßÕµÄÊé¼®ÁĞ±í"));
+		html.append(html_head("èŒèŒå“’çš„ä¹¦ç±åˆ—è¡¨"));
 
-		html.append("<br>¡¡¡¡<a href=\"?a=").append(LIST_PAGES)
-			.append("&bid=-1\">ÏÔÊ¾ËùÓĞÕÂ½Ú</a>  <a href=\"?a=")
-			.append(DOWN_TXT).append("&bid=-1\">ÏÂÔØtxt</a><br>\n<ol>\n");
-		List<Map<String, Object>> data = nm.getBookList(); // »ñÈ¡Êé¼®ÁĞ±í
+		html.append("<br>ã€€ã€€<a href=\"?a=").append(LIST_PAGES)
+			.append("&bid=-1\">æ˜¾ç¤ºæ‰€æœ‰ç« èŠ‚</a>  <a href=\"?a=")
+			.append(DOWN_TXT).append("&bid=-1\">ä¸‹è½½txt</a><br>\n<ol>\n");
+		List<Map<String, Object>> data = nm.getBookList(); // è·å–ä¹¦ç±åˆ—è¡¨
 		for(Map<String, Object> mm : data ) {
 			html.append("<li><a href=\"?a=").append(LIST_PAGES).append("&bid=")
 				.append(mm.get(NV.BookIDX)).append("\" title=\"").append(mm.get(NV.BookURL)).append("\">")

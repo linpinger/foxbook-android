@@ -27,7 +27,7 @@ public class Activity_PageInfo extends Activity {
 
 	SharedPreferences settings;
 
-	private void init_controls() { // ³õÊ¼»¯¸÷¿Ø¼ş
+	private void init_controls() { // åˆå§‹åŒ–å„æ§ä»¶
 		pi_bid = (TextView) findViewById(R.id.pi_bid);
 		pi_pid = (TextView) findViewById(R.id.pi_pid);
 		pi_pname = (EditText) findViewById(R.id.pi_pname);
@@ -37,10 +37,10 @@ public class Activity_PageInfo extends Activity {
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void showHomeUp() {
-		getActionBar().setDisplayHomeAsUpEnabled(true); // ±êÌâÀ¸ÖĞÌí¼Ó·µ»ØÍ¼±ê
+		getActionBar().setDisplayHomeAsUpEnabled(true); // æ ‡é¢˜æ ä¸­æ·»åŠ è¿”å›å›¾æ ‡
 	}
 
-	public void onCreate(Bundle savedInstanceState) { // ½çÃæ³õÊ¼»¯
+	public void onCreate(Bundle savedInstanceState) { // ç•Œé¢åˆå§‹åŒ–
 		settings = PreferenceManager.getDefaultSharedPreferences(this);
 		if ( settings.getBoolean("isWhiteActionBar", false) )
 			this.setTheme(android.R.style.Theme_DeviceDefault_Light);
@@ -49,16 +49,16 @@ public class Activity_PageInfo extends Activity {
 		setContentView(R.layout.activity_pageinfo);
 
 		showHomeUp();
-		init_controls() ; // ³õÊ¼»¯¸÷¿Ø¼ş
+		init_controls() ; // åˆå§‹åŒ–å„æ§ä»¶
 
 		this.nm = ((FoxApp)this.getApplication()).nm ;
 
-		// Í¨¹ıintent»ñÈ¡Êı¾İ
+		// é€šè¿‡intentè·å–æ•°æ®
 		bookIDX = getIntent().getIntExtra(NV.BookIDX, -1);
 		pageIDX = getIntent().getIntExtra(NV.PageIDX, -1);
 		Map<String, Object> info = nm.getPage(bookIDX, pageIDX);
 
-		// ÏÔÊ¾Êı¾İ
+		// æ˜¾ç¤ºæ•°æ®
 		pi_bid.setText(String.valueOf(bookIDX)) ;
 		pi_pid.setText(String.valueOf(pageIDX)) ;
 		pi_pname.setText(info.get(NV.PageName).toString()) ;
@@ -73,36 +73,36 @@ public class Activity_PageInfo extends Activity {
 		return true;
 	}
 
-	public boolean onOptionsItemSelected(MenuItem item) { // ÏìÓ¦Ñ¡Ôñ²Ëµ¥µÄ¶¯×÷
+	public boolean onOptionsItemSelected(MenuItem item) { // å“åº”é€‰æ‹©èœå•çš„åŠ¨ä½œ
 		switch (item.getItemId()) {
 		case R.id.pi_clearContent:
 			pi_content.setText("");
 			break;
-		case R.id.pi_copyPageName: // ¸´ÖÆ
+		case R.id.pi_copyPageName: // å¤åˆ¶
 			String pn = pi_pname.getText().toString();
 			ToolAndroid.setClipText(pn, this);
-			foxtip("¼ôÌù°å: " + pn);
+			foxtip("å‰ªè´´æ¿: " + pn);
 			break;
-		case R.id.pi_copyURL: // ¸´ÖÆ
+		case R.id.pi_copyURL: // å¤åˆ¶
 			String pu = pi_purl.getText().toString();
 			ToolAndroid.setClipText(pu, this);
-			foxtip("¼ôÌù°å: " + pu);
+			foxtip("å‰ªè´´æ¿: " + pu);
 			break;
-		case R.id.pi_copyContent: // ¸´ÖÆ
+		case R.id.pi_copyContent: // å¤åˆ¶
 			String pc = pi_content.getText().toString();
 			ToolAndroid.setClipText(pc, this);
-			foxtip("¼ôÌù°å: " + pc);
+			foxtip("å‰ªè´´æ¿: " + pc);
 			break;
-		case R.id.pi_pastePageName: // Õ³Ìù
+		case R.id.pi_pastePageName: // ç²˜è´´
 			pi_pname.setText(ToolAndroid.getClipText(this));
 			break;
-		case R.id.pi_pasteURL: // Õ³Ìù
+		case R.id.pi_pasteURL: // ç²˜è´´
 			pi_purl.setText(ToolAndroid.getClipText(this));
 			break;
-		case R.id.pi_pasteContent: // Õ³Ìù
+		case R.id.pi_pasteContent: // ç²˜è´´
 			this.pi_content.setText(ToolAndroid.getClipText(this));
 			break;
-		case android.R.id.home: // ·µ»ØÍ¼±ê
+		case android.R.id.home: // è¿”å›å›¾æ ‡
 			onBackPressed();
 			break;
 		case R.id.pi_save_exit:
@@ -120,12 +120,12 @@ public class Activity_PageInfo extends Activity {
 	}
 
 	@Override
-	public void onBackPressed() { // ·µ»Ø¼ü±»°´
+	public void onBackPressed() { // è¿”å›é”®è¢«æŒ‰
 		setResult(RESULT_OK);
 		finish();
 	}
 
-	private void foxtip(String sinfo) { // ToastÏûÏ¢
+	private void foxtip(String sinfo) { // Toastæ¶ˆæ¯
 		Toast.makeText(getApplicationContext(), sinfo, Toast.LENGTH_SHORT).show();
 	}
 }

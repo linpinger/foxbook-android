@@ -4,11 +4,11 @@ import com.linpinger.novel.NovelManager;
 import android.app.Application;
 
 public class FoxApp extends Application {
-	public NovelManager nm ; // ¹ÜÀíÄÚ´æÖĞºËĞÄÊı¾İ
+	public NovelManager nm ; // ç®¡ç†å†…å­˜ä¸­æ ¸å¿ƒæ•°æ®
 /*
- *  + FoxApp.java Õâ¸öÓÃÀ´·ÅÖÃÈ«¾Ö±äÁ¿
+ *  + FoxApp.java è¿™ä¸ªç”¨æ¥æ”¾ç½®å…¨å±€å˜é‡
  *  + AndroidManifest.xml : <application android:name=".FoxApp"
- *  + Ê¹ÓÃ: FoxApp fa = (FoxApp) getApplication();
+ *  + ä½¿ç”¨: FoxApp fa = (FoxApp) getApplication();
  *          fa.nm.xx();
  */
 }

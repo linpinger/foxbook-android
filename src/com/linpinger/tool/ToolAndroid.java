@@ -23,30 +23,34 @@ import android.preference.PreferenceManager;
 
 public class ToolAndroid {
 
+	public static boolean isEink() {
+		return "Onyx".equalsIgnoreCase(android.os.Build.BRAND) ;
+	}
+
 	@SuppressLint("SdCardPath")
 	public static File getDefaultDir(SharedPreferences settings) {
 		File defDir = new File(settings.getString("defaultDir", "/sdcard/FoxBook/"));
 		if ( defDir.exists() ) {
 			if ( defDir.isFile() )
-				System.err.println( "Ä¬ÈÏ´æ´¢Â·¾¶£¬ÊÇÎÄ¼ş: " + defDir.getPath() );
+				System.err.println( "é»˜è®¤å­˜å‚¨è·¯å¾„ï¼Œæ˜¯æ–‡ä»¶: " + defDir.getPath() );
 			if ( defDir.isDirectory())
-				System.out.println( "Ä¬ÈÏ´æ´¢Â·¾¶£¬ÊÇÄ¿Â¼: " + defDir.getPath() );
+				System.out.println( "é»˜è®¤å­˜å‚¨è·¯å¾„ï¼Œæ˜¯ç›®å½•: " + defDir.getPath() );
 			return defDir ;
-		} else { // ÎÄ¼ş¼Ğ²»´æÔÚ
-			if ( ! defDir.mkdir() ) { // ½¨Á¢Ê§°Ü
-				System.err.println( "Ä¬ÈÏ´æ´¢Â·¾¶²»´æÔÚ£¬ĞÂ½¨Ê§°Ü£¬·µ»Ø: /sdcard/" );
+		} else { // æ–‡ä»¶å¤¹ä¸å­˜åœ¨
+			if ( ! defDir.mkdir() ) { // å»ºç«‹å¤±è´¥
+				System.err.println( "é»˜è®¤å­˜å‚¨è·¯å¾„ä¸å­˜åœ¨ï¼Œæ–°å»ºå¤±è´¥ï¼Œè¿”å›: /sdcard/" );
 				return new File("/sdcard/");
 			}
 		}
-		System.out.println( "Ä¬ÈÏ´æ´¢¾ø¶ÔÂ·¾¶: " + defDir.getAbsolutePath() );
+		System.out.println( "é»˜è®¤å­˜å‚¨ç»å¯¹è·¯å¾„: " + defDir.getAbsolutePath() );
 		return defDir ;
 	}
 
-	public static boolean myConfigImportExPort(Context ctx, boolean isExport) { // µ¼Èëµ¼³öÔÄ¶ÁÒ³ÅäÖÃ£¬Õâ¸öµ÷ÕûÆğÀ´»¹ÊÇÓĞµãÂé·³µÄ
+	public static boolean myConfigImportExPort(Context ctx, boolean isExport) { // å¯¼å…¥å¯¼å‡ºé˜…è¯»é¡µé…ç½®ï¼Œè¿™ä¸ªè°ƒæ•´èµ·æ¥è¿˜æ˜¯æœ‰ç‚¹éº»çƒ¦çš„
 		SharedPreferences ps = PreferenceManager.getDefaultSharedPreferences(ctx);
 		File cfgFile = new File("/sdcard/FoxBook.cfg" );
 
-		if ( isExport ) { // µ¼³ö: DefaultSharedPreferences -> Properties
+		if ( isExport ) { // å¯¼å‡º: DefaultSharedPreferences -> Properties
 			StringBuffer oStr = new StringBuffer();
 			oStr.append("fontsize=").append(ps.getFloat("fontsize", 36.0f)).append("\n")
 				.append("paddingMultip=").append(ps.getFloat("paddingMultip", 0.5f)).append("\n")
@@ -56,9 +60,9 @@ public class ToolAndroid {
 			ToolJava.renameIfExist(cfgFile);
 			ToolJava.writeText(oStr.toString(), cfgFile.getPath() );
 			return true ;
-		} else { // µ¼Èë: DefaultSharedPreferences <- Properties
+		} else { // å¯¼å…¥: DefaultSharedPreferences <- Properties
 			if ( ! cfgFile.exists() ) {
-				System.out.println("´íÎó: FoxBookÅäÖÃÎÄ¼ş²»´æÔÚ£¬ÎŞ·¨µ¼Èë");
+				System.out.println("é”™è¯¯: FoxBooké…ç½®æ–‡ä»¶ä¸å­˜åœ¨ï¼Œæ— æ³•å¯¼å…¥");
 				return false;
 			}
 			Properties pro = new Properties();
@@ -78,13 +82,13 @@ public class ToolAndroid {
 		}
 	}
 
-	// »ñÈ¡wifiµÄip,name,ÆäËûĞÅÏ¢
-	public static HashMap<String, String> getWifiInfo(Context context) { // ip,name,info | null=ÎŞWIFI
+	// è·å–wifiçš„ip,name,å…¶ä»–ä¿¡æ¯
+	public static HashMap<String, String> getWifiInfo(Context context) { // ip,name,info | null=æ— WIFI
 		HashMap<String, String> hm = new HashMap<String, String>();
 		ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);  
 		NetworkInfo info = cm.getActiveNetworkInfo();
 		if ( info != null && info.isAvailable() ) {
-			WifiManager wifimanage = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);// »ñÈ¡WifiManager
+			WifiManager wifimanage = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);// è·å–WifiManager
 //			if (!wifimanage.isWifiEnabled())
 //				wifimanage.setWifiEnabled(true);
 			WifiInfo wifiinfo = wifimanage.getConnectionInfo();
@@ -94,19 +98,19 @@ public class ToolAndroid {
 			hm.put("info", wifiinfo.toString());
 			return hm;
 		} else {
-			return null ; //"ÎŞWIFI" ;
+			return null ; //"æ— WIFI" ;
 		}
 	}
 
 //	public static String getLocalIpAddress() {
-//		try { // ±éÀúÍøÂç½Ó¿Ú
+//		try { // éå†ç½‘ç»œæ¥å£
 //			Enumeration<NetworkInterface> infos = NetworkInterface.getNetworkInterfaces();
-//			while (infos.hasMoreElements()) { // »ñÈ¡ÍøÂç½Ó¿Ú
+//			while (infos.hasMoreElements()) { // è·å–ç½‘ç»œæ¥å£
 //				NetworkInterface niFace = infos.nextElement();
 //				Enumeration<InetAddress> enumIpAddr = niFace.getInetAddresses();
 //				while (enumIpAddr.hasMoreElements()) {
 //					InetAddress mInetAddress = enumIpAddr.nextElement();
-//					// Ëù»ñÈ¡µÄÍøÂçµØÖ·²»ÊÇ127.0.0.1Ê±·µ»ØµÃµÃµ½µÄIP
+//					// æ‰€è·å–çš„ç½‘ç»œåœ°å€ä¸æ˜¯127.0.0.1æ—¶è¿”å›å¾—å¾—åˆ°çš„IP
 //					if (!mInetAddress.isLoopbackAddress() && InetAddressUtils.isIPv4Address(mInetAddress.getHostAddress()))
 //						return mInetAddress.getHostAddress().toString();
 //				}
@@ -117,17 +121,17 @@ public class ToolAndroid {
 //		return "127.0.0.1";
 //	}
 
-	// ½«»ñÈ¡µÄint×ªÎªÕæÕıµÄipµØÖ·,²Î¿¼µÄÍøÉÏµÄ£¬ĞŞ¸ÄÁËÏÂ
+	// å°†è·å–çš„intè½¬ä¸ºçœŸæ­£çš„ipåœ°å€,å‚è€ƒçš„ç½‘ä¸Šçš„ï¼Œä¿®æ”¹äº†ä¸‹
 	private static String intToIp(int i){  
 		return ( i & 0xFF) + "." + ((i >> 8 ) & 0xFF) + "." + ((i >> 16 ) & 0xFF) + "." + ((i >> 24 ) & 0xFF ) ; 
 	}
 
 	/** 
-	 * ½«spÖµ×ª»»ÎªpxÖµ£¬±£Ö¤ÎÄ×Ö´óĞ¡²»±ä 
+	 * å°†spå€¼è½¬æ¢ä¸ºpxå€¼ï¼Œä¿è¯æ–‡å­—å¤§å°ä¸å˜ 
 	 *  
 	 * @param spValue 
 	 * @param fontScale 
-	 *			£¨DisplayMetricsÀàÖĞÊôĞÔscaledDensity£© 
+	 *			ï¼ˆDisplayMetricsç±»ä¸­å±æ€§scaledDensityï¼‰ 
 	 * @return 
 	 */  
 	public static int sp2px(Context context, float spValue) {  
@@ -136,11 +140,11 @@ public class ToolAndroid {
 	}
 
 	/** 
-	 * ½«pxÖµ×ª»»ÎªspÖµ£¬±£Ö¤ÎÄ×Ö´óĞ¡²»±ä 
+	 * å°†pxå€¼è½¬æ¢ä¸ºspå€¼ï¼Œä¿è¯æ–‡å­—å¤§å°ä¸å˜ 
 	 *  
 	 * @param pxValue 
 	 * @param fontScale 
-	 *			£¨DisplayMetricsÀàÖĞÊôĞÔscaledDensity£© 
+	 *			ï¼ˆDisplayMetricsç±»ä¸­å±æ€§scaledDensityï¼‰ 
 	 * @return 
 	 */  
 	public static int px2sp(Context context, float pxValue) {  
@@ -157,7 +161,7 @@ public class ToolAndroid {
 		DownloadManager downloadManager = (DownloadManager)ctx.getSystemService(Context.DOWNLOAD_SERVICE);
 		DownloadManager.Request request = new DownloadManager.Request(Uri.parse(iURL));
 		request.setDestinationInExternalPublicDir(saveDir, saveName);
-		request.setTitle("ÏÂÔØ: " + saveName);
+		request.setTitle("ä¸‹è½½: " + saveName);
 		request.setDescription(saveName);
 		// request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
 		request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
@@ -165,12 +169,12 @@ public class ToolAndroid {
 		downloadManager.enqueue(request);
 	}
 
-//	public static void setcliptext(String content, Context ctx){ // ¸´ÖÆÎÄ±¾µ½¼ôÌù°å
+//	public static void setcliptext(String content, Context ctx){ // å¤åˆ¶æ–‡æœ¬åˆ°å‰ªè´´æ¿
 //		ClipboardManager cmb = (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE); 
 //		cmb.setText(content.trim()); 
 //	} 
 //
-//	public static String getcliptext(Context ctx) { // ´Ó¼ôÌù°å»ñµÃÎÄ±¾
+//	public static String getcliptext(Context ctx) { // ä»å‰ªè´´æ¿è·å¾—æ–‡æœ¬
 //		ClipboardManager cmb = (ClipboardManager)ctx.getSystemService(Context.CLIPBOARD_SERVICE); 
 //		return cmb.getText().toString().trim(); 
 //	}

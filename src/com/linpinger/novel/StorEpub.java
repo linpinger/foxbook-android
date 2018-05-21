@@ -17,17 +17,17 @@ public class StorEpub extends Stor {
 		FoxEpubReader epub = new FoxEpubReader(inFile);
 
 		int epubType = 0 ;  // 0: unknown  1: FoxMake  2: Qidian
-		// ÅĞ¶ÏepubÀàĞÍ
-		if ( epub.getTextFile("catalog.html").length() == 0 ) { // ·ÇÆğµã epub
-			if ( epub.getTextFile("FoxMake.htm").length() == 0 ) { // ·Ç FoxMake epub
-				System.err.println("Todo: Ôİ²»Ö§³Ö½âÎö¸ÃEpubÀàĞÍ");
+		// åˆ¤æ–­epubç±»å‹
+		if ( epub.getTextFile("catalog.html").length() == 0 ) { // éèµ·ç‚¹ epub
+			if ( epub.getTextFile("FoxMake.htm").length() == 0 ) { // é FoxMake epub
+				System.err.println("Todo: æš‚ä¸æ”¯æŒè§£æè¯¥Epubç±»å‹");
 				epub.close();
 				return null;
 			} else {
 				epubType = 1 ; //FoxMake epub
 			}
 		} else {
-			epubType = 2 ; // Æğµãepub
+			epubType = 2 ; // èµ·ç‚¹epub
 		}
 
 		List<Novel> lst = new ArrayList<Novel>();
@@ -106,7 +106,7 @@ public class StorEpub extends Stor {
 
 	public void save(List<Novel> inList , File outFile) {
 		String bookName = outFile.getName();
-		bookName = bookName.substring(0, bookName.lastIndexOf('.')); // ÊéÃûÎªÎÄ¼şÃû²»´øºó×º
+		bookName = bookName.substring(0, bookName.lastIndexOf('.')); // ä¹¦åä¸ºæ–‡ä»¶åä¸å¸¦åç¼€
 
 		FoxEpubWriter oEpub = new FoxEpubWriter(outFile, bookName);
 
@@ -115,10 +115,10 @@ public class StorEpub extends Stor {
 			pageCount = 0 ;
 			for (Map<String, Object> page : book.getChapters()) {
 				++pageCount ;
-				if ( 1 == pageCount ) { // µÚÒ»ÕÂ
-					oEpub.addChapter("¡ñ" + book.getInfo().get(NV.BookName).toString() + "¡ñ" + page.get(NV.PageName).toString(), "\n¡¡¡¡" + page.get(NV.Content).toString().replace("\n", "<br />\n¡¡¡¡"), -1, 1);
+				if ( 1 == pageCount ) { // ç¬¬ä¸€ç« 
+					oEpub.addChapter("â—" + book.getInfo().get(NV.BookName).toString() + "â—" + page.get(NV.PageName).toString(), "\nã€€ã€€" + page.get(NV.Content).toString().replace("\n", "<br />\nã€€ã€€"), -1, 1);
 				} else {
-					oEpub.addChapter(page.get(NV.PageName).toString(), "\n¡¡¡¡" + page.get(NV.Content).toString().replace("\n", "<br />\n¡¡¡¡"), -1, 2);
+					oEpub.addChapter(page.get(NV.PageName).toString(), "\nã€€ã€€" + page.get(NV.Content).toString().replace("\n", "<br />\nã€€ã€€"), -1, 2);
 				}
 			}
 		}

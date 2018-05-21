@@ -1,7 +1,7 @@
 package com.linpinger.foxbook;
 
 public interface AC {
-	// ¶¯×÷: ¸ù¾İActivity²»Í¬¶ø²»Í¬
+	// åŠ¨ä½œ: æ ¹æ®Activityä¸åŒè€Œä¸åŒ
 	public static final String action = "Action" ;
 
 	public static final int aListBookPages = 11 ;
@@ -18,7 +18,7 @@ public interface AC {
 	public static final int aSearchBookOnSite = 46 ;
 	public static final int aSearchBookOnQiDian = 47 ;
 
-	// ÏÂÃæµÄ³£Á¿ÊÇ¹©Android¸÷ActivityÊ¹ÓÃµÄ£¬ËüÃÇ»á½»»»ÕâĞ©³£Á¿£¬²¢Í¨¹ıÕâĞ©³£Á¿±æ±ğÍøÕ¾ÀàĞÍ
+	// ä¸‹é¢çš„å¸¸é‡æ˜¯ä¾›Androidå„Activityä½¿ç”¨çš„ï¼Œå®ƒä»¬ä¼šäº¤æ¢è¿™äº›å¸¸é‡ï¼Œå¹¶é€šè¿‡è¿™äº›å¸¸é‡è¾¨åˆ«ç½‘ç«™ç±»å‹
 	public static final String searchEngine = "SearchEngine";
 	public static final int SE_SOGOU = 1;
 	public static final int SE_YAHOO = 2;

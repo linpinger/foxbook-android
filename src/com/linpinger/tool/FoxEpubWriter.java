@@ -11,21 +11,21 @@ import java.util.Iterator;
 
 public class FoxEpubWriter {
 
-	private File ePubFile ; // Éú³ÉµÄepubÎÄ¼ş
-	private FoxZipWriter zw ; // epub Ğ´Îª zipÎÄ¼ş
-	private File TmpDir ; // mobi ÁÙÊ±Ä¿Â¼
+	private File ePubFile ; // ç”Ÿæˆçš„epubæ–‡ä»¶
+	private FoxZipWriter zw ; // epub å†™ä¸º zipæ–‡ä»¶
+	private File TmpDir ; // mobi ä¸´æ—¶ç›®å½•
 
 	private boolean isEpub = true;
 
-	private String BookName = "ºüÀêÖ®Êé";
-	private String BookCreator = "°®¶ûÀ¼Ö®ºü";
+	private String BookName = "ç‹ç‹¸ä¹‹ä¹¦";
+	private String BookCreator = "çˆ±å°”å…°ä¹‹ç‹";
 	private String CSS="h2,h3,h4 { text-align: center; }\n\n@font-face { font-family: \"hei\"; src: local(\"Zfull-GB\"); }\n.content { font-family: \"hei\"; }\n";
 
-	private final String DefNameNoExt = "FoxMake"; //Ä¬ÈÏÎÄ¼şÃû
+	private final String DefNameNoExt = "FoxMake"; //é»˜è®¤æ–‡ä»¶å
 	private String BookUUID = UUID.randomUUID().toString();
 
-	ArrayList<HashMap<String, Object>> Chapter = new ArrayList<HashMap<String, Object>>(200); //ÕÂ½Ú½á¹¹:1:ID 2:Title 3:Level
-	int ChapterID = 100; //ÕÂ½ÚID
+	ArrayList<HashMap<String, Object>> Chapter = new ArrayList<HashMap<String, Object>>(200); //ç« èŠ‚ç»“æ„:1:ID 2:Title 3:Level
+	int ChapterID = 100; //ç« èŠ‚ID
 
 	public FoxEpubWriter(File oEpubFile) {
 		this(oEpubFile, "FoxEBook");
@@ -45,7 +45,7 @@ public class FoxEpubWriter {
 		} else { // mobi
 			TmpDir = new File(ePubFile.getParentFile(), "FoxEpub_" + System.currentTimeMillis() );
 			if ( TmpDir.exists()) {
-				System.out.println("´íÎó:Ä¿Â¼´æÔÚ: " + TmpDir.getPath());
+				System.out.println("é”™è¯¯:ç›®å½•å­˜åœ¨: " + TmpDir.getPath());
 			} else {
 				new File(TmpDir, "html").mkdirs();
 				new File(TmpDir, "META-INF").mkdirs();
@@ -61,7 +61,7 @@ public class FoxEpubWriter {
 		this.BookCreator = creatorName;
 	}
 
-	public void setCSS(String css) { // ¸²¸ÇCSS
+	public void setCSS(String css) { // è¦†ç›–CSS
 		this.CSS = css;
 	}
 
@@ -86,7 +86,7 @@ public class FoxEpubWriter {
 		cc.put("level", iLevel);
 		Chapter.add(cc);
 
-		this._CreateChapterHTML(Title, Content, this.ChapterID); //Ğ´ÈëÎÄ¼ş
+		this._CreateChapterHTML(Title, Content, this.ChapterID); //å†™å…¥æ–‡ä»¶
 	}
 
 	public void saveAll() {
@@ -97,16 +97,16 @@ public class FoxEpubWriter {
 
 		if (isEpub) {
 			zw.close();
-		} else { // Éú³Émobi
+		} else { // ç”Ÿæˆmobi
 			try {
 				Process cmd = Runtime.getRuntime().exec("kindlegen " + DefNameNoExt + ".opf", null, TmpDir);
-				// »º³åÇøĞèÒªÊÍ·Å, ²»È»»á×èÈû kindlegen
+				// ç¼“å†²åŒºéœ€è¦é‡Šæ”¾, ä¸ç„¶ä¼šé˜»å¡ kindlegen
 				InputStream iput = cmd.getInputStream();
 				BufferedReader br = new BufferedReader(new InputStreamReader(iput));
 				while ( br.readLine() != null) ;
 				br.close();
 				iput.close();
-				// »º³åÇøĞèÒªÊÍ·Å
+				// ç¼“å†²åŒºéœ€è¦é‡Šæ”¾
 				cmd.waitFor();
 			} catch (Exception e) {
 				System.err.println(e.toString());
@@ -114,14 +114,14 @@ public class FoxEpubWriter {
 			File tmpF = new File(TmpDir, DefNameNoExt + ".mobi");
 			if (tmpF.exists() && tmpF.length() > 555) {
 				tmpF.renameTo(ePubFile);
-				ToolJava.deleteDir(TmpDir); // ÒÆ³ıÁÙÊ±Ä¿Â¼
+				ToolJava.deleteDir(TmpDir); // ç§»é™¤ä¸´æ—¶ç›®å½•
 			}
 		}
 	}
 
-	private void _CreateNCX() { //Éú³ÉNCXÎÄ¼ş
+	private void _CreateNCX() { //ç”ŸæˆNCXæ–‡ä»¶
 		StringBuffer NCXList = new StringBuffer(4096);
-		int DisOrder = 1; //³õÊ¼ Ë³Ğò, ¸ù¾İÏÂÃæµÄplayOrderÊı¾İ
+		int DisOrder = 1; //åˆå§‹ é¡ºåº, æ ¹æ®ä¸‹é¢çš„playOrderæ•°æ®
 
 		HashMap<String, Object> mm;
 		int nowID = 0;
@@ -138,7 +138,7 @@ public class FoxEpubWriter {
 			nowLevel = (Integer) mm.get("level");
 
 			++DisOrder;
-			if (i == lastIDX) { // ×îºóÒ»¸ö
+			if (i == lastIDX) { // æœ€åä¸€ä¸ª
 				nextLevel = 1;
 			} else {
 				nextLevel = (Integer) Chapter.get(1 + i).get("level");
@@ -171,14 +171,14 @@ public class FoxEpubWriter {
 			.append(BookUUID).append("\"/>\n\t<meta name=\"dtb:depth\" content=\"1\"/>\n\t<meta name=\"dtb:totalPageCount\" content=\"0\"/>\n\t<meta name=\"dtb:maxPageNumber\" content=\"0\"/>\n\t<meta name=\"dtb:generator\" content=\"")
 			.append(BookCreator).append("\"/>\n</head>\n<docTitle><text>")
 			.append(BookName).append("</text></docTitle>\n<docAuthor><text>")
-			.append(BookCreator).append("</text></docAuthor>\n<navMap>\n\t<navPoint id=\"toc\" playOrder=\"1\"><navLabel><text>Ä¿Â¼:")
+			.append(BookCreator).append("</text></docAuthor>\n<navMap>\n\t<navPoint id=\"toc\" playOrder=\"1\"><navLabel><text>ç›®å½•:")
 			.append(BookName).append("</text></navLabel><content src=\"").append(DefNameNoExt).append(".htm\"/></navPoint>\n")
 			.append(NCXList).append("\n</navMap></ncx>\n");
 
 		_SaveFile(XML.toString(), DefNameNoExt + ".ncx");
 	}
 
-	private void _CreateOPF() { //Éú³ÉOPFÎÄ¼ş
+	private void _CreateOPF() { //ç”ŸæˆOPFæ–‡ä»¶
 		String AddXMetaData = "";
 		StringBuffer NowHTMLMenifest = new StringBuffer(4096);
 		StringBuffer NowHTMLSpine = new StringBuffer(4096);
@@ -193,7 +193,7 @@ public class FoxEpubWriter {
 			NowHTMLSpine.append("\t<itemref idref=\"page").append(nowID).append("\" />\n");
 		}
 
-		// Í¼Æ¬ÁĞ±í¼ÓÔØÕâÀï
+		// å›¾ç‰‡åˆ—è¡¨åŠ è½½è¿™é‡Œ
 		String NowImgMenifest = "";
 		if ( ! isEpub ) {
 			AddXMetaData = "\t<x-metadata><output encoding=\"utf-8\"></output></x-metadata>\n";
@@ -208,17 +208,17 @@ public class FoxEpubWriter {
 				.append(DefNameNoExt).append(".ncx\" />\n\t<item id=\"FoxIDX\" media-type=\"application/xhtml+xml\" href=\"")
 				.append(DefNameNoExt).append(".htm\" />\n\n").append(NowHTMLMenifest).append("\n\n")
 				.append(NowImgMenifest).append("\n</manifest>\n\n<spine toc=\"FoxNCX\">\n\t<itemref idref=\"FoxIDX\"/>\n\n\n")
-				.append(NowHTMLSpine).append("\n</spine>\n\n\n<guide>\n\t<reference type=\"text\" title=\"ÕıÎÄ\" href=\"")
-				.append("html/").append(Chapter.get(0).get("id")).append(".html\"/>\n\t<reference type=\"toc\" title=\"Ä¿Â¼\" href=\"")
+				.append(NowHTMLSpine).append("\n</spine>\n\n\n<guide>\n\t<reference type=\"text\" title=\"æ­£æ–‡\" href=\"")
+				.append("html/").append(Chapter.get(0).get("id")).append(".html\"/>\n\t<reference type=\"toc\" title=\"ç›®å½•\" href=\"")
 				.append(DefNameNoExt).append(".htm\"/>\n</guide>\n\n</package>\n\n");
 		_SaveFile(XML.toString(), DefNameNoExt + ".opf");
 	}
 
-	private void _CreateMiscFiles() { //Éú³É epub ±ØĞëÎÄ¼ş mimetype, container.xml
-		_SaveFile(CSS, DefNameNoExt + ".css"); // Éú³É CSS ÎÄ¼ş
+	private void _CreateMiscFiles() { //ç”Ÿæˆ epub å¿…é¡»æ–‡ä»¶ mimetype, container.xml
+		_SaveFile(CSS, DefNameNoExt + ".css"); // ç”Ÿæˆ CSS æ–‡ä»¶
 
 		if (isEpub) {
-			zw.putBinFile("application/epub+zip".getBytes(), "mimetype", true); // epub¹æ·¶£¬µÚÒ»¸öÎÄ¼ş±ØĞëÎªstored
+			zw.putBinFile("application/epub+zip".getBytes(), "mimetype", true); // epubè§„èŒƒï¼Œç¬¬ä¸€ä¸ªæ–‡ä»¶å¿…é¡»ä¸ºstored
 		} else {
 			ToolJava.writeText("application/epub+zip", TmpDir.getPath() + File.separator + "mimetype");
 		}
@@ -230,7 +230,7 @@ public class FoxEpubWriter {
 		_SaveFile(XML.toString(), "META-INF/container.xml");
 	}
 
-	private void _CreateChapterHTML(String Title, String Content, int iPageID) { //Éú³ÉÕÂ½ÚÒ³Ãæ
+	private void _CreateChapterHTML(String Title, String Content, int iPageID) { //ç”Ÿæˆç« èŠ‚é¡µé¢
 		StringBuffer HTML = new StringBuffer(20480);  // <div class="mbppagebreak"></div>
 		HTML.append("<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"zh-CN\">\n<head>\n\t<title>")
 				.append(Title)
@@ -244,7 +244,7 @@ public class FoxEpubWriter {
 		_SaveFile(HTML.toString(), "html/" + iPageID + ".html");
 	}
 
-	private void _CreateIndexHTM() { //Éú³ÉË÷ÒıÒ³
+	private void _CreateIndexHTM() { //ç”Ÿæˆç´¢å¼•é¡µ
 		StringBuffer NowTOC = new StringBuffer(4096);
 
 		HashMap<String, Object> mm;
@@ -274,12 +274,12 @@ public class FoxEpubWriter {
 	}
 
 	public static void main(String[] args) {
-		FoxEpubWriter oEpub = new FoxEpubWriter(new File("/dev/shm/jgj.epub"), "½ğ¸Õ¾­");
-		oEpub.setBookName("½ğ¸Õ°ãÈô²¨ÂŞÃÛ¾­");
-		oEpub.setBookCreator("ğ¯Ä¦ÂŞÊ² Òë");
+		FoxEpubWriter oEpub = new FoxEpubWriter(new File("/dev/shm/jgj.epub"), "é‡‘åˆšç»");
+		oEpub.setBookName("é‡‘åˆšèˆ¬è‹¥æ³¢ç½—èœœç»");
+		oEpub.setBookCreator("é¸ æ‘©ç½—ä»€ è¯‘");
 		oEpub.setCSS("h2,h3,h4 { text-align: center; }\n");
-		oEpub.addChapter("µÚ1ÕÂ", "ÈçÊÇÎÒÎÅ:<br>\n¡¡¡¡Ò»Ê±£¬·ğÔÚÉáÎÀ¹úµoÊ÷¸ø¹Â¶ÀÔ°£¬Óë´ó±ÈÇğÖÚÇ§¶ş°ÙÎåÊ®ÈË¾ã¡£<br>\n", -1);
-		oEpub.addChapter("ÕæÑÔ", "¡¡¡¡ÄÇÚÓÆÅÙ¤°ÏµÛ¡¡²§À®ÈÀ¡¡²¨ÂŞåô¶àÒ·¡¡††ÒÁÀûµ×¡¡ÒÁÊÒÀû¡¡ÊäÂ¬ÍÔ¡¡ÅşÉáÒ®¡¡ÅşÉáÒ®¡¡É¯ÆÅÚ­<br>\n", -1);
+		oEpub.addChapter("ç¬¬1ç« ", "å¦‚æ˜¯æˆ‘é—»:<br>\nã€€ã€€ä¸€æ—¶ï¼Œä½›åœ¨èˆå«å›½ç¥‡æ ‘ç»™å­¤ç‹¬å›­ï¼Œä¸å¤§æ¯”ä¸˜ä¼—åƒäºŒç™¾äº”åäººä¿±ã€‚<br>\n", -1);
+		oEpub.addChapter("çœŸè¨€", "ã€€ã€€é‚£è°Ÿå©†ä¼½è·‹å¸ã€€é’µå–‡å£¤ã€€æ³¢ç½—å¼­å¤šæ›³ã€€å”µä¼Šåˆ©åº•ã€€ä¼Šå®¤åˆ©ã€€è¾“å¢é©®ã€€æ¯—èˆè€¶ã€€æ¯—èˆè€¶ã€€èå©†è¯ƒ<br>\n", -1);
 		oEpub.saveAll();
 	}
 

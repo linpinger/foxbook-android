@@ -12,7 +12,7 @@ import org.json.JSONObject;
 
 public class SiteQiDian extends NovelSite {
 
-	// ÒÆ¶¯°æÄ¿Â¼µØÖ·: ¿ÉÒÔÓÃÀ´»ñÈ¡lastPageIDºóµÄ¸üĞÂ£¬Îª0»ñÈ¡ËùÓĞ
+	// ç§»åŠ¨ç‰ˆç›®å½•åœ°å€: å¯ä»¥ç”¨æ¥è·å–lastPageIDåçš„æ›´æ–°ï¼Œä¸º0è·å–æ‰€æœ‰
 	public String getTOCURL_Android7(String bookID) {
 		return "http://druid.if.qidian.com/Atom.axd/Api/Book/GetChapterList?BookId=" + bookID + "&timeStamp=0&requestSource=0&md5Signature=" ;
 	}
@@ -29,7 +29,7 @@ public class SiteQiDian extends NovelSite {
 				item = new HashMap<String, Object>(2);
 				item.put(NV.PageName, slist.getJSONObject(i).getString("n"));
 				item.put(NV.PageURL, getContentURL_Android7(String.valueOf(slist.getJSONObject(i).getInt("c")), bookID));
-				if (1 == slist.getJSONObject(i).getInt("v")) // VIPÕÂ½Ú
+				if (1 == slist.getJSONObject(i).getInt("v")) // VIPç« èŠ‚
 					break;
 				data.add(item);
 			}
@@ -57,7 +57,7 @@ public class SiteQiDian extends NovelSite {
 	}
 */
 	public String getContentURL_Android7(String pageID, String bookID) {
-		// 2017-6-5: ¾É°æµÄ½Ó¿Ú²»¼ûÁË
+		// 2017-6-5: æ—§ç‰ˆçš„æ¥å£ä¸è§äº†
 		// return "http://files.qidian.com/Author" + ( 1 + ( Integer.valueOf(bookID) % 8 ) ) + "/" + bookID + "/" + pageID + ".txt";
 		// return "http://druid.if.qidian.com/Atom.axd/Api/Book/GetContent?BookId=" + bookID + "&ChapterId=" + pageID ;
 		return "GetContent?BookId=" + bookID + "&ChapterId=" + pageID ;
@@ -77,7 +77,7 @@ public class SiteQiDian extends NovelSite {
 			Content = new JSONObject(json).getString("Data");
 			Content = Content.replace("\\r\\n", "\n");
 			Content = Content.replace("\r\n", "\n");
-			Content = Content.replace("¡¡¡¡", "");
+			Content = Content.replace("ã€€ã€€", "");
 		} catch (Exception e) {
 			System.err.println(e.toString());
 		}
@@ -101,7 +101,7 @@ public class SiteQiDian extends NovelSite {
 	}
 
 	public String getSearchURL_Android7(String bookName) {
-		// ×Ô¶¯Íê³É: http://druid.if.qidian.com/druid/Api/Search/AutoCompleteWithBookList?key=%E6%9C%AA%E6%9D%A5%E5%A4%A9%E7%8E%8B
+		// è‡ªåŠ¨å®Œæˆ: http://druid.if.qidian.com/druid/Api/Search/AutoCompleteWithBookList?key=%E6%9C%AA%E6%9D%A5%E5%A4%A9%E7%8E%8B
 		// http://druid.if.qidian.com/druid/Api/Search/GetBookStoreWithBookList?type=-1&key=%E5%94%90%E6%9C%9D%E5%A5%BD%E5%9C%B0%E4%B8%BB
 		String xx = "";
 		try {

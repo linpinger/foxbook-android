@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/radius_popwin_showpage_config_black"
+    android:orientation="horizontal" >
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="5sp"
+        android:paddingRight="5sp"
+        android:paddingTop="8sp"
+        android:gravity="center"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/pc_chap_prev"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="6sp"
+            android:clickable="true"
+            android:textColor="#FFFFFF"
+            android:text="◀"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/pc_chap_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:text="翻章" />
+
+        <TextView
+            android:id="@+id/pc_chap_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="6sp"
+            android:clickable="true"
+            android:textColor="#FFFFFF"
+            android:text="▶"
+            android:textSize="20sp" />
+    </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="5sp"
+        android:paddingRight="5sp"
+        android:gravity="center"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/pc_size_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:textColor="#FFFFFF"
+            android:text="＋"
+            android:textSize="30sp" />
+
+        <TextView
+            android:id="@+id/pc_size_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:text="字号" />
+
+        <TextView
+            android:id="@+id/pc_size_sub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:textColor="#FFFFFF"
+            android:text="－"
+            android:textSize="30sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="5sp"
+        android:paddingRight="5sp"
+        android:gravity="center"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/pc_line_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:textColor="#FFFFFF"
+            android:text="＋"
+            android:textSize="30sp" />
+
+        <TextView
+            android:id="@+id/pc_line_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:text="行距" />
+
+        <TextView
+            android:id="@+id/pc_line_sub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:textColor="#FFFFFF"
+            android:text="－"
+            android:textSize="30sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="5sp"
+        android:paddingRight="5sp"
+        android:gravity="center"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/pc_left_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:textColor="#FFFFFF"
+            android:text="＋"
+            android:textSize="30sp" />
+
+        <TextView
+            android:id="@+id/pc_left_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:text="页边距" />
+
+        <TextView
+            android:id="@+id/pc_left_sub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:textColor="#FFFFFF"
+            android:text="－"
+            android:textSize="30sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="0sp"
+        android:paddingRight="2sp"
+        android:paddingTop="8sp"
+        android:gravity="center"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/pc_bg_a"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="2sp"
+            android:paddingBottom="6sp"
+            android:background="@drawable/radius_textview_green"
+            android:clickable="true"
+            android:text="绿色"
+            android:textColor="#000000"
+            android:textSize="18sp" />
+        <TextView
+            android:id="@+id/pc_bg_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="2sp"
+            android:textColor="#FFFFFF"
+            android:text="背景" />
+
+        <TextView
+            android:id="@+id/pc_bg_b"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="6sp"
+            android:paddingBottom="2sp"
+            android:background="@drawable/radius_textview_grey"
+            android:clickable="true"
+            android:text="灰色"
+            android:textColor="#000000"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="2sp"
+        android:paddingRight="2sp"
+        android:paddingTop="8sp"
+        android:gravity="center"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/pc_bg_c"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="2sp"
+            android:paddingBottom="6sp"
+            android:background="@drawable/radius_textview_white"
+            android:clickable="true"
+            android:text="白色"
+            android:textColor="#000000"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/pc_bg_text2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="2sp"
+            android:textColor="#FFFFFF"
+            android:text="背景" />
+
+        <TextView
+            android:id="@+id/pc_bg_d"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="6sp"
+            android:paddingBottom="2sp"
+            android:background="@drawable/radius_textview_default"
+            android:clickable="true"
+            android:textColor="#000000"
+            android:text="默认"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="0sp"
+        android:paddingRight="4sp"
+        android:paddingTop="10sp"
+        android:gravity="center" >
+
+        <TextView
+            android:id="@+id/pc_useFont"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:paddingBottom="9sp"
+            android:text="字体"
+            android:textColor="#FFFF00"
+            android:textSize="22sp" />
+
+        <TextView
+            android:id="@+id/pc_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="12sp"
+            android:layout_below="@+id/pc_useFont"
+            android:clickable="true"
+            android:text="设置"
+            android:textColor="#FFFF00"
+            android:textSize="22sp" />
+    </RelativeLayout>
+
+</LinearLayout>

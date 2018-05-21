@@ -33,15 +33,15 @@ public class NovelSite {
 		return ret;
 	}
 
-	// »ñÈ¡ÓĞĞÂÕÂµÄÊéÁĞ±í,¡¡·µ»ØµÄÊı×éÔªËØ: bookid, bookname, bookurl
+	// è·å–æœ‰æ–°ç« çš„ä¹¦åˆ—è¡¨,ã€€è¿”å›çš„æ•°ç»„å…ƒç´ : bookid, bookname, bookurl
 	public List<Map<String, Object>> compareShelfToGetNew(List<Map<String, Object>> booksInfo, File cookiesXmlFile) {
-		// ±£´æÓĞcookieµÄÎÄ¼şÃû: FoxBook.cookie£¬¸ñÊ½: xml:  <cookies><13xs>cookieStr</13xs><biquge>cookieStr</biquge></cookies>
-		// ÏÂÔØÊé¼ÜÍøÒ³, ĞèÒª Êé¼ÜµØÖ·£¬cookie
-		// ÕıÔò·ÖÎöÍøÒ³£¬ºÏ³É µÃµ½ ÊéµØÖ·, ÊéÃû, ĞÂÕÂ½ÚµØÖ·, ĞÂÕÂ½ÚÃû
-		// µÃµ½ bookid, bookname, bookurl, pageUrlList
-		// ±È½ÏÊé¼®µÄ ĞÂÕÂ½ÚµØÖ·ÊÇ·ñÔÚ pageUrlList ÖĞ£¬·ñ¾Í¼ÓÈë·µ»ØÁĞ±íÖĞ
+		// ä¿å­˜æœ‰cookieçš„æ–‡ä»¶å: FoxBook.cookieï¼Œæ ¼å¼: xml:  <cookies><13xs>cookieStr</13xs><biquge>cookieStr</biquge></cookies>
+		// ä¸‹è½½ä¹¦æ¶ç½‘é¡µ, éœ€è¦ ä¹¦æ¶åœ°å€ï¼Œcookie
+		// æ­£åˆ™åˆ†æç½‘é¡µï¼Œåˆæˆ å¾—åˆ° ä¹¦åœ°å€, ä¹¦å, æ–°ç« èŠ‚åœ°å€, æ–°ç« èŠ‚å
+		// å¾—åˆ° bookid, bookname, bookurl, pageUrlList
+		// æ¯”è¾ƒä¹¦ç±çš„ æ–°ç« èŠ‚åœ°å€æ˜¯å¦åœ¨ pageUrlList ä¸­ï¼Œå¦å°±åŠ å…¥è¿”å›åˆ—è¡¨ä¸­
 
-//		List<Map<String, Object>> booksInfo = nm.getBookListForShelf(); // »ñÈ¡ĞèÒªµÄĞÅÏ¢
+//		List<Map<String, Object>> booksInfo = nm.getBookListForShelf(); // è·å–éœ€è¦çš„ä¿¡æ¯
 		String xml = "";
 		if ( ! cookiesXmlFile.exists() )
 			return null ;
@@ -93,7 +93,7 @@ public class NovelSite {
 			urlShelf = "http://www.wutuxs.com/modules/article/bookcase.php";
 			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
 			cookie = getValue(xml, "rawwutuxs").replace("\r", "").replace("\n", "");
-			// ÕıÔò·ÖÎöÍøÒ³£¬ºÏ³É µÃµ½ ÊéµØÖ·, ÊéÃû, ĞÂÕÂ½ÚµØÖ·, ĞÂÕÂ½ÚÃû
+			// æ­£åˆ™åˆ†æç½‘é¡µï¼Œåˆæˆ å¾—åˆ° ä¹¦åœ°å€, ä¹¦å, æ–°ç« èŠ‚åœ°å€, æ–°ç« èŠ‚å
 		}
 
 		if ( NovelSite.SiteNobody == siteType )
@@ -115,7 +115,7 @@ public class NovelSite {
 		if ( html.length() < 5 )
 			return null ;
 
-		HashMap<String, String> shelfBook = new HashMap<String, String>(20); // ÊéÃû -> ĞÂÕÂ½ÚµØÖ·
+		HashMap<String, String> shelfBook = new HashMap<String, String>(20); // ä¹¦å -> æ–°ç« èŠ‚åœ°å€
 		Matcher mat = Pattern.compile(reShelf).matcher(html);
 		while (mat.find()) {
 			switch (siteType) {
@@ -138,7 +138,7 @@ public class NovelSite {
 		String nowBookName, nowPageList;
 		for(Map<String, Object> mm : booksInfo) {
 			nowBookName = mm.get(NV.BookName).toString();
-			nowPageList = mm.get(NV.DelURL).toString(); // ÕâÀïµÄDelURLÄÚÈİ: ÒÑÉ¾³ı+Î´¶ÁÁĞ±í
+			nowPageList = mm.get(NV.DelURL).toString(); // è¿™é‡Œçš„DelURLå†…å®¹: å·²åˆ é™¤+æœªè¯»åˆ—è¡¨
 			if ( siteType == NovelSite.SiteWutuxs ) {
 				if ( ! nowPageList.contains("/" + shelfBook.get(nowBookName) + "|") )
 					newPages.add(mm);
@@ -151,7 +151,7 @@ public class NovelSite {
 	}
 
 	public List<Map<String, Object>> getTOC(String html) { // name,url[,len]
-		if (html.length() < 100) { //ÍøÒ³Ä¾ÓĞÏÂÔØÏÂÀ´
+		if (html.length() < 100) { //ç½‘é¡µæœ¨æœ‰ä¸‹è½½ä¸‹æ¥
 			return new ArrayList<Map<String, Object>>(1);
 		}
 		List<Map<String, Object>> ldata = new ArrayList<Map<String, Object>>(100);
@@ -159,29 +159,29 @@ public class NovelSite {
 		int nowurllen = 0;
 		HashMap<Integer, Integer> lencount = new HashMap<Integer, Integer>();
 
-		// ÓĞĞ©±äÌ¬ÍøÕ¾Ã»ÓĞbody±êÇ©£¬¶øjavaÃ»ÕÒµ½ body Ê±£¬ »á±éÀúÕû¸öÍøÒ³£¬ËÙ¶ÈºÜÂı
+		// æœ‰äº›å˜æ€ç½‘ç«™æ²¡æœ‰bodyæ ‡ç­¾ï¼Œè€Œjavaæ²¡æ‰¾åˆ° body æ—¶ï¼Œ ä¼šéå†æ•´ä¸ªç½‘é¡µï¼Œé€Ÿåº¦å¾ˆæ…¢
 		if (html.matches("(?smi).*<body.*")) {
-			html = html.replaceAll("(?smi).*<body[^>]*>(.*)</body>.*", "$1"); // »ñÈ¡ÕıÎÄ
+			html = html.replaceAll("(?smi).*<body[^>]*>(.*)</body>.*", "$1"); // è·å–æ­£æ–‡
 		} else {
-			html = html.replaceAll("(?smi).*?</head>(.*)", "$1"); // »ñÈ¡ÕıÎÄ
+			html = html.replaceAll("(?smi).*?</head>(.*)", "$1"); // è·å–æ­£æ–‡
 		}
 
-		if (html.contains("http://book.qidian.com/info/")) { // 2017-1-11´¦ÀíÆğµãÄ¿Â¼
-			html = html.replaceAll("(?smi).*<!--start Ä¿Â¼Ä£¿é-->(.*)<!--end Ä¿Â¼Ä£¿é-->.*", "$1"); // »ñÈ¡ÁĞ±í
+		if (html.contains("http://book.qidian.com/info/")) { // 2017-1-11å¤„ç†èµ·ç‚¹ç›®å½•
+			html = html.replaceAll("(?smi).*<!--start ç›®å½•æ¨¡å—-->(.*)<!--end ç›®å½•æ¨¡å—-->.*", "$1"); // è·å–åˆ—è¡¨
 
 			html = html.replace("\n", " ");
 			html = html.replace("<a", "\n<a");
-			html = html.replaceAll("(?i)<a .*?/BookReader/vol.*?>.*?</a>", ""); // ·Ö¾íÔÄ¶Á
+			html = html.replaceAll("(?i)<a .*?/BookReader/vol.*?>.*?</a>", ""); // åˆ†å·é˜…è¯»
 			html = html.replaceAll("(?i)<a href=\"//vipreader.qidian.com/chapter/.*?>", ""); // vip
-			html = html.replaceAll("(?smi)<span[^>]*>", ""); // Æğµã<a></a>Ö®¼äÓĞspan±êÇ©
+			html = html.replaceAll("(?smi)<span[^>]*>", ""); // èµ·ç‚¹<a></a>ä¹‹é—´æœ‰spanæ ‡ç­¾
 			html = html.replace("</span>", "");
 		}
 
-		// »ñÈ¡Á´½Ó ²¢´æÈë½á¹¹ÖĞ
+		// è·å–é“¾æ¥ å¹¶å­˜å…¥ç»“æ„ä¸­
 		Matcher mat = Pattern.compile("(?smi)href *= *[\"']?([^>\"']+)[^>]*> *([^<]+)<").matcher(html);
 		while (mat.find()) {
 			if (2 == mat.groupCount()) {
-				if ( mat.group(1).contains("javascript:")) { continue; } // ¹ıÂËjsÁ´½Ó
+				if ( mat.group(1).contains("javascript:")) { continue; } // è¿‡æ»¤jsé“¾æ¥
 				item = new HashMap<String, Object>(3);
 				item.put(NV.PageURL, mat.group(1));
 				item.put(NV.PageName, mat.group(2));
@@ -196,7 +196,7 @@ public class NovelSite {
 			}
 		}
 
-		// ±éÀúhashmap lencount »ñÈ¡×î¶àµÄurl³¤¶È
+		// éå†hashmap lencount è·å–æœ€å¤šçš„urlé•¿åº¦
 		int maxurllencount = 0;
 		int maxurllen = 0;
 		Iterator iter = lencount.entrySet().iterator();
@@ -211,16 +211,16 @@ public class NovelSite {
 		}
 //		System.out.println("MaxURLLen:" + maxurllen);
 
-		int minLen = maxurllen - 2; // ×îĞ¡³¤¶ÈÖµ£¬Õâ¸öÖµ¿ÉÒÔµ÷½Ú
-		int maxLen = maxurllen + 2; // ×î´ó³¤¶ÈÖµ£¬Õâ¸öÖµ¿ÉÒÔµ÷½Ú
+		int minLen = maxurllen - 2; // æœ€å°é•¿åº¦å€¼ï¼Œè¿™ä¸ªå€¼å¯ä»¥è°ƒèŠ‚
+		int maxLen = maxurllen + 2; // æœ€å¤§é•¿åº¦å€¼ï¼Œè¿™ä¸ªå€¼å¯ä»¥è°ƒèŠ‚
 
 		int ldataSize = ldata.size();
 		int halfLink = (int) (ldataSize / 2);
 
-		int startDelRowNum = -9;           // ¿ªÊ¼É¾³ıµÄĞĞ
-		int endDelRowNum = 9 + ldataSize;  // ½áÊøÉ¾³ıµÄĞĞ
-		// Ö»ÕÒÁ´½ÓµÄÒ»°ë£¬Ç°°ëÊÇÕÒ¿ªÊ¼ĞĞ£¬ºó°ëÊÇÕÒ½áÊøĞĞ
-		// ÕÒ¿ªÊ¼
+		int startDelRowNum = -9;           // å¼€å§‹åˆ é™¤çš„è¡Œ
+		int endDelRowNum = 9 + ldataSize;  // ç»“æŸåˆ é™¤çš„è¡Œ
+		// åªæ‰¾é“¾æ¥çš„ä¸€åŠï¼Œå‰åŠæ˜¯æ‰¾å¼€å§‹è¡Œï¼ŒååŠæ˜¯æ‰¾ç»“æŸè¡Œ
+		// æ‰¾å¼€å§‹
 		Integer nowLen = 0;
 		Integer nextLen = 0;
 		for (int nowIdx = 0; nowIdx < halfLink; nowIdx++) {
@@ -234,7 +234,7 @@ public class NovelSite {
 				}
 			}
 		}
-		// ÕÒ½áÊø nextLen means PrevLen here
+		// æ‰¾ç»“æŸ nextLen means PrevLen here
 		for (int nowIdx = ldataSize - 1; nowIdx > halfLink; nowIdx--) {
 			nowLen = (Integer) (((HashMap<String, Object>) (ldata.get(nowIdx))).get("len"));
 			if ((nowLen > maxLen) || (nowLen < minLen)) {
@@ -248,7 +248,7 @@ public class NovelSite {
 		}
 //		System.out.println("startDelRowNum:" + startDelRowNum + " - endDelRowNum:" + endDelRowNum + " ldataSize:" + ldataSize);
 
-		// µ¹×ÅÉ¾ÔªËØ
+		// å€’ç€åˆ å…ƒç´ 
 		if (endDelRowNum < ldataSize) {
 			for (int nowIdx = ldataSize - 1; nowIdx >= endDelRowNum; nowIdx--) {
 				ldata.remove(nowIdx);
@@ -263,30 +263,30 @@ public class NovelSite {
 		return ldata;	
 	}
 
-	// ½«pageÒ³µÄhtml×ª»»ÎªÎÄ±¾£¬Í¨ÓÃ¹æÔò
+	// å°†pageé¡µçš„htmlè½¬æ¢ä¸ºæ–‡æœ¬ï¼Œé€šç”¨è§„åˆ™
 	public String getContent(String html){
-		// ¹æÂÉ novel Ó¦¸ÃÊÇÓÉ<div>°ü¹ü×ÅµÄ×î³¤µÄĞĞ
-		// ÓĞĞ©±äÌ¬ÍøÕ¾Ã»ÓĞbody±êÇ©£¬¶øjavaÃ»ÕÒµ½<bodyÊ±£¬replaceAll»á±éÀúÕû¸öhtml£¬ËÙ¶ÈºÜÂı
+		// è§„å¾‹ novel åº”è¯¥æ˜¯ç”±<div>åŒ…è£¹ç€çš„æœ€é•¿çš„è¡Œ
+		// æœ‰äº›å˜æ€ç½‘ç«™æ²¡æœ‰bodyæ ‡ç­¾ï¼Œè€Œjavaæ²¡æ‰¾åˆ°<bodyæ—¶ï¼ŒreplaceAllä¼šéå†æ•´ä¸ªhtmlï¼Œé€Ÿåº¦å¾ˆæ…¢
 		if (html.matches("(?smi).*<body.*")) {
-			html = html.replaceAll("(?smi).*<body[^>]*>(.*)</body>.*", "$1"); // »ñÈ¡ÕıÎÄ
+			html = html.replaceAll("(?smi).*<body[^>]*>(.*)</body>.*", "$1"); // è·å–æ­£æ–‡
 		} else {
-			html = html.replaceAll("(?smi).*?</head>(.*)", "$1"); // »ñÈ¡ÕıÎÄ
+			html = html.replaceAll("(?smi).*?</head>(.*)", "$1"); // è·å–æ­£æ–‡
 		}
 
 		// MinTag
-		html = html.replaceAll("(?smi)<script[^>]*>.*?</script>", ""); // ½Å±¾
-		html = html.replaceAll("(?smi)<!--[^>]+-->", ""); // ×¢ÊÍ ÉÙ¼û
-		html = html.replaceAll("(?smi)<iframe[^>]*>.*?</iframe>", ""); // ¿ò¼Ü
-		// Ïàµ±ÉÙ¼û
-		html = html.replaceAll("(?smi)<h[1-9]?[^>]*>.*?</h[1-9]?>", ""); // ±êÌâ
-		// Ïàµ±ÉÙ¼û
-		html = html.replaceAll("(?smi)<meta[^>]*>", ""); // ±êÌâ Ïàµ±ÉÙ¼û
+		html = html.replaceAll("(?smi)<script[^>]*>.*?</script>", ""); // è„šæœ¬
+		html = html.replaceAll("(?smi)<!--[^>]+-->", ""); // æ³¨é‡Š å°‘è§
+		html = html.replaceAll("(?smi)<iframe[^>]*>.*?</iframe>", ""); // æ¡†æ¶
+		// ç›¸å½“å°‘è§
+		html = html.replaceAll("(?smi)<h[1-9]?[^>]*>.*?</h[1-9]?>", ""); // æ ‡é¢˜
+		// ç›¸å½“å°‘è§
+		html = html.replaceAll("(?smi)<meta[^>]*>", ""); // æ ‡é¢˜ ç›¸å½“å°‘è§
 
-		// 2Ñ¡1,ÕıÎÄÁ´½ÓÓĞÎÄ×Ö£¬Ä¿Ç°Ã»¼ûµ½ÕâÃ´±äÌ¬µÄ£¬ËùÒÔÉ¾°É
-		html = html.replaceAll("(?smi)<a [^>]+>.*?</a>", ""); // É¾³ıÁ´½Ó¼°ÖĞ¼äÄÚÈİ
-		// html = html.replaceAll("(?smi)<a[^>]*>", "<a>"); // Ìæ»»Á´½ÓÎª<a>
+		// 2é€‰1,æ­£æ–‡é“¾æ¥æœ‰æ–‡å­—ï¼Œç›®å‰æ²¡è§åˆ°è¿™ä¹ˆå˜æ€çš„ï¼Œæ‰€ä»¥åˆ å§
+		html = html.replaceAll("(?smi)<a [^>]+>.*?</a>", ""); // åˆ é™¤é“¾æ¥åŠä¸­é—´å†…å®¹
+		// html = html.replaceAll("(?smi)<a[^>]*>", "<a>"); // æ›¿æ¢é“¾æ¥ä¸º<a>
 
-		// ½«html´úÂëËõ¶Ì,±ãÓÚÇø·ÖÕıÎÄÓë¹ã¸æÄÚÈİ£¬¿ÉÒÔ°´ĞèÌí¼Ó
+		// å°†htmlä»£ç ç¼©çŸ­,ä¾¿äºåŒºåˆ†æ­£æ–‡ä¸å¹¿å‘Šå†…å®¹ï¼Œå¯ä»¥æŒ‰éœ€æ·»åŠ 
 		html = html.replaceAll("(?smi)<div[^>]*>", "<div>");
 		html = html.replaceAll("(?smi)<font[^>]*>", "<font>");
 		html = html.replaceAll("(?smi)<table[^>]*>", "<table>");
@@ -323,7 +323,7 @@ public class NovelSite {
 		html = html.replace("\r", "");
 		html = html.replace("\n", "");
 		html = html.replace("&nbsp;", "");
-		html = html.replace("¡¡¡¡", "");
+		html = html.replace("ã€€ã€€", "");
 		html = html.replace("<br>", "\n");
 		html = html.replace("</br>", "\n");
 		html = html.replace("<br/>", "\n");
@@ -334,12 +334,12 @@ public class NovelSite {
 		html = html.replace("</div>", "\n");
 		html = html.replace("\n\n", "\n");
 
-		// ´¦ÀíÕıÎÄÖĞµÄ<img±êÇ©£¬¿ÉÒÔ½«´úÂë·ÅÔÚÕâÀï£¬µäĞÍÀı×Ó:ÎŞ´í
+		// å¤„ç†æ­£æ–‡ä¸­çš„<imgæ ‡ç­¾ï¼Œå¯ä»¥å°†ä»£ç æ”¾åœ¨è¿™é‡Œï¼Œå…¸å‹ä¾‹å­:æ— é”™
 
-		// ÌØÊâÍøÕ¾´¦Àí¿ÉÒÔ·ÅÔÚÕâÀï
-		// 144ÊéÔºµÄÕâ¸ö»áµ¼ÖÂÏÂÃæÕıÔò½«ÕıÎÄÒ²É¾µôÁË£¬ÒÑÊ¹ÓÃÕıÔòĞŞ¸´
-		html = html.replaceAll("(?smi)<span[^>]*>.*?</span>", ""); // É¾³ı<span>ÀïÃæÊÇ»ìÏı×Ö·û£¬ Õë¶Ô ×İºáÖĞÎÄ»ìÏı×Ö·û£¬ÒÔ¼°´ó¼Ò¶Á½áÎ²±êÇ©£¬Ò»°ã¶¼Ã»ÓĞspan±êÇ©
-		html = html.replaceAll("(?smi)<[^<>]+>", ""); // ÕâÊÇ×îºóÒ»²½£¬µ÷ÊÔÊ±¿ÉÏÈ×¢ÊÍ: É¾³ı html±êÇ©,¸Ä½øĞÍ£¬·ÀÖ¹ÕıÎÄÓĞ²»³É¶ÔµÄ<
+		// ç‰¹æ®Šç½‘ç«™å¤„ç†å¯ä»¥æ”¾åœ¨è¿™é‡Œ
+		// 144ä¹¦é™¢çš„è¿™ä¸ªä¼šå¯¼è‡´ä¸‹é¢æ­£åˆ™å°†æ­£æ–‡ä¹Ÿåˆ æ‰äº†ï¼Œå·²ä½¿ç”¨æ­£åˆ™ä¿®å¤
+		html = html.replaceAll("(?smi)<span[^>]*>.*?</span>", ""); // åˆ é™¤<span>é‡Œé¢æ˜¯æ··æ·†å­—ç¬¦ï¼Œ é’ˆå¯¹ çºµæ¨ªä¸­æ–‡æ··æ·†å­—ç¬¦ï¼Œä»¥åŠå¤§å®¶è¯»ç»“å°¾æ ‡ç­¾ï¼Œä¸€èˆ¬éƒ½æ²¡æœ‰spanæ ‡ç­¾
+		html = html.replaceAll("(?smi)<[^<>]+>", ""); // è¿™æ˜¯æœ€åä¸€æ­¥ï¼Œè°ƒè¯•æ—¶å¯å…ˆæ³¨é‡Š: åˆ é™¤ htmlæ ‡ç­¾,æ”¹è¿›å‹ï¼Œé˜²æ­¢æ­£æ–‡æœ‰ä¸æˆå¯¹çš„<
 		html = html.replaceAll("(?smi)^\n*", "");
 
 		return html;

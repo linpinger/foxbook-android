@@ -10,7 +10,7 @@ public class Ext_ListActivity_4Eink extends ListActivity {
 	private int showItemPos = 0 ;
 	private long tLastPushEinkButton = System.currentTimeMillis(); ;
 
-	public void setItemPos4Eink() { // ¸ø×ÓÀàµÄ·½·¨£¬¹ö¶¯Î»ÖÃ·Åµ½Í·²¿
+	public void setItemPos4Eink() { // ç»™å­ç±»çš„æ–¹æ³•ï¼Œæ»šåŠ¨ä½ç½®æ”¾åˆ°å¤´éƒ¨
 		showItemPos = 0 ;
 	}
 	public void setItemPos4Eink(int itemPos) {
@@ -48,7 +48,7 @@ public class Ext_ListActivity_4Eink extends ListActivity {
 	public boolean dispatchKeyEvent(KeyEvent event) {
 		int kc = event.getKeyCode() ;
 		if ( ( event.getAction() == KeyEvent.ACTION_UP ) & ( KeyEvent.KEYCODE_PAGE_DOWN == kc | KeyEvent.KEYCODE_PAGE_UP == kc | KeyEvent.KEYCODE_VOLUME_UP == kc | KeyEvent.KEYCODE_VOLUME_DOWN == kc ) ) {
-			if ( System.currentTimeMillis() - tLastPushEinkButton < 1000 ) { // ÄªÃûÆäÃîµÄ»á¶à°´£¬Ò²ÊÇ×íÁË
+			if ( System.currentTimeMillis() - tLastPushEinkButton < 1000 ) { // è«åå…¶å¦™çš„ä¼šå¤šæŒ‰ï¼Œä¹Ÿæ˜¯é†‰äº†
 				tLastPushEinkButton = System.currentTimeMillis();
 				return true ;
 			}

@@ -36,19 +36,19 @@ public class Activity_FileChooser extends Ext_ListActivity_4Eink {
 			"/sdcard/20_mov/",
 			"/sdcard/99_sync/",
 			"/sdcard/FoxBook/"
-	}; // Ìø×ªÂ·¾¶ÁĞ±í£¬¿É×ÔÓÉÔö¼Ó
+	}; // è·³è½¬è·¯å¾„åˆ—è¡¨ï¼Œå¯è‡ªç”±å¢åŠ 
 	ListView lv ;
 	SimpleAdapter adapter ;
 	List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
 	File nowDir ;
 	private boolean haveFileToCopy = false ;
-	private boolean haveFileToMove = false ; // ÊÇ·ñÓĞÎÄ¼ş´ıÒÆ¶¯
-	File fileFromMark ; // ´ıÒÆ¶¯ÎÄ¼ş
+	private boolean haveFileToMove = false ; // æ˜¯å¦æœ‰æ–‡ä»¶å¾…ç§»åŠ¨
+	File fileFromMark ; // å¾…ç§»åŠ¨æ–‡ä»¶
 	private boolean isHideDotFiles = false ;
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void showHomeUp() {
-		getActionBar().setDisplayHomeAsUpEnabled(true);  // ±êÌâÀ¸ÖĞÌí¼Ó·µ»ØÍ¼±ê
+		getActionBar().setDisplayHomeAsUpEnabled(true);  // æ ‡é¢˜æ ä¸­æ·»åŠ è¿”å›å›¾æ ‡
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -65,9 +65,9 @@ public class Activity_FileChooser extends Ext_ListActivity_4Eink {
 		lv.setAdapter(adapter);
 		init_LV_item_Long_click();
 
-		Intent itt = getIntent(); // »ñÈ¡´«ÈëµÄÊı¾İ
+		Intent itt = getIntent(); // è·å–ä¼ å…¥çš„æ•°æ®
 		if ( itt.getStringExtra("dir") != null ) {
-			File inDir = new File(itt.getStringExtra("dir")); // Æô¶¯Ê±ËùÔÚÄ¿Â¼
+			File inDir = new File(itt.getStringExtra("dir")); // å¯åŠ¨æ—¶æ‰€åœ¨ç›®å½•
 			if ( inDir.exists() & inDir.isDirectory() )
 				nowDir = inDir;
 			else
@@ -91,7 +91,7 @@ public class Activity_FileChooser extends Ext_ListActivity_4Eink {
 				return -1;
 			if ( order0 > order1 )
 				return 1;
-			if ( order0 == order1 ) {  // µ±ÀàĞÍÏàÍ¬Ê±£¬±È½ÏÃû³Æ
+			if ( order0 == order1 ) {  // å½“ç±»å‹ç›¸åŒæ—¶ï¼Œæ¯”è¾ƒåç§°
 				String name0 = (String) hm0.get("name");
 				String name1 = (String) hm1.get("name");
 				return name0.compareTo(name1);
@@ -107,8 +107,8 @@ public class Activity_FileChooser extends Ext_ListActivity_4Eink {
 		data.clear();
 		HashMap<String, Object> hm = new HashMap<String, Object>();
 		hm.put("name", "..");
-		hm.put("info", "ÏòÉÏ");
-		hm.put("order", 0);   // ÁĞ±íÅÅĞòÓÃ
+		hm.put("info", "å‘ä¸Š");
+		hm.put("order", 0);   // åˆ—è¡¨æ’åºç”¨
 		data.add(hm);
 
 		for ( File xx : nowDir.listFiles() ) {
@@ -120,17 +120,17 @@ public class Activity_FileChooser extends Ext_ListActivity_4Eink {
 			hm.put("name", xx.getName());
 			if ( xx.isDirectory() ) {
 				hm.put("order", 1);
-				hm.put("info", (new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm")).format(xx.lastModified()) + "¡¡ÎÄ¼ş¼Ğ");
+				hm.put("info", (new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm")).format(xx.lastModified()) + "ã€€æ–‡ä»¶å¤¹");
 			} else {
 				hm.put("order", 2);
-				hm.put("info", (new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm")).format(xx.lastModified()) + "¡¡ÎÄ¼ş´óĞ¡£º" + xx.length());
+				hm.put("info", (new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm")).format(xx.lastModified()) + "ã€€æ–‡ä»¶å¤§å°ï¼š" + xx.length());
 			}
 			data.add(hm);
 		}
-		Collections.sort(data, new ComparatorName()); // ÅÅĞò
+		Collections.sort(data, new ComparatorName()); // æ’åº
 
 		adapter.notifyDataSetChanged();
-		this.setItemPos4Eink(); // ¹ö¶¯Î»ÖÃ·Åµ½Í·²¿
+		this.setItemPos4Eink(); // æ»šåŠ¨ä½ç½®æ”¾åˆ°å¤´éƒ¨
 	}
 
 	@Override
@@ -141,7 +141,7 @@ public class Activity_FileChooser extends Ext_ListActivity_4Eink {
 		File clickFile;
 		if ( nowName.equalsIgnoreCase("..") ) {
 			if ( nowDir.getPath().equals("/") ){
-				foxtip("°¡Å·£¬ÒÑ¾­µ½¸ùÄ¿Â¼ÁË");
+				foxtip("å•Šæ¬§ï¼Œå·²ç»åˆ°æ ¹ç›®å½•äº†");
 				return;
 			} else {
 				clickFile = nowDir.getParentFile();
@@ -153,13 +153,13 @@ public class Activity_FileChooser extends Ext_ListActivity_4Eink {
 			nowDir = clickFile ;
 			showFileList(nowDir);
 		} else {
-			this.setResult(RESULT_OK, new Intent().setData(Uri.fromFile(clickFile))); // ·µ»ØÎÄ¼şÂ·¾¶
+			this.setResult(RESULT_OK, new Intent().setData(Uri.fromFile(clickFile))); // è¿”å›æ–‡ä»¶è·¯å¾„
 			this.finish();
 		}
 		super.onListItemClick(l, v, position, id);
 	}
 
-	private void init_LV_item_Long_click() { // ³õÊ¼»¯ ³¤»÷ ÌõÄ¿ µÄĞĞÎª
+	private void init_LV_item_Long_click() { // åˆå§‹åŒ– é•¿å‡» æ¡ç›® çš„è¡Œä¸º
 		final Builder builder = new AlertDialog.Builder(this);
 		OnItemLongClickListener longlistener = new OnItemLongClickListener() {
 			public boolean onItemLongClick(AdapterView<?> adptv, View view, int position, long id) {
@@ -168,66 +168,66 @@ public class Activity_FileChooser extends Ext_ListActivity_4Eink {
 				final String lcName = (String) hm.get("name");
 //				final int lcPos = position;
 
-				builder.setTitle("²Ù×÷:" + lcName);
-				final String[] aList = new String[] { "Ìø×ªµ½", "Ë¢ĞÂÁĞ±í", "ÖØÃüÃû", "¸´ÖÆ", "¼ôÇĞ", "Õ³Ìù", "¸´ÖÆÎÄ¼şÃû", "Õ³Ìù¼ôÌù°åÎÄ±¾µ½ĞÂTxtÖĞ" , "É¾³ı"};
+				builder.setTitle("æ“ä½œ:" + lcName);
+				final String[] aList = new String[] { "è·³è½¬åˆ°", "åˆ·æ–°åˆ—è¡¨", "é‡å‘½å", "å¤åˆ¶", "å‰ªåˆ‡", "ç²˜è´´", "å¤åˆ¶æ–‡ä»¶å", "ç²˜è´´å‰ªè´´æ¿æ–‡æœ¬åˆ°æ–°Txtä¸­" , "åˆ é™¤"};
 				builder.setItems( aList, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog,int which) {
 						String aa = aList[which];
-						if ( aa.equalsIgnoreCase("Ìø×ªµ½") ) {
+						if ( aa.equalsIgnoreCase("è·³è½¬åˆ°") ) {
 							jumpDialog();
-						} else if ( aa.equalsIgnoreCase("Ë¢ĞÂÁĞ±í") ) {
+						} else if ( aa.equalsIgnoreCase("åˆ·æ–°åˆ—è¡¨") ) {
 							showFileList(nowDir);
-						} else if ( aa.equalsIgnoreCase("ÖØÃüÃû") ) {
+						} else if ( aa.equalsIgnoreCase("é‡å‘½å") ) {
 							renameDialog(new File(nowDir, lcName));
-						} else if ( aa.equalsIgnoreCase("¸´ÖÆ") ) {
+						} else if ( aa.equalsIgnoreCase("å¤åˆ¶") ) {
 							haveFileToCopy = true;
 							fileFromMark = new File(nowDir, lcName);
-							foxtip("×¼±¸¸´ÖÆ: " + lcName + "\n½øÈëÏëÕ³ÌùµÄÄ¿Â¼Õ³Ìù");
-						} else if ( aa.equalsIgnoreCase("¼ôÇĞ") ) {
+							foxtip("å‡†å¤‡å¤åˆ¶: " + lcName + "\nè¿›å…¥æƒ³ç²˜è´´çš„ç›®å½•ç²˜è´´");
+						} else if ( aa.equalsIgnoreCase("å‰ªåˆ‡") ) {
 							haveFileToMove = true;
 							fileFromMark = new File(nowDir, lcName);
-							foxtip("×¼±¸ÒÆ¶¯: " + lcName + "\n½øÈëÏëÕ³ÌùµÄÄ¿Â¼Õ³Ìù");
-						} else if ( aa.equalsIgnoreCase("Õ³Ìù") ) {
+							foxtip("å‡†å¤‡ç§»åŠ¨: " + lcName + "\nè¿›å…¥æƒ³ç²˜è´´çš„ç›®å½•ç²˜è´´");
+						} else if ( aa.equalsIgnoreCase("ç²˜è´´") ) {
 							if ( fileFromMark == null ) {
-								foxtip("»¹²»ÖªµÀÒª²Ù×÷ÄÄ¸öÎÄ¼şß÷");
+								foxtip("è¿˜ä¸çŸ¥é“è¦æ“ä½œå“ªä¸ªæ–‡ä»¶å–µ");
 								return;
 							}
 							File fileTo = new File(nowDir, fileFromMark.getName());
-							ToolJava.renameIfExist(fileTo); // ÏÈÖØÃüÃû
+							ToolJava.renameIfExist(fileTo); // å…ˆé‡å‘½å
 							if ( haveFileToMove ) {
-								if ( fileFromMark.renameTo(fileTo) ) { // Í¬ÎÄ¼şÏµÍ³ÒÆ¶¯
+								if ( fileFromMark.renameTo(fileTo) ) { // åŒæ–‡ä»¶ç³»ç»Ÿç§»åŠ¨
 									haveFileToMove = false;
 									showFileList(nowDir);
-								} else { // Ê§°Ü¿ÉÄÜÊÇ¿çÎÄ¼şÏµÍ³ÁË£¬ÏÈ¸´ÖÆ£¬ºóÉ¾³ı
+								} else { // å¤±è´¥å¯èƒ½æ˜¯è·¨æ–‡ä»¶ç³»ç»Ÿäº†ï¼Œå…ˆå¤åˆ¶ï¼Œååˆ é™¤
 									haveFileToCopy = true;
 								}
 							}
-							if ( haveFileToCopy ) { // ¿çÎÄ¼şÏµÍ³¸´ÖÆ£¬Õâ¸öÒª·Åµ½ºóÃæÒ»µã£¬Ç°ÃæÒÆ¶¯¿ÉÄÜ»áÓÃµ½
+							if ( haveFileToCopy ) { // è·¨æ–‡ä»¶ç³»ç»Ÿå¤åˆ¶ï¼Œè¿™ä¸ªè¦æ”¾åˆ°åé¢ä¸€ç‚¹ï¼Œå‰é¢ç§»åŠ¨å¯èƒ½ä¼šç”¨åˆ°
 								if ( fileFromMark.length() == ToolJava.copyFile(fileFromMark, fileTo) ) {
 									haveFileToCopy = false ;
 									showFileList(nowDir);
 								} else {
-									foxtip("¸´ÖÆÊ§°Ü: " + fileTo.getName());
+									foxtip("å¤åˆ¶å¤±è´¥: " + fileTo.getName());
 								}
 							}
-							if ( haveFileToMove ) { // ÒÑ¾­¸´ÖÆ£¬×¼±¸É¾³ı
+							if ( haveFileToMove ) { // å·²ç»å¤åˆ¶ï¼Œå‡†å¤‡åˆ é™¤
 								if ( fileFromMark.length() == fileTo.length() )
 									fileFromMark.delete();
 								haveFileToMove = false ;
 							}
-						} else if ( aa.equalsIgnoreCase("¸´ÖÆÎÄ¼şÃû") ) {
+						} else if ( aa.equalsIgnoreCase("å¤åˆ¶æ–‡ä»¶å") ) {
 							ToolAndroid.setClipText(lcName, getApplicationContext());
-							foxtip("¼ôÌù°å:\n" + lcName);
-						} else if ( aa.equalsIgnoreCase("Õ³Ìù¼ôÌù°åÎÄ±¾µ½ĞÂTxtÖĞ") ) {
+							foxtip("å‰ªè´´æ¿:\n" + lcName);
+						} else if ( aa.equalsIgnoreCase("ç²˜è´´å‰ªè´´æ¿æ–‡æœ¬åˆ°æ–°Txtä¸­") ) {
 							String xx = ToolAndroid.getClipText(getApplicationContext());
 							String txtName = (new java.text.SimpleDateFormat("yyyy-MM-dd_HHmmss")).format(new java.util.Date()) + ".txt";
 							ToolJava.writeText(xx, new File(nowDir, txtName).getPath());
 							showFileList(nowDir);
-							foxtip("±£´æµ½: " + txtName);
-						} else if ( aa.equalsIgnoreCase("É¾³ı") ) {
+							foxtip("ä¿å­˜åˆ°: " + txtName);
+						} else if ( aa.equalsIgnoreCase("åˆ é™¤") ) {
 							deleteDialog(new File(nowDir, lcName));
 						} else {
-							foxtip("Ò»Á³ÃÈÈ¦");
+							foxtip("ä¸€è„¸èŒåœˆ");
 						}
 					}
 				});
@@ -240,48 +240,48 @@ public class Activity_FileChooser extends Ext_ListActivity_4Eink {
 
 	private void renameDialog(final File fRename) {
 		final EditText newName = new EditText(this);
-		newName.setText(fRename.getName());  // ±à¼­¿òÖĞÄÚÈİÎªÔ­Ãû³Æ
+		newName.setText(fRename.getName());  // ç¼–è¾‘æ¡†ä¸­å†…å®¹ä¸ºåŸåç§°
 		Builder dlg = new AlertDialog.Builder(this);
-		dlg.setTitle("ÖØÃüÃû: " + fRename.getName());
+		dlg.setTitle("é‡å‘½å: " + fRename.getName());
 		dlg.setView(newName);
-		dlg.setPositiveButton("È·¶¨", new DialogInterface.OnClickListener(){
+		dlg.setPositiveButton("ç¡®å®š", new DialogInterface.OnClickListener(){
 			@Override
 			public void onClick(DialogInterface arg0, int arg1) {
 				File newFile = new File(fRename.getParentFile(), newName.getText().toString());
 				if ( newFile.exists() ) {
-					foxtip("ÎÄ¼şÒÑ´æÔÚ: " + newFile.getName());
+					foxtip("æ–‡ä»¶å·²å­˜åœ¨: " + newFile.getName());
 				} else {
 					fRename.renameTo(newFile);
-					foxtip("ÖØÃüÃû " + fRename.getName() + " Îª: " + newFile.getName());
+					foxtip("é‡å‘½å " + fRename.getName() + " ä¸º: " + newFile.getName());
 					showFileList(nowDir);
 				}
 			}
 		});
-		dlg.setNegativeButton("È¡Ïû", null);
+		dlg.setNegativeButton("å–æ¶ˆ", null);
 		dlg.create().show();
 	}
 
 	private void deleteDialog(final File fDelete) {
 		new AlertDialog.Builder(this)
-		.setTitle("È·ÈÏÊÇ·ñÉ¾³ıÎÄ¼ş")
-		.setMessage("È·¶¨É¾³ı: " + fDelete.getName())
-		.setPositiveButton("È·¶¨", new DialogInterface.OnClickListener(){
+		.setTitle("ç¡®è®¤æ˜¯å¦åˆ é™¤æ–‡ä»¶")
+		.setMessage("ç¡®å®šåˆ é™¤: " + fDelete.getName())
+		.setPositiveButton("ç¡®å®š", new DialogInterface.OnClickListener(){
 			public void onClick(DialogInterface arg0, int arg1) {
 				if ( ToolJava.deleteDir(fDelete) ) {
 					showFileList(nowDir);
-					foxtip("ÒÑÉ¾³ı:\n" + fDelete.getName());
+					foxtip("å·²åˆ é™¤:\n" + fDelete.getName());
 				} else {
-					foxtip("É¾³ıÊ§°Ü:\n" + fDelete.getName());
+					foxtip("åˆ é™¤å¤±è´¥:\n" + fDelete.getName());
 				}
 			}
 		})
-		.setNegativeButton("È¡Ïû", null)
+		.setNegativeButton("å–æ¶ˆ", null)
 		.create().show();
 	}
 
-	private void jumpDialog() { // È«¾Ö: jumpToPathList, nowDir
+	private void jumpDialog() { // å…¨å±€: jumpToPathList, nowDir
 		new AlertDialog.Builder(this)
-		.setTitle("Ìø×ªµ½ÒÔÏÂÄ¿Â¼")
+		.setTitle("è·³è½¬åˆ°ä»¥ä¸‹ç›®å½•")
 		.setItems( jumpToPathList, new DialogInterface.OnClickListener(){
 			public void onClick(DialogInterface arg0, int which) {
 				File ff = new File(jumpToPathList[which]);
@@ -290,17 +290,17 @@ public class Activity_FileChooser extends Ext_ListActivity_4Eink {
 						nowDir = ff ;
 						showFileList(ff);
 					} else {
-						foxtip("·ÇÄ¿Â¼: " + ff.getPath());
+						foxtip("éç›®å½•: " + ff.getPath());
 					}
 				} else {
-					foxtip("²»´æÔÚ: " + ff.getPath());
+					foxtip("ä¸å­˜åœ¨: " + ff.getPath());
 				}
 			}
 		})
 		.create().show();
 	}
 
-	public boolean onOptionsItemSelected(MenuItem item) { // ÏìÓ¦Ñ¡Ôñ²Ëµ¥µÄ¶¯×÷
+	public boolean onOptionsItemSelected(MenuItem item) { // å“åº”é€‰æ‹©èœå•çš„åŠ¨ä½œ
 		switch (item.getItemId()) {
 		case android.R.id.home:
 			this.setResult(RESULT_CANCELED);
@@ -310,7 +310,7 @@ public class Activity_FileChooser extends Ext_ListActivity_4Eink {
 		return super.onOptionsItemSelected(item);
 	}
 
-	private void foxtip(String sinfo) { // ToastÏûÏ¢
+	private void foxtip(String sinfo) { // Toastæ¶ˆæ¯
 		Toast.makeText(getApplicationContext(), sinfo, Toast.LENGTH_SHORT).show();
 	}
 

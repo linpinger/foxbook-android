@@ -5,17 +5,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Site1024 extends NovelSite {
-	public HashMap<String, Object> getContentTitle(String html) { // ´¦ÀíµÃµ½1024ÎÄ±¾°æµÄÄÚÈÝ: title, content
+	public HashMap<String, Object> getContentTitle(String html) { // å¤„ç†å¾—åˆ°1024æ–‡æœ¬ç‰ˆçš„å†…å®¹: title, content
 		// Used by: Activity_EBook_Viewer , Activity_ShowPage4Eink 
 		HashMap<String, Object> oM = new HashMap<String, Object>();
 
-		// ±êÌâ
-		// <center><b>²é¿´ÍêÕû°æ±¾: [-- <a href="read.php?tid=21" target="_blank">[11-14] Á¬³Ç¾÷Íâ´«</a> --]</b></center>
+		// æ ‡é¢˜
+		// <center><b>æŸ¥çœ‹å®Œæ•´ç‰ˆæœ¬: [-- <a href="read.php?tid=21" target="_blank">[11-14] è¿žåŸŽè¯€å¤–ä¼ </a> --]</b></center>
 		Matcher mat2 = Pattern.compile("(?smi)<center><b>[^>]*?>([^<]*?)</a>").matcher(html);
 		while (mat2.find())
 			oM.put(NV.PageName, mat2.group(1));
 
-		// ÄÚÈÝ
+		// å†…å®¹
 		String text = "";
 		Matcher mat = Pattern.compile("(?smi)\"tpc_content\">(.*?)</td>").matcher(html);
 		while (mat.find())
@@ -26,8 +26,8 @@ public class Site1024 extends NovelSite {
 				.replace("\n", "")
 				.replace("&nbsp;", " ")
 				.replace("</span>", "")
-				.replaceAll("(?smi)<br>[ ¡¡]*", "\n")
-				.replaceAll("(?smi)^[ ¡¡]*", "")
+				.replaceAll("(?smi)<br>[ ã€€]*", "\n")
+				.replaceAll("(?smi)^[ ã€€]*", "")
 				.replaceAll("(?i)<span[^>]*?>", "")
 				.replace("<br>", "\n")
 				.replace("\n\n", "\n")

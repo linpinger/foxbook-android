@@ -3,6 +3,7 @@ package com.linpinger.foxbook;
 import java.io.File;
 import java.io.LineNumberReader;
 import java.io.StringReader;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -14,13 +15,12 @@ import com.linpinger.novel.Site1024;
 import com.linpinger.tool.Activity_FileChooser;
 import com.linpinger.tool.FoxZipReader;
 import com.linpinger.tool.ToolAndroid;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -28,115 +28,19 @@ import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnKeyListener;
 import android.view.View.OnLongClickListener;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.Toast;
 
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class Activity_ShowPage4Eink extends Activity {
-	private NovelManager nm;
-
-	private int ittAction = 0; // ´«ÈëÊı¾İ
-	private int bookIDX = -1 ; // ·­Ò³Ê±Ê¹ÓÃ
-	private int pageIDX = -1 ; // ·­Ò³Ê±Ê¹ÓÃ
-
-
-	FoxTextView mv;
-	private float cX = 0 ; // µã»÷ViewµÄ×ø±ê
-	private float cY = 0 ; // µã»÷ViewµÄ×ø±ê
-
-	SharedPreferences settings;
-	SharedPreferences.Editor editor;
-	private String myBGcolor = "default"; // ±³¾°:Ä¬ÈÏÑòÆ¤Ö½
-	private boolean isMapUpKey = false;   // ÊÇ·ñÓ³ÉäÉÏ·­ÎªÏÂ·­¼ü
-
-	private boolean isShowSettingMenus = true ; // ÊÇ·ñÏÔÊ¾ ÏÂÃæµÄÉèÖÃ²Ëµ¥Ïî£¬Ò»°ãÖ»ÊÇÔÚµÚÒ»´ÎÊ¹ÓÃµÄÊ±ºòĞèÒªµ÷Õû
-	private float fontsize = 36.0f; // ×ÖÌå´óĞ¡
-	private float paddingMultip = 0.5f ; // Ò³±ß¾à = ×ÖÌå´óĞ¡ * paddingMultip
-	private float lineSpaceingMultip = 1.5f ; // ĞĞ¼ä¾à±¶Êı
-	private boolean isProcessLongOneLine = true; // ´¦Àí³¬³¤µ¥ĞĞ > 4K
-	private boolean isAdd2CNSpaceBeforeLine = true ; // ×Ô¶¯Ìí¼ÓÁ½¿Õ°×
-
-	private long tLastPushEinkButton ;
-
-	private final int IS_REFRESH = 5 ;
-
-	private File ZIPFILE ;
-
-
-	private class FoxTextView extends Ext_View_FoxTextView {
-		public FoxTextView(Context context) {
-			super(context);
-		}
-
-		private int setPrevOrNextText(boolean isNextPage) {
-			if ( -1 == pageIDX ) { // ÍøÂç£¬Ó¦ÖØ¶¨ÒåÎª-1
-				foxtip("Ç×£¬ID Îª -1");
-				return -1;
-			}
-
-			Map<String, Object> mp ;
-			String strNoMoreTip ;
-			if ( isNextPage ) {
-				mp = nm.getNextPage(bookIDX, pageIDX);
-				strNoMoreTip = "Ç×£¬Ã»ÓĞÏÂÒ»Ò³ÁË";
-			} else {
-				mp = nm.getPrevPage(bookIDX, pageIDX);
-				strNoMoreTip = "Ç×£¬Ã»ÓĞÉÏÒ»Ò³ÁË";
-			}
-			if ( null == mp ) {
-				foxtip(strNoMoreTip);
-				return -2;
-			}
-			if ( ittAction == AC.aShowPageInZip1024 ) {
-				String html = FoxZipReader.getUtf8TextFromZip(ZIPFILE, mp.get(NV.PageURL).toString());
-				if ( html.contains("\"tpc_content\"") )
-					mp.putAll(new Site1024().getContentTitle(html));
-			}
-			String newBookAddWJX = "¡ï" ;
-			if ( (Integer)mp.get(NV.BookIDX) == bookIDX )
-				newBookAddWJX = "" ;
-
-			bookIDX = (Integer) mp.get(NV.BookIDX);
-			pageIDX = (Integer) mp.get(NV.PageIDX);
-			String pagetext = mp.get(NV.Content).toString();
-			if ( pagetext.length() == 0 ) {
-				foxtip("ÄÚÈİÎ´ÏÂÔØ: " + mp.get(NV.PageName));
-				return -3;
-			}
-			pagetext = ProcessLongOneLine(pagetext);
-			if ( isAdd2CNSpaceBeforeLine ) {
-				mv.setText(newBookAddWJX + mp.get(NV.PageName).toString()
-					, "¡¡¡¡" + pagetext.replace("\n", "\n¡¡¡¡")
-					, nm.getBookInfo(bookIDX).get(NV.BookName).toString()
-					+ "   " + nm.getPagePosAtShelfPages(bookIDX, pageIDX));
-			} else {
-				mv.setText(newBookAddWJX + mp.get(NV.PageName).toString()
-						, pagetext
-						, nm.getBookInfo(bookIDX).get(NV.BookName).toString()
-						+ "   " + nm.getPagePosAtShelfPages(bookIDX, pageIDX));
-			}
-			return 0;
-		}
-
-		@Override
-		public int setPrevText() {
-			return setPrevOrNextText(false); // ÉÏÒ»
-		}
-
-		@Override
-		public int setNextText() {
-			return setPrevOrNextText(true); // ÏÂÒ»
-		}
-	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -144,13 +48,13 @@ public class Activity_ShowPage4Eink extends Activity {
 		if ( settings.getBoolean("isFullScreen", false) )
 			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-		this.setTheme(android.R.style.Theme_Holo_Light_NoActionBar); // ÎŞActionBar
+		this.setTheme(android.R.style.Theme_Holo_Light_NoActionBar); // æ— ActionBar
 
 		super.onCreate(savedInstanceState);
-//		Settings.System.putInt(this.getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, 180000); // ÉèÖÃ³¬Ê±Ê±¼ä 3·ÖÖÓ
-//		getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); // ÓÀÔ¶ÁÁ×Å
+//		Settings.System.putInt(this.getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, 180000); // è®¾ç½®è¶…æ—¶æ—¶é—´ 3åˆ†é’Ÿ
+//		getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); // æ°¸è¿œäº®ç€
 		myBGcolor = settings.getString("myBGcolor", myBGcolor);
-		editor = settings.edit(); // »ñÈ¡ÉèÖÃ
+		editor = settings.edit(); // è·å–è®¾ç½®
 		setBGcolor(myBGcolor);
 
 		isProcessLongOneLine = settings.getBoolean("isProcessLongOneLine", isProcessLongOneLine);
@@ -158,32 +62,30 @@ public class Activity_ShowPage4Eink extends Activity {
 
 		this.nm = ((FoxApp)this.getApplication()).nm;
 
-		mv = new FoxTextView(this); // ×Ô¶¨ÒåView
+		mv = new FoxTextView(this); // è‡ªå®šä¹‰View
 		mv.setBodyBold(settings.getBoolean("isBodyBold", false));
 
 		setContentView(mv);
-		mv.setOnTouchListener(new OnTouchListener(){ // ´¥ÃşÊÂ¼ş
+		mv.setOnTouchListener(new OnTouchListener(){ // è§¦æ‘¸äº‹ä»¶
 			@Override
 			public boolean onTouch(View arg0, MotionEvent arg1) {
-//				if ( arg1.getAction() == MotionEvent.ACTION_DOWN )
-				cX = arg1.getX(); // »ñÈ¡µÄ×ø±ê¸øclickÊ¹ÓÃ
+				cX = arg1.getX(); // è·å–çš„åæ ‡ç»™clickä½¿ç”¨
 				cY = arg1.getY(); // getRawX getRawY
 				return false;
 			}
 		});
-		mv.setOnClickListener(new OnClickListener(){ // µ¥»÷ÊÂ¼ş
+		mv.setOnClickListener(new OnClickListener(){ // å•å‡»äº‹ä»¶
 			@Override
-			public void onClick(View arg0) {
-//				foxtip("c=" + cX + ":" + cY + "/" + arg0.getWidth() + ":" + arg0.getHeight() + "\n" + arg0.toString());
-				int vy = arg0.getHeight();
-				if ( cY <= vy / 3 ) { // Ğ¡ÓÚ1/3ÆÁ¸ß
-					int vx = arg0.getWidth(); // ÆÁÄ»¿í¶È
-					if ( cX >= vx * 0.6666 ) { // ÓÒÉÏ½Ç1/3¿í´¦
-						showMenu();
-					} else if (cX <= vx * 0.333) { // ×óÉÏ½Ç
+			public void onClick(View v) {
+				int vy = v.getHeight();
+				if ( cY <= vy / 3 ) { // å°äº1/3å±é«˜
+					int vx = v.getWidth(); // å±å¹•å®½åº¦
+					if ( cX >= vx * 0.6666 ) { // å³ä¸Šè§’1/3å®½å¤„
+						showConfigPopupWindow(v);
+					} else if (cX <= vx * 0.333) { // å·¦ä¸Šè§’
 						foxExit();
 					} else {
-						mv.clickPrev();
+						mv.clickPrev(); // ä¸Šä¸­
 					}
 				} else {
 					mv.clickNext();
@@ -193,9 +95,26 @@ public class Activity_ShowPage4Eink extends Activity {
 		mv.setOnLongClickListener(new OnLongClickListener(){
 			@Override
 			public boolean onLongClick(View v) {
-				// showMenu();
-				showEinkPopupWindow(v);
-				return false;
+				int vy = v.getHeight();
+				if ( cY <= vy / 3 ) { // å°äº1/3å±é«˜
+					int vx = v.getWidth(); // å±å¹•å®½åº¦
+					if ( cX >= vx * 0.6666 ) { // å³ä¸Šè§’1/3å®½å¤„
+						mv.setNextText() ; // ä¸‹ä¸€ç« 
+						mv.postInvalidate();
+					} else if (cX <= vx * 0.333) { // å·¦ä¸Šè§’
+						foxExit();
+					} else { // ä¸Šä¸­
+						mv.setPrevText(); // ä¸Šä¸€ç« 
+						mv.postInvalidate();
+					}
+				} else {
+					if ( ToolAndroid.isEink() ) {
+						showEinkPopupWindow(v); // e-ink åº•éƒ¨å¼¹å‡ºä¸€è¡Œå­—ï¼Œæ–¹ä¾¿åˆ·æ–°åŠå¼¹å‡ºçª—å£
+					} else {
+						mv.clickPrev(); // æ‰‹æœºæ˜¾ç¤ºä¸Šä¸€å±
+					}
+				}
+				return true;
 			}
 			
 		});
@@ -203,9 +122,8 @@ public class Activity_ShowPage4Eink extends Activity {
 		tLastPushEinkButton = System.currentTimeMillis();
 
 		isMapUpKey = settings.getBoolean("isMapUpKey", isMapUpKey);
-		isShowSettingMenus = settings.getBoolean("isShowSettingMenus", isShowSettingMenus);
 
-		fontsize = settings.getFloat("fontsize", (float)ToolAndroid.sp2px(this, 18.5f)); // ×ÖÌå´óĞ¡
+		fontsize = settings.getFloat("fontsize", (float)ToolAndroid.sp2px(this, 18.5f)); // å­—ä½“å¤§å°
 		mv.setFontSize(fontsize);
 
 		paddingMultip = settings.getFloat("paddingMultip", paddingMultip);
@@ -220,14 +138,14 @@ public class Activity_ShowPage4Eink extends Activity {
 					HashMap<String, String> page = (HashMap<String, String>)msg.obj;
 					String sText = page.get(NV.Content);
 					if ( sText.length() < 9 ) {
-						mv.setText("´íÎó", "¡¡¡¡°¡àŞ£¬¿ÉÄÜ´¦ÀíµÄÊ±ºò³öÏÖÎÊÌâÁËÅ¶\n\nURL: "
+						mv.setText("é”™è¯¯", "ã€€ã€€å•Šå™¢ï¼Œå¯èƒ½å¤„ç†çš„æ—¶å€™å‡ºç°é—®é¢˜äº†å“¦\n\nURL: "
 								+ page.get(NV.PageFullURL)
 								+ "\nPageName: " + page.get(NV.PageName)
 								+ "\nContent:" + sText);
 					} else {
 						sText = ProcessLongOneLine(sText);
 						if ( isAdd2CNSpaceBeforeLine ) {
-							mv.setText(page.get(NV.PageName).toString(), "¡¡¡¡" + sText.replace("\n", "\n¡¡¡¡"));
+							mv.setText(page.get(NV.PageName).toString(), "ã€€ã€€" + sText.replace("\n", "\nã€€ã€€"));
 						} else {
 							mv.setText(page.get(NV.PageName).toString(), sText);
 						}
@@ -238,7 +156,7 @@ public class Activity_ShowPage4Eink extends Activity {
 		};
 
 		Intent itt = getIntent();
-		ittAction = itt.getIntExtra(AC.action, 0); // ±ØĞè ±íÃ÷¶¯×÷
+		ittAction = itt.getIntExtra(AC.action, 0); // å¿…éœ€ è¡¨æ˜åŠ¨ä½œ
 		bookIDX = itt.getIntExtra(NV.BookIDX, -1);
 		pageIDX = itt.getIntExtra(NV.PageIDX, -1);
 		if ( ittAction == AC.aShowPageInMem ) { // 1024DB3
@@ -250,11 +168,11 @@ switch (ittAction) {
 			Map<String, Object> page = nm.getPage(bookIDX, pageIDX);
 			String pagetext = page.get(NV.Content).toString();
 			if ( null == pagetext | pagetext.length() < 5 )
-				pagetext = "±¾ÕÂ½ÚÄÚÈİ»¹Ã»ÏÂÔØ£¬Çë»Øµ½ÁĞ±í£¬¸üĞÂ±¾Êé»ò±¾ÕÂ½Ú" ;
+				pagetext = "æœ¬ç« èŠ‚å†…å®¹è¿˜æ²¡ä¸‹è½½ï¼Œè¯·å›åˆ°åˆ—è¡¨ï¼Œæ›´æ–°æœ¬ä¹¦æˆ–æœ¬ç« èŠ‚" ;
 			pagetext = ProcessLongOneLine(pagetext);
 			if ( isAdd2CNSpaceBeforeLine ) {
 			mv.setText(page.get(NV.PageName).toString()
-					, "¡¡¡¡" + pagetext.replace("\n", "\n¡¡¡¡")
+					, "ã€€ã€€" + pagetext.replace("\n", "\nã€€ã€€")
 					, nm.getBookInfo(bookIDX).get(NV.BookName).toString()
 					+ "   " + nm.getPagePosAtShelfPages(bookIDX, pageIDX));
 			} else {
@@ -284,7 +202,7 @@ switch (ittAction) {
 				}
 			}).start();
 			break;
-		case AC.aShowPageInZip1024: // ZIPÎÄ¼ş
+		case AC.aShowPageInZip1024: // ZIPæ–‡ä»¶
 			String zipPageFullURL = itt.getStringExtra(NV.PageFullURL);
 			Matcher mat = Pattern.compile("(?i)^zip://([^@]*?)@([^@]*)$").matcher(zipPageFullURL);
 			String zipRelPath = "";
@@ -305,7 +223,7 @@ switch (ittAction) {
 			}
 
 			if ( isAdd2CNSpaceBeforeLine ) {
-			mv.setText(pageName , "¡¡¡¡" + content.replace("\n", "\n¡¡¡¡")
+			mv.setText(pageName , "ã€€ã€€" + content.replace("\n", "\nã€€ã€€")
 					, nm.getBookInfo(bookIDX).get(NV.BookName).toString()
 					+ "   " + nm.getPagePosAtShelfPages(bookIDX, pageIDX));
 			} else {
@@ -316,23 +234,204 @@ switch (ittAction) {
 			break;
 		default:
 			break;
-} // switch ½áÊø
+} // switch ç»“æŸ
 
-	} // oncreate ½áÊø
+	} // oncreate ç»“æŸ
 
-	private void showEinkPopupWindow(View view) {
-		// Ò»¸ö×Ô¶¨ÒåµÄ²¼¾Ö£¬×÷ÎªÏÔÊ¾µÄÄÚÈİ
-		View popView = LayoutInflater.from(getApplicationContext()).inflate(R.layout.popup_window_showpage, null);
-		
-		// ÉèÖÃ°´Å¥µÄµã»÷ÊÂ¼ş
-		popView.findViewById(R.id.popFO).setOnClickListener(new OnClickListener() {
+	OnLongClickListener olcl_exit = new OnLongClickListener() { // ä¸“é—¨ç”¨äºé•¿æŒ‰é€€å‡º
+		@Override
+		public boolean onLongClick(View arg0) {
+			foxExit();
+			return true;
+		}
+	};
+
+	private void showConfigPopupWindow(View view) {
+
+		// ä¸€ä¸ªè‡ªå®šä¹‰çš„å¸ƒå±€ï¼Œä½œä¸ºæ˜¾ç¤ºçš„å†…å®¹
+		View popView = LayoutInflater.from(getApplicationContext()).inflate(R.layout.popup_window_showpage_config, null);
+
+		popView.findViewById(R.id.pc_chap_prev).setOnLongClickListener(olcl_exit);
+		// è®¾ç½®æŒ‰é’®çš„ç‚¹å‡»äº‹ä»¶
+		popView.findViewById(R.id.pc_chap_prev).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mv.clickPrev(); // ÉÏÒ»Ò³
+				mv.setPrevText(); // ä¸Šä¸€ç« 
+				mv.postInvalidate();
+			}
+		});
+		popView.findViewById(R.id.pc_chap_next).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mv.setNextText() ; // ä¸‹ä¸€ç« 
+				mv.postInvalidate();
 			}
 		});
 
-		final PopupWindow popupWindow = new PopupWindow(popView, 
+		popView.findViewById(R.id.pc_size_add).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				changeView(11); // å¢å¤§å­—ä½“
+			}
+		});
+		popView.findViewById(R.id.pc_size_sub).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				changeView(9); // å‡å°å­—ä½“
+			}
+		});
+		popView.findViewById(R.id.pc_size_text).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				changeView(10); // é»˜è®¤ å­—ä½“
+			}
+		});
+
+		popView.findViewById(R.id.pc_line_add).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				changeView(21); // åŠ  è¡Œé—´è·
+			}
+		});
+		popView.findViewById(R.id.pc_line_sub).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				changeView(19); // å‡ è¡Œé—´è·
+			}
+		});
+		popView.findViewById(R.id.pc_line_text).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				changeView(20); // é»˜è®¤ è¡Œé—´è·
+			}
+		});
+
+		popView.findViewById(R.id.pc_left_add).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				changeView(31); // å¢å¤§é¡µè¾¹è·
+			}
+		});
+		popView.findViewById(R.id.pc_left_sub).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				changeView(29); // å‡å°é¡µè¾¹è·
+			}
+		});
+		popView.findViewById(R.id.pc_left_text).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				changeView(30); // é»˜è®¤ é¡µè¾¹è·
+			}
+		});
+
+		popView.findViewById(R.id.pc_bg_a).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				setBGcolor("green");
+			}
+		});
+		popView.findViewById(R.id.pc_bg_b).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				setBGcolor("gray");
+			}
+		});
+		popView.findViewById(R.id.pc_bg_c).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				setBGcolor("white");
+			}
+		});
+		popView.findViewById(R.id.pc_bg_d).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				setBGcolor("default");
+			}
+		});
+
+		popView.findViewById(R.id.pc_useFont).setOnLongClickListener(new OnLongClickListener() {
+			@Override
+			public boolean onLongClick(View arg0) {
+				changeView(67);
+				return true;
+			}
+		});
+		popView.findViewById(R.id.pc_useFont).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				changeView(66);
+			}
+		});
+		popView.findViewById(R.id.pc_setting).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				changeView(99);
+			}
+		});
+		popView.findViewById(R.id.pc_setting).setOnLongClickListener(olcl_exit);
+
+		popView.setFocusable(true);
+		popView.setFocusableInTouchMode(true);
+		popView.setOnKeyListener(new OnKeyListener() {  
+			public boolean onKey(View v, int keyCode, KeyEvent event) {  
+                if ( keyCode == KeyEvent.KEYCODE_MENU && event.getAction() == KeyEvent.ACTION_UP) {
+               		configPopWin.dismiss();
+               		isMenuShow = false;
+                   	return true;
+                 }
+                return false;
+            }  
+        });
+
+		configPopWin = new PopupWindow(popView, 
+				LayoutParams.WRAP_CONTENT,
+				LayoutParams.WRAP_CONTENT,
+				true); // MATCH_PARENT
+
+		configPopWin.setTouchable(true);
+		configPopWin.setOutsideTouchable(true);
+
+		configPopWin.setTouchInterceptor(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View arg0, MotionEvent arg1) {
+				return false; // è¿™é‡Œå¦‚æœè¿”å›trueçš„è¯ï¼Œtouchäº‹ä»¶å°†è¢«æ‹¦æˆªï¼Œæ‹¦æˆªå PopupWindowçš„onTouchEventä¸è¢«è°ƒç”¨ï¼Œè¿™æ ·ç‚¹å‡»å¤–éƒ¨åŒºåŸŸæ— æ³•dismiss
+			}
+		});
+
+		// å¦‚æœä¸è®¾ç½®PopupWindowçš„èƒŒæ™¯ï¼Œæ— è®ºæ˜¯ç‚¹å‡»å¤–éƒ¨åŒºåŸŸè¿˜æ˜¯Backé”®éƒ½æ— æ³•dismisså¼¹æ¡†
+		// æˆ‘è§‰å¾—è¿™é‡Œæ˜¯APIçš„ä¸€ä¸ªbug
+		configPopWin.setBackgroundDrawable(new ColorDrawable(0));
+
+		// è®¾ç½®å¥½å‚æ•°ä¹‹åå†show
+		//configPopWin.showAsDropDown(view);
+		configPopWin.showAtLocation(view, Gravity.CENTER, 0, 0); // ä¸­é—´
+
+		isMenuShow = true;
+		// æœ‰ä¸ªå°bugä¸çŸ¥é“æ€ä¹ˆæ’é™¤: æŒ‰menué”®: æ˜¾ç¤ºï¼Œæ¶ˆå¤±ï¼Œæ˜¾ç¤ºï¼Œæ˜¾ç¤ºï¼Œæ¶ˆå¤±ï¼Œæ˜¾æ˜¾æ¶ˆ...
+	}
+
+	private void showEinkPopupWindow(View view) {
+
+		// ä¸€ä¸ªè‡ªå®šä¹‰çš„å¸ƒå±€ï¼Œä½œä¸ºæ˜¾ç¤ºçš„å†…å®¹
+		View popView = LayoutInflater.from(getApplicationContext()).inflate(R.layout.popup_window_showpage, null);
+		
+		// è®¾ç½®æŒ‰é’®çš„ç‚¹å‡»äº‹ä»¶
+		popView.findViewById(R.id.popFO).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mv.clickPrev(); // ä¸Šä¸€é¡µ
+			}
+		});
+		popView.findViewById(R.id.popFO).setOnLongClickListener(new OnLongClickListener(){
+			@Override
+			public boolean onLongClick(View arg0) {
+				showConfigPopupWindow(mv);
+				return true;
+			}
+		});
+
+		PopupWindow popupWindow = new PopupWindow(popView, 
 				LayoutParams.WRAP_CONTENT,
 				LayoutParams.WRAP_CONTENT,
 				true); // MATCH_PARENT
@@ -342,174 +441,172 @@ switch (ittAction) {
 		popupWindow.setTouchInterceptor(new OnTouchListener() {
 			@Override
 			public boolean onTouch(View arg0, MotionEvent arg1) {
-				return false; // ÕâÀïÈç¹û·µ»ØtrueµÄ»°£¬touchÊÂ¼ş½«±»À¹½Ø£¬À¹½Øºó PopupWindowµÄonTouchEvent²»±»µ÷ÓÃ£¬ÕâÑùµã»÷Íâ²¿ÇøÓòÎŞ·¨dismiss
+				return false; // è¿™é‡Œå¦‚æœè¿”å›trueçš„è¯ï¼Œtouchäº‹ä»¶å°†è¢«æ‹¦æˆªï¼Œæ‹¦æˆªå PopupWindowçš„onTouchEventä¸è¢«è°ƒç”¨ï¼Œè¿™æ ·ç‚¹å‡»å¤–éƒ¨åŒºåŸŸæ— æ³•dismiss
 			}
 		});
 
 
-		// Èç¹û²»ÉèÖÃPopupWindowµÄ±³¾°£¬ÎŞÂÛÊÇµã»÷Íâ²¿ÇøÓò»¹ÊÇBack¼ü¶¼ÎŞ·¨dismissµ¯¿ò
-		// ÎÒ¾õµÃÕâÀïÊÇAPIµÄÒ»¸öbug
-		popupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.showpage_popup_bakcround));
+		// å¦‚æœä¸è®¾ç½®PopupWindowçš„èƒŒæ™¯ï¼Œæ— è®ºæ˜¯ç‚¹å‡»å¤–éƒ¨åŒºåŸŸè¿˜æ˜¯Backé”®éƒ½æ— æ³•dismisså¼¹æ¡†
+		// æˆ‘è§‰å¾—è¿™é‡Œæ˜¯APIçš„ä¸€ä¸ªbug
+		popupWindow.setBackgroundDrawable(new ColorDrawable(0));
+		// popupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.showpage_popup_bakcround));
 
-		// ÉèÖÃºÃ²ÎÊıÖ®ºóÔÙshow
+		// è®¾ç½®å¥½å‚æ•°ä¹‹åå†show
 		//popupWindow.showAsDropDown(view);
 //		int[] location = new int[2];
 //		view.getLocationOnScreen(location);
-//		popupWindow.showAtLocation(view, Gravity.NO_GRAVITY, 0, location[1]); // ×óÉÏ½Ç
-		popupWindow.showAtLocation(view, Gravity.BOTTOM|Gravity.CENTER, 0, 0); // µ×²¿ÖĞ¼ä
+//		popupWindow.showAtLocation(view, Gravity.NO_GRAVITY, 0, location[1]); // å·¦ä¸Šè§’
+		popupWindow.showAtLocation(view, Gravity.BOTTOM|Gravity.CENTER, 0, 0); // åº•éƒ¨ä¸­é—´
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.showpage4eink, menu);
-		return super.onCreateOptionsMenu(menu);
-	}
-
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		MenuItem mit ;
-		int itemcount = menu.size();
-		for ( int i=0; i< itemcount; i++){ // ÏÔÊ¾/Òş²Ø²Ëµ¥
-			mit = menu.getItem(i);
-			switch ( mit.getItemId() ) {
-				case R.id.sp_set_size_up:
-				case R.id.sp_set_size_down:
-				case R.id.paddingup:
-				case R.id.paddingdown:
-				case R.id.sp_set_linespace_up:
-				case R.id.sp_set_linespace_down:
-				case R.id.userfont:
-				case R.id.selectFont:
-				case R.id.setting:
-				case R.id.group1:
-					mit.setVisible(isShowSettingMenus);
-					break;
-				case R.id.show_next:
-				case R.id.show_prev:
-					mit.setVisible( ! isShowSettingMenus );
-					break;
-				case R.id.ck_isShowSettingMenus:
-					mit.setChecked(isShowSettingMenus);
-					if ( isShowSettingMenus )
-						mit.setTitle("ÒÑÏÔÊ¾ÉèÖÃ²Ëµ¥");
-					else
-						mit.setTitle("ÒÑÒş²ØÉèÖÃ²Ëµ¥");
-					break;
-				default:
-					break;
-			}
+	private class FoxTextView extends Ext_View_FoxTextView {
+		public FoxTextView(Context context) {
+			super(context);
 		}
-		return super.onPrepareOptionsMenu(menu);
+	
+		private int setPrevOrNextText(boolean isNextPage) {
+			if ( -1 == pageIDX ) { // ç½‘ç»œï¼Œåº”é‡å®šä¹‰ä¸º-1
+				foxtip("äº²ï¼ŒID ä¸º -1");
+				return -1;
+			}
+	
+			Map<String, Object> mp ;
+			String strNoMoreTip ;
+			if ( isNextPage ) {
+				mp = nm.getNextPage(bookIDX, pageIDX);
+				strNoMoreTip = "äº²ï¼Œæ²¡æœ‰ä¸‹ä¸€é¡µäº†";
+			} else {
+				mp = nm.getPrevPage(bookIDX, pageIDX);
+				strNoMoreTip = "äº²ï¼Œæ²¡æœ‰ä¸Šä¸€é¡µäº†";
+			}
+			if ( null == mp ) {
+				foxtip(strNoMoreTip);
+				return -2;
+			}
+			if ( ittAction == AC.aShowPageInZip1024 ) {
+				String html = FoxZipReader.getUtf8TextFromZip(ZIPFILE, mp.get(NV.PageURL).toString());
+				if ( html.contains("\"tpc_content\"") )
+					mp.putAll(new Site1024().getContentTitle(html));
+			}
+			String newBookAddWJX = "â˜…" ;
+			if ( (Integer)mp.get(NV.BookIDX) == bookIDX )
+				newBookAddWJX = "" ;
+	
+			bookIDX = (Integer) mp.get(NV.BookIDX);
+			pageIDX = (Integer) mp.get(NV.PageIDX);
+			String pagetext = mp.get(NV.Content).toString();
+			if ( pagetext.length() == 0 ) {
+				foxtip("å†…å®¹æœªä¸‹è½½: " + mp.get(NV.PageName));
+				return -3;
+			}
+			pagetext = ProcessLongOneLine(pagetext);
+			if ( isAdd2CNSpaceBeforeLine ) {
+				mv.setText(newBookAddWJX + mp.get(NV.PageName).toString()
+					, "ã€€ã€€" + pagetext.replace("\n", "\nã€€ã€€")
+					, nm.getBookInfo(bookIDX).get(NV.BookName).toString()
+					+ "   " + nm.getPagePosAtShelfPages(bookIDX, pageIDX));
+			} else {
+				mv.setText(newBookAddWJX + mp.get(NV.PageName).toString()
+						, pagetext
+						, nm.getBookInfo(bookIDX).get(NV.BookName).toString()
+						+ "   " + nm.getPagePosAtShelfPages(bookIDX, pageIDX));
+			}
+			return 0;
+		}
+	
+		@Override
+		public int setPrevText() {
+			return setPrevOrNextText(false); // ä¸Šä¸€
+		}
+	
+		@Override
+		public int setNextText() {
+			return setPrevOrNextText(true); // ä¸‹ä¸€
+		}
 	}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.ck_isShowSettingMenus:
-			isShowSettingMenus = ! item.isChecked(); // ¸ù¾İÑ¡ÏîÊÇ·ñÑ¡ÖĞÈ·¶¨ÊÇ·ñ¿ªÆô
-			item.setChecked(isShowSettingMenus);
-			if ( isShowSettingMenus )
-				item.setTitle("ÒÑÏÔÊ¾ÉèÖÃ²Ëµ¥");
-			else
-				item.setTitle("ÒÑÒş²ØÉèÖÃ²Ëµ¥");
-			editor.putBoolean("isShowSettingMenus", isShowSettingMenus);
-			editor.commit();
-			foxtip("µã¿ª²Ëµ¥ÒÔ²é¿´Ğ§¹û");
-			break;
-		case R.id.show_prev:
-			mv.setPrevText(); // ÉÏÒ»ÕÂ
-			mv.postInvalidate();
-			break;
-		case R.id.show_next:
-			mv.setNextText() ; // ÏÂÒ»ÕÂ
-			mv.postInvalidate();
-			break;
-		case R.id.sp_set_size_up: // Ôö´ó×ÖÌå
-			fontsize += 0.5f ;
+	void changeView(int actionID) {
+		switch (actionID) {
+		case 9:  // å‡å° å­—ä½“
+		case 10: // é»˜è®¤ å­—ä½“
+		case 11: // å¢å¤§ å­—ä½“
+			if ( 9 == actionID ) {
+				fontsize -= 0.5f ;
+			} else if ( 10 == actionID ) {
+				fontsize = 36.0f;
+			} else if ( 11 == actionID ) {
+				fontsize += 0.5f ;
+			}
 			mv.setFontSize(fontsize);
 			mv.postInvalidate();
 			editor.putFloat("fontsize", fontsize);
 			editor.commit();
-			foxtip("×ÖÌå´óĞ¡: " + fontsize);
+			((TextView) configPopWin.getContentView().findViewById(R.id.pc_size_text)).setText(new DecimalFormat("#.0").format(fontsize));
+			// foxtip("å­—ä½“å¤§å°: " + fontsize);
 			break;
-		case R.id.sp_set_size_down: // ¼õĞ¡×ÖÌå
-			fontsize -= 0.5f ;
-			mv.setFontSize(fontsize);
-			mv.postInvalidate();
-			editor.putFloat("fontsize", fontsize);
-			editor.commit();
-			foxtip("×ÖÌå´óĞ¡: " + fontsize);
-			break;
-		case R.id.paddingup: // Ôö´óÒ³±ß¾à
-			paddingMultip += 0.1f ;
-			mv.setPadding(String.valueOf(paddingMultip) + "f");
-			mv.postInvalidate();
-			editor.putFloat("paddingMultip", paddingMultip);
-			editor.commit();
-			foxtip("Ò³±ß¾à: " + paddingMultip);
-			break;
-		case R.id.paddingdown: // ¼õĞ¡Ò³±ß¾à
-			paddingMultip -= 0.1f ;
-			mv.setPadding(String.valueOf(paddingMultip) + "f");
-			mv.postInvalidate();
-			editor.putFloat("paddingMultip", paddingMultip);
-			editor.commit();
-			foxtip("Ò³±ß¾à: " + paddingMultip);
-			break;
-		case R.id.sp_set_linespace_up: // ¼Ó ĞĞ¼ä¾à
-			lineSpaceingMultip += 0.05f ;
+		case 19: // å‡å° è¡Œé—´è·
+		case 20: // é»˜è®¤ è¡Œé—´è·
+		case 21: // å¢å¤§ è¡Œé—´è·
+			if ( 19 == actionID ) {
+				lineSpaceingMultip -= 0.05f ;
+			} else if ( 20 == actionID ) {
+				lineSpaceingMultip = 1.5f;
+			} else if ( 21 == actionID ) {
+				lineSpaceingMultip += 0.05f ;
+			}
 			mv.setLineSpaceing(String.valueOf(lineSpaceingMultip) + "f");
 			mv.postInvalidate();
 			editor.putFloat("lineSpaceingMultip", lineSpaceingMultip);
 			editor.commit();
-			foxtip("ĞĞ¼ä¾à: " + lineSpaceingMultip);
+			((TextView) configPopWin.getContentView().findViewById(R.id.pc_line_text)).setText(new DecimalFormat("#.00").format(lineSpaceingMultip));
+			// foxtip("è¡Œé—´è·: " + lineSpaceingMultip);
 			break;
-		case R.id.sp_set_linespace_down: // ¼õ ĞĞ¼ä¾à
-			lineSpaceingMultip -= 0.05f ;
-			mv.setLineSpaceing(String.valueOf(lineSpaceingMultip) + "f");
+		case 29: // å‡å° é¡µè¾¹è·
+		case 30: // é»˜è®¤ é¡µè¾¹è·
+		case 31: // å¢å¤§ é¡µè¾¹è·
+			if ( 29 == actionID ) {
+				paddingMultip -= 0.1f ;
+			} else if ( 30 == actionID ) {
+				paddingMultip = 0.5f;
+			} else if ( 31 == actionID ) {
+				paddingMultip += 0.1f ;
+			}
+			mv.setPadding(String.valueOf(paddingMultip) + "f");
 			mv.postInvalidate();
-			editor.putFloat("lineSpaceingMultip", lineSpaceingMultip);
+			editor.putFloat("paddingMultip", paddingMultip);
 			editor.commit();
-			foxtip("ĞĞ¼ä¾à: " + lineSpaceingMultip);
+			((TextView) configPopWin.getContentView().findViewById(R.id.pc_left_text)).setText(new DecimalFormat("0.0").format(paddingMultip));
+			// foxtip("é¡µè¾¹è·: " + paddingMultip);
 			break;
-		case R.id.bg_color1:
-			setBGcolor("green");
-			break;
-		case R.id.bg_color2:
-			setBGcolor("gray");
-			break;
-		case R.id.bg_color3:
-			setBGcolor("white");
-			break;
-		case R.id.bg_color9: // ÉèÖÃ±³¾°
-			setBGcolor("default");
-			break;
-		case R.id.setting:
-			startActivity(new Intent(Activity_ShowPage4Eink.this, Activity_Setting.class));
-			break;
-		case R.id.userfont:
+		case 66:
 			String nowFontPath = settings.getString("selectfont", "/sdcard/fonts/foxfont.ttf") ;
-			if ( ! mv.setUserFontPath(nowFontPath) )
-				foxtip("×ÖÌå²»´æÔÚ:\n" + nowFontPath);
-			else
+			if ( ! mv.setUserFontPath(nowFontPath) ) {
+				foxtip("å­—ä½“ä¸å­˜åœ¨:\n\n" + nowFontPath + "\n\nç°åœ¨é€‰æ‹©å­—ä½“æ–‡ä»¶");
+				Intent itt = new Intent(Activity_ShowPage4Eink.this, Activity_FileChooser.class);
+				itt.putExtra("dir", "/sdcard/fonts/");
+				startActivityForResult(itt, 9);
+			} else {
 				mv.postInvalidate();
+			}
 			break;
-		case R.id.selectFont:
+		case 67:
 			Intent itt = new Intent(Activity_ShowPage4Eink.this, Activity_FileChooser.class);
 			itt.putExtra("dir", "/sdcard/fonts/");
 			startActivityForResult(itt, 9);
 			break;
+		case 99:
+			startActivity(new Intent(Activity_ShowPage4Eink.this, Activity_Setting.class));
+			break;
 		}
-		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
-		case 9: // ÏìÓ¦ÎÄ¼şÑ¡ÔñÆ÷µÄÑ¡Ôñ
+		case 9: // å“åº”æ–‡ä»¶é€‰æ‹©å™¨çš„é€‰æ‹©
 			if (resultCode == RESULT_OK) {
 				Uri uri = data.getData();
-				// ÅĞ¶ÏÎÄ¼şÃûºó×º
+				// åˆ¤æ–­æ–‡ä»¶ååç¼€
 				String newFont = new File(uri.getPath()).getAbsolutePath();
 				String nowPATH = newFont.toLowerCase() ;
 				if ( nowPATH.endsWith(".ttf") | nowPATH.endsWith(".ttc") | nowPATH.endsWith(".otf") ) {
@@ -519,7 +616,7 @@ switch (ittAction) {
 					mv.setUserFontPath(newFont);
 					mv.postInvalidate();
 				} else {
-					foxtip("ÒªÑ¡Ôñºó×ºÎª.ttf/.ttc/.otfµÄ×ÖÌåÎÄ¼ş");
+					foxtip("è¦é€‰æ‹©åç¼€ä¸º.ttf/.ttc/.otfçš„å­—ä½“æ–‡ä»¶");
 				}
 			}
 			break;
@@ -532,13 +629,13 @@ switch (ittAction) {
 	public boolean dispatchKeyEvent(KeyEvent event) {
 		int kc = event.getKeyCode() ;
 
-		// ÄªÃûÆäÃîµÄ°´Ò»¸ö°´Å¥³öÏÖÁ½¸ökeyCode
+		// è«åå…¶å¦™çš„æŒ‰ä¸€ä¸ªæŒ‰é’®å‡ºç°ä¸¤ä¸ªkeyCode
 		if ( ( event.getAction() == KeyEvent.ACTION_UP ) & ( KeyEvent.KEYCODE_PAGE_DOWN == kc | KeyEvent.KEYCODE_PAGE_UP == kc | KeyEvent.KEYCODE_VOLUME_UP == kc | KeyEvent.KEYCODE_VOLUME_DOWN == kc ) ) {
-			if ( System.currentTimeMillis() - tLastPushEinkButton < 1000 ) { // ÄªÃûÆäÃîµÄ»á¶à°´£¬Ò²ÊÇ×íÁË
+			if ( System.currentTimeMillis() - tLastPushEinkButton < 1000 ) { // è«åå…¶å¦™çš„ä¼šå¤šæŒ‰ï¼Œä¹Ÿæ˜¯é†‰äº†
 				tLastPushEinkButton = System.currentTimeMillis();
 					return true ;
 			}
-			// 2016-8-15: BOOX C67ML Carta ×óÓÒ·­Ò³½¡¶ÔÓ¦: KEYCODE_PAGE_UP = 92, KEYCODE_PAGE_DOWN = 93
+			// 2016-8-15: BOOX C67ML Carta å·¦å³ç¿»é¡µå¥å¯¹åº”: KEYCODE_PAGE_UP = 92, KEYCODE_PAGE_DOWN = 93
 			if ( ! isMapUpKey ) {
 				if ( KeyEvent.KEYCODE_PAGE_UP == kc | KeyEvent.KEYCODE_VOLUME_UP == kc ) {
 					mv.clickPrev();
@@ -553,34 +650,32 @@ switch (ittAction) {
 		if ( KeyEvent.KEYCODE_PAGE_DOWN == kc | KeyEvent.KEYCODE_PAGE_UP == kc | KeyEvent.KEYCODE_VOLUME_UP == kc | KeyEvent.KEYCODE_VOLUME_DOWN == kc ) {
 			return true;
 		}
-//		if ( KeyEvent.KEYCODE_MENU == kc & event.getAction() == KeyEvent.ACTION_UP ) {
-//			this.showMenu();
-//		}
+		if ( KeyEvent.KEYCODE_MENU == kc & event.getAction() == KeyEvent.ACTION_UP ) {
+			showConfigPopupWindow(mv);
+		}
 		return super.dispatchKeyEvent(event);
 	}
 
-	private void foxtip(String sinfo) { // ToastÏûÏ¢
+	private void foxtip(String sinfo) { // Toastæ¶ˆæ¯
 		Toast.makeText(getApplicationContext(), sinfo, Toast.LENGTH_SHORT).show();
 	}
 	private void foxExit() {
 		this.finish();
 	}
-	private void showMenu() {
-		this.openOptionsMenu();
-	}
+
 	private void setBGcolor(String bgcolor) {
 		myBGcolor = bgcolor ;
 		editor.putString("myBGcolor", myBGcolor);
 		editor.commit();
 
 		if ( myBGcolor.equalsIgnoreCase("white") )
-			getWindow().setBackgroundDrawableResource(R.color.qd_mapp_bg_white); // °×É«±³¾°
+			getWindow().setBackgroundDrawableResource(R.color.qd_mapp_bg_white); // ç™½è‰²èƒŒæ™¯
 		if ( myBGcolor.equalsIgnoreCase("green") )
-			getWindow().setBackgroundDrawableResource(R.color.qd_mapp_bg_green); // ÂÌÉ«
+			getWindow().setBackgroundDrawableResource(R.color.qd_mapp_bg_green); // ç»¿è‰²
 		if ( myBGcolor.equalsIgnoreCase("default") )
-			getWindow().setBackgroundDrawableResource(R.drawable.parchment_paper); // »æÖÆÁ½´Î
+			getWindow().setBackgroundDrawableResource(R.drawable.parchment_paper); // ç»˜åˆ¶ä¸¤æ¬¡
 		if ( myBGcolor.equalsIgnoreCase("gray") )
-			getWindow().setBackgroundDrawableResource(R.color.qd_mapp_bg_grey); // »ÒÉ«
+			getWindow().setBackgroundDrawableResource(R.color.qd_mapp_bg_grey); // ç°è‰²
 	}
 
 	private String ProcessLongOneLine(String iText) {
@@ -589,10 +684,10 @@ switch (ittAction) {
 
 //		long sTime = System.currentTimeMillis();
 
-		int sLen = iText.length(); // ×Ö·ûÊı
+		int sLen = iText.length(); // å­—ç¬¦æ•°
 		if ( sLen == 0 )
 			return "";
-		int lineCount = 0 ; // ĞĞÊı
+		int lineCount = 0 ; // è¡Œæ•°
 		try {
 			LineNumberReader lnr = new LineNumberReader(new StringReader(iText));
 			while ( null != lnr.readLine() )
@@ -600,14 +695,47 @@ switch (ittAction) {
 		} catch ( Exception e ) {
 			e.toString();
 		}
-		if ( ( sLen / lineCount ) > 200 ) { // Ğ¡ÓÚ200(Ò²Ğí¿ÉÒÔ¶¨µ½130)ÒâÎ¶×Å»»ĞĞ·û¹»¶à£¬´¦ÀíµÄÊ±ºò²»»áÌ«¿¨£¬´óÓÚãĞÖµ200¾ÍµÃ´¦ÀíµÃµ½×ã¹»¶àµÄ»»ĞĞ·û
+		if ( ( sLen / lineCount ) > 200 ) { // å°äº200(ä¹Ÿè®¸å¯ä»¥å®šåˆ°130)æ„å‘³ç€æ¢è¡Œç¬¦å¤Ÿå¤šï¼Œå¤„ç†çš„æ—¶å€™ä¸ä¼šå¤ªå¡ï¼Œå¤§äºé˜ˆå€¼200å°±å¾—å¤„ç†å¾—åˆ°è¶³å¤Ÿå¤šçš„æ¢è¡Œç¬¦
 //			Log.e("XX", "Cal : " + sLen + " / " +  lineCount + " >= 200 ");
-			iText = iText.replace("¡£", "¡£\n");
+			iText = iText.replace("ã€‚", "ã€‚\n");
 			iText = iText.replace("\n\n", "\n");
 		}
 
 //		Log.e("TT", "Time=" + ( System.currentTimeMillis() - sTime ) );
 		return iText;
 	}
+
+// { Var Init
+	private NovelManager nm;
+
+	private int ittAction = 0; // ä¼ å…¥æ•°æ®
+	private int bookIDX = -1 ; // ç¿»é¡µæ—¶ä½¿ç”¨
+	private int pageIDX = -1 ; // ç¿»é¡µæ—¶ä½¿ç”¨
+
+
+	FoxTextView mv;
+	private float cX = 0 ; // ç‚¹å‡»Viewçš„åæ ‡
+	private float cY = 0 ; // ç‚¹å‡»Viewçš„åæ ‡
+
+	SharedPreferences settings;
+	SharedPreferences.Editor editor;
+	private String myBGcolor = "default"; // èƒŒæ™¯:é»˜è®¤ç¾Šçš®çº¸
+	private boolean isMapUpKey = false;   // æ˜¯å¦æ˜ å°„ä¸Šç¿»ä¸ºä¸‹ç¿»é”®
+
+	private float fontsize = 36.0f; // å­—ä½“å¤§å°
+	private float paddingMultip = 0.5f ; // é¡µè¾¹è· = å­—ä½“å¤§å° * paddingMultip
+	private float lineSpaceingMultip = 1.5f ; // è¡Œé—´è·å€æ•°
+	private boolean isProcessLongOneLine = true; // å¤„ç†è¶…é•¿å•è¡Œ > 4K
+	private boolean isAdd2CNSpaceBeforeLine = true ; // è‡ªåŠ¨æ·»åŠ ä¸¤ç©ºç™½
+
+	private long tLastPushEinkButton ;
+
+	private final int IS_REFRESH = 5 ;
+
+	private File ZIPFILE ;
+
+	PopupWindow configPopWin;
+	boolean isMenuShow = false;
+// } Var Init
 
 }

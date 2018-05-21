@@ -17,18 +17,18 @@ public class NovelManager {
 	public static final int FML = 24;
 	public static final int ZIP = 26;
 	public static final int ZIP1024 = 1024 ;
-	public static final int EPUB = 500 ;      // ÆÕÍ¨ epubÎÄ¼ş ´¦Àí·½Ê½´ı¶¨
-	public static final int EPUBFOXMAKE = 506; //ÎÒÉú³ÉµÄ epub
-	public static final int EPUBQIDIAN = 517; // Æğµã epub
-	public static final int TXT = 200 ;       // ÆÕÍ¨txt
-	public static final int TXTQIDIAN = 217 ; // Æğµãtxt
+	public static final int EPUB = 500 ;      // æ™®é€š epubæ–‡ä»¶ å¤„ç†æ–¹å¼å¾…å®š
+	public static final int EPUBFOXMAKE = 506; //æˆ‘ç”Ÿæˆçš„ epub
+	public static final int EPUBQIDIAN = 517; // èµ·ç‚¹ epub
+	public static final int TXT = 200 ;       // æ™®é€štxt
+	public static final int TXTQIDIAN = 217 ; // èµ·ç‚¹txt
 
 	private File shelfFile ;
 	private List<Novel> shelf ;
 	private int bookStoreType = 0;
 
 	private boolean sortBookDesc = true ;
-	private int saveFormat = NovelManager.FML ; // Ä¬ÈÏ±£´æ¸ñÊ½
+	private int saveFormat = NovelManager.FML ; // é»˜è®¤ä¿å­˜æ ¼å¼
 
 	public NovelManager(File inShelfFile) {
 		this.open(inShelfFile);
@@ -43,7 +43,7 @@ public class NovelManager {
 			this.shelf = new Stor().load(this.shelfFile);
 		} else if ( nameLow.endsWith(".db3") ) {
 			this.bookStoreType = NovelManager.SQLITE3 ;
-			// Todo: ¸ù¾İÏµÍ³ÀàĞÍ£¬Ñ¡Ôñ²»Í¬µÄÆ½Ì¨µ¼Èë·½Ê½£¬ĞèÒª·´ÉäÀ´loadClass
+			// Todo: æ ¹æ®ç³»ç»Ÿç±»å‹ï¼Œé€‰æ‹©ä¸åŒçš„å¹³å°å¯¼å…¥æ–¹å¼ï¼Œéœ€è¦åå°„æ¥loadClass
 			this.shelf = new StorDB3().load(this.shelfFile);
 		} else if ( nameLow.endsWith(".zip") ) {
 			loadZip(this.shelfFile);
@@ -54,13 +54,13 @@ public class NovelManager {
 			this.bookStoreType = NovelManager.TXT ;
 			this.shelf = new StorTxt().load(this.shelfFile);
 		}
-		System.out.println("NM:´¢´æÀàĞÍ=" + this.bookStoreType);
+		System.out.println("NM:å‚¨å­˜ç±»å‹=" + this.bookStoreType);
 	}
 
 	public void setSaveFormat(int inSaveFormat) {
 		this.saveFormat = inSaveFormat ;
 	}
-	public void close() { // ÍË³öÊ±Ğè±£´æµÄ×ÊÔ´
+	public void close() { // é€€å‡ºæ—¶éœ€ä¿å­˜çš„èµ„æº
 		String outExt ;
 		if ( this.saveFormat == NovelManager.SQLITE3 )
 			outExt = ".db3";
@@ -76,23 +76,23 @@ public class NovelManager {
 		else
 			this.exportAsFML(saveShelfFile);
 	}
-	public File switchShelf(boolean isSave) { // ÇĞ»»ÎÄ¼ş
+	public File switchShelf(boolean isSave) { // åˆ‡æ¢æ–‡ä»¶
 		if ( isSave )
 			this.close();
 
 		String listExt = ".fml";
 		if ( this.shelfFile.getName().endsWith(".db3") )
 			listExt = ".db3";
-		ArrayList<File> shelfsList = getShelfsList(this.shelfFile, listExt); // »ñÈ¡ÎÄ¼şÁĞ±í
+		ArrayList<File> shelfsList = getShelfsList(this.shelfFile, listExt); // è·å–æ–‡ä»¶åˆ—è¡¨
 		int nowShelfNum = -1 ;
-		for( File nowFile : shelfsList ) {  // »ñÈ¡µ±Ç°ÎÄ¼şÔÚÁĞ±íÖĞµÄÎ»ÖÃ
+		for( File nowFile : shelfsList ) {  // è·å–å½“å‰æ–‡ä»¶åœ¨åˆ—è¡¨ä¸­çš„ä½ç½®
 			++nowShelfNum;
 			if ( nowFile.getName().equalsIgnoreCase(this.shelfFile.getName()) ) {
 				break ;
 			}
 		}
-		++nowShelfNum; // ÏÂ¸öÎÄ¼şµÄÎ»ÖÃ
-		if ( nowShelfNum >= shelfsList.size() ) // Èç¹ûÏÂ¸öÎÄ¼ş³¬³öÁĞ±í£¬´ÓÍ·¿ªÊ¼
+		++nowShelfNum; // ä¸‹ä¸ªæ–‡ä»¶çš„ä½ç½®
+		if ( nowShelfNum >= shelfsList.size() ) // å¦‚æœä¸‹ä¸ªæ–‡ä»¶è¶…å‡ºåˆ—è¡¨ï¼Œä»å¤´å¼€å§‹
 			nowShelfNum = 0 ;
 
 		this.open(shelfsList.get(nowShelfNum));
@@ -131,7 +131,7 @@ public class NovelManager {
 			}
 		}
 
-		Collections.sort(retList, new Comparator<File>() { // ÅÅĞò
+		Collections.sort(retList, new Comparator<File>() { // æ’åº
 			@Override
 			public int compare(File o1, File o2) {
 				if (o1.isDirectory() && o2.isFile())
@@ -161,7 +161,7 @@ public class NovelManager {
 		z.close();
 		this.shelf.get(tmpZipBookIDX).setChapters(chapters);
 	}
-	public Map<String, Object> getBlankBookInfo() { // Ä£°æ ¸ù¾İNVÖĞ×Ö¶Îµ÷Õû
+	public Map<String, Object> getBlankBookInfo() { // æ¨¡ç‰ˆ æ ¹æ®NVä¸­å­—æ®µè°ƒæ•´
 		Map<String, Object> info = new HashMap<String, Object>(7);
 		info.put(NV.BookName, "");
 		info.put(NV.BookURL, "");
@@ -171,7 +171,7 @@ public class NovelManager {
 		info.put(NV.QDID, "");
 		return info;
 	}
-	public Map<String, Object> getBlankPage() { // Ä£°æ ¸ù¾İNVÖĞ×Ö¶Îµ÷Õû
+	public Map<String, Object> getBlankPage() { // æ¨¡ç‰ˆ æ ¹æ®NVä¸­å­—æ®µè°ƒæ•´
 		Map<String, Object> page = new HashMap<String, Object>(5);
 		page.put(NV.PageName, "");
 		page.put(NV.PageURL, "");
@@ -189,7 +189,7 @@ public class NovelManager {
 		this.shelf.add(newBook);
 		return this.shelf.indexOf(newBook);
 	}
-	public int addPage(Map<String, Object> page, int bookIDX, int pageIDX) { // ÔÚpageIDXºó×·¼ÓĞÂÕÂ
+	public int addPage(Map<String, Object> page, int bookIDX, int pageIDX) { // åœ¨pageIDXåè¿½åŠ æ–°ç« 
 		List<Map<String, Object>> pages = this.shelf.get(bookIDX).getChapters();
 		if ( pageIDX >= pages.size() )
 			pages.add(page);
@@ -198,7 +198,7 @@ public class NovelManager {
 		return pages.indexOf(page);
 	}
 
-	public List<Map<String, Object>> getBookList(){ // »ñÈ¡Êé¼®ÁĞ±í
+	public List<Map<String, Object>> getBookList(){ // è·å–ä¹¦ç±åˆ—è¡¨
 		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(20);
 		Map<String, Object> item;
 		int nowBookIDX = -1 ;
@@ -213,7 +213,7 @@ public class NovelManager {
 		return data ;
 	}
 
-	public List<Map<String, Object>> getPageList(int sMode) { // ÓëBookIDÎŞ¹Ø
+	public List<Map<String, Object>> getPageList(int sMode) { // ä¸BookIDæ— å…³
 		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(20);
 		Map<String, Object> item;
 //sMode = 0: "select name, ID, URL,Bookid, length(content) from page " + sqlWhereStr
@@ -233,7 +233,7 @@ public class NovelManager {
 				++ pageIDX;
 				item = new HashMap<String, Object>(6);
 				if ( 0 == pageIDX & 1 == sMode )
-					item.put(NV.PageName, "¡ï" + bookName + "¡ï" + page.get(NV.PageName));
+					item.put(NV.PageName, "â˜…" + bookName + "â˜…" + page.get(NV.PageName));
 				else
 					item.put(NV.PageName, page.get(NV.PageName));
 
@@ -277,13 +277,13 @@ public class NovelManager {
 		return oList;
 	}
 
-	public void deleteBook(int bookIdx) { // ÒÑ: ÑéÖ¤ position »ù±¾µÈÓÚ idx
+	public void deleteBook(int bookIdx) { // å·²: éªŒè¯ position åŸºæœ¬ç­‰äº idx
 		this.shelf.remove(bookIdx);
 	}
 
 	public void sortBooks(boolean isDesc){
 		this.sortBookDesc = isDesc ;
-		Collections.sort(this.shelf, new ComparePageCount()); // ÅÅĞò
+		Collections.sort(this.shelf, new ComparePageCount()); // æ’åº
 	}
 
 	public class ComparePageCount implements Comparator<Object>{
@@ -305,7 +305,7 @@ public class NovelManager {
 				else
 					return 1;
 			}
-			if ( order0 == order1 ) {  // µ±ÀàĞÍÏàÍ¬Ê±£¬±È½ÏÃû³Æ
+			if ( order0 == order1 ) {  // å½“ç±»å‹ç›¸åŒæ—¶ï¼Œæ¯”è¾ƒåç§°
 				String name0 = (String) hm0.getInfo().get(NV.BookName);
 				String name1 = (String) hm1.getInfo().get(NV.BookName);
 				return name0.compareTo(name1);
@@ -314,7 +314,7 @@ public class NovelManager {
 		}
 	}
 
-	public void simplifyAllDelList(){ // ¾«¼òËùÓĞÊéµÄDelURL
+	public void simplifyAllDelList(){ // ç²¾ç®€æ‰€æœ‰ä¹¦çš„DelURL
 		String delStr ;
 		for (Novel book : this.shelf) {
 			delStr = book.getInfo().get(NV.DelURL).toString();
@@ -346,26 +346,26 @@ public class NovelManager {
 	private Map<String, Object> getPrevBookPage(int bookIDX) {
 		Map<String, Object> ret = new HashMap<String, Object>() ;
 		int prevBookIDX = bookIDX - 1;
-		if ( prevBookIDX < 0 ) { // Ã»ÓĞÉÏÒ»±¾ÊéÁË£¬·µ»Ønull£¬±íÊ¾ÎŞÁË
+		if ( prevBookIDX < 0 ) { // æ²¡æœ‰ä¸Šä¸€æœ¬ä¹¦äº†ï¼Œè¿”å›nullï¼Œè¡¨ç¤ºæ— äº†
 			return null ;
-		} else { // >=0 , ¼ì²âÊÇ·ñÓĞÕÂ½Ú, ÓĞÔò·µ»ØPrevBookIDX ×îºóÒ»¸öPageIDX + 
+		} else { // >=0 , æ£€æµ‹æ˜¯å¦æœ‰ç« èŠ‚, æœ‰åˆ™è¿”å›PrevBookIDX æœ€åä¸€ä¸ªPageIDX + 
 			int prevPageSize = this.shelf.get(prevBookIDX).getChapters().size();
-			if ( prevPageSize > 0 ) { // ÓĞÕÂ½Ú£¬·µ»Ø
+			if ( prevPageSize > 0 ) { // æœ‰ç« èŠ‚ï¼Œè¿”å›
 				ret.putAll(getPage(prevBookIDX, prevPageSize - 1));
 				ret.put(NV.BookIDX, prevBookIDX);
 				ret.put(NV.PageIDX, prevPageSize - 1);
-			} else { // ÎŞÕÂ½Ú
+			} else { // æ— ç« èŠ‚
 				ret = getPrevBookPage(prevBookIDX);
 			}
 		}
 		return ret;
 	}
-	public Map<String, Object> getPrevPage(int bookIDX, int pageIDX) { // null=ÎŞÉÏÒ»ÕÂÁË  ·ñÔò·µ»ØMap
+	public Map<String, Object> getPrevPage(int bookIDX, int pageIDX) { // null=æ— ä¸Šä¸€ç« äº†  å¦åˆ™è¿”å›Map
 		Map<String, Object> ret = new HashMap<String, Object>() ;
 		int prevPageIDX = pageIDX - 1;
-		if ( prevPageIDX < 0 ) {  // ÉÏ±¾Êé
+		if ( prevPageIDX < 0 ) {  // ä¸Šæœ¬ä¹¦
 			ret = getPrevBookPage(bookIDX);
-		} else { // >= 0  , Õı³£·µ»ØprevPageIDXËùÔÚpage +put(bookIDX) + put(PageIDX)
+		} else { // >= 0  , æ­£å¸¸è¿”å›prevPageIDXæ‰€åœ¨page +put(bookIDX) + put(PageIDX)
 			ret.putAll(getPage(bookIDX, prevPageIDX));
 			ret.put(NV.BookIDX, bookIDX);
 			ret.put(NV.PageIDX, prevPageIDX);
@@ -375,11 +375,11 @@ public class NovelManager {
 	private Map<String, Object> getNextBookPage(int bookIDX) {
 		Map<String, Object> ret = new HashMap<String, Object>() ;
 		int nextBookIDX = bookIDX + 1 ;
-		if ( nextBookIDX == this.shelf.size() ) { // ³¬³öÊé½ç£¬·µ»Ønull£¬±íÊ¾Ä¾ÓĞÏÂÒ»ÕÂÁË
+		if ( nextBookIDX == this.shelf.size() ) { // è¶…å‡ºä¹¦ç•Œï¼Œè¿”å›nullï¼Œè¡¨ç¤ºæœ¨æœ‰ä¸‹ä¸€ç« äº†
 			return null ;
-		} else { // nextBookIDX < ÊéÊı£¬¼ì²âÊÇ·ñÓĞÕÂ½Ú£¬ÓĞÔò·µ»ØnextBookIDXµÚÒ»ÕÂ+ £¬·ñÔò
+		} else { // nextBookIDX < ä¹¦æ•°ï¼Œæ£€æµ‹æ˜¯å¦æœ‰ç« èŠ‚ï¼Œæœ‰åˆ™è¿”å›nextBookIDXç¬¬ä¸€ç« + ï¼Œå¦åˆ™
 			int nextPageSize = this.shelf.get(nextBookIDX).getChapters().size();
-			if ( nextPageSize > 0 ) { // ÓĞÕÂ½Ú£¬·µ»Ø
+			if ( nextPageSize > 0 ) { // æœ‰ç« èŠ‚ï¼Œè¿”å›
 				ret.putAll(getPage(nextBookIDX, 0));
 				ret.put(NV.BookIDX, nextBookIDX);
 				ret.put(NV.PageIDX, 0);
@@ -392,9 +392,9 @@ public class NovelManager {
 	public Map<String, Object> getNextPage(int bookIDX, int pageIDX) {
 		Map<String, Object> ret = new HashMap<String, Object>() ;
 		int nextPageIDX = pageIDX + 1;
-		if ( nextPageIDX == this.shelf.get(bookIDX).getChapters().size() ) { // ³¬¹ı±ß½çÁË
+		if ( nextPageIDX == this.shelf.get(bookIDX).getChapters().size() ) { // è¶…è¿‡è¾¹ç•Œäº†
 			ret = getNextBookPage(bookIDX);
-		} else { // nextPageIDX < pageCount Õı³£·µ»ØnextPageIDXËùÔÚpage +
+		} else { // nextPageIDX < pageCount æ­£å¸¸è¿”å›nextPageIDXæ‰€åœ¨page +
 			ret.putAll(getPage(bookIDX, nextPageIDX));
 			ret.put(NV.BookIDX, bookIDX);
 			ret.put(NV.PageIDX, nextPageIDX);
@@ -402,7 +402,7 @@ public class NovelManager {
 		return ret;
 	}
 
-	public String getPageListStr(int bookIDX) { // »ñÈ¡ url,name ÁĞ±í
+	public String getPageListStr(int bookIDX) { // è·å– url,name åˆ—è¡¨
 		return this.shelf.get(bookIDX).getInfo().get(NV.DelURL).toString() + getPageListStr_notDel(bookIDX);
 	}
 	private String getPageListStr_notDel(int bookIDX) {
@@ -412,26 +412,26 @@ public class NovelManager {
 		return ret.toString();
 	}
 
-	public void clearPage(int bookIDX, int pageIDX, boolean bUpdateDelList) { // Çå¿Õµ¥ÕÂ
-		if (bUpdateDelList) { // ĞŞ¸Ä DelURL
+	public void clearPage(int bookIDX, int pageIDX, boolean bUpdateDelList) { // æ¸…ç©ºå•ç« 
+		if (bUpdateDelList) { // ä¿®æ”¹ DelURL
 			String oldDelList = this.shelf.get(bookIDX).getInfo().get(NV.DelURL).toString();
 			Map<String, Object> page = this.shelf.get(bookIDX).getChapters().get(pageIDX);
 			this.shelf.get(bookIDX).getInfo().put(NV.DelURL, oldDelList + page.get(NV.PageURL) + "|" + page.get(NV.PageName) + "\n" );
 		}
 		this.shelf.get(bookIDX).getChapters().remove(pageIDX);
 	}
-	public void clearBook(int bookIDX, boolean bUpdateDelList) { // Çå¿Õ1Êé
-		if (bUpdateDelList) // ĞŞ¸Ä DelURL
+	public void clearBook(int bookIDX, boolean bUpdateDelList) { // æ¸…ç©º1ä¹¦
+		if (bUpdateDelList) // ä¿®æ”¹ DelURL
 			this.shelf.get(bookIDX).getInfo().put(NV.DelURL, getPageListStr(bookIDX));
 		this.shelf.get(bookIDX).getChapters().clear();
 	}
-	public void clearShelf(boolean bUpdateDelList) { // Çå¿ÕÊé¼Ü
+	public void clearShelf(boolean bUpdateDelList) { // æ¸…ç©ºä¹¦æ¶
 		for (Novel book : this.shelf) {
-			if ( book.getChapters().size() > 0 ) // ÓĞÕÂ½ÚµÄ²ÅÇå¿Õ
+			if ( book.getChapters().size() > 0 ) // æœ‰ç« èŠ‚çš„æ‰æ¸…ç©º
 				clearBook(this.shelf.indexOf(book), bUpdateDelList);
 		}
 	}
-	public void clearBookPages(int bookIDX, int pageIDX, boolean bUP, boolean bUpdateDelList) {  // Çå¿ÕÊé¼®nÕÂÖ®ÉÏ»òÖ®ÏÂ
+	public void clearBookPages(int bookIDX, int pageIDX, boolean bUP, boolean bUpdateDelList) {  // æ¸…ç©ºä¹¦ç±nç« ä¹‹ä¸Šæˆ–ä¹‹ä¸‹
 		int delCount = 0;
 		int nowPageIDX = -1 ;
 		StringBuilder ss = new StringBuilder();
@@ -453,11 +453,11 @@ public class NovelManager {
 				}
 			}
 		}
-		if (bUpdateDelList) { // ĞŞ¸Ä DelURL
+		if (bUpdateDelList) { // ä¿®æ”¹ DelURL
 			String oldDelList = this.shelf.get(bookIDX).getInfo().get(NV.DelURL).toString();
 			this.shelf.get(bookIDX).getInfo().put(NV.DelURL, oldDelList + ss.toString() );
 		}
-		// É¾³ıÒ³Ãæ
+		// åˆ é™¤é¡µé¢
 		List<Map<String, Object>> pages = this.shelf.get(bookIDX).getChapters();
 		if ( bUP ) {
 			for (int i = 0; i < delCount; i++)
@@ -467,7 +467,7 @@ public class NovelManager {
 				pages.remove(pageIDX);
 		}
 	}
-	public void clearShelfPages(int bookIDX, int pageIDX, boolean bUP, boolean bUpdateDelList) {  // Çå¿ÕÊé¼®nÕÂÖ®ÉÏ»òÖ®ÏÂ
+	public void clearShelfPages(int bookIDX, int pageIDX, boolean bUP, boolean bUpdateDelList) {  // æ¸…ç©ºä¹¦ç±nç« ä¹‹ä¸Šæˆ–ä¹‹ä¸‹
 		for (int nowBookIDX = 0; nowBookIDX < this.shelf.size(); nowBookIDX++) {
 			if ( nowBookIDX < bookIDX ) {
 				if ( bUP )
@@ -493,8 +493,8 @@ public class NovelManager {
 	}
 
 	public String getPagePosAtShelfPages(int bookIDX, int pageIDX) {
-		int all = 0 ; // Ò³Ãæ×ÜÊı
-		int pos = 0 ; // Ò³ÃæÔÚ×ÜÒ³ÊıµÄÎ»ÖÃ
+		int all = 0 ; // é¡µé¢æ€»æ•°
+		int pos = 0 ; // é¡µé¢åœ¨æ€»é¡µæ•°çš„ä½ç½®
 		int nowBookPagesCount = 0 ;
 		int nowBookIDX = -1 ;
 		for (Novel book : this.shelf) {
@@ -510,7 +510,7 @@ public class NovelManager {
 		return pos + " / " + all ;
 	}
 
-	public List<Map<String, Object>> getBookListForShelf() { // ±È½ÏÍøÕ¾Êé¼ÜÓÃ
+	public List<Map<String, Object>> getBookListForShelf() { // æ¯”è¾ƒç½‘ç«™ä¹¦æ¶ç”¨
 		List<Map<String, Object>> oo = new ArrayList<Map<String, Object>>();
 		Map<String, Object> obook ;
 		// "select id,name,url,DelURL from book where ( isEnd isnull or isEnd = '' or isEnd < 1 )"
@@ -519,7 +519,7 @@ public class NovelManager {
 		for (Novel book : this.shelf) {
 			++bookIDX;
 			nowStatu = (Integer)book.getInfo().get(NV.BookStatu);
-			if ( nowStatu == 1 ) // ×´Ì¬Îª1£¬±íÊ¾²»¸üĞÂ
+			if ( nowStatu == 1 ) // çŠ¶æ€ä¸º1ï¼Œè¡¨ç¤ºä¸æ›´æ–°
 				continue;
 			obook = new HashMap<String, Object>();
 			obook.putAll(book.getInfo());
@@ -562,7 +562,7 @@ public class NovelManager {
 		return oList;
 	}
 
-	public int updatePage(int bookIDX, int pageIDX) { // Ğ´Èë¶ÔÏó£¬¸üĞÂÓÃ
+	public int updatePage(int bookIDX, int pageIDX) { // å†™å…¥å¯¹è±¡ï¼Œæ›´æ–°ç”¨
 		Novel book = this.shelf.get(bookIDX);
 		String pageFullURL = ToolBookJava.getFullURL(book.getInfo().get(NV.BookURL).toString()
 				, book.getChapters().get(pageIDX).get(NV.PageURL).toString());
@@ -571,16 +571,16 @@ public class NovelManager {
 		this.setPageContent(text, bookIDX, pageIDX);
 		return text.length();
 	}
-	public String updatePage(String pageFullURL) { // ·µ»ØÄÚÈİ£¬²»Ğ´Èë¶ÔÏó£¬ÓÃÓÚÔÚÏß²é¿´
+	public String updatePage(String pageFullURL) { // è¿”å›å†…å®¹ï¼Œä¸å†™å…¥å¯¹è±¡ï¼Œç”¨äºåœ¨çº¿æŸ¥çœ‹
 		String text = "";
 		String html = "" ;
 
 		if ( pageFullURL.contains("druid.if.qidian.com/") ) {
-			html = ToolBookJava.downhtml(pageFullURL, "utf-8"); // ÏÂÔØjson
+			html = ToolBookJava.downhtml(pageFullURL, "utf-8"); // ä¸‹è½½json
 			text = new SiteQiDian().getContent_Android7(html);
 		} else {
-			html = ToolBookJava.downhtml(pageFullURL); // ÏÂÔØurl
-			text = new NovelSite().getContent(html);       // ·ÖÎöµÃµ½text
+			html = ToolBookJava.downhtml(pageFullURL); // ä¸‹è½½url
+			text = new NovelSite().getContent(html);       // åˆ†æå¾—åˆ°text
 		}
 
 		return text;

@@ -35,36 +35,36 @@ import android.view.MenuItem;
 import android.view.View;
 
 /*
-´«µİÊı¾İ: Action, Datas
-Activity_PageList : µ¥»÷ÁĞ±í 		: aListBookPages, bookIDX
-Activity_PageList : ÏÔÊ¾ËùÓĞÕÂ		: aListAllPages
-Activity_PageList : ÏÔÊ¾Ğ¡ÓÚ1KÕÂ	: aListLess1KPages
-Activity_PageList : ÔÚÏß²é¿´		: aListSitePages, bookIDX
-Activity_PageList : ËÑË÷Æğµã		: aListQDPages, bookIDX, TmpString
-Activity_SearchBook : ËÑË÷Æğµã		: aListQDPages, bookName
-Activity_BookInfo : ±à¼­ĞÅÏ¢		: bookIDX
+ä¼ é€’æ•°æ®: Action, Datas
+Activity_PageList : å•å‡»åˆ—è¡¨ 		: aListBookPages, bookIDX
+Activity_PageList : æ˜¾ç¤ºæ‰€æœ‰ç« 		: aListAllPages
+Activity_PageList : æ˜¾ç¤ºå°äº1Kç« 	: aListLess1KPages
+Activity_PageList : åœ¨çº¿æŸ¥çœ‹		: aListSitePages, bookIDX
+Activity_PageList : æœç´¢èµ·ç‚¹		: aListQDPages, bookIDX, TmpString
+Activity_SearchBook : æœç´¢èµ·ç‚¹		: aListQDPages, bookName
+Activity_BookInfo : ç¼–è¾‘ä¿¡æ¯		: bookIDX
 
-Activity_QuickSearch : ËÑË÷Bing		: atSearch
+Activity_QuickSearch : æœç´¢Bing		: atSearch
 */
 public class Activity_BookList extends Ext_ListActivity_4Eink {
 
 	private NovelManager nm ;
-	File wDir ;			// ¹¤×÷Ä¿Â¼
-	File cookiesFile ;	// ±£´æÓĞcookieµÄÎÄ¼şÃû: FoxBook.cookie
+	File wDir ;			// å·¥ä½œç›®å½•
+	File cookiesFile ;	// ä¿å­˜æœ‰cookieçš„æ–‡ä»¶å: FoxBook.cookie
 
-	public int downThread = 9 ; // Ò³ÃæÏÂÔØÈÎÎñÏß³ÌÊı
+	public int downThread = 9 ; // é¡µé¢ä¸‹è½½ä»»åŠ¡çº¿ç¨‹æ•°
 	public int leftThread = downThread ;
 
-	// ÉèÖÃ: 
+	// è®¾ç½®: 
 	SharedPreferences settings;
-	private String beforeSwitchShelf = "orderby_count_desc" ; // ºÍ arrays.xmlÖĞµÄbeforeSwitchShelf_Values ¶ÔÓ¦
-	private boolean isUpdateBlankPagesFirst = true; // ¸üĞÂÇ°ÏÈ¼ì²âÊÇ·ñÓĞ¿Õ°×ÕÂ½Ú
-	private boolean isCompareShelf = true ;		// ¸üĞÂÇ°±È½ÏÊé¼Ü
-	private boolean isShowIfRoom = false;		// Ò»Ö±ÏÔÊ¾²Ëµ¥Í¼±ê
+	private String beforeSwitchShelf = "orderby_count_desc" ; // å’Œ arrays.xmlä¸­çš„beforeSwitchShelf_Values å¯¹åº”
+	private boolean isUpdateBlankPagesFirst = true; // æ›´æ–°å‰å…ˆæ£€æµ‹æ˜¯å¦æœ‰ç©ºç™½ç« èŠ‚
+	private boolean isCompareShelf = true ;		// æ›´æ–°å‰æ¯”è¾ƒä¹¦æ¶
+	private boolean isShowIfRoom = false;		// ä¸€ç›´æ˜¾ç¤ºèœå•å›¾æ ‡
 
 	private FoxHTTPD foxHTTPD = null;
-	private boolean bShelfFileFromIntent = false; // ÊÇ·ñÊÇÍ¨¹ıÎÄ¼ş¹ØÁª½øÀ´µÄ£¬»áĞŞ¸Ä²»±£´æÍË³ö²Ëµ¥¹¦ÄÜ
-	private boolean isSaveWhenOpenY = false ; // ·ÇÄ¬ÈÏÂ·¾¶µÄÑ¡Ïî²Ëµ¥ ²»ÏÔÊ¾ÇÒ²»±£´æ
+	private boolean bShelfFileFromIntent = false; // æ˜¯å¦æ˜¯é€šè¿‡æ–‡ä»¶å…³è”è¿›æ¥çš„ï¼Œä¼šä¿®æ”¹ä¸ä¿å­˜é€€å‡ºèœå•åŠŸèƒ½
+	private boolean isSaveWhenOpenY = false ; // éé»˜è®¤è·¯å¾„çš„é€‰é¡¹èœå• ä¸æ˜¾ç¤ºä¸”ä¸ä¿å­˜
 
 	ListView lv_booklist;
 	List<Map<String, Object>> data;
@@ -81,7 +81,7 @@ public class Activity_BookList extends Ext_ListActivity_4Eink {
 	private boolean switchShelfLock = false;
 	private long mExitTime;
 
-	private int upchacount; // ĞÂÔöÕÂ½Ú¼ÆÊı
+	private int upchacount; // æ–°å¢ç« èŠ‚è®¡æ•°
 
 	public class UpdateAllBook implements Runnable {
 		public void run() {
@@ -92,24 +92,24 @@ public class Activity_BookList extends Ext_ListActivity_4Eink {
 				for (Map<String, Object> blankPage : nm.getPageList(99) ) {
 					msg = Message.obtain();
 					msg.what = DO_SETTITLE;
-					msg.obj = "Ìî¿Õ: " + (String)blankPage.get(NV.PageName);
+					msg.obj = "å¡«ç©º: " + (String)blankPage.get(NV.PageName);
 					handler.sendMessage(msg);
 					nm.updatePage((Integer)blankPage.get(NV.BookIDX), (Integer)blankPage.get(NV.PageIDX));
 				}
 			}
 
-			isCompareShelf = settings.getBoolean("isCompareShelf", isCompareShelf); // ¸üĞÂÇ°±È½ÏÊé¼Ü
+			isCompareShelf = settings.getBoolean("isCompareShelf", isCompareShelf); // æ›´æ–°å‰æ¯”è¾ƒä¹¦æ¶
 if ( isCompareShelf ) {
 			msg = Message.obtain();
 			msg.what = DO_SETTITLE;
-			msg.obj = "ÏÂÔØÊé¼Ü..." ;
+			msg.obj = "ä¸‹è½½ä¹¦æ¶..." ;
 			handler.sendMessage(msg);
 			List<Map<String, Object>> nn = new NovelSite().compareShelfToGetNew(nm.getBookListForShelf(), cookiesFile);
 			if ( nn != null ) {
 				int nnSize = nn.size() ;
 				msg = Message.obtain();
 				msg.what = DO_SETTITLE;
-				msg.obj = "Êé¼Ü: " + nnSize + " ´ı¸üĞÂ" ;
+				msg.obj = "ä¹¦æ¶: " + nnSize + " å¾…æ›´æ–°" ;
 				handler.sendMessage(msg);
 				if ( 0 == nnSize ) {
 					return ;
@@ -125,7 +125,7 @@ if ( isCompareShelf ) {
 
 						msg = Message.obtain();
 						msg.what = DO_SETTITLE;
-						msg.obj = "¸üĞÂ: " + nowName;
+						msg.obj = "æ›´æ–°: " + nowName;
 						handler.sendMessage(msg);
 
 						nowTTT = new Thread(new UpdateBook(nowBookIDX, nowURL, nowName, true));
@@ -137,13 +137,13 @@ if ( isCompareShelf ) {
 						try {
 							nowThread.join();
 						} catch (Exception ex) {
-							System.out.println("µÈ´ıÏß³Ì´íÎó: " + ex.toString());
+							System.out.println("ç­‰å¾…çº¿ç¨‹é”™è¯¯: " + ex.toString());
 						}
 					}
 
 					msg = Message.obtain();
 					msg.what = DO_UPDATEFINISH;
-					msg.obj = "Íê±Ï: " + nnSize + " ÒÑ¸üĞÂ" ;
+					msg.obj = "å®Œæ¯•: " + nnSize + " å·²æ›´æ–°" ;
 					handler.sendMessage(msg);
 					return ;
 				}
@@ -153,7 +153,7 @@ if ( isCompareShelf ) {
 			List<Thread> threadList = new ArrayList<Thread>(30);
 			Thread nowT;
 
-			// È«²¿¸üĞÂÀïÃæÊ¹ÓÃµÄ±äÁ¿
+			// å…¨éƒ¨æ›´æ–°é‡Œé¢ä½¿ç”¨çš„å˜é‡
 			int nowBookIDX = -1;
 			String anowName, anowURL;
 			upchacount = 0 ;
@@ -172,18 +172,18 @@ if ( isCompareShelf ) {
 				try {
 					nowThread.join();
 				} catch (Exception ex) {
-					System.out.println("µÈ´ıÏß³Ì´íÎó: " + ex.toString());
+					System.out.println("ç­‰å¾…çº¿ç¨‹é”™è¯¯: " + ex.toString());
 				}
 			}
 
 			msg = Message.obtain();
 			msg.what = DO_UPDATEFINISH;
-			msg.obj = "¹² " + upchacount + " ĞÂÕÂ½Ú£¬È«²¿¸üĞÂÍê±Ï" ;
+			msg.obj = "å…± " + upchacount + " æ–°ç« èŠ‚ï¼Œå…¨éƒ¨æ›´æ–°å®Œæ¯•" ;
 			handler.sendMessage(msg);
 		}
 	}
 
-	public class UpdateBook implements Runnable { // ºóÌ¨Ïß³Ì¸üĞÂÊé
+	public class UpdateBook implements Runnable { // åå°çº¿ç¨‹æ›´æ–°ä¹¦
 		private int bookIDX = 0 ;
 		private String bookname ;
 		private String bookurl ;
@@ -200,51 +200,51 @@ if ( isCompareShelf ) {
 		public void run() {
 			Message msg = Message.obtain();
 			msg.what = DO_SETTITLE;
-			msg.obj = bookname + ": ÏÂÔØÄ¿Â¼Ò³";
+			msg.obj = bookname + ": ä¸‹è½½ç›®å½•é¡µ";
 			handler.sendMessage(msg);
 
-			String existList = nm.getPageListStr(bookIDX); // µÃµ½¾É list
+			String existList = nm.getPageListStr(bookIDX); // å¾—åˆ°æ—§ list
 			List<Map<String, Object>> linkList;
 			if ( bookurl.contains(".if.qidian.com") ) {
 				linkList = new SiteQiDian().getTOC_Android7(ToolBookJava.downhtml(bookurl, "utf-8"));
 			} else {
-				linkList = new NovelSite().getTOC(ToolBookJava.downhtml(bookurl)); // ·ÖÎö»ñÈ¡ list ËùÓĞÕÂ½Ú
+				linkList = new NovelSite().getTOC(ToolBookJava.downhtml(bookurl)); // åˆ†æè·å– list æ‰€æœ‰ç« èŠ‚
 				if ( existList.length() > 3 ) {
-					if ( nm.getBookInfo(bookIDX).get(NV.BookAuthor).toString().length() > 1 ) // ÎŞ×÷ÕßÃû£¬±íÊ¾ÎªĞÂÊé
-						linkList = ToolBookJava.getLastNPage(linkList, 55); // »ñÈ¡ list ×îºó55ÕÂ
+					if ( nm.getBookInfo(bookIDX).get(NV.BookAuthor).toString().length() > 1 ) // æ— ä½œè€…åï¼Œè¡¨ç¤ºä¸ºæ–°ä¹¦
+						linkList = ToolBookJava.getLastNPage(linkList, 55); // è·å– list æœ€å55ç« 
 				}
 			}
 
 			List<Map<String, Object>> newPages = ToolBookJava.compare2GetNewPages(linkList, existList) ;
-			int newpagecount = newPages.size(); // ĞÂÕÂ½ÚÊı£¬±ãÓÚÍ³¼Æ
+			int newpagecount = newPages.size(); // æ–°ç« èŠ‚æ•°ï¼Œä¾¿äºç»Ÿè®¡
 
 			if (newpagecount == 0) {
 				msg = Message.obtain();
 				msg.what = DO_SETTITLE;
-				msg.obj = bookname + ": ÎŞĞÂÕÂ½Ú";
+				msg.obj = bookname + ": æ— æ–°ç« èŠ‚";
 				handler.sendMessage(msg);
-				handler.sendEmptyMessage(DO_REFRESHLIST); // ¸üĞÂÍê±Ï£¬Í¨ÖªË¢ĞÂ
-				if ( ! bDownPage ) { //Ìí¼ÓÕâ¸öÖ÷ÒªÏëÔÚÓĞ¿Õ°×ÕÂ½ÚÊ±¸üĞÂÒ»ÏÂ
+				handler.sendEmptyMessage(DO_REFRESHLIST); // æ›´æ–°å®Œæ¯•ï¼Œé€šçŸ¥åˆ·æ–°
+				if ( ! bDownPage ) { //æ·»åŠ è¿™ä¸ªä¸»è¦æƒ³åœ¨æœ‰ç©ºç™½ç« èŠ‚æ—¶æ›´æ–°ä¸€ä¸‹
 					return;
 				}
 			} else {
 				msg = Message.obtain();
 				msg.what = IS_NEWPAGE;
-				msg.arg1 = newpagecount; // ĞÂÕÂ½ÚÊı
-				msg.obj = bookname + ": ĞÂÕÂ½ÚÊı: " + String.valueOf(newpagecount);
+				msg.arg1 = newpagecount; // æ–°ç« èŠ‚æ•°
+				msg.obj = bookname + ": æ–°ç« èŠ‚æ•°: " + String.valueOf(newpagecount);
 				handler.sendMessage(msg);
 			}
 
 			List<Map<String, Object>> nbl = nm.addBookBlankPageList(newPages, bookIDX);
 		if (bDownPage) {
-			int cTask = nbl.size() ; // ×ÜÈÎÎñÊı
+			int cTask = nbl.size() ; // æ€»ä»»åŠ¡æ•°
 
-			if ( cTask > 25 ) { // µ±ĞÂÕÂ½ÚÊı´óÓÚ 25ÕÂ¾Í²ÉÓÃ¶àÈÎÎñÏÂÔØÄ£Ê½
-				int nBaseCount = cTask / downThread ; //Ã¿Ïß³Ì»ù´¡ÈÎÎñÊı
-				int nLeftCount = cTask % downThread ; //Ê£ÓàÈÎÎñÊı
-				int aList[] = new int[downThread] ; // Ã¿¸öÏß³ÌÖĞµÄÈÎÎñÊı
+			if ( cTask > 25 ) { // å½“æ–°ç« èŠ‚æ•°å¤§äº 25ç« å°±é‡‡ç”¨å¤šä»»åŠ¡ä¸‹è½½æ¨¡å¼
+				int nBaseCount = cTask / downThread ; //æ¯çº¿ç¨‹åŸºç¡€ä»»åŠ¡æ•°
+				int nLeftCount = cTask % downThread ; //å‰©ä½™ä»»åŠ¡æ•°
+				int aList[] = new int[downThread] ; // æ¯ä¸ªçº¿ç¨‹ä¸­çš„ä»»åŠ¡æ•°
 
-				for ( int i = 0; i < downThread; i++ ) { // ·ÖÅäÈÎÎñÊı
+				for ( int i = 0; i < downThread; i++ ) { // åˆ†é…ä»»åŠ¡æ•°
 					if ( i < nLeftCount )
 						aList[i] = nBaseCount + 1 ;
 					else
@@ -254,7 +254,7 @@ if ( isCompareShelf ) {
 				List<Map<String, Object>> subList ;
 				int startPoint = 0 ;
 				for ( int i = 0; i < downThread; i++ ) {
-					if ( aList[i] == 0 ) { // ÕâÖÖÇé¿ö³öÏÖÔÚ×ÜÈÎÎñ±ÈÏß³ÌÉÙµÄÇé¿öÏÂ
+					if ( aList[i] == 0 ) { // è¿™ç§æƒ…å†µå‡ºç°åœ¨æ€»ä»»åŠ¡æ¯”çº¿ç¨‹å°‘çš„æƒ…å†µä¸‹
 						--leftThread ;
 						continue ;
 					}
@@ -265,30 +265,30 @@ if ( isCompareShelf ) {
 
 					startPoint += aList[i] ;
 				}
-			} else { // µ¥Ïß³ÌÑ­»·¸üĞÂÒ³Ãæ
+			} else { // å•çº¿ç¨‹å¾ªç¯æ›´æ–°é¡µé¢
 				int nowCount = 0;
 				for (Map<String, Object> blankPage : nbl){
 					++nowCount;
 					msg = Message.obtain();
 					msg.what = DO_SETTITLE;
-					msg.obj = bookname + ": ÏÂÔØÕÂ½Ú: " + nowCount + " / " + newpagecount ;
+					msg.obj = bookname + ": ä¸‹è½½ç« èŠ‚: " + nowCount + " / " + newpagecount ;
 					handler.sendMessage(msg);
 
 					nm.updatePage(bookIDX, (Integer)blankPage.get(NV.PageIDX));
 				}
-			} // µ¥Ïß³Ì¸üĞÂ end
+			} // å•çº¿ç¨‹æ›´æ–° end
 		} // bDownPage
 
 			msg = Message.obtain();
 			msg.what = DO_SETTITLE;
-			msg.obj = bookname + ": ¸üĞÂÍê±Ï";
+			msg.obj = bookname + ": æ›´æ–°å®Œæ¯•";
 			handler.sendMessage(msg);
 
-			handler.sendEmptyMessage(DO_REFRESHLIST); // ¸üĞÂÍê±Ï£¬Í¨ÖªË¢ĞÂ
+			handler.sendEmptyMessage(DO_REFRESHLIST); // æ›´æ–°å®Œæ¯•ï¼Œé€šçŸ¥åˆ·æ–°
 		}
 	}
 
-	public class FoxTaskDownPage implements Runnable { // ¶àÏß³ÌÈÎÎñ¸üĞÂÒ³ÃæÁĞ±í
+	public class FoxTaskDownPage implements Runnable { // å¤šçº¿ç¨‹ä»»åŠ¡æ›´æ–°é¡µé¢åˆ—è¡¨
 		List<Map<String, Object>> taskList;
 
 		public FoxTaskDownPage(List<Map<String, Object>> iTaskList) {
@@ -311,28 +311,28 @@ if ( isCompareShelf ) {
 			}
 
 			--leftThread;
-			if ( 0 == leftThread ) { // ËùÓĞÏß³Ì¸üĞÂÍê±Ï
+			if ( 0 == leftThread ) { // æ‰€æœ‰çº¿ç¨‹æ›´æ–°å®Œæ¯•
 				msg = Message.obtain();
 				msg.what = DO_SETTITLE;
-				msg.obj = "ÒÑ¸üĞÂÍêËùÓĞ¿Õ°×ÕÂ½Ú>25" ;
+				msg.obj = "å·²æ›´æ–°å®Œæ‰€æœ‰ç©ºç™½ç« èŠ‚>25" ;
 				handler.sendMessage(msg);
 			}
 		}
 	}
 
-	private void refresh_BookList() { // Ë¢ĞÂLVÖĞµÄÊı¾İ
-		data = nm.getBookList(); // »ñÈ¡Êé¼®ÁĞ±í
+	private void refresh_BookList() { // åˆ·æ–°LVä¸­çš„æ•°æ®
+		data = nm.getBookList(); // è·å–ä¹¦ç±åˆ—è¡¨
 		lv_booklist.setAdapter(new SimpleAdapter(this, data, R.layout.lv_item_booklist
 			, new String[] { NV.BookName, NV.PagesCount }
-			, new int[] { R.id.tvName, R.id.tvCount } )); // ÉèÖÃlistviewµÄAdapter, µ±dataÊÇÔ­dataÊ±²ÅÄÜ adapter.notifyDataSetChanged();
+			, new int[] { R.id.tvName, R.id.tvCount } )); // è®¾ç½®listviewçš„Adapter, å½“dataæ˜¯åŸdataæ—¶æ‰èƒ½ adapter.notifyDataSetChanged();
 		setItemPos4Eink();
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void showHomeUp() {
-		getActionBar().setDisplayHomeAsUpEnabled(settings.getBoolean("isClickHomeExit", false)); // ±êÌâÀ¸ÖĞÌí¼Ó·µ»ØÍ¼±ê
-		getActionBar().setDisplayShowHomeEnabled(settings.getBoolean("isShowAppIcon", true)); // Òş²Ø³ÌĞòÍ¼±ê
-	}		// ÏìÓ¦µã»÷ÊÂ¼şÔÚonOptionsItemSelectedµÄswitchÖĞ¼ÓÈë android.R.id.home this.finish();
+		getActionBar().setDisplayHomeAsUpEnabled(settings.getBoolean("isClickHomeExit", false)); // æ ‡é¢˜æ ä¸­æ·»åŠ è¿”å›å›¾æ ‡
+		getActionBar().setDisplayShowHomeEnabled(settings.getBoolean("isShowAppIcon", true)); // éšè—ç¨‹åºå›¾æ ‡
+	}		// å“åº”ç‚¹å‡»äº‹ä»¶åœ¨onOptionsItemSelectedçš„switchä¸­åŠ å…¥ android.R.id.home this.finish();
 
 	public void onCreate(Bundle savedInstanceState) {
 		settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -345,13 +345,13 @@ if ( isCompareShelf ) {
 		showHomeUp();
 		isShowIfRoom = settings.getBoolean("isShowIfRoom", isShowIfRoom);
 		isSaveWhenOpenY = settings.getBoolean("isSaveWhenOpenY", isSaveWhenOpenY);
-		lv_booklist = getListView(); // »ñÈ¡LV
-// GUI ²¼¾ÖÏÔÊ¾Íê±Ï
-		mExitTime = System.currentTimeMillis(); // µ±Ç°Ê±¼ä£¬±ãÓÚÁ½´ÎÍË³ö
+		lv_booklist = getListView(); // è·å–LV
+// GUI å¸ƒå±€æ˜¾ç¤ºå®Œæ¯•
+		mExitTime = System.currentTimeMillis(); // å½“å‰æ—¶é—´ï¼Œä¾¿äºä¸¤æ¬¡é€€å‡º
 		this.wDir = ToolAndroid.getDefaultDir(settings);
 		this.cookiesFile = new File(wDir, "FoxBook.cookie");
 
-		File inShelfFile; // ´«ÈëµÄÂ·¾¶(db3/fmlÎÄ¼ş)
+		File inShelfFile; // ä¼ å…¥çš„è·¯å¾„(db3/fmlæ–‡ä»¶)
 		if ( getIntent().getData() == null ) {
 			bShelfFileFromIntent = false;
 			inShelfFile = new File(this.wDir, "FoxBook.fml");
@@ -364,16 +364,16 @@ if ( isCompareShelf ) {
 			bShelfFileFromIntent = true;
 			inShelfFile = new File(getIntent().getData().getPath());
 			if ( ! isSaveWhenOpenY )
-				foxtip("×¢Òâ:\nÍË³öÊ±²»»á±£´æĞŞ¸ÄÅ¶\nÈçÒª±£´æĞŞ¸Ä£¬°´²Ëµ¥¼ü²¢Ñ¡Ôñ²Ëµ¥");
+				foxtip("æ³¨æ„:\né€€å‡ºæ—¶ä¸ä¼šä¿å­˜ä¿®æ”¹å“¦\nå¦‚è¦ä¿å­˜ä¿®æ”¹ï¼ŒæŒ‰èœå•é”®å¹¶é€‰æ‹©èœå•");
 		}
 		setTitle(inShelfFile.getName());
-		this.nm = new NovelManager(inShelfFile); // Todo: ĞŞ¸Ädbµ¼Èë·½Ê½
+		this.nm = new NovelManager(inShelfFile); // Todo: ä¿®æ”¹dbå¯¼å…¥æ–¹å¼
 		((FoxApp)this.getApplication()).nm = this.nm ;
 
 		refresh_BookList();
-		init_handler(); // ³õÊ¼»¯Ò»¸öhandler ÓÃÓÚ´¦ÀíºóÌ¨Ïß³ÌµÄÏûÏ¢
+		init_handler(); // åˆå§‹åŒ–ä¸€ä¸ªhandler ç”¨äºå¤„ç†åå°çº¿ç¨‹çš„æ¶ˆæ¯
 
-		// ³õÊ¼»¯ ³¤»÷ ÌõÄ¿ µÄĞĞÎª
+		// åˆå§‹åŒ– é•¿å‡» æ¡ç›® çš„è¡Œä¸º
 		lv_booklist.setOnItemLongClickListener(new OnItemLongClickListener() {
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 				@SuppressWarnings("unchecked")
@@ -384,11 +384,12 @@ if ( isCompareShelf ) {
 			}
 		}); // long click end
 
-		if ( 0 == data.size() ) { // Ã»ÓĞÊé£¬Ìø×ªµ½ËÑË÷Ò³Ãæ
-			foxtip("Ã²ËÆÃ»ÓĞÊéÅ¶£¬ÄÇÅ¼×Ô¼º´ò¿ªËÑË÷ºÃÁË");
+		if ( 0 == data.size() ) { // æ²¡æœ‰ä¹¦ï¼Œè·³è½¬åˆ°æœç´¢é¡µé¢
+			foxtip("è²Œä¼¼æ²¡æœ‰ä¹¦å“¦ï¼Œé‚£å¶è‡ªå·±æ‰“å¼€æœç´¢å¥½äº†");
 			startActivityForResult(new Intent(Activity_BookList.this, Activity_SearchBook.class),4);
 		}
-	}
+
+	} // onCreate
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -396,7 +397,7 @@ if ( isCompareShelf ) {
 		Map<String, Object> book = (HashMap<String, Object>) l.getItemAtPosition(position);
 		setTitle(book.get(NV.BookName) + " : " + book.get(NV.BookURL));
 
-		if ( (Integer)book.get(NV.PagesCount) > 0) { // ÕÂ½ÚÊı´óÓÚ0
+		if ( (Integer)book.get(NV.PagesCount) > 0) { // ç« èŠ‚æ•°å¤§äº0
 			Intent itt = new Intent(Activity_BookList.this, Activity_PageList.class);
 			itt.putExtra(AC.action, AC.aListBookPages);
 			itt.putExtra(NV.BookIDX, (Integer)book.get(NV.BookIDX));
@@ -405,41 +406,41 @@ if ( isCompareShelf ) {
 		super.onListItemClick(l, v, position, id);
 	}
 
-	private void lvItemLongClickDialog(final Map<String, Object> book) { // ³¤»÷LVÌõÄ¿µ¯³öµÄ¶Ô»°¿ò
+	private void lvItemLongClickDialog(final Map<String, Object> book) { // é•¿å‡»LVæ¡ç›®å¼¹å‡ºçš„å¯¹è¯æ¡†
 		final String lcURL = book.get(NV.BookURL).toString();
 		final String lcName = book.get(NV.BookName).toString();
 		final int bookIDX = (Integer)book.get(NV.BookIDX);
 
 		new AlertDialog.Builder(this) //.setIcon(R.drawable.ic_launcher);
-		.setTitle("²Ù×÷:" + lcName)
-		.setItems(new String[] { "¸üĞÂ±¾Êé",
-				"¸üĞÂ±¾ÊéÄ¿Â¼",
-				"ÔÚÏß²é¿´",
-				"ËÑË÷:Æğµã",
-				"ËÑË÷:bing",
-				"¸´ÖÆÊéÃû",
-				"±à¼­±¾ÊéĞÅÏ¢",
-				"É¾³ı±¾Êé" },
+		.setTitle("æ“ä½œ:" + lcName)
+		.setItems(new String[] { "æ›´æ–°æœ¬ä¹¦",
+				"æ›´æ–°æœ¬ä¹¦ç›®å½•",
+				"åœ¨çº¿æŸ¥çœ‹",
+				"æœç´¢:èµ·ç‚¹",
+				"æœç´¢:bing",
+				"å¤åˆ¶ä¹¦å",
+				"ç¼–è¾‘æœ¬ä¹¦ä¿¡æ¯",
+				"åˆ é™¤æœ¬ä¹¦" },
 				new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
 				switch (which) {
-				case 0: // ¸üĞÂ±¾Êé
+				case 0: // æ›´æ–°æœ¬ä¹¦
 					upchacount = 0 ;
 					new Thread(new UpdateBook(bookIDX, lcURL, lcName, true)).start();
-					foxtip("ÕıÔÚ¸üĞÂ: " + lcName);
+					foxtip("æ­£åœ¨æ›´æ–°: " + lcName);
 					break;
-				case 1: // ¸üĞÂ±¾ÊéÄ¿Â¼
+				case 1: // æ›´æ–°æœ¬ä¹¦ç›®å½•
 					upchacount = 0 ;
 					new Thread(new UpdateBook(bookIDX, lcURL, lcName, false)).start();
-					foxtip("ÕıÔÚ¸üĞÂÄ¿Â¼: " + lcName);
+					foxtip("æ­£åœ¨æ›´æ–°ç›®å½•: " + lcName);
 					break;
-				case 2: // ÔÚÏß²é¿´
+				case 2: // åœ¨çº¿æŸ¥çœ‹
 					Intent itt = new Intent(Activity_BookList.this, Activity_PageList.class);
 					itt.putExtra(AC.action, AC.aListSitePages);
 					itt.putExtra(NV.BookIDX, bookIDX);
 					startActivityForResult(itt, 1);
 					break;
-				case 3: // ËÑË÷:Æğµã
+				case 3: // æœç´¢:èµ·ç‚¹
 					String lcQidianID = nm.getBookInfo(bookIDX).get(NV.QDID).toString();
 
 					if ( null == lcQidianID | 0 == lcQidianID.length() | lcQidianID == "0" ) {
@@ -447,7 +448,7 @@ if ( isCompareShelf ) {
 						ittQDS.putExtra(AC.action, AC.aListQDPages);
 						ittQDS.putExtra(NV.BookName, lcName);
 						startActivity(ittQDS);
-					} else { // ´æÔÚÆğµãID
+					} else { // å­˜åœ¨èµ·ç‚¹ID
 						String lcQidianURL = new SiteQiDian().getTOCURL_Android7(lcQidianID) ;
 
 						Intent ittQD = new Intent(Activity_BookList.this, Activity_PageList.class);
@@ -457,25 +458,25 @@ if ( isCompareShelf ) {
 						startActivityForResult(ittQD, 1);
 					}
 					break;
-				case 4: // ËÑË÷:bing
+				case 4: // æœç´¢:bing
 					Intent ittSEB = new Intent(Activity_BookList.this, Activity_QuickSearch.class);
 					ittSEB.putExtra(NV.BookName, lcName);
 					ittSEB.putExtra(AC.searchEngine, AC.SE_BING);
 					startActivityForResult(ittSEB, 5);
 					break;
-				case 5: // ¸´ÖÆÊéÃû
+				case 5: // å¤åˆ¶ä¹¦å
 					ToolAndroid.setClipText(lcName, getApplicationContext());
-					foxtip("ÒÑ¸´ÖÆµ½¼ôÌù°å: " + lcName);
+					foxtip("å·²å¤åˆ¶åˆ°å‰ªè´´æ¿: " + lcName);
 					break;
-				case 6: // ±à¼­±¾ÊéĞÅÏ¢
+				case 6: // ç¼–è¾‘æœ¬ä¹¦ä¿¡æ¯
 					Intent ittBookInfo = new Intent(Activity_BookList.this,Activity_BookInfo.class);
 					ittBookInfo.putExtra(NV.BookIDX, bookIDX);
 					startActivityForResult(ittBookInfo, 3);
 					break;
-				case 7: // É¾³ı±¾Êé
+				case 7: // åˆ é™¤æœ¬ä¹¦
 					nm.deleteBook(bookIDX);
 					refresh_BookList();
-					foxtip("ÒÑÉ¾³ı: " + lcName);
+					foxtip("å·²åˆ é™¤: " + lcName);
 					break;
 				}
 			}
@@ -483,7 +484,7 @@ if ( isCompareShelf ) {
 		.create().show();
 	}
 
-	private void init_handler() { // ³õÊ¼»¯Ò»¸öhandler ÓÃÓÚ´¦ÀíºóÌ¨Ïß³ÌµÄÏûÏ¢
+	private void init_handler() { // åˆå§‹åŒ–ä¸€ä¸ªhandler ç”¨äºå¤„ç†åå°çº¿ç¨‹çš„æ¶ˆæ¯
 		handler = new Handler(new Handler.Callback() {
 			public boolean handleMessage(Message msg) {
 				switch (msg.what) {
@@ -492,9 +493,9 @@ if ( isCompareShelf ) {
 					int xCount = nm.getLess1KCount();
 					if ( xCount > 0 ) {
 						setTitle(xCount + ":" + (String)msg.obj);
-						foxtip("ÓĞ " + xCount + " ÕÂ½Ú¶ÌÓÚ1K");
+						foxtip("æœ‰ " + xCount + " ç« èŠ‚çŸ­äº1K");
 
-						// ÏÔÊ¾¶ÌÕÂ½Ú
+						// æ˜¾ç¤ºçŸ­ç« èŠ‚
 						Intent ittlok = new Intent(Activity_BookList.this, Activity_PageList.class);
 						ittlok.putExtra(AC.action, AC.aListLess1KPages);
 						startActivityForResult(ittlok, 2);
@@ -535,14 +536,14 @@ if ( isCompareShelf ) {
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) { // ´´½¨²Ëµ¥
+	public boolean onCreateOptionsMenu(Menu menu) { // åˆ›å»ºèœå•
 		getMenuInflater().inflate(R.menu.booklist, menu);
 		int itemcount = menu.size();
 		for ( int i=0; i< itemcount; i++){
 			switch (menu.getItem(i).getItemId()) {
 				case R.id.action_exitwithnosave:
 					if ( bShelfFileFromIntent && ( ! isSaveWhenOpenY ) )
-						menu.getItem(i).setTitle("±£´æ²¢ÍË³ö");
+						menu.getItem(i).setTitle("ä¿å­˜å¹¶é€€å‡º");
 					break;
 				case R.id.action_switchShelf:
 					if ( bShelfFileFromIntent && ( ! isSaveWhenOpenY ) )
@@ -568,7 +569,7 @@ if ( isCompareShelf ) {
 		mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM); // SHOW_AS_ACTION_NEVER // API > 11
 	}
 
-	public boolean onOptionsItemSelected(MenuItem item) { // ÏìÓ¦Ñ¡Ôñ²Ëµ¥µÄ¶¯×÷
+	public boolean onOptionsItemSelected(MenuItem item) { // å“åº”é€‰æ‹©èœå•çš„åŠ¨ä½œ
 		switch (item.getItemId()) {
 		case android.R.id.home:
 			onBackPressed();
@@ -576,19 +577,19 @@ if ( isCompareShelf ) {
 		case R.id.setting:
 			startActivity(new Intent(Activity_BookList.this, Activity_Setting.class));
 			break;
-		case R.id.action_updateall: // ¸üĞÂËùÓĞ
+		case R.id.action_updateall: // æ›´æ–°æ‰€æœ‰
 			new Thread(new UpdateAllBook()).start();
 			break;
 		case R.id.action_switchShelf:
-			this.setTitle("ÇĞ»»Êı¾İ¿â");
+			this.setTitle("åˆ‡æ¢æ•°æ®åº“");
 			if ( switchShelfLock ) {
-				foxtip("»¹ÔÚÇĞ»»ÖĞ...");
+				foxtip("è¿˜åœ¨åˆ‡æ¢ä¸­...");
 			} else {
 				(new Thread(){
 					public void run(){
 						switchShelfLock = true;
 						beforeSwitchShelf = settings.getString("beforeSwitchShelf", beforeSwitchShelf);
-						if ( ! beforeSwitchShelf.equalsIgnoreCase("none") ) { // ÇĞ»»Ç°ÏÈÅÅĞò
+						if ( ! beforeSwitchShelf.equalsIgnoreCase("none") ) { // åˆ‡æ¢å‰å…ˆæ’åº
 							if ( beforeSwitchShelf.equalsIgnoreCase("orderby_count_desc") )
 								nm.sortBooks(true);
 							if ( beforeSwitchShelf.equalsIgnoreCase("orderby_count_asc") )
@@ -606,108 +607,108 @@ if ( isCompareShelf ) {
 			}
 			break;
 		case R.id.action_refresh:
-			refresh_BookList(); // Ë¢ĞÂLVÖĞµÄÊı¾İ
-			foxtip("ListViewÒÑË¢ĞÂ");
+			refresh_BookList(); // åˆ·æ–°LVä¸­çš„æ•°æ®
+			foxtip("ListViewå·²åˆ·æ–°");
 			break;
-		case R.id.action_searchbook: // ´ò¿ªËÑË÷Êé¼®
+		case R.id.action_searchbook: // æ‰“å¼€æœç´¢ä¹¦ç±
 			startActivityForResult(new Intent(Activity_BookList.this, Activity_SearchBook.class),4);
 			break;
 
-		case R.id.action_allpagelist: // ËùÓĞÕÂ½Ú
+		case R.id.action_allpagelist: // æ‰€æœ‰ç« èŠ‚
 			Intent ittall = new Intent(Activity_BookList.this, Activity_PageList.class);
 			ittall.putExtra(AC.action, AC.aListAllPages);
 			startActivityForResult(ittall, 2);
 			break;
-		case R.id.action_showokinapl: // ÏÔÊ¾×ÖÊıÉÙÓÚ1KµÄÕÂ½Ú
+		case R.id.action_showokinapl: // æ˜¾ç¤ºå­—æ•°å°‘äº1Kçš„ç« èŠ‚
 			Intent ittlok = new Intent(Activity_BookList.this, Activity_PageList.class);
 			ittlok.putExtra(AC.action, AC.aListLess1KPages);
 			startActivityForResult(ittlok, 2);
 			break;
 
-		case R.id.action_sortbook_asc: // Ë³ĞòÅÅĞò
-			this.setTitle("Ë³ĞòÅÅĞò");
+		case R.id.action_sortbook_asc: // é¡ºåºæ’åº
+			this.setTitle("é¡ºåºæ’åº");
 			(new Thread(){ public void run(){
 					nm.sortBooks(false);
 					nm.simplifyAllDelList();
 					Message msg = Message.obtain();
 					msg.what = DO_REFRESH_TIP;
-					msg.obj = "ÒÑ°´Ò³ÃæÒ³ÊıË³ĞòÖØÅÅºÃÊé¼®";
+					msg.obj = "å·²æŒ‰é¡µé¢é¡µæ•°é¡ºåºé‡æ’å¥½ä¹¦ç±";
 					handler.sendMessage(msg);
 				} }).start();
 			break;
-		case R.id.action_sortbook_desc: // µ¹ĞòÅÅĞò
-			this.setTitle("µ¹ĞòÅÅĞò");
+		case R.id.action_sortbook_desc: // å€’åºæ’åº
+			this.setTitle("å€’åºæ’åº");
 			(new Thread(){ public void run(){
 				nm.sortBooks(true);
 				nm.simplifyAllDelList();
 				Message msg = Message.obtain();
 				msg.what = DO_REFRESH_TIP;
-				msg.obj = "ÒÑ°´Ò³ÃæÒ³Êıµ¹ĞòÖØÅÅºÃÊé¼®";
+				msg.obj = "å·²æŒ‰é¡µé¢é¡µæ•°å€’åºé‡æ’å¥½ä¹¦ç±";
 				handler.sendMessage(msg);
 			} }).start();
 			break;
 		case R.id.action_all2epub:
-			setTitle("¿ªÊ¼×ª»»³ÉEPUB...");
+			setTitle("å¼€å§‹è½¬æ¢æˆEPUB...");
 			(new Thread(){
 				public void run(){
 					File oFile = new File(wDir, "fox.epub");
 					nm.exportAsEpub(oFile);
 					Message msg = Message.obtain();
 					msg.what = DO_SETTITLE;
-					msg.obj = "È«²¿×ª»»Íê±Ï: " + oFile.getPath();
+					msg.obj = "å…¨éƒ¨è½¬æ¢å®Œæ¯•: " + oFile.getPath();
 					handler.sendMessage(msg);
 				}
 			}).start();
 			break;
 		case R.id.action_all2txt:
-			setTitle("¿ªÊ¼×ª»»³ÉTXT...");
+			setTitle("å¼€å§‹è½¬æ¢æˆTXT...");
 			(new Thread(){
 				public void run(){
 					File oFile = new File(wDir, "fox.txt");
 					nm.exportAsTxt(oFile);
 					Message msg = Message.obtain();
 					msg.what = DO_SETTITLE;
-					msg.obj = "È«²¿×ª»»Íê±Ï: " + oFile.getPath();
+					msg.obj = "å…¨éƒ¨è½¬æ¢å®Œæ¯•: " + oFile.getPath();
 					handler.sendMessage(msg);
 				}
 			}).start();
 			break;
 		case R.id.action_updatepkg:
-			setTitle("¿ªÊ¼¸üĞÂ°æ±¾...");
+			setTitle("å¼€å§‹æ›´æ–°ç‰ˆæœ¬...");
 			(new Thread(){
 				public void run(){
 					int newver = new FoxUpdatePkg(getApplicationContext()).FoxCheckUpdate() ;
 					Message msg = Message.obtain();
 					if ( newver > 0 ) {
 						msg.what = IS_NEWVER;
-						msg.obj = newver + ":ĞÂ°æ±¾" ;
+						msg.obj = newver + ":æ–°ç‰ˆæœ¬" ;
 					} else {
 						msg.what = DO_SETTITLE;
-						msg.obj = "ÎŞĞÂ°æ±¾" ;
+						msg.obj = "æ— æ–°ç‰ˆæœ¬" ;
 					}
 					handler.sendMessage(msg);
 				}
 			}).start();
 			break;
-		case R.id.action_exitwithnosave: // ²»±£´æÊı¾İ¿âÍË³ö
-			if ( bShelfFileFromIntent && ( ! isSaveWhenOpenY ) ) // ±£´æÊı¾İ¿â²¢ÍË³ö
+		case R.id.action_exitwithnosave: // ä¸ä¿å­˜æ•°æ®åº“é€€å‡º
+			if ( bShelfFileFromIntent && ( ! isSaveWhenOpenY ) ) // ä¿å­˜æ•°æ®åº“å¹¶é€€å‡º
 				beforeExitApp();
 			this.finish();
 			System.exit(0);
 			break;
-		case R.id.action_foxhttpd: // Æô¶¯Í£Ö¹·şÎñÆ÷
+		case R.id.action_foxhttpd: // å¯åŠ¨åœæ­¢æœåŠ¡å™¨
 			int nowListenPort = 8888 ;
 			String nowIP = "127.0.0.1" ;
 			HashMap<String, String> hmwifi = ToolAndroid.getWifiInfo(getApplicationContext());
 			if ( null != hmwifi )
 				nowIP = hmwifi.get("ip");
-			boolean bStartIt = ! item.isChecked(); // ¸ù¾İÑ¡ÏîÊÇ·ñÑ¡ÖĞÈ·¶¨ÊÇ·ñ¿ªÆô
+			boolean bStartIt = ! item.isChecked(); // æ ¹æ®é€‰é¡¹æ˜¯å¦é€‰ä¸­ç¡®å®šæ˜¯å¦å¼€å¯
 			if (bStartIt) {
 				try {
 					foxHTTPD = new FoxHTTPD(nowListenPort, wDir, nm);
 					item.setChecked(bStartIt);
-					item.setTitle(nowIP + ":" + String.valueOf(nowListenPort) + " ÒÑ¿ª");
-					foxtip(nowIP + ":" + String.valueOf(nowListenPort) + " ÒÑ¿ª\nÈçÒª¹Ø±Õ£¬Ñ¡ÔñÍ¬Ò»²Ëµ¥");
+					item.setTitle(nowIP + ":" + String.valueOf(nowListenPort) + " å·²å¼€");
+					foxtip(nowIP + ":" + String.valueOf(nowListenPort) + " å·²å¼€\nå¦‚è¦å…³é—­ï¼Œé€‰æ‹©åŒä¸€èœå•");
 				} catch (Exception e) {
 					e.toString();
 				}
@@ -715,7 +716,7 @@ if ( isCompareShelf ) {
 				if (foxHTTPD != null) {
 					foxHTTPD.stop();
 					item.setChecked(bStartIt);
-					item.setTitle(nowIP + ":" + String.valueOf(nowListenPort) + " ÒÑ¹Ø");
+					item.setTitle(nowIP + ":" + String.valueOf(nowListenPort) + " å·²å…³");
 				}
 			}
 			break;
@@ -726,7 +727,7 @@ if ( isCompareShelf ) {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent retIntent) {
 		if (RESULT_OK == resultCode)
-			refresh_BookList(); // Ë¢ĞÂLVÖĞµÄÊı¾İ
+			refresh_BookList(); // åˆ·æ–°LVä¸­çš„æ•°æ®
 	}
 
 	private void beforeExitApp() {
@@ -738,19 +739,19 @@ if ( isCompareShelf ) {
 	}
 
 	@Override
-	public void onBackPressed() { // ·µ»Ø¼ü±»°´
-		if ((System.currentTimeMillis() - mExitTime) > 2000) { // Á½´ÎÍË³ö¼ü¼ä¸ô
-			foxtip("ÔÙ°´Ò»´ÎÍË³ö³ÌĞò");
+	public void onBackPressed() { // è¿”å›é”®è¢«æŒ‰
+		if ((System.currentTimeMillis() - mExitTime) > 2000) { // ä¸¤æ¬¡é€€å‡ºé”®é—´éš”
+			foxtip("å†æŒ‰ä¸€æ¬¡é€€å‡ºç¨‹åº");
 			mExitTime = System.currentTimeMillis();
 		} else {
-			if ( ( ! bShelfFileFromIntent) || isSaveWhenOpenY ) // ²»±£´æÊı¾İ¿â²¢ÍË³ö
+			if ( ( ! bShelfFileFromIntent) || isSaveWhenOpenY ) // ä¸ä¿å­˜æ•°æ®åº“å¹¶é€€å‡º
 				beforeExitApp();
 			this.finish();
 			System.exit(0);
 		}
 	}
 
-	private void foxtip(String sinfo) { // ToastÏûÏ¢
+	private void foxtip(String sinfo) { // Toastæ¶ˆæ¯
 		Toast.makeText(getApplicationContext(), sinfo, Toast.LENGTH_SHORT).show();
 	}
 

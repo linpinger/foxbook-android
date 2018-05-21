@@ -9,8 +9,8 @@ import java.util.Map;
 public class Novel implements Serializable {
 	private static final long serialVersionUID = 8721548324846L;
 
-	private Map<String, Object> info ;				// 本书信息
-	private List<Map<String, Object>> chapters ;	// 章节列表
+	private Map<String, Object> info ;				// 鏈功淇℃伅
+	private List<Map<String, Object>> chapters ;	// 绔犺妭鍒楄〃
 
 	public Novel() {
 		info = new HashMap<String, Object>();

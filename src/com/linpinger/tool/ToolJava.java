@@ -14,21 +14,21 @@ import java.util.regex.Pattern;
 
 public class ToolJava {
 
-	// { Í¨ÓÃÎÄ±¾¶ÁÈ¡£¬Ğ´Èë
-	// ÓÅÏÈÊ¹ÓÃÕâ¸ö¶ÁÈ¡ÎÄ±¾£¬¿ìµã£¬±äÁ¿´óĞ¡¿ÉÒÔµ÷ÕûÒ»ÏÂÒÔ´ïµ½×îºÃµÄËÙ¶È
+	// { é€šç”¨æ–‡æœ¬è¯»å–ï¼Œå†™å…¥
+	// ä¼˜å…ˆä½¿ç”¨è¿™ä¸ªè¯»å–æ–‡æœ¬ï¼Œå¿«ç‚¹ï¼Œå˜é‡å¤§å°å¯ä»¥è°ƒæ•´ä¸€ä¸‹ä»¥è¾¾åˆ°æœ€å¥½çš„é€Ÿåº¦
 	public static String readText(String filePath, String inFileEnCoding) {
-		// ÎªÁËÏß³Ì°²È«£¬¿ÉÒÔÌæ»»StringBuilder Îª StringBuffer
+		// ä¸ºäº†çº¿ç¨‹å®‰å…¨ï¼Œå¯ä»¥æ›¿æ¢StringBuilder ä¸º StringBuffer
 		StringBuilder retStr = new StringBuilder(174080);
 		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), inFileEnCoding));
 
-			char[] chars = new char[4096]; // Õâ¸ö´óĞ¡²»Ó°Ïì¶ÁÈ¡ËÙ¶È
+			char[] chars = new char[4096]; // è¿™ä¸ªå¤§å°ä¸å½±å“è¯»å–é€Ÿåº¦
 			int length = 0;
 			while ((length = br.read(chars)) > 0) {
 				retStr.append(chars, 0, length);
 			}
 /*
-			// ÏÂÃæÕâ¸öĞ§ÂÊÉÔµÍ£¬µ«¿ÉÒÔ¿ØÖÆ»»ĞĞ·û
+			// ä¸‹é¢è¿™ä¸ªæ•ˆç‡ç¨ä½ï¼Œä½†å¯ä»¥æ§åˆ¶æ¢è¡Œç¬¦
 			String line = null;
 			while ((line = br.readLine()) != null) {
 			retStr.append(line).append("\n");
@@ -47,7 +47,7 @@ public class ToolJava {
 	public static void writeText(String iStr, String filePath, String oFileEncoding) {
 		writeText(iStr, filePath, oFileEncoding, false);
 	}
-	// Ğ´ÈëÖ¸¶¨±àÂë£¬ËÙ¶È¿ìµã
+	// å†™å…¥æŒ‡å®šç¼–ç ï¼Œé€Ÿåº¦å¿«ç‚¹
 	public static void writeText(String iStr, String filePath, String oFileEncoding, boolean bAppend) {
 //		boolean bAppend = false;
 		try {
@@ -61,7 +61,7 @@ public class ToolJava {
 	}
 
 	/*
-	// Õâ¸öÓÃÔÚ¶¨³¤ÇĞ¸î´óÎÄ±¾ÉÏ£¬ÒÑ¾­ÔÚimportQidianTxtÖĞÊ¹ÓÃ
+	// è¿™ä¸ªç”¨åœ¨å®šé•¿åˆ‡å‰²å¤§æ–‡æœ¬ä¸Šï¼Œå·²ç»åœ¨importQidianTxtä¸­ä½¿ç”¨
 	public static String readTextAndSplit(String filePath, String inFileEnCoding) {
 		StringBuilder retStr = new StringBuilder(174080);
 		StringBuilder chunkStr = new StringBuilder(65536);
@@ -71,7 +71,7 @@ public class ToolJava {
 			int chunkLen = 0;
 			while ((line = br.readLine()) != null) {
 				chunkLen = chunkStr.length();
-				if ( chunkLen > 3000 && ( line.length() == 0 || chunkLen > 6000 || line.startsWith("µÚ") || line.contains("¾í") || line.contains("ÕÂ") || line.contains("½Ú") ) ) {
+				if ( chunkLen > 3000 && ( line.length() == 0 || chunkLen > 6000 || line.startsWith("ç¬¬") || line.contains("å·") || line.contains("ç« ") || line.contains("èŠ‚") ) ) {
 					retStr.append(chunkStr).append("\n##################################################\n\n");
 					chunkStr = new StringBuilder(65536);
 				}
@@ -87,9 +87,9 @@ public class ToolJava {
 	}
 	*/
 
-	public static String detectTxtEncoding(String txtPath) { // ²Â²âÖĞÎÄÎÄ±¾±àÂë ·µ»Ø: "GBK" »ò "UTF-8"
-		byte[] b = new byte[256]; // ¶ÁÈ¡ÕâÃ´¶à×Ö½Ú£¬Èç¹ûÕâÃ´¶à×Ö½Ú¶¼ÊÇÓ¢ÎÄÄÇ¾Í±¯¾çÁË
-		int loopTimes = 256 - 6 ; // Ñ­»·´ÎÊı = ×Ö½ÚÊı - 6 ±ÜÃâÔ½½ç
+	public static String detectTxtEncoding(String txtPath) { // çŒœæµ‹ä¸­æ–‡æ–‡æœ¬ç¼–ç  è¿”å›: "GBK" æˆ– "UTF-8"
+		byte[] b = new byte[256]; // è¯»å–è¿™ä¹ˆå¤šå­—èŠ‚ï¼Œå¦‚æœè¿™ä¹ˆå¤šå­—èŠ‚éƒ½æ˜¯è‹±æ–‡é‚£å°±æ‚²å‰§äº†
+		int loopTimes = 256 - 6 ; // å¾ªç¯æ¬¡æ•° = å­—èŠ‚æ•° - 6 é¿å…è¶Šç•Œ
 		try {
 			FileInputStream in= new FileInputStream(txtPath);
 			in.read(b);
@@ -108,7 +108,7 @@ public class ToolJava {
 		int ee = 0 ;
 		int ff = 0 ;
 		int i = 0 ;
-		while ( i < loopTimes ) { // 2×Ö½ÚGBKÓë3×Ö½ÚUTF8¹«±¶ÊıÎª6£¬¹ÊÈ¡6¸ö×Ö·û±È½Ï
+		while ( i < loopTimes ) { // 2å­—èŠ‚GBKä¸3å­—èŠ‚UTF8å…¬å€æ•°ä¸º6ï¼Œæ•…å–6ä¸ªå­—ç¬¦æ¯”è¾ƒ
 			aa = b[i] & 0x000000FF ;
 			if ( aa == 0 )
 				break ;
@@ -127,7 +127,7 @@ public class ToolJava {
 				break ;
 			}
 
-			// µÚÈı×Ö½Ú:Ó¢ÎÄ<128£¬GBK:129-254£¬UTF8:128-191 192-239
+			// ç¬¬ä¸‰å­—èŠ‚:è‹±æ–‡<128ï¼ŒGBK:129-254ï¼ŒUTF8:128-191 192-239
 			cc = b[i+2] & 0x000000FF ;
 			if ( cc > 239 ) {
 				isGBK = true ;
@@ -177,21 +177,21 @@ UTF-8 3 : 3 : 80-BF = 128-191
 // UTF-8 BOM : EF BB BF
 
 /*
-1×Ö½Ú 0xxxxxxx
-2×Ö½Ú 110xxxxx 10xxxxxx
-3×Ö½Ú 1110xxxx 10xxxxxx 10xxxxxx
-4×Ö½Ú 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-5×Ö½Ú 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
-6×Ö½Ú 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+1å­—èŠ‚ 0xxxxxxx
+2å­—èŠ‚ 110xxxxx 10xxxxxx
+3å­—èŠ‚ 1110xxxx 10xxxxxx 10xxxxxx
+4å­—èŠ‚ 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+5å­—èŠ‚ 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+6å­—èŠ‚ 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
 
 UTF8 : 2 : 192-223 128-191
 UTF8 : 3 : 224-239 128-191 128-191
 */
 
-	// } Í¨ÓÃÎÄ±¾¶ÁÈ¡£¬Ğ´Èë
+	// } é€šç”¨æ–‡æœ¬è¯»å–ï¼Œå†™å…¥
 
 
-//	public static void createTxtFile(File txtFile, String cc) { // ´´½¨TxtÎÄ¼ş
+//	public static void createTxtFile(File txtFile, String cc) { // åˆ›å»ºTxtæ–‡ä»¶
 //		try {
 //			txtFile.createNewFile();
 //			FileOutputStream outImgStream = new FileOutputStream(txtFile);
@@ -204,13 +204,13 @@ UTF8 : 3 : 224-239 128-191 128-191
 
 	public static boolean deleteDir(File dir) {
 		if (dir.isDirectory()) {
-			String[] children = dir.list(); // µİ¹éÉ¾³ıÄ¿Â¼ÖĞµÄ×ÓÄ¿Â¼ÏÂ
+			String[] children = dir.list(); // é€’å½’åˆ é™¤ç›®å½•ä¸­çš„å­ç›®å½•ä¸‹
 			for (int i = 0; i < children.length; i++) {
 				if (! deleteDir(new File(dir, children[i])) ) {
 					return false;
 				}
 			}
-		} // Ä¿Â¼´ËÊ±Îª¿Õ£¬¿ÉÒÔÉ¾³ı
+		} // ç›®å½•æ­¤æ—¶ä¸ºç©ºï¼Œå¯ä»¥åˆ é™¤
 		boolean bDeleted = false ;
 		try {
 			bDeleted = dir.delete();
@@ -221,37 +221,37 @@ UTF8 : 3 : 224-239 128-191 128-191
 	}
 
 	/**
-	 * ¸ù¾İÂ·¾¶É¾³ıÖ¸¶¨µÄÄ¿Â¼»òÎÄ¼ş£¬ÎŞÂÛ´æÔÚÓë·ñ
+	 * æ ¹æ®è·¯å¾„åˆ é™¤æŒ‡å®šçš„ç›®å½•æˆ–æ–‡ä»¶ï¼Œæ— è®ºå­˜åœ¨ä¸å¦
 	 *
-	 * @param sPath ÒªÉ¾³ıµÄÄ¿Â¼»òÎÄ¼ş
-	 * @return É¾³ı³É¹¦·µ»Ø true£¬·ñÔò·µ»Ø false¡£
+	 * @param sPath è¦åˆ é™¤çš„ç›®å½•æˆ–æ–‡ä»¶
+	 * @return åˆ é™¤æˆåŠŸè¿”å› trueï¼Œå¦åˆ™è¿”å› falseã€‚
 	 */
 //	public static boolean DeleteFolder(String sPath) {
 //		boolean flag = false;
 //		File file = new File(sPath);
-//		// ÅĞ¶ÏÄ¿Â¼»òÎÄ¼şÊÇ·ñ´æÔÚ
-//		if (!file.exists()) {  // ²»´æÔÚ·µ»Ø false
+//		// åˆ¤æ–­ç›®å½•æˆ–æ–‡ä»¶æ˜¯å¦å­˜åœ¨
+//		if (!file.exists()) {  // ä¸å­˜åœ¨è¿”å› false
 //			return flag;
 //		} else {
-//			// ÅĞ¶ÏÊÇ·ñÎªÎÄ¼ş
-//			if (file.isFile()) {  // ÎªÎÄ¼şÊ±µ÷ÓÃÉ¾³ıÎÄ¼ş·½·¨
+//			// åˆ¤æ–­æ˜¯å¦ä¸ºæ–‡ä»¶
+//			if (file.isFile()) {  // ä¸ºæ–‡ä»¶æ—¶è°ƒç”¨åˆ é™¤æ–‡ä»¶æ–¹æ³•
 //				return deleteFile(sPath);
-//			} else {  // ÎªÄ¿Â¼Ê±µ÷ÓÃÉ¾³ıÄ¿Â¼·½·¨
+//			} else {  // ä¸ºç›®å½•æ—¶è°ƒç”¨åˆ é™¤ç›®å½•æ–¹æ³•
 //				return deleteDirectory(sPath);
 //			}
 //		}
 //	}
 
 	/**
-	 * É¾³ıµ¥¸öÎÄ¼ş
+	 * åˆ é™¤å•ä¸ªæ–‡ä»¶
 	 *
-	 * @param sPath ±»É¾³ıÎÄ¼şµÄÎÄ¼şÃû
-	 * @return µ¥¸öÎÄ¼şÉ¾³ı³É¹¦·µ»Øtrue£¬·ñÔò·µ»Øfalse
+	 * @param sPath è¢«åˆ é™¤æ–‡ä»¶çš„æ–‡ä»¶å
+	 * @return å•ä¸ªæ–‡ä»¶åˆ é™¤æˆåŠŸè¿”å›trueï¼Œå¦åˆ™è¿”å›false
 	 */
 //	public static boolean deleteFile(String sPath) {
 //		boolean flag = false;
 //		File file = new File(sPath);
-//		// Â·¾¶ÎªÎÄ¼şÇÒ²»Îª¿ÕÔò½øĞĞÉ¾³ı
+//		// è·¯å¾„ä¸ºæ–‡ä»¶ä¸”ä¸ä¸ºç©ºåˆ™è¿›è¡Œåˆ é™¤
 //		if (file.isFile() && file.exists()) {
 //			file.delete();
 //			flag = true;
@@ -260,32 +260,32 @@ UTF8 : 3 : 224-239 128-191 128-191
 //	}
 
 	/**
-	 * É¾³ıÄ¿Â¼£¨ÎÄ¼ş¼Ğ£©ÒÔ¼°Ä¿Â¼ÏÂµÄÎÄ¼ş
+	 * åˆ é™¤ç›®å½•ï¼ˆæ–‡ä»¶å¤¹ï¼‰ä»¥åŠç›®å½•ä¸‹çš„æ–‡ä»¶
 	 *
-	 * @param sPath ±»É¾³ıÄ¿Â¼µÄÎÄ¼şÂ·¾¶
-	 * @return Ä¿Â¼É¾³ı³É¹¦·µ»Øtrue£¬·ñÔò·µ»Øfalse
+	 * @param sPath è¢«åˆ é™¤ç›®å½•çš„æ–‡ä»¶è·¯å¾„
+	 * @return ç›®å½•åˆ é™¤æˆåŠŸè¿”å›trueï¼Œå¦åˆ™è¿”å›false
 	 */
 //	public static boolean deleteDirectory(String sPath) {
-//		//Èç¹ûsPath²»ÒÔÎÄ¼ş·Ö¸ô·û½áÎ²£¬×Ô¶¯Ìí¼ÓÎÄ¼ş·Ö¸ô·û
+//		//å¦‚æœsPathä¸ä»¥æ–‡ä»¶åˆ†éš”ç¬¦ç»“å°¾ï¼Œè‡ªåŠ¨æ·»åŠ æ–‡ä»¶åˆ†éš”ç¬¦
 //		if (!sPath.endsWith(File.separator)) {
 //			sPath = sPath + File.separator;
 //		}
 //		File dirFile = new File(sPath);
-//		//Èç¹ûdir¶ÔÓ¦µÄÎÄ¼ş²»´æÔÚ£¬»òÕß²»ÊÇÒ»¸öÄ¿Â¼£¬ÔòÍË³ö
+//		//å¦‚æœdirå¯¹åº”çš„æ–‡ä»¶ä¸å­˜åœ¨ï¼Œæˆ–è€…ä¸æ˜¯ä¸€ä¸ªç›®å½•ï¼Œåˆ™é€€å‡º
 //		if (!dirFile.exists() || !dirFile.isDirectory()) {
 //			return false;
 //		}
 //		boolean flag = true;
-//		//É¾³ıÎÄ¼ş¼ĞÏÂµÄËùÓĞÎÄ¼ş(°üÀ¨×ÓÄ¿Â¼)
+//		//åˆ é™¤æ–‡ä»¶å¤¹ä¸‹çš„æ‰€æœ‰æ–‡ä»¶(åŒ…æ‹¬å­ç›®å½•)
 //		File[] files = dirFile.listFiles();
 //		for (int i = 0; i < files.length; i++) {
-//			//É¾³ı×ÓÎÄ¼ş
+//			//åˆ é™¤å­æ–‡ä»¶
 //			if (files[i].isFile()) {
 //				flag = deleteFile(files[i].getAbsolutePath());
 //				if (!flag) {
 //					break;
 //				}
-//			} //É¾³ı×ÓÄ¿Â¼
+//			} //åˆ é™¤å­ç›®å½•
 //			else {
 //				flag = deleteDirectory(files[i].getAbsolutePath());
 //				if (!flag) {
@@ -296,7 +296,7 @@ UTF8 : 3 : 224-239 128-191 128-191
 //		if (!flag) {
 //			return false;
 //		}
-//		//É¾³ıµ±Ç°Ä¿Â¼
+//		//åˆ é™¤å½“å‰ç›®å½•
 //		if (dirFile.delete()) {
 //			return true;
 //		} else {
@@ -304,7 +304,7 @@ UTF8 : 3 : 224-239 128-191 128-191
 //		}
 //	}
 
-//	public static void copyFileSlow(File fromFile, File toFile) { // Õâ¸ö¸´ÖÆ·½·¨±È½ÏÂı
+//	public static void copyFileSlow(File fromFile, File toFile) { // è¿™ä¸ªå¤åˆ¶æ–¹æ³•æ¯”è¾ƒæ…¢
 //		try {
 //			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(fromFile));
 //			BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(toFile));
@@ -319,7 +319,7 @@ UTF8 : 3 : 224-239 128-191 128-191
 //		}
 //	}
 
-	public static long copyFile(File fromFile, File toFile) { // Ê¹ÓÃchannel¸´ÖÆ¸ü¿ì£¬ÓÈÆäÊÇ´óÎÄ¼ş¸üÃ÷ÏÔ
+	public static long copyFile(File fromFile, File toFile) { // ä½¿ç”¨channelå¤åˆ¶æ›´å¿«ï¼Œå°¤å…¶æ˜¯å¤§æ–‡ä»¶æ›´æ˜æ˜¾
 		FileInputStream fis = null;
 		FileOutputStream fos = null;
 		FileChannel in = null;
@@ -330,7 +330,7 @@ UTF8 : 3 : 224-239 128-191 128-191
 			fos = new FileOutputStream(toFile);
 			in = fis.getChannel();
 			out = fos.getChannel();
-			in.transferTo(0, in.size(), out); //Á¬½ÓÁ½¸öÍ¨µÀ£¬²¢ÇÒ´ÓinÍ¨µÀ¶ÁÈ¡£¬È»ºóĞ´ÈëoutÍ¨µÀ
+			in.transferTo(0, in.size(), out); //è¿æ¥ä¸¤ä¸ªé€šé“ï¼Œå¹¶ä¸”ä»iné€šé“è¯»å–ï¼Œç„¶åå†™å…¥outé€šé“
 		} catch (Exception e) {
 			System.err.println(e.toString());
 		} finally {
@@ -350,7 +350,7 @@ UTF8 : 3 : 224-239 128-191 128-191
 	public static boolean renameIfExist(File tarFile) {
 		return renameIfExist(tarFile, ".old");
 	}
-	public static boolean renameIfExist(File tarFile, String addSuffix) { // Èç¹ûÄ¿±êÎÄ¼ş´æÔÚ¾ÍÖØÃüÃû£¬Èç¹ûĞÂÃûÎÄ¼şÒ²´æÔÚ¾ÍÉ¾³ıÏÈ
+	public static boolean renameIfExist(File tarFile, String addSuffix) { // å¦‚æœç›®æ ‡æ–‡ä»¶å­˜åœ¨å°±é‡å‘½åï¼Œå¦‚æœæ–°åæ–‡ä»¶ä¹Ÿå­˜åœ¨å°±åˆ é™¤å…ˆ
 		if ( tarFile.exists() ) {
 			File newFile = new File(tarFile.getPath() + addSuffix);
 			if ( newFile.exists() )
@@ -360,7 +360,7 @@ UTF8 : 3 : 224-239 128-191 128-191
 		return true;
 	}
 
-	// ½« IP ×ªÎª ¹ã²¥ip: ÀıÈç: 192.168.1.22 -> 192.168.1.255
+	// å°† IP è½¬ä¸º å¹¿æ’­ip: ä¾‹å¦‚: 192.168.1.22 -> 192.168.1.255
 	public static String ip2bip(String iIPStr) {
 		String ipHead = "";
 		String RE = "^([0-9]*\\.[0-9]*\\.[0-9]*)\\.([0-9]*)$";
@@ -377,7 +377,7 @@ UTF8 : 3 : 224-239 128-191 128-191
 	/**
 	 *
 	 * @param file
-	 * @param algorithm ËùÇëÇóËã·¨µÄÃû³Æ  for example: MD5, SHA1, SHA-256, SHA-384, SHA-512 etc.
+	 * @param algorithm æ‰€è¯·æ±‚ç®—æ³•çš„åç§°  for example: MD5, SHA1, SHA-256, SHA-384, SHA-512 etc.
 	 * @return
 	 */
 	public static String getFileHash(File file, String algorithm) {

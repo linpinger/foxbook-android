@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">FoxBook</string>
-    <drawable name="showpage_popup_bakcround">#00000000</drawable>
 </resources>

@@ -27,7 +27,7 @@ public class Activity_BookInfo extends Activity {
 
 	SharedPreferences settings;
 
-	private void init_controls() { // ³õÊ¼»¯¸÷¿Ø¼ş
+	private void init_controls() { // åˆå§‹åŒ–å„æ§ä»¶
 		tv_bid = (TextView) findViewById(R.id.tv_bid);
 		edt_bname = (EditText) findViewById(R.id.edt_bname);
 		edt_bauthor = (EditText) findViewById(R.id.edt_bauthor);
@@ -39,10 +39,10 @@ public class Activity_BookInfo extends Activity {
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void showHomeUp() {
-		getActionBar().setDisplayHomeAsUpEnabled(true); // ±êÌâÀ¸ÖĞÌí¼Ó·µ»ØÍ¼±ê
+		getActionBar().setDisplayHomeAsUpEnabled(true); // æ ‡é¢˜æ ä¸­æ·»åŠ è¿”å›å›¾æ ‡
 	}
 
-	public void onCreate(Bundle savedInstanceState) { // ½çÃæ³õÊ¼»¯
+	public void onCreate(Bundle savedInstanceState) { // ç•Œé¢åˆå§‹åŒ–
 		settings = PreferenceManager.getDefaultSharedPreferences(this);
 		if ( settings.getBoolean("isWhiteActionBar", false) )
 			this.setTheme(android.R.style.Theme_DeviceDefault_Light);
@@ -51,15 +51,15 @@ public class Activity_BookInfo extends Activity {
 		setContentView(R.layout.activity_bookinfo);
 
 		showHomeUp();
-		init_controls() ; // ³õÊ¼»¯¸÷¿Ø¼ş
+		init_controls() ; // åˆå§‹åŒ–å„æ§ä»¶
 
 		this.nm = ((FoxApp)this.getApplication()).nm ;
 
-		// Í¨¹ıintent»ñÈ¡Êı¾İ
+		// é€šè¿‡intentè·å–æ•°æ®
 		bookIDX = getIntent().getIntExtra(NV.BookIDX, -1);
 		Map<String, Object> info = nm.getBookInfo(bookIDX);
 
-		// ÏÔÊ¾Êı¾İ
+		// æ˜¾ç¤ºæ•°æ®
 		tv_bid.setText(String.valueOf(bookIDX)) ;
 		edt_bname.setText(info.get(NV.BookName).toString()) ;
 		edt_bauthor.setText(info.get(NV.BookAuthor).toString()) ;
@@ -76,14 +76,14 @@ public class Activity_BookInfo extends Activity {
 		return true;
 	}
 
-	public boolean onOptionsItemSelected(MenuItem item) { // ÏìÓ¦Ñ¡Ôñ²Ëµ¥µÄ¶¯×÷
+	public boolean onOptionsItemSelected(MenuItem item) { // å“åº”é€‰æ‹©èœå•çš„åŠ¨ä½œ
 		switch (item.getItemId()) {
 		case R.id.bi_getQDidFromURL:
 			String url_now = edt_burl.getText().toString();
 			if ( url_now.contains(".qidian.com/") ) {
 				edt_qdid.setText(new SiteQiDian().getBookID_FromURL(url_now));
 			} else {
-				foxtip("URL²»°üº¬ .qidian.com/");
+				foxtip("URLä¸åŒ…å« .qidian.com/");
 			}
 			break;
 		case R.id.bi_clearDelURL:
@@ -92,36 +92,36 @@ public class Activity_BookInfo extends Activity {
 		case R.id.bi_copyBookName:
 			String bn = edt_bname.getText().toString();
 			ToolAndroid.setClipText(bn, this);
-			foxtip("¼ôÌù°å: " + bn);
+			foxtip("å‰ªè´´æ¿: " + bn);
 			break;
 		case R.id.bi_copyBookAuthor:
 			String ba = edt_bauthor.getText().toString();
 			ToolAndroid.setClipText(ba, this);
-			foxtip("¼ôÌù°å: " + ba);
+			foxtip("å‰ªè´´æ¿: " + ba);
 			break;
 		case R.id.bi_copyQidianID:
 			String bq = edt_qdid.getText().toString();
 			ToolAndroid.setClipText(bq, this);
-			foxtip("¼ôÌù°å: " + bq);
+			foxtip("å‰ªè´´æ¿: " + bq);
 			break;
-		case R.id.bi_copyURL: // ¸´ÖÆ
+		case R.id.bi_copyURL: // å¤åˆ¶
 			String bu = edt_burl.getText().toString();
 			ToolAndroid.setClipText(bu, this);
-			foxtip("¼ôÌù°å: " + bu);
+			foxtip("å‰ªè´´æ¿: " + bu);
 			break;
-		case R.id.bi_copyALL: // ¸´ÖÆÈ«²¿
+		case R.id.bi_copyALL: // å¤åˆ¶å…¨éƒ¨
 			String fbs = "FoxBook>" + edt_bname.getText().toString() + ">"
 					+ edt_bauthor.getText().toString() + ">"
 					+ edt_qdid.getText().toString() + ">"
 					+ edt_burl.getText().toString() + ">"
 					+ edt_delurl.getText().toString();
 			ToolAndroid.setClipText(fbs, this);
-			foxtip("¼ôÌù°å: " + fbs);
+			foxtip("å‰ªè´´æ¿: " + fbs);
 			break;
-		case R.id.bi_pasteALL: // Õ³ÌùÈ«²¿
+		case R.id.bi_pasteALL: // ç²˜è´´å…¨éƒ¨
 			String nowfbs = ToolAndroid.getClipText(this);
 			if ( ! nowfbs.contains("FoxBook>") ) {
-				foxtip("¼ôÌù°åÖĞµÄÄÚÈİ¸ñÊ½²»¶ÔÓ´");
+				foxtip("å‰ªè´´æ¿ä¸­çš„å†…å®¹æ ¼å¼ä¸å¯¹å“Ÿ");
 				break;
 			}
 			String xx[] = nowfbs.split(">");
@@ -130,18 +130,18 @@ public class Activity_BookInfo extends Activity {
 			edt_qdid.setText(xx[3]);
 			if ( edt_burl.getText().toString().contains("http") ) {
 				ToolAndroid.setClipText(xx[4], this);
-				foxtip("¼ôÌù°å: " + xx[4]);
+				foxtip("å‰ªè´´æ¿: " + xx[4]);
 			} else {
 				edt_burl.setText(xx[4]);
 				edt_delurl.setText(xx[5]);
 			}
 			break;
-		case R.id.bi_pasteBookName: // Õ³Ìù
+		case R.id.bi_pasteBookName: // ç²˜è´´
 			edt_bname.setText(ToolAndroid.getClipText(this));
 			break;
 		case R.id.bi_pasteBookAuthor:
 			edt_bauthor.setText(ToolAndroid.getClipText(this));
-			foxtip("Èô×÷ÕßÁô¿Õ£¬±íÊ¾ÊÇĞÂÊé£¬¸üĞÂÊ±²»»áÖ»ÏÂÔØ×îºó55ÕÂ");
+			foxtip("è‹¥ä½œè€…ç•™ç©ºï¼Œè¡¨ç¤ºæ˜¯æ–°ä¹¦ï¼Œæ›´æ–°æ—¶ä¸ä¼šåªä¸‹è½½æœ€å55ç« ");
 			break;
 		case R.id.bi_pasteQidianID:
 			edt_qdid.setText(ToolAndroid.getClipText(this));
@@ -149,7 +149,7 @@ public class Activity_BookInfo extends Activity {
 		case R.id.bi_pasteURL:
 			edt_burl.setText(ToolAndroid.getClipText(this));
 			break;
-		case android.R.id.home: // ·µ»ØÍ¼±ê
+		case android.R.id.home: // è¿”å›å›¾æ ‡
 			onBackPressed();
 			break;
 		case R.id.bi_save_exit:
@@ -169,12 +169,12 @@ public class Activity_BookInfo extends Activity {
 	}
 
 	@Override
-	public void onBackPressed() { // ·µ»Ø¼ü±»°´
+	public void onBackPressed() { // è¿”å›é”®è¢«æŒ‰
 		setResult(RESULT_OK);
 		finish();
 	}
 
-	private void foxtip(String sinfo) { // ToastÏûÏ¢
+	private void foxtip(String sinfo) { // Toastæ¶ˆæ¯
 		Toast.makeText(getApplicationContext(), sinfo, Toast.LENGTH_SHORT).show();
 	}
 }

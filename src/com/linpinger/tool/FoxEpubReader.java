@@ -12,7 +12,7 @@ public class FoxEpubReader extends FoxZipReader {
 		super(inEpub);
 	}
 
-//	public String getOPFName() { // Ä¾ÓĞÓÃµ½
+//	public String getOPFName() { // æœ¨æœ‰ç”¨åˆ°
 //		String xml = getTextFile("META-INF/container.xml");
 //		Matcher mat = Pattern.compile("(?smi)<rootfile .*?full-path=\"([^\" ]*?)\"").matcher(xml);
 //		while (mat.find())
@@ -23,7 +23,7 @@ public class FoxEpubReader extends FoxZipReader {
 	public HashMap<String, Object> getQiDianEpubInfo() {
 		HashMap<String, Object> hm = new HashMap<String, Object>() ;
 		String html = getTextFile("title.xhtml");
-		Matcher mat = Pattern.compile("(?smi)<li><b>ÊéÃû</b>£º<a href=\"http://([0-9]*).qidian.com[^>]*?>([^<]*?)</a>.*<li><b>×÷Õß</b>£º<a[^>]*?>([^<]*?)</a>.*<li><b>Ö÷Ìâ</b>£º([^<]*?)<.*<li><b>¼ò½é</b>£º<pre>(.*)</pre>").matcher(html);
+		Matcher mat = Pattern.compile("(?smi)<li><b>ä¹¦å</b>ï¼š<a href=\"http://([0-9]*).qidian.com[^>]*?>([^<]*?)</a>.*<li><b>ä½œè€…</b>ï¼š<a[^>]*?>([^<]*?)</a>.*<li><b>ä¸»é¢˜</b>ï¼š([^<]*?)<.*<li><b>ç®€ä»‹</b>ï¼š<pre>(.*)</pre>").matcher(html);
 		while (mat.find()) {
 			hm.put("qidianid", mat.group(1));
 			hm.put("bookname", mat.group(2));
@@ -37,7 +37,7 @@ public class FoxEpubReader extends FoxZipReader {
 	public ArrayList<HashMap<String, Object>> getQiDianEpubTOC() {
 		ArrayList<HashMap<String, Object>> xx = new ArrayList<HashMap<String, Object>>(80);
 		String html = getTextFile("catalog.html");
-		// <a href="content1004074281_325666373.html">Ğ¨×Ó</a>
+		// <a href="content1004074281_325666373.html">æ¥”å­</a>
 		Matcher mat = Pattern.compile("(?smi)<a href=\"(content([0-9]*)_([0-9]*).html)\">([^<]*)</a>").matcher(html);
 		HashMap<String, Object> hm ;
 		while (mat.find()) {
@@ -57,11 +57,11 @@ public class FoxEpubReader extends FoxZipReader {
 		Matcher mat = Pattern.compile("(?smi)<div class=\"content\">[\r\n]*(.*?)</div>").matcher(html);
 		while (mat.find())
 			txt = mat.group(1);
-		txt = txt.replace("<p>ÊÖ»úÓÃ»§Çëµ½m.qidian.comÔÄ¶Á¡£</p>", "")
-				.replace("<p>ÊÖ»úÔÄ¶ÁÆ÷¡¢¿´Êé¸ü·½±ã¡£¡¾<a href=\"http://download.qidian.com/apk/QDReader.apk?k=e\" target=\"_blank\">°²×¿°æ</a>¡¿</p>", "");
+		txt = txt.replace("<p>æ‰‹æœºç”¨æˆ·è¯·åˆ°m.qidian.comé˜…è¯»ã€‚</p>", "")
+				.replace("<p>æ‰‹æœºé˜…è¯»å™¨ã€çœ‹ä¹¦æ›´æ–¹ä¾¿ã€‚ã€<a href=\"http://download.qidian.com/apk/QDReader.apk?k=e\" target=\"_blank\">å®‰å“ç‰ˆ</a>ã€‘</p>", "");
 		txt = txt.replace("\r", "")
-				.replace("\n¡¡¡¡", "\n")
-				.replace("<br />¡¡¡¡", "\n")
+				.replace("\nã€€ã€€", "\n")
+				.replace("<br />ã€€ã€€", "\n")
 				.replace("<p>", "")
 				.replace("</p>", "\n")
 				.replace("\n\n", "\n");
