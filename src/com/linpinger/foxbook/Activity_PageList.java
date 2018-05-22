@@ -104,9 +104,15 @@ public class Activity_PageList extends Ext_ListActivity_4Eink {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) { // 初始化 单击 条目 的行为
+		if ( ToolAndroid.isEink() ) {
+			if ( clickX > lv_pagelist.getWidth() * 0.7 ) { // 右边退出
+				onBackPressed();
+				return ;
+			}
+		}
+
 		Map<String, Object> page = (HashMap<String, Object>) l.getItemAtPosition(position);
 
 		Intent itt = new Intent(Activity_PageList.this, Activity_ShowPage4Eink.class);
@@ -248,13 +254,6 @@ switch (ittAction) {
 			public boolean onItemLongClick(AdapterView<?> adptv, View view, int position, long id) {
 				if ( isOnLine ) {
 					return true ; // 在线的就不显示menu
-				}
-
-				if ( ToolAndroid.isEink() ) {
-					if ( clickX > lv_pagelist.getWidth() * 0.7 ) { // 右边退出
-						onBackPressed();
-						return true;
-					}
 				}
 
 				posLongClick = position;
