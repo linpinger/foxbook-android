@@ -60,7 +60,6 @@ public class Activity_ShowPage4Eink extends Activity {
 		isProcessLongOneLine = settings.getBoolean("isProcessLongOneLine", isProcessLongOneLine);
 		isAdd2CNSpaceBeforeLine = settings.getBoolean("isAdd2CNSpaceBeforeLine", isAdd2CNSpaceBeforeLine);
 
-		this.nm = ((FoxApp)this.getApplication()).nm;
 
 		mv = new FoxTextView(this); // 自定义View
 		mv.setBodyBold(settings.getBoolean("isBodyBold", false));
@@ -159,6 +158,14 @@ public class Activity_ShowPage4Eink extends Activity {
 		ittAction = itt.getIntExtra(AC.action, 0); // 必需 表明动作
 		bookIDX = itt.getIntExtra(NV.BookIDX, -1);
 		pageIDX = itt.getIntExtra(NV.PageIDX, -1);
+
+		if ( ittAction == 99 ) { // 99用来传递title, content供其他应用直接调用
+			mv.setText(itt.getStringExtra("title"), "　　" + itt.getStringExtra("content").replace("\n", "\n　　"), "从其他应用传来的内容");
+			return;
+		} else {
+			this.nm = ((FoxApp)this.getApplication()).nm;
+		}
+
 		if ( ittAction == AC.aShowPageInMem ) { // 1024DB3
 			if ( nm.getBookInfo(bookIDX).get(NV.BookURL).toString().contains("zip://") )
 				ittAction = AC.aShowPageInZip1024 ;
