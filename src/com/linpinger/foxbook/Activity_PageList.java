@@ -107,7 +107,7 @@ public class Activity_PageList extends Ext_ListActivity_4Eink {
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) { // 初始化 单击 条目 的行为
 		if ( ToolAndroid.isEink() ) {
-			if ( clickX > lv_pagelist.getWidth() * 0.7 ) { // 右边退出
+			if ( clickX < lv_pagelist.getWidth() * 0.25 ) { // 左边退出
 				onBackPressed();
 				return ;
 			}

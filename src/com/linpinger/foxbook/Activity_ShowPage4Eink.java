@@ -3,6 +3,7 @@ package com.linpinger.foxbook;
 import java.io.File;
 import java.io.LineNumberReader;
 import java.io.StringReader;
+import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +16,7 @@ import com.linpinger.novel.Site1024;
 import com.linpinger.tool.Activity_FileChooser;
 import com.linpinger.tool.FoxZipReader;
 import com.linpinger.tool.ToolAndroid;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -107,11 +109,11 @@ public class Activity_ShowPage4Eink extends Activity {
 						mv.postInvalidate();
 					}
 				} else {
-					if ( ToolAndroid.isEink() ) {
-						showEinkPopupWindow(v); // e-ink 底部弹出一行字，方便刷新及弹出窗口
-					} else {
+//					if ( ToolAndroid.isEink() ) {
+//						showEinkPopupWindow(v); // e-ink 底部弹出一行字，方便刷新及弹出窗口
+//					} else {
 						mv.clickPrev(); // 手机显示上一屏
-					}
+//					}
 				}
 				return true;
 			}
@@ -417,7 +419,7 @@ switch (ittAction) {
 		isMenuShow = true;
 		// 有个小bug不知道怎么排除: 按menu键: 显示，消失，显示，显示，消失，显显消...
 	}
-
+/*
 	private void showEinkPopupWindow(View view) {
 
 		// 一个自定义的布局，作为显示的内容
@@ -452,7 +454,6 @@ switch (ittAction) {
 			}
 		});
 
-
 		// 如果不设置PopupWindow的背景，无论是点击外部区域还是Back键都无法dismiss弹框
 		// 我觉得这里是API的一个bug
 		popupWindow.setBackgroundDrawable(new ColorDrawable(0));
@@ -465,6 +466,7 @@ switch (ittAction) {
 //		popupWindow.showAtLocation(view, Gravity.NO_GRAVITY, 0, location[1]); // 左上角
 		popupWindow.showAtLocation(view, Gravity.BOTTOM|Gravity.CENTER, 0, 0); // 底部中间
 	}
+*/
 
 	private class FoxTextView extends Ext_View_FoxTextView {
 		public FoxTextView(Context context) {
@@ -520,15 +522,43 @@ switch (ittAction) {
 			}
 			return 0;
 		}
-	
+
 		@Override
 		public int setPrevText() {
 			return setPrevOrNextText(false); // 上一
 		}
-	
+
 		@Override
 		public int setNextText() {
 			return setPrevOrNextText(true); // 下一
+		}
+
+		@Override
+		public void clickPrev() {
+			super.clickPrev();
+			if ( ToolAndroid.isEink() ) {
+				c67ml_FullRefresh(this);
+			}
+		}
+
+		@Override
+		public void clickNext() {
+			super.clickNext();
+			if ( ToolAndroid.isEink() ) {
+				c67ml_FullRefresh(this);
+			}
+		}
+
+	}
+
+	void c67ml_FullRefresh(View view) { // 全刷 for Boox C67ML Carta, RK3026Device.class, Mode=4, EpdController.invalidate(this, UpdateMode.GC);
+		try {
+			Class<Enum> ce = (Class<Enum>) Class.forName("android.view.View$EINK_MODE");
+			Method mtd = View.class.getMethod("requestEpdMode", new Class[] { ce });
+			mtd.invoke(view, new Object[] { Enum.valueOf(ce, "EPD_FULL") });
+			view.invalidate();
+		} catch (Exception e) {
+			System.err.println(e.toString());
 		}
 	}
 

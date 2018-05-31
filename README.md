@@ -43,7 +43,21 @@
 - 2016-8-24: 在/sdcard/fonts/目录下，可放上 foxfont.ttf，然后在阅读页中使用字体，可在设置中选择新字体路径
 - 2016-8-31: 新阅读页，屏幕上三分之一从左到右分为三份，下面为向下翻页，左上为返回，中上为向上翻页，右上为上下文菜单，长按阅读页也可显示上下文菜单
 
+**2018-05-30: 添加 onyx sdk 实现全刷**
+- 通过: https://github.com/onyx-intl/public-wiki/blob/master/README.md 发现需要 `com.onyx.android.sdk:onyxsdk-base`
+- 搜索得到: https://bintray.com/onyx-intl/maven/onyxsdk-base  ，下载得到: `onyxsdk-base-1.4.3.13.aar`
+- 解压，将.jar命名为 `onyxsdk-base-1.4.3.13.jar`
+- 将这个.jar包含进工程就可以调用 `EpdController.invalidate(myView, UpdateMode.GC);` 来全刷
+- 发现apk中包含.jar，以及.dex太大了，得改进将.jar包含的方式
+- 解压.jar到lib文件夹中，然后Eclipse项目的Properties->Java Build Path->Libraries标签下Add Class Folder，然后将Order And Export标签下的lib文件夹选中
+- 这次没有.jar了，小了一些，但是还是太大，因为感觉这个class用得比较少，应该可以精简
+- 搜索`class 依赖分析` 找到: `Class Dependency Analyzer (CDA) 2.2.0` http://www.dependency-analyzer.org/
+- 按照它的操作，分析jar包，找到EpdController这个类依赖的所有类，然后将其他删除，就得到最小的依赖，果然编译通过，运行正常，整个APK包大了40K左右，可以接受
+- 如果能获取它的源码包，理论上应该还可以减得更小
+
 **更新日志:**
+- 2018-05-31: 修改: 反编译.class得到实际全刷代码 RK3026Device.class
+- 2018-05-30: 添加: onyx全刷，在翻页的时候
 - 2018-05-23: 修改: 阅读页，方便其他调用
 - 2018-05-22: 修改: eink长按退出改单击
 - 2018-05-21: 修改: 项目文件编码为UTF-8，长按不同位置有惊喜，使用popupWindow替换optionsMenu，使用alertDialog替换contextMenu，避免7.x中出现问题
