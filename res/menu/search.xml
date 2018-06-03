@@ -3,7 +3,7 @@
 
     <!--
         android:icon="@android:drawable/ic_popup_sync"
-        android:showAsAction="always"
+        android:showAsAction="always"
     -->
     <item
         android:id="@+id/sm_QuickSearchQidian"
@@ -18,16 +18,28 @@
         android:id="@+id/sm_QuickSearchYahoo"
         android:title="快速搜索:雅虎"/>
     <item
+        android:id="@+id/link_baidu"
+        android:title="打开: 百度"/>
+    <item
+        android:id="@+id/sm_copySiteStr"
+        android:title="复制定向字符串到剪贴板"/>
+    <item
+        android:id="@+id/sm_copyTmpStr"
+        android:title="复制临时字符串到剪贴板"/>
+    <item
+        android:id="@+id/sm_copyURL"
+        android:title="复制当前网址到剪贴板"/>
+    <item
         android:id="@+id/link_qidian_mtop"
         android:title="打开: 起点排行m"/>
     <item
         android:id="@+id/link_qidian_dtop"
         android:title="打开: 起点排行"/>
     <item
-        android:id="@+id/sm_copyURL"
-        android:title="复制当前网址到剪贴板"/>
-    <item
         android:id="@+id/sm_downQDEpub"
         android:title="下载起点Epub"/>
+    <item
+        android:id="@+id/sm_cleanAppCache"
+        android:title="清理本应用缓存"/>
 
 </menu>

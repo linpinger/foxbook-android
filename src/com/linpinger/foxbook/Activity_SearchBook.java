@@ -21,16 +21,21 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
+
 import java.io.UnsupportedEncodingException;
 import java.lang.String;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 
 import com.linpinger.novel.NV;
+import com.linpinger.novel.NovelManager;
 import com.linpinger.novel.SiteQiDian;
 import com.linpinger.tool.ToolAndroid;
 import com.linpinger.tool.ToolBookJava;
+import com.linpinger.tool.ToolJava;
 /*
 Activity_PageList : msg IS_GETQIDIANURL -> Runnable:GetQidianURL : 选项: 快搜:qidian : aSearchBookOnQiDian, bookname, bookurl
 Activity_PageList : 预览按钮 : aSearchBookOnNet, bookname, bookurl
@@ -41,6 +46,7 @@ Activity_QuickSearch : 选项菜单:yahoo : BookName, searchEngine
 */
 public class Activity_SearchBook extends Activity {
 
+	private String tmpClipBoardText = "";
 	private int ittAction = 0 ; // 传入的数据
 	private long mExitTime ;
 	private WebView wv;
@@ -115,24 +121,37 @@ public class Activity_SearchBook extends Activity {
 
 		// 说明
 //		wv.getSettings().setDefaultTextEncodingName("UTF-8");
-		String html = "<!DOCTYPE html>\n<html>\n<head>\t<META http-equiv=Content-Type content=\"text/html; charset=utf-8\">\n<title>萌萌哒说明</title>\n</head>\n<body bgcolor=\"#eefaee\">\n<h2>说明:</h2>\n\n<h3>使用搜索引擎搜索:</h3>\n<ul>\n<li>输入要搜索的书名，按搜索按钮，然后在这里会显示搜索引擎结果</li>\n<li>点击链接直到目录页，然后按按钮“预”</li>\n</ul>\n\n<h3>使用快速搜索:</h3>\n<ul>\n<li>输入要搜索的书名</li>\n<li>按菜单键，在出来的菜单中选择一个搜索即可</li>\n</ul>\n\n<p>　如果出现列表正常的话，按加号添加书，之后按保存按钮</p>\n<p>　然后回到主界面即可看到新添加的书</p>\n\n</body>\n</html>" ;
+		String html = "<!DOCTYPE html>\n<html>\n<head>\t<META http-equiv=Content-Type content=\"text/html; charset=utf-8\">\n<title>萌萌哒说明</title>\n</head>\n<body bgcolor=\"#eefaee\">\n<h2>说明:</h2>\n\n<h3>使用搜索引擎搜索:</h3>\n<ul>\n<li>[输入要搜索的书名，]按搜索按钮，然后在这里会显示搜索引擎结果[此时长按搜索按钮，可以复制定向搜索字符串到剪贴板]，或者是排行榜</li>\n<li>点击链接直到目录页，然后按按钮“预”</li>\n</ul>\n\n<h3>使用快速搜索:</h3>\n<ul>\n<li>输入要搜索的书名</li>\n<li>按菜单键，在出来的菜单中选择一个搜索即可</li>\n</ul>\n\n<p>　如果出现列表正常的话，按加号添加书，之后按保存按钮</p>\n<p>　然后回到主界面即可看到新添加的书</p>\n\n</body>\n</html>" ;
 		wv.loadData(html, "text/html; charset=UTF-8", null);
 
 		btn_search.setOnClickListener(new OnClickListener() { // 点击按钮搜索 // 需要转换编码
 			public void onClick(View v) {
 				book_name = et.getText().toString();
 				if ( book_name.length() == 0 ) { // 当未输入书名，去排行看看
-					funcOpenTopQD(true);
-					return ;
+					tmpClipBoardText = ToolAndroid.getClipText(getApplicationContext());
+					if ( ! tmpClipBoardText.contains("FoxBook>") ) {
+						foxtip("剪贴板中的内容格式不对哟");
+						funcOpenTopQD(true);
+						return ;
+					} else {
+						String xx[] = tmpClipBoardText.split(">");
+						book_name = xx[1];
+						et.setText(book_name);
+					}
 				}
 				try {
 					wv.loadUrl("http://cn.bing.com/search?q=" + URLEncoder.encode(book_name, "UTF-8"));
 				} catch (UnsupportedEncodingException e) {
 					e.toString();
 				}
-
 			}
-
+		});
+		btn_search.setOnLongClickListener(new OnLongClickListener(){
+			@Override
+			public boolean onLongClick(View v) {
+				copyCurrentMainSiteStr();
+				return false;
+			}
 		});
 
 		handler = new Handler(new Handler.Callback() {
@@ -160,6 +179,7 @@ public class Activity_SearchBook extends Activity {
 				book_url = wv.getUrl();
 				if ( null != book_url ) {
 					setTitle(book_name + " <" + book_url + ">");
+					ToolAndroid.setClipText(tmpClipBoardText, getApplicationContext());
 					Intent intent = new Intent(Activity_SearchBook.this, Activity_PageList.class);
 					intent.putExtra(AC.action, AC.aSearchBookOnSite);
 					intent.putExtra(NV.BookURL, book_url);
@@ -181,6 +201,27 @@ public class Activity_SearchBook extends Activity {
 			(new Thread(new GetQidianURLFromBookName(book_name))).start() ;
 			break;
 		}
+	}
+	public void copyCurrentMainSiteStr() {
+		this.nm = ((FoxApp)this.getApplication()).nm ;
+		String mainBookURL = nm.getBookInfo(0).get(NV.BookURL).toString();
+		String urlHost = "";
+		try {
+			URL uu = new URL(mainBookURL);
+			urlHost = uu.getHost();
+			if ( urlHost.startsWith("www.") ) {
+				urlHost = urlHost.replace("www.", "");
+			} else if ( urlHost.startsWith("m.") ) {
+				urlHost = urlHost.replace("m.", "");
+			} else if ( urlHost.contains(".qidian.com") ) {
+				urlHost = "qidian.com";
+			}
+		} catch (Exception e) {
+			System.err.println(e.toString());
+		}
+		String siteStr = " site:" + urlHost ;
+		ToolAndroid.setClipText(siteStr, this);
+		foxtip("剪贴板:\n" + siteStr);
 	}
 
 	@Override
@@ -246,11 +287,26 @@ public class Activity_SearchBook extends Activity {
 		case R.id.link_qidian_dtop:
 			funcOpenTopQD(false);
 			break;
+		case R.id.link_baidu:
+			wv.getSettings().setJavaScriptEnabled(true) ; // 允许JS
+			wv.loadUrl("https://m.baidu.com");
+			break;
+		case R.id.sm_copyTmpStr:
+			ToolAndroid.setClipText(tmpClipBoardText, this);
+			foxtip("剪贴板:\n" + tmpClipBoardText);
+			break;
 		case R.id.sm_copyURL:
 			this.funcCopyURL();
 			break;
+		case R.id.sm_copySiteStr:
+			copyCurrentMainSiteStr();
+			break;
 		case R.id.sm_downQDEpub:
 			this.funcDownQDEbook();
+			break;
+		case R.id.sm_cleanAppCache:
+			boolean isCleanSuccess = ToolJava.deleteDir(this.getCacheDir());
+			foxtip("已清理缓存，成功：" + isCleanSuccess);
 			break;
 		}
 		return super.onOptionsItemSelected(item);
@@ -308,4 +364,6 @@ public class Activity_SearchBook extends Activity {
 	private void foxtip(String sinfo) { // Toast消息
 		Toast.makeText(getApplicationContext(), sinfo, Toast.LENGTH_SHORT).show();
 	}
+
+	private NovelManager nm;
 }
