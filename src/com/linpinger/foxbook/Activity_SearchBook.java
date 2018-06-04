@@ -150,7 +150,7 @@ public class Activity_SearchBook extends Activity {
 			@Override
 			public boolean onLongClick(View v) {
 				copyCurrentMainSiteStr();
-				return false;
+				return true;
 			}
 		});
 
