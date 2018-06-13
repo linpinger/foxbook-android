@@ -7,6 +7,9 @@
         android:showAsAction="always"
         android:title="保存书架并退出"/>
     <item
+        android:id="@+id/ebk_copyInfo"
+        android:title="复制本书信息到剪贴板"/>
+    <item
         android:id="@+id/jumplist_tobottom"
         android:icon="@android:drawable/stat_sys_download_done"
         android:title="跳到表尾"/>

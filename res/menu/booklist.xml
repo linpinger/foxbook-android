@@ -30,7 +30,8 @@
         android:title="按页数顺序排列"/>
     <!-- android:icon="@android:drawable/ic_menu_sort_alphabetically" -->
 
-<item android:id="@+id/action_refresh" android:title="刷新列表" /><item android:id="@+id/action_searchbook" android:title="搜索小说"/>
+    <item android:id="@+id/action_searchbook" android:title="搜索/添加小说" />
+    <item android:id="@+id/action_refresh" android:title="刷新列表" />
     <!-- android:icon="@android:drawable/ic_menu_search" -->
     <!-- android:icon="@android:drawable/ic_menu_manage" -->
     	

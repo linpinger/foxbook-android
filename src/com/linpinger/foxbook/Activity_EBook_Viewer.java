@@ -8,6 +8,8 @@ import java.util.Map;
 import com.linpinger.novel.NV;
 import com.linpinger.novel.NovelManager;
 import com.linpinger.tool.Ext_ListActivity_4Eink;
+import com.linpinger.tool.ToolAndroid;
+
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -151,6 +153,15 @@ public class Activity_EBook_Viewer extends Ext_ListActivity_4Eink {
 			nm.close();
 			this.finish();
 			System.exit(0);
+			break;
+		case R.id.ebk_copyInfo:
+			Map<String, Object> bk = nm.getBookInfo(0);
+			String fbs = "FoxBook>" + bk.get(NV.BookName).toString() + ">"
+					+ bk.get(NV.BookAuthor).toString() + ">"
+					+ bk.get(NV.QDID).toString() + ">"
+					+ bk.get(NV.BookURL) + ">" ;
+			ToolAndroid.setClipText(fbs, this);
+			foxtip("剪贴板: " + fbs);
 			break;
 		case R.id.jumplist_tobottom:
 			lv_pagelist.setSelection(adapter.getCount() - 1);

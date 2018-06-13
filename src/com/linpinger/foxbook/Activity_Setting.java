@@ -4,6 +4,7 @@ import java.io.File;
 
 import com.linpinger.tool.Activity_FileChooser;
 import com.linpinger.tool.ToolAndroid;
+import com.linpinger.tool.ToolJava;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
@@ -38,6 +39,10 @@ public class Activity_Setting extends PreferenceActivity {
 
 	@Override
 	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
+		if ( preference.getKey().equalsIgnoreCase("cleanCache") ) {
+			boolean isCleanSuccess = ToolJava.deleteDir(this.getCacheDir());
+			foxtip("已清理缓存，成功：" + isCleanSuccess);
+		}
 		if ( preference.getKey().equalsIgnoreCase("selectfont") ) {
 			Intent itt = new Intent(Activity_Setting.this, Activity_FileChooser.class);
 			itt.putExtra("dir", "/sdcard/fonts/");
@@ -46,12 +51,12 @@ public class Activity_Setting extends PreferenceActivity {
 		}
 		if ( preference.getKey().equalsIgnoreCase("exportEinkCFG") ) {
 			ToolAndroid.myConfigImportExPort(this, true);
-			Toast.makeText(this, "已导出到 FoxBook.cfg", Toast.LENGTH_SHORT).show();
+			foxtip("已导出到 FoxBook.cfg");
 			return true;
 		}
 		if ( preference.getKey().equalsIgnoreCase("importEinkCFG") ) {
 			ToolAndroid.myConfigImportExPort(this, false);
-			Toast.makeText(this, "已从 FoxBook.cfg 导入", Toast.LENGTH_SHORT).show();
+			foxtip("已从 FoxBook.cfg 导入");
 			return true;
 		}
 		return super.onPreferenceTreeClick(preferenceScreen, preference);
@@ -69,9 +74,9 @@ public class Activity_Setting extends PreferenceActivity {
 					SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
 					editor.putString("selectfont", newFont);
 					editor.commit();
-					Toast.makeText(this, newFont, Toast.LENGTH_SHORT).show();
+					foxtip(newFont);
 				} else {
-					Toast.makeText(this, "要选择后缀为.ttf/.ttc/.otf的字体文件", Toast.LENGTH_SHORT).show();
+					foxtip("要选择后缀为.ttf/.ttc/.otf的字体文件");
 				}
 			}
 			break;
@@ -89,4 +94,7 @@ public class Activity_Setting extends PreferenceActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
+	private void foxtip(String sinfo) { // Toast消息
+		Toast.makeText(getApplicationContext(), sinfo, Toast.LENGTH_SHORT).show();
+	}
 }

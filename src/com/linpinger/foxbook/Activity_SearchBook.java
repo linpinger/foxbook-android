@@ -191,6 +191,8 @@ public class Activity_SearchBook extends Activity {
 			}
 		});
 
+		this.nm = ((FoxApp)this.getApplication()).nm ;
+		
 		// 获取传入的数据
 		Intent itt = getIntent();
 		ittAction = itt.getIntExtra(AC.action, 0);
@@ -203,7 +205,6 @@ public class Activity_SearchBook extends Activity {
 		}
 	}
 	public void copyCurrentMainSiteStr() {
-		this.nm = ((FoxApp)this.getApplication()).nm ;
 		String mainBookURL = nm.getBookInfo(0).get(NV.BookURL).toString();
 		String urlHost = "";
 		try {
@@ -256,6 +257,31 @@ public class Activity_SearchBook extends Activity {
 		case android.R.id.home: // 返回图标
 			exitMe();
 			break;
+		case R.id.sm_Add:
+			String nowfbs = ToolAndroid.getClipText(this);
+			if ( ! nowfbs.contains("FoxBook>") ) {
+				foxtip("剪贴板中的内容格式不对哟");
+				break;
+			}
+			String xx[] = nowfbs.split(">");
+			if ( "" != xx[1] && "" != xx[4] ) { // name, url
+				int nBookIDX = -1 ;
+				nBookIDX = nm.addBook(xx[1], xx[4], xx[3]); // 新增，并获取返回bookidx
+				if ( nBookIDX < 0 )
+					break ;
+				if ( "" != xx[2] ) { // 作者
+					Map<String, Object> nowBookInfo = nm.getBookInfo(nBookIDX);
+					nowBookInfo.put(NV.BookAuthor, xx[2]);
+					nm.setBookInfo(nowBookInfo, nBookIDX);
+				}
+				Intent itti = new Intent(Activity_SearchBook.this, Activity_BookInfo.class);
+				itti.putExtra(NV.BookIDX, nBookIDX);
+				startActivity(itti);
+				exitMe();
+			} else {
+				foxtip("信息不完整，不包含名字和地址\n" + nowfbs);
+			}
+			break;
 		case R.id.sm_QuickSearchQidian: // 快搜:起点
 			book_name = et.getText().toString();
 			(new Thread(new GetQidianURLFromBookName(book_name))).start() ;
@@ -303,10 +329,6 @@ public class Activity_SearchBook extends Activity {
 			break;
 		case R.id.sm_downQDEpub:
 			this.funcDownQDEbook();
-			break;
-		case R.id.sm_cleanAppCache:
-			boolean isCleanSuccess = ToolJava.deleteDir(this.getCacheDir());
-			foxtip("已清理缓存，成功：" + isCleanSuccess);
 			break;
 		}
 		return super.onOptionsItemSelected(item);

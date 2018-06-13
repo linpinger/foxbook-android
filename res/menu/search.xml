@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <!--
-        android:icon="@android:drawable/ic_popup_sync"
-        android:showAsAction="always"
-    -->
+    <item
+        android:id="@+id/sm_Add"
+        android:icon="@android:drawable/ic_input_add"
+        android:showAsAction="always"
+        android:title="从剪贴板直接添加新书"/>
     <item
         android:id="@+id/sm_QuickSearchQidian"
         android:title="快速搜索:起点"/>
@@ -38,8 +39,5 @@
     <item
         android:id="@+id/sm_downQDEpub"
         android:title="下载起点Epub"/>
-    <item
-        android:id="@+id/sm_cleanAppCache"
-        android:title="清理本应用缓存"/>
 
 </menu>

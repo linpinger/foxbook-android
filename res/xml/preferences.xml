@@ -128,6 +128,10 @@
             android:title="正文是否添加两中文空白" />
     </PreferenceCategory>
     <PreferenceCategory android:title="其他设置" >
+        <Preference
+            android:key="cleanCache"
+            android:summary="清空本应用缓存"
+            android:title="清空应用Cache" />
         <ListPreference
             android:defaultValue="github"
             android:dialogTitle="选择本软件升级线路"
