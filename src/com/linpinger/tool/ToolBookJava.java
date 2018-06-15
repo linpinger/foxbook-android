@@ -339,7 +339,11 @@ public class ToolBookJava {
 //				System.out.println("I am Posting ...");
 				conn.setDoOutput(true);
 				conn.setRequestMethod("POST");
-				conn.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
+				if ( inURL.contains(".szy.cn/") || inURL.contains(".taobao.com/") ) { // 掌通家园，ip.taobao.com
+					conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+				} else {
+					conn.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
+				}
 			}
 
 			if ( null != iCookie )

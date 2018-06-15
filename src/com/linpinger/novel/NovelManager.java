@@ -337,7 +337,7 @@ public class NovelManager {
 	public void setPage(Map<String, Object> page, int bookIDX, int pageIDX) {
 		this.shelf.get(bookIDX).getChapters().get(pageIDX).putAll(page);
 	}
-	public void setPageContent(String content, int bookIDX, int pageIDX) { // synchronized
+	synchronized public void setPageContent(String content, int bookIDX, int pageIDX) { // synchronized
 		Map<String, Object> hm = this.shelf.get(bookIDX).getChapters().get(pageIDX);
 		hm.put(NV.Content, content);
 		hm.put(NV.Size, content.length());

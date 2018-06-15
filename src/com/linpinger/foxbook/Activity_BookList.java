@@ -1,19 +1,16 @@
 package com.linpinger.foxbook;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.linpinger.novel.Action_UpdateNovel;
 import com.linpinger.novel.NV;
 import com.linpinger.novel.NovelManager;
-import com.linpinger.novel.NovelSite;
 import com.linpinger.novel.SiteQiDian;
 import com.linpinger.tool.Ext_ListActivity_4Eink;
 import com.linpinger.tool.ToolAndroid;
-import com.linpinger.tool.ToolBookJava;
-
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -52,9 +49,6 @@ public class Activity_BookList extends Ext_ListActivity_4Eink {
 	File wDir ;			// 工作目录
 	File cookiesFile ;	// 保存有cookie的文件名: FoxBook.cookie
 
-	public int downThread = 9 ; // 页面下载任务线程数
-	public int leftThread = downThread ;
-
 	// 设置: 
 	SharedPreferences settings;
 	private String beforeSwitchShelf = "orderby_count_desc" ; // 和 arrays.xml中的beforeSwitchShelf_Values 对应
@@ -71,7 +65,6 @@ public class Activity_BookList extends Ext_ListActivity_4Eink {
 
 	private static Handler handler;
 	private final int DO_SETTITLE = 1;
-	private final int IS_NEWPAGE = 2;
 	private final int DO_REFRESHLIST = 3;
 	private final int DO_REFRESH_TIP = 4;
 	private final int IS_NEWVER = 5;
@@ -80,245 +73,6 @@ public class Activity_BookList extends Ext_ListActivity_4Eink {
 
 	private boolean switchShelfLock = false;
 	private long mExitTime;
-
-	private int upchacount; // 新增章节计数
-
-	public class UpdateAllBook implements Runnable {
-		public void run() {
-			Message msg;
-
-			isUpdateBlankPagesFirst = settings.getBoolean("isUpdateBlankPagesFirst", isUpdateBlankPagesFirst);
-			if ( isUpdateBlankPagesFirst ) {
-				for (Map<String, Object> blankPage : nm.getPageList(99) ) {
-					msg = Message.obtain();
-					msg.what = DO_SETTITLE;
-					msg.obj = "填空: " + (String)blankPage.get(NV.PageName);
-					handler.sendMessage(msg);
-					nm.updatePage((Integer)blankPage.get(NV.BookIDX), (Integer)blankPage.get(NV.PageIDX));
-				}
-			}
-
-			isCompareShelf = settings.getBoolean("isCompareShelf", isCompareShelf); // 更新前比较书架
-if ( isCompareShelf ) {
-			msg = Message.obtain();
-			msg.what = DO_SETTITLE;
-			msg.obj = "下载书架..." ;
-			handler.sendMessage(msg);
-			List<Map<String, Object>> nn = new NovelSite().compareShelfToGetNew(nm.getBookListForShelf(), cookiesFile);
-			if ( nn != null ) {
-				int nnSize = nn.size() ;
-				msg = Message.obtain();
-				msg.what = DO_SETTITLE;
-				msg.obj = "书架: " + nnSize + " 待更新" ;
-				handler.sendMessage(msg);
-				if ( 0 == nnSize ) {
-					return ;
-				} else { 
-					List<Thread> threadListA = new ArrayList<Thread>(30);
-					int nowBookIDX = -1;
-					String nowName, nowURL;
-					Thread nowTTT;
-					for ( Map<String, Object> mm : nn ) {
-						nowBookIDX = (Integer)mm.get(NV.BookIDX);
-						nowName = mm.get(NV.BookName).toString();
-						nowURL = mm.get(NV.BookURL).toString();
-
-						msg = Message.obtain();
-						msg.what = DO_SETTITLE;
-						msg.obj = "更新: " + nowName;
-						handler.sendMessage(msg);
-
-						nowTTT = new Thread(new UpdateBook(nowBookIDX, nowURL, nowName, true));
-						nowTTT.start();
-						threadListA.add(nowTTT);
-
-					}
-					for ( Thread nowThread : threadListA ) {
-						try {
-							nowThread.join();
-						} catch (Exception ex) {
-							System.out.println("等待线程错误: " + ex.toString());
-						}
-					}
-
-					msg = Message.obtain();
-					msg.what = DO_UPDATEFINISH;
-					msg.obj = "完毕: " + nnSize + " 已更新" ;
-					handler.sendMessage(msg);
-					return ;
-				}
-			}
-}
-
-			List<Thread> threadList = new ArrayList<Thread>(30);
-			Thread nowT;
-
-			// 全部更新里面使用的变量
-			int nowBookIDX = -1;
-			String anowName, anowURL;
-			upchacount = 0 ;
-			for ( Map<String, Object> jj : data ) {
-				nowBookIDX = (Integer) jj.get(NV.BookIDX);
-				anowURL = (String) jj.get(NV.BookURL);
-				anowName = (String) jj.get(NV.BookName);
-				if ( (Integer)jj.get(NV.BookStatu) != 1 ) {
-					nowT = new Thread(new UpdateBook(nowBookIDX, anowURL, anowName,true));
-					threadList.add(nowT);
-					nowT.start();
-				}
-			}
-
-			for ( Thread nowThread : threadList ) {
-				try {
-					nowThread.join();
-				} catch (Exception ex) {
-					System.out.println("等待线程错误: " + ex.toString());
-				}
-			}
-
-			msg = Message.obtain();
-			msg.what = DO_UPDATEFINISH;
-			msg.obj = "共 " + upchacount + " 新章节，全部更新完毕" ;
-			handler.sendMessage(msg);
-		}
-	}
-
-	public class UpdateBook implements Runnable { // 后台线程更新书
-		private int bookIDX = 0 ;
-		private String bookname ;
-		private String bookurl ;
-		private boolean bDownPage = true;
-
-		UpdateBook(int inbookidx, String inBookURL, String inbookname, boolean bDownPage) {
-			this.bookIDX = inbookidx;
-			this.bookurl = inBookURL;
-			this.bookname = inbookname;
-			this.bDownPage = bDownPage;
-		}
-
-		@Override
-		public void run() {
-			Message msg = Message.obtain();
-			msg.what = DO_SETTITLE;
-			msg.obj = bookname + ": 下载目录页";
-			handler.sendMessage(msg);
-
-			String existList = nm.getPageListStr(bookIDX); // 得到旧 list
-			List<Map<String, Object>> linkList;
-			if ( bookurl.contains(".if.qidian.com") ) {
-				linkList = new SiteQiDian().getTOC_Android7(ToolBookJava.downhtml(bookurl, "utf-8"));
-			} else {
-				linkList = new NovelSite().getTOC(ToolBookJava.downhtml(bookurl)); // 分析获取 list 所有章节
-				if ( existList.length() > 3 ) {
-					if ( nm.getBookInfo(bookIDX).get(NV.BookAuthor).toString().length() > 1 ) // 无作者名，表示为新书
-						linkList = ToolBookJava.getLastNPage(linkList, 55); // 获取 list 最后55章
-				}
-			}
-
-			List<Map<String, Object>> newPages = ToolBookJava.compare2GetNewPages(linkList, existList) ;
-			int newpagecount = newPages.size(); // 新章节数，便于统计
-
-			if (newpagecount == 0) {
-				msg = Message.obtain();
-				msg.what = DO_SETTITLE;
-				msg.obj = bookname + ": 无新章节";
-				handler.sendMessage(msg);
-				handler.sendEmptyMessage(DO_REFRESHLIST); // 更新完毕，通知刷新
-				if ( ! bDownPage ) { //添加这个主要想在有空白章节时更新一下
-					return;
-				}
-			} else {
-				msg = Message.obtain();
-				msg.what = IS_NEWPAGE;
-				msg.arg1 = newpagecount; // 新章节数
-				msg.obj = bookname + ": 新章节数: " + String.valueOf(newpagecount);
-				handler.sendMessage(msg);
-			}
-
-			List<Map<String, Object>> nbl = nm.addBookBlankPageList(newPages, bookIDX);
-		if (bDownPage) {
-			int cTask = nbl.size() ; // 总任务数
-
-			if ( cTask > 25 ) { // 当新章节数大于 25章就采用多任务下载模式
-				int nBaseCount = cTask / downThread ; //每线程基础任务数
-				int nLeftCount = cTask % downThread ; //剩余任务数
-				int aList[] = new int[downThread] ; // 每个线程中的任务数
-
-				for ( int i = 0; i < downThread; i++ ) { // 分配任务数
-					if ( i < nLeftCount )
-						aList[i] = nBaseCount + 1 ;
-					else
-						aList[i] = nBaseCount ;
-				}
-
-				List<Map<String, Object>> subList ;
-				int startPoint = 0 ;
-				for ( int i = 0; i < downThread; i++ ) {
-					if ( aList[i] == 0 ) { // 这种情况出现在总任务比线程少的情况下
-						--leftThread ;
-						continue ;
-					}
-					subList = new ArrayList<Map<String, Object>>(aList[i]);
-					for ( int n = startPoint; n < startPoint + aList[i]; n++ )
-						subList.add(nbl.get(n));
-					(new Thread(new FoxTaskDownPage(subList), "T" + i)).start() ;
-
-					startPoint += aList[i] ;
-				}
-			} else { // 单线程循环更新页面
-				int nowCount = 0;
-				for (Map<String, Object> blankPage : nbl){
-					++nowCount;
-					msg = Message.obtain();
-					msg.what = DO_SETTITLE;
-					msg.obj = bookname + ": 下载章节: " + nowCount + " / " + newpagecount ;
-					handler.sendMessage(msg);
-
-					nm.updatePage(bookIDX, (Integer)blankPage.get(NV.PageIDX));
-				}
-			} // 单线程更新 end
-		} // bDownPage
-
-			msg = Message.obtain();
-			msg.what = DO_SETTITLE;
-			msg.obj = bookname + ": 更新完毕";
-			handler.sendMessage(msg);
-
-			handler.sendEmptyMessage(DO_REFRESHLIST); // 更新完毕，通知刷新
-		}
-	}
-
-	public class FoxTaskDownPage implements Runnable { // 多线程任务更新页面列表
-		List<Map<String, Object>> taskList;
-
-		public FoxTaskDownPage(List<Map<String, Object>> iTaskList) {
-			this.taskList = iTaskList ;
-		}
-
-		public void run() {
-			Message msg;
-			String thName = Thread.currentThread().getName();
-			int locCount = 0 ;
-			int allCount = taskList.size();
-			for (Map<String, Object> tsk : taskList) {
-				++ locCount ;
-				msg = Message.obtain();
-				msg.what = DO_SETTITLE;
-				msg.obj = leftThread + ":" + thName + ":" + locCount + " / " + allCount ;
-				handler.sendMessage(msg);
-
-				nm.updatePage((Integer)tsk.get(NV.BookIDX), (Integer)tsk.get(NV.PageIDX));
-			}
-
-			--leftThread;
-			if ( 0 == leftThread ) { // 所有线程更新完毕
-				msg = Message.obtain();
-				msg.what = DO_SETTITLE;
-				msg.obj = "已更新完所有空白章节>25" ;
-				handler.sendMessage(msg);
-			}
-		}
-	}
 
 	private void refresh_BookList() { // 刷新LV中的数据
 		data = nm.getBookList(); // 获取书籍列表
@@ -425,13 +179,11 @@ if ( isCompareShelf ) {
 			public void onClick(DialogInterface dialog, int which) {
 				switch (which) {
 				case 0: // 更新本书
-					upchacount = 0 ;
-					new Thread(new UpdateBook(bookIDX, lcURL, lcName, true)).start();
+					new Thread(new UpdateFMLs().new UpdateBook(nm, bookIDX, lcURL, lcName, true)).start();
 					foxtip("正在更新: " + lcName);
 					break;
 				case 1: // 更新本书目录
-					upchacount = 0 ;
-					new Thread(new UpdateBook(bookIDX, lcURL, lcName, false)).start();
+					new Thread(new UpdateFMLs().new UpdateBook(nm, bookIDX, lcURL, lcName, false)).start();
 					foxtip("正在更新目录: " + lcName);
 					break;
 				case 2: // 在线查看
@@ -515,10 +267,6 @@ if ( isCompareShelf ) {
 					refresh_BookList();
 					setTitle((String) msg.obj);
 					break;
-				case IS_NEWPAGE:
-					upchacount += (Integer) msg.arg1;
-					setTitle((String) msg.obj);
-					break;
 				case IS_NEWVER:
 					setTitle((String)msg.obj);
 					try {
@@ -569,6 +317,20 @@ if ( isCompareShelf ) {
 		mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM); // SHOW_AS_ACTION_NEVER // API > 11
 	}
 
+	public class UpdateFMLs extends Action_UpdateNovel {
+
+		public void onStatuChange(int msgWhat, String msgOBJ){
+			if ( msgWhat >= LINEBASE ) { // 多线程更新FMLs
+				Message msg = Message.obtain();
+				msg.what = DO_SETTITLE;
+				msg.obj = msgOBJ;
+				handler.sendMessage(msg);
+			} else if ( msgWhat == LINEBASE - 1) { // 刷新LV
+				handler.sendEmptyMessage(DO_REFRESHLIST); // 更新完毕，通知刷新
+			}
+		}
+	}
+
 	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作
 		switch (item.getItemId()) {
 		case android.R.id.home:
@@ -578,7 +340,9 @@ if ( isCompareShelf ) {
 			startActivity(new Intent(Activity_BookList.this, Activity_Setting.class));
 			break;
 		case R.id.action_updateall: // 更新所有
-			new Thread(new UpdateAllBook()).start();
+			isUpdateBlankPagesFirst = settings.getBoolean("isUpdateBlankPagesFirst", isUpdateBlankPagesFirst);
+			isCompareShelf = settings.getBoolean("isCompareShelf", isCompareShelf); // 更新前比较书架
+			new Thread(new UpdateFMLs().new UpdateAllBook(nm, cookiesFile, isUpdateBlankPagesFirst, isCompareShelf)).start();
 			break;
 		case R.id.action_switchShelf:
 			this.setTitle("切换数据库");

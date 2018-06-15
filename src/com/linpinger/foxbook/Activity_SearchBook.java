@@ -35,7 +35,6 @@ import com.linpinger.novel.NovelManager;
 import com.linpinger.novel.SiteQiDian;
 import com.linpinger.tool.ToolAndroid;
 import com.linpinger.tool.ToolBookJava;
-import com.linpinger.tool.ToolJava;
 /*
 Activity_PageList : msg IS_GETQIDIANURL -> Runnable:GetQidianURL : 选项: 快搜:qidian : aSearchBookOnQiDian, bookname, bookurl
 Activity_PageList : 预览按钮 : aSearchBookOnNet, bookname, bookurl

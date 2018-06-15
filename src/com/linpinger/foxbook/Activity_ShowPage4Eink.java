@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 import com.linpinger.novel.NV;
 import com.linpinger.novel.NovelManager;
 import com.linpinger.novel.Site1024;
-import com.linpinger.tool.Activity_FileChooser;
 import com.linpinger.tool.FoxZipReader;
 import com.linpinger.tool.ToolAndroid;
 
