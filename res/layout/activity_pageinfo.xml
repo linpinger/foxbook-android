@@ -1,67 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:layout_height="match_parent" >
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+        android:layout_height="match_parent"
+        android:layout_above="@+id/myToolBar"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical" >
 
-        <TextView
-            android:id="@+id/pi_bid"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:ems="2"
-            android:hint="bid" />
-        <TextView
-            android:id="@+id/pi_pid"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:ems="2"
-            android:hint="pid" />
-
-        <EditText
-            android:id="@+id/pi_pname"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:hint="章节名" >
-
-            <requestFocus />
-        </EditText>
-
-    </LinearLayout>
-
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <EditText
-            android:id="@+id/pi_purl"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="章节地址"
-            android:inputType="textUri" >
-        </EditText>
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/pi_bid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="2"
+                android:gravity="center"
+                android:hint="bid" />
+
+            <TextView
+                android:id="@+id/pi_pid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="2"
+                android:gravity="center"
+                android:hint="pid" />
+
+            <EditText
+                android:id="@+id/pi_pname"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:hint="章节名" >
+            </EditText>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <EditText
+                android:id="@+id/pi_purl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="章节地址"
+                android:inputType="textUri" >
+            </EditText>
+        </LinearLayout>
+
+        <ScrollView
+            android:id="@+id/pi_scrollView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <EditText
+                android:id="@+id/pi_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="章节正文" >
+
+                <requestFocus />
+            </EditText>
+        </ScrollView>
     </LinearLayout>
 
-    <ScrollView
-        android:id="@+id/pi_scrollView"
+    <RelativeLayout
+        android:id="@+id/myToolBar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:background="#222222" >
 
-        <EditText
-            android:id="@+id/pi_content"
+        <TextView
+            android:id="@+id/testTV"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:hint="章节正文" >
-        </EditText>
-    </ScrollView>
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/btnSave"
+            android:background="#222222"
+            android:gravity="center_vertical"
+            android:lines="2"
+            android:minLines="1"
+            android:text="FoxBook: 南无阿弥陀佛"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp" />
 
-</LinearLayout>
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/btnCopyFocus"
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_menu_save"
+            android:minWidth="50dp"
+            android:onClick="onBtnClick"
+            android:text="保存"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp" />
+
+        <Button
+            android:id="@+id/btnCopyFocus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/btnPasteFocus"
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_input_get"
+            android:minWidth="50dp"
+            android:onClick="onBtnClick"
+            android:text="复制"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp" />
+
+        <Button
+            android:id="@+id/btnPasteFocus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/btnClearContent"
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_menu_edit"
+            android:minWidth="50dp"
+            android:onClick="onBtnClick"
+            android:text="粘贴"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp" />
+
+        <Button
+            android:id="@+id/btnClearContent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_notification_clear_all"
+            android:minWidth="50dp"
+            android:onClick="onBtnClick"
+            android:text="清空"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp" />
+    </RelativeLayout>
+
+</RelativeLayout>

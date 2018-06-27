@@ -2,6 +2,11 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <PreferenceCategory android:title="全局设置" >
+        <Preference
+            android:key="cleanCache"
+            android:summary="清空本应用缓存，然后返回"
+            android:title="清空应用Cache" />
+
         <ListPreference
             android:defaultValue="/sdcard/FoxBook/"
             android:dialogTitle="选择数据存储路径"
@@ -17,20 +22,15 @@
             android:summaryOff="当前保存为DB3"
             android:summaryOn="当前保存为FML"
             android:title="退出保存格式" />
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="isWhiteActionBar"
-            android:summaryOff="系统默认，黑色"
-            android:summaryOn="白色动作栏"
-            android:title="动作栏主题" />
     </PreferenceCategory>
     <PreferenceCategory android:title="BookList设置" >
         <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="isSaveWhenOpenY"
-            android:summaryOff="不显示且不保存"
-            android:summaryOn="显示且保存"
-            android:title="非默认路径的选项菜单" />
+            android:defaultValue="true"
+            android:key="isClickItemRightAct"
+            android:summaryOff="当前:无特殊动作"
+            android:summaryOn="当前:弹出菜单"
+            android:title="点击列表右侧1/5时" />
+
         <ListPreference
             android:defaultValue="orderby_count_desc"
             android:dialogTitle="选择切换书架前的动作"
@@ -53,23 +53,11 @@
             android:summaryOn="较节省时间，流量，需有cookie"
             android:title="更新前比较书架" />
         <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="isShowAppIcon"
-            android:summaryOff="隐藏图标"
-            android:summaryOn="显示图标"
-            android:title="显示图标么" />
-        <CheckBoxPreference
             android:defaultValue="false"
-            android:key="isClickHomeExit"
-            android:summaryOff="无反应"
-            android:summaryOn="退出应用"
-            android:title="点击ActionBar图标" />
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="isShowIfRoom"
-            android:summaryOff="一直显示"
-            android:summaryOn="如果有空间"
-            android:title="选项菜单是否显示" />
+            android:key="isSaveWhenOpenY"
+            android:summaryOff="不显示且不保存"
+            android:summaryOn="显示且保存"
+            android:title="非默认路径的选项菜单" />
     </PreferenceCategory>
     <PreferenceCategory android:title="阅读页设置" >
         <CheckBoxPreference
@@ -90,12 +78,6 @@
 
         <CheckBoxPreference
             android:defaultValue="false"
-            android:key="isMapUpKey"
-            android:summaryOff="保持原功能"
-            android:summaryOn="向上翻页键映射为向下翻页"
-            android:title="将向上翻页键映射" />
-        <CheckBoxPreference
-            android:defaultValue="false"
             android:key="isBodyBold"
             android:summaryOff="不加粗"
             android:summaryOn="加粗"
@@ -105,15 +87,13 @@
             android:key="selectfont"
             android:summary="阅读页字体选择(需存在文件选择器)"
             android:title="选择字体" />
-        <Preference
-            android:key="exportEinkCFG"
-            android:summary="阅读页设置 to FoxBook.cfg"
-            android:title="导出阅读页设置" />
-        <Preference
-            android:key="importEinkCFG"
-            android:summary="阅读页设置 from FoxBook.cfg"
-            android:title="导入阅读页设置" />
 
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="isMapUpKey"
+            android:summaryOff="保持原功能"
+            android:summaryOn="向上翻页键映射为向下翻页"
+            android:title="将向上翻页键映射" />
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="isProcessLongOneLine"
@@ -126,12 +106,17 @@
             android:summaryOff="不添加"
             android:summaryOn="添加"
             android:title="正文是否添加两中文空白" />
+
+        <Preference
+            android:key="exportEinkCFG"
+            android:summary="阅读页设置 to FoxBook.cfg"
+            android:title="导出阅读页设置" />
+        <Preference
+            android:key="importEinkCFG"
+            android:summary="阅读页设置 from FoxBook.cfg"
+            android:title="导入阅读页设置" />
     </PreferenceCategory>
     <PreferenceCategory android:title="其他设置" >
-        <Preference
-            android:key="cleanCache"
-            android:summary="清空本应用缓存"
-            android:title="清空应用Cache" />
         <ListPreference
             android:defaultValue="github"
             android:dialogTitle="选择本软件升级线路"
@@ -182,7 +167,7 @@
             android:layout="?android:attr/preferenceLayoutChild"
             android:summary="这是一个可见的子类"
             android:title="子类复选框首选项" />
-    </PreferenceCategory>
+    </PreferenceCategory>
     -->
 
 </PreferenceScreen>

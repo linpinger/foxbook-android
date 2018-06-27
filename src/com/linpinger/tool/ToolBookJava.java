@@ -233,6 +233,10 @@ public class ToolBookJava {
 */
 
 	public static List<Map<String, Object>> getSearchEngineHref(String html, String KeyWord) { // String KeyWord = "三界血歌" ;
+		boolean isNormalSite = false ;
+		if ( "".equalsIgnoreCase(KeyWord) ) {
+			isNormalSite = true;
+		}
 		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(64);
 		Map<String, Object> item;
 
@@ -251,14 +255,16 @@ public class ToolBookJava {
 		Matcher mat = Pattern.compile("(?smi)href *= *[\"']?([^>\"']+)[\"']?[^>]*> *([^<]+)<").matcher(html);
 		while (mat.find()) {
 			if (2 == mat.groupCount()) {
-				if (mat.group(1).length() < 5)
-					continue;
-				if (!mat.group(1).startsWith("http"))
-					continue;
-				if (mat.group(1).contains("www.sogou.com/web"))
-					continue;
-				if (!mat.group(2).contains(KeyWord))
-					continue;
+				if ( ! isNormalSite ) {
+					if (mat.group(1).length() < 5)
+						continue;
+					if (!mat.group(1).startsWith("http"))
+						continue;
+					if (mat.group(1).contains("www.sogou.com/web"))
+						continue;
+					if (!mat.group(2).contains(KeyWord))
+						continue;
+				}
 
 				item = new HashMap<String, Object>(2);
 				item.put(NV.BookURL, mat.group(1));

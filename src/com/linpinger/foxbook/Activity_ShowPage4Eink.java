@@ -49,7 +49,8 @@ public class Activity_ShowPage4Eink extends Activity {
 		if ( settings.getBoolean("isFullScreen", false) )
 			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-		this.setTheme(android.R.style.Theme_Holo_Light_NoActionBar); // 无ActionBar
+//		requestWindowFeature(Window.FEATURE_NO_TITLE);
+//		this.setTheme(android.R.style.Theme_Holo_Light_NoActionBar); // 无ActionBar
 
 		super.onCreate(savedInstanceState);
 //		Settings.System.putInt(this.getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, 180000); // 设置超时时间 3分钟
@@ -160,29 +161,31 @@ public class Activity_ShowPage4Eink extends Activity {
 		bookIDX = itt.getIntExtra(NV.BookIDX, -1);
 		pageIDX = itt.getIntExtra(NV.PageIDX, -1);
 
-		if ( ittAction == 99 ) { // 99用来传递title, content供其他应用直接调用
-			mv.setText(itt.getStringExtra("title"), "　　" + itt.getStringExtra("content").replace("\n", "\n　　"), "从其他应用传来的内容");
-			return;
-		} else {
-			this.nm = ((FoxApp)this.getApplication()).nm;
-		}
+		this.nm = ((FoxApp)this.getApplication()).nm;
 
 		if ( ittAction == AC.aShowPageInMem ) { // 1024DB3
 			if ( nm.getBookInfo(bookIDX).get(NV.BookURL).toString().contains("zip://") )
 				ittAction = AC.aShowPageInZip1024 ;
 		}
-switch (ittAction) {
+		switch (ittAction) {
+		case AC.aAnotherAppShowContent: // 51用来传递title, content供其他应用直接调用
+			mv.setText(itt.getStringExtra("title"), "　　" + itt.getStringExtra("content").replace("\n", "\n　　"), "从其他应用传来的内容");
+			break;
+		case AC.aAnotherAppShowOnePageIDX: //"fmlPath": 52需传递bookIDX, pageIDX, 
 		case AC.aShowPageInMem:
+			if ( AC.aAnotherAppShowOnePageIDX == ittAction ) {
+				this.nm = new NovelManager(new File(itt.getStringExtra("fmlPath")));
+			}
 			Map<String, Object> page = nm.getPage(bookIDX, pageIDX);
 			String pagetext = page.get(NV.Content).toString();
 			if ( null == pagetext | pagetext.length() < 5 )
 				pagetext = "本章节内容还没下载，请回到列表，更新本书或本章节" ;
 			pagetext = ProcessLongOneLine(pagetext);
 			if ( isAdd2CNSpaceBeforeLine ) {
-			mv.setText(page.get(NV.PageName).toString()
-					, "　　" + pagetext.replace("\n", "\n　　")
-					, nm.getBookInfo(bookIDX).get(NV.BookName).toString()
-					+ "   " + nm.getPagePosAtShelfPages(bookIDX, pageIDX));
+				mv.setText(page.get(NV.PageName).toString()
+						, "　　" + pagetext.replace("\n", "\n　　")
+						, nm.getBookInfo(bookIDX).get(NV.BookName).toString()
+						+ "   " + nm.getPagePosAtShelfPages(bookIDX, pageIDX));
 			} else {
 				mv.setText(page.get(NV.PageName).toString()
 						, pagetext
@@ -231,9 +234,9 @@ switch (ittAction) {
 			}
 
 			if ( isAdd2CNSpaceBeforeLine ) {
-			mv.setText(pageName , "　　" + content.replace("\n", "\n　　")
-					, nm.getBookInfo(bookIDX).get(NV.BookName).toString()
-					+ "   " + nm.getPagePosAtShelfPages(bookIDX, pageIDX));
+				mv.setText(pageName , "　　" + content.replace("\n", "\n　　")
+						, nm.getBookInfo(bookIDX).get(NV.BookName).toString()
+						+ "   " + nm.getPagePosAtShelfPages(bookIDX, pageIDX));
 			} else {
 				mv.setText(pageName , content
 						, nm.getBookInfo(bookIDX).get(NV.BookName).toString()
@@ -242,7 +245,7 @@ switch (ittAction) {
 			break;
 		default:
 			break;
-} // switch 结束
+		} // switch 结束
 
 	} // oncreate 结束
 
@@ -418,6 +421,28 @@ switch (ittAction) {
 		isMenuShow = true;
 		// 有个小bug不知道怎么排除: 按menu键: 显示，消失，显示，显示，消失，显显消...
 	}
+/*
+//  popup_window_showpage.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="#00FFFFFF"
+    android:orientation="vertical" >
+
+    <TextView
+        android:background="#00FFFFFF"
+        android:textColor="#FF000000"
+        android:id="@+id/popFO"
+        android:clickable="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:layout_margin="5sp"
+        android:text="南无阿弥陀佛" />
+</LinearLayout>
+ */
+
 /*
 	private void showEinkPopupWindow(View view) {
 
@@ -618,22 +643,25 @@ switch (ittAction) {
 			String nowFontPath = settings.getString("selectfont", "/sdcard/fonts/foxfont.ttf") ;
 			if ( ! mv.setUserFontPath(nowFontPath) ) {
 				foxtip("字体不存在:\n\n" + nowFontPath + "\n\n现在选择字体文件");
-				Intent itt = new Intent(Activity_ShowPage4Eink.this, Activity_FileChooser.class);
-				itt.putExtra("dir", "/sdcard/fonts/");
-				startActivityForResult(itt, 9);
+				selectFile();
 			} else {
 				mv.postInvalidate();
 			}
 			break;
 		case 67:
-			Intent itt = new Intent(Activity_ShowPage4Eink.this, Activity_FileChooser.class);
-			itt.putExtra("dir", "/sdcard/fonts/");
-			startActivityForResult(itt, 9);
+			selectFile();
 			break;
 		case 99:
 			startActivity(new Intent(Activity_ShowPage4Eink.this, Activity_Setting.class));
 			break;
 		}
+	}
+
+	public void selectFile() {
+		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+		intent.setType("*/*");
+		intent.addCategory(Intent.CATEGORY_OPENABLE);
+		startActivityForResult(intent, 9);
 	}
 
 	@Override
@@ -644,11 +672,14 @@ switch (ittAction) {
 				Uri uri = data.getData();
 				// 判断文件名后缀
 				String newFont = new File(uri.getPath()).getAbsolutePath();
+				if ( newFont.contains("/document/primary:") ) { // 神奇的路径
+					newFont = "/sdcard/" + newFont.split(":")[1];
+				}
 				String nowPATH = newFont.toLowerCase() ;
 				if ( nowPATH.endsWith(".ttf") | nowPATH.endsWith(".ttc") | nowPATH.endsWith(".otf") ) {
 					editor.putString("selectfont", newFont);
 					editor.commit();
-					foxtip(newFont);
+					foxtip("\n" + uri.getPath() + "\n" + newFont);
 					mv.setUserFontPath(newFont);
 					mv.postInvalidate();
 				} else {

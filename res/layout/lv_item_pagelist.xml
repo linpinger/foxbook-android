@@ -21,9 +21,10 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
+        android:textColor="#FF6100"
         android:layout_marginRight="9sp"
         android:layout_marginTop="18sp"
         android:layout_marginBottom="18sp"
-        android:textSize="18sp" />
+        android:textSize="14sp" />
 
 </RelativeLayout>

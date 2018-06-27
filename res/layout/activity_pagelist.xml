@@ -1,21 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
-
-    <!-- android:stackFromBottom="true" -->
+    android:layout_height="match_parent" >
 
     <ListView
-        android:id="@+id/android:list"
+        android:id="@+id/testLV"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:id="@+id/android:empty"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="\n　　处理数据中...\n\n　　如果很长时间都木有列表出现\n\n　　按返回键重试或换一个地址\n\n　　萌萌哒 ^_^"
-        android:textSize="16sp" />
+        android:layout_above="@+id/myToolBar"
+        android:layout_alignParentTop="true" />
 
-</LinearLayout>
+    <RelativeLayout
+        android:id="@+id/myToolBar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:background="#222222" >
+
+        <TextView
+            android:id="@+id/testTV"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/btnAddBook"
+            android:background="#222222"
+            android:gravity="center_vertical"
+            android:lines="2"
+            android:minLines="1"
+            android:paddingLeft="9dp"
+            android:text="FoxBook: 南无阿弥陀佛"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp" />
+
+        <Button
+            android:id="@+id/btnAddBook"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/btnCleanBook"
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_input_add"
+            android:minWidth="50dp"
+            android:onClick="onBtnClick"
+            android:text="添书"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp" />
+
+        <Button
+            android:id="@+id/btnCleanBook"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/btnCleanBookND"
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_menu_delete"
+            android:minWidth="50dp"
+            android:onClick="onBtnClick"
+            android:text="删除"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp" />
+
+        <Button
+            android:id="@+id/btnCleanBookND"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/btnToLVBottom"
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_notification_clear_all"
+            android:minWidth="50dp"
+            android:onClick="onBtnClick"
+            android:text="清空"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp" />
+
+        <Button
+            android:id="@+id/btnToLVBottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/btnToLVTop"
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_media_next"
+            android:minWidth="50dp"
+            android:onClick="onBtnClick"
+            android:text="下翻"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp" />
+
+        <Button
+            android:id="@+id/btnToLVTop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_media_previous"
+            android:minWidth="50dp"
+            android:onClick="onBtnClick"
+            android:text="上翻"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp" />
+    </RelativeLayout>
+
+</RelativeLayout>

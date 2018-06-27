@@ -172,8 +172,9 @@ public class Ext_View_FoxTextView extends View {
 		}
 */
 		// 设置字体
-		if ( bUseUserFont )
+		if ( bUseUserFont ) {
 			p.setTypeface(Typeface.createFromFile(new File(userFontPath))); // 设置字体
+		}
 
 		p.setStyle(Paint.Style.FILL) ;
 		p.setTextSize(fontSize);

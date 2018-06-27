@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- http://blog.csdn.net/caiwenfeng_for_23/article/details/13507519 -->
+    <item android:state_pressed="true"><shape>
+            <gradient android:angle="0" android:endColor="#5C5C5C" android:startColor="#5C5C5C" />
+
+            <stroke android:width="0dip" android:color="#88000000" />
+
+            <corners android:radius="1dp" />
+
+            <padding android:bottom="1dp" android:left="1dp" android:right="1dp" android:top="1dp" />
+        </shape></item>
+    <item android:state_focused="true"><shape>
+            <gradient android:angle="270" android:endColor="#00000000" android:startColor="#FFFFFFFF" />
+
+            <stroke android:width="0dip" android:color="#00000000" />
+
+            <corners android:radius="5dp" />
+
+            <padding android:bottom="1dp" android:left="1dp" android:right="1dp" android:top="1dp" />
+        </shape></item>
+    <item><shape>
+            <gradient android:angle="90" android:endColor="#222222" android:startColor="#222222" />
+
+            <stroke android:width="0dip" android:color="#000000" />
+
+            <corners android:radius="5dp" />
+
+            <padding android:bottom="1dp" android:left="1dp" android:right="1dp" android:top="1dp" />
+        </shape></item>
+
+    <!--
+gradient 主体渐变
+
+startColor开始颜色，endColor结束颜色 ，angle开始渐变的角度（值只能为90的倍数，0时为左到右渐变，90时为下到上渐变，依次逆时针类推）
+stroke 边框 width 边框宽度，color 边框颜色
+corners 圆角 radius 半径，0为直角
+padding text值的相对位置
+    -->
+
+</selector>

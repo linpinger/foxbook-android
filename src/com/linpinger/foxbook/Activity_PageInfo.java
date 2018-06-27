@@ -6,28 +6,30 @@ import com.linpinger.novel.NV;
 import com.linpinger.novel.NovelManager;
 import com.linpinger.tool.ToolAndroid;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class Activity_PageInfo extends Activity {
+	private TextView info;
 	private NovelManager nm;
 	private int bookIDX = -1;
 	private int pageIDX = -1;
 	private TextView pi_bid, pi_pid;
 	private EditText pi_pname, pi_purl, pi_content;
 
-	SharedPreferences settings;
-
 	private void init_controls() { // 初始化各控件
+		info = (TextView)this.findViewById(R.id.testTV);
+		info.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) {
+				onBackPressed();
+			}
+		});
 		pi_bid = (TextView) findViewById(R.id.pi_bid);
 		pi_pid = (TextView) findViewById(R.id.pi_pid);
 		pi_pname = (EditText) findViewById(R.id.pi_pname);
@@ -35,20 +37,11 @@ public class Activity_PageInfo extends Activity {
 		pi_content = (EditText) findViewById(R.id.pi_content);
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	private void showHomeUp() {
-		getActionBar().setDisplayHomeAsUpEnabled(true); // 标题栏中添加返回图标
-	}
-
 	public void onCreate(Bundle savedInstanceState) { // 界面初始化
-		settings = PreferenceManager.getDefaultSharedPreferences(this);
-		if ( settings.getBoolean("isWhiteActionBar", false) )
-			this.setTheme(android.R.style.Theme_DeviceDefault_Light);
-
+//		this.setTheme(android.R.style.Theme_Holo_Light_DarkActionBar); // tmp: ActionBar
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_pageinfo);
 
-		showHomeUp();
 		init_controls() ; // 初始化各控件
 
 		this.nm = ((FoxApp)this.getApplication()).nm ;
@@ -65,47 +58,12 @@ public class Activity_PageInfo extends Activity {
 		pi_purl.setText(info.get(NV.PageURL).toString()) ;
 		pi_content.setText(info.get(NV.Content).toString()) ;
 
+		foxtipL("返回，保存，复制，粘贴，清空内容");
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.pageinfo, menu);
-		return true;
-	}
-
-	public boolean onOptionsItemSelected(MenuItem item) { // 响应选择菜单的动作
-		switch (item.getItemId()) {
-		case R.id.pi_clearContent:
-			pi_content.setText("");
-			break;
-		case R.id.pi_copyPageName: // 复制
-			String pn = pi_pname.getText().toString();
-			ToolAndroid.setClipText(pn, this);
-			foxtip("剪贴板: " + pn);
-			break;
-		case R.id.pi_copyURL: // 复制
-			String pu = pi_purl.getText().toString();
-			ToolAndroid.setClipText(pu, this);
-			foxtip("剪贴板: " + pu);
-			break;
-		case R.id.pi_copyContent: // 复制
-			String pc = pi_content.getText().toString();
-			ToolAndroid.setClipText(pc, this);
-			foxtip("剪贴板: " + pc);
-			break;
-		case R.id.pi_pastePageName: // 粘贴
-			pi_pname.setText(ToolAndroid.getClipText(this));
-			break;
-		case R.id.pi_pasteURL: // 粘贴
-			pi_purl.setText(ToolAndroid.getClipText(this));
-			break;
-		case R.id.pi_pasteContent: // 粘贴
-			this.pi_content.setText(ToolAndroid.getClipText(this));
-			break;
-		case android.R.id.home: // 返回图标
-			onBackPressed();
-			break;
-		case R.id.pi_save_exit:
+	public void onBtnClick(View v) {
+		switch ( v.getId() ) {
+		case R.id.btnSave:
 			Map<String, Object> info = nm.getBlankPage();
 			info.put(NV.PageName, pi_pname.getText().toString());
 			info.put(NV.PageURL, pi_purl.getText().toString());
@@ -115,8 +73,24 @@ public class Activity_PageInfo extends Activity {
 
 			onBackPressed();
 			break;
+		case R.id.btnCopyFocus:
+			String toCopy = "";
+			if ( pi_pname.isFocused() ) { toCopy = pi_pname.getText().toString() ; }
+			if ( pi_purl.isFocused() ) { toCopy = pi_purl.getText().toString() ; }
+			if ( pi_content.isFocused() ) { toCopy = pi_content.getText().toString() ; }
+			ToolAndroid.setClipText(toCopy, this);
+			foxtip("剪贴板: " + toCopy);
+			break;
+		case R.id.btnPasteFocus:
+			String toPaste = ToolAndroid.getClipText(this);
+			if ( pi_pname.isFocused() ) { pi_pname.setText(toPaste) ; }
+			if ( pi_purl.isFocused() ) { pi_purl.setText(toPaste) ; }
+			if ( pi_content.isFocused() ) { pi_content.setText("") ; }
+			break;
+		case R.id.btnClearContent:
+			pi_content.setText("");
+			break;
 		}
-		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -127,5 +101,8 @@ public class Activity_PageInfo extends Activity {
 
 	private void foxtip(String sinfo) { // Toast消息
 		Toast.makeText(getApplicationContext(), sinfo, Toast.LENGTH_SHORT).show();
+	}
+	private void foxtipL(String sinfo) {
+		info.setText(sinfo);
 	}
 }

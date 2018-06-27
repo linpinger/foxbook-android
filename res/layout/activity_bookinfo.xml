@@ -1,86 +1,168 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:layout_height="match_parent" >
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+        android:layout_height="match_parent"
+        android:layout_above="@+id/myToolBar"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/tv_bid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="2"
+                android:gravity="center"
+                android:hint="id" />
+
+            <EditText
+                android:id="@+id/edt_bname"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:hint="书名" >
+            </EditText>
+
+            <EditText
+                android:id="@+id/edt_isend"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="完"
+                android:inputType="numberDecimal" >
+
+                <requestFocus />
+            </EditText>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <EditText
+                android:id="@+id/edt_bauthor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:hint="作者若空为新书" >
+            </EditText>
+
+            <EditText
+                android:id="@+id/edt_qdid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="起点ID"
+                android:inputType="numberDecimal" >
+            </EditText>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <EditText
+                android:id="@+id/edt_burl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="目录地址"
+                android:inputType="textUri" >
+            </EditText>
+        </LinearLayout>
+
+        <ScrollView
+            android:id="@+id/scrollView1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <EditText
+                android:id="@+id/edt_delurl"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="已删除列表" >
+            </EditText>
+        </ScrollView>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/myToolBar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:background="#222222" >
 
         <TextView
-            android:id="@+id/tv_bid"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:ems="2"
-            android:hint="id" />
-
-        <EditText
-            android:id="@+id/edt_bname"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:hint="书名" >
-
-            <requestFocus />
-        </EditText>
-        <EditText
-            android:id="@+id/edt_isend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:hint="完"
-            android:inputType="numberDecimal" >
-        </EditText>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <EditText
-            android:id="@+id/edt_bauthor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:hint="作者若空为新书" >
-        </EditText>
-        <EditText
-            android:id="@+id/edt_qdid"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="起点ID"
-            android:inputType="numberDecimal" >
-        </EditText>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <EditText
-            android:id="@+id/edt_burl"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="目录地址"
-            android:inputType="textUri" >
-        </EditText>
-    </LinearLayout>
-
-    <ScrollView
-        android:id="@+id/scrollView1"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" >
-
-        <EditText
-            android:id="@+id/edt_delurl"
+            android:id="@+id/testTV"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:hint="已删除列表" >
-        </EditText>
-    </ScrollView>
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/btnSave"
+            android:background="#222222"
+            android:gravity="center_vertical"
+            android:lines="2"
+            android:minLines="1"
+            android:text="FoxBook: 南无阿弥陀佛"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp" />
 
-</LinearLayout>
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/btnCopyFocus"
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_menu_save"
+            android:minWidth="60dp"
+            android:onClick="onBtnClick"
+            android:text="保存"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp" />
+
+        <Button
+            android:id="@+id/btnCopyFocus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/btnPasteFocus"
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_input_get"
+            android:minWidth="60dp"
+            android:onClick="onBtnClick"
+            android:text="复制"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp" />
+
+        <Button
+            android:id="@+id/btnPasteFocus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/btnGetQDidFromURL"
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_menu_edit"
+            android:minWidth="60dp"
+            android:onClick="onBtnClick"
+            android:text="粘贴"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp" />
+
+        <Button
+            android:id="@+id/btnGetQDidFromURL"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_menu_directions"
+            android:minWidth="60dp"
+            android:onClick="onBtnClick"
+            android:text="U2ID"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp" />
+    </RelativeLayout>
+
+</RelativeLayout>

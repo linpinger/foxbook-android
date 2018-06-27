@@ -1,46 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:layout_height="match_parent" >
+
+    <WebView
+        android:id="@+id/webView1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/myToolBar"
+        android:layout_alignParentTop="true" />
 
     <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
+        android:id="@+id/myToolBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#222222" >
+
+        <Button
+            android:id="@+id/btnFinish"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/editText1"
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_menu_close_clear_cancel"
+            android:minWidth="50dp"
+            android:text="返回"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp" />
+
+        <!-- android:textSize="13sp" -->
 
         <EditText
             android:id="@+id/editText1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
+            android:layout_centerVertical="true"
             android:layout_toLeftOf="@+id/button1"
-            android:ems="6"
-            android:hint="书名" >
+            android:ems="8"
+            android:hint="书名"
+            android:maxLines="1"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" >
 
             <requestFocus />
         </EditText>
 
-        <ImageButton
+        <Button
             android:id="@+id/button1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toLeftOf="@+id/button2"
-            android:src="@android:drawable/ic_menu_search"
-            android:text="搜" />
-
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_menu_search"
+            android:minWidth="50dp"
+            android:text="搜索"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp" />
 
         <Button
             android:id="@+id/button2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/button3"
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_menu_add"
+            android:minWidth="50dp"
+            android:text="预览"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp" />
+
+        <Button
+            android:id="@+id/button3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:text="预" />
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_input_add"
+            android:minWidth="50dp"
+            android:text="其他"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp" />
     </RelativeLayout>
 
-    <WebView
-        android:id="@+id/webView1"
-        android:layout_width="match_parent"
-        android:layout_height="fill_parent" />
-
-</LinearLayout>
+</RelativeLayout>

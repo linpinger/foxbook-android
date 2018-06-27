@@ -1,19 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:layout_height="match_parent" >
 
     <ListView
-        android:id="@+id/android:list"
+        android:id="@+id/testLV"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:id="@+id/android:empty"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="\n　　处理Txt/Zip/Epub文件中...\n\n　　萌萌哒 ^_^"
-        android:textSize="16sp" />
+        android:layout_above="@+id/myToolBar"
+        android:layout_alignParentTop="true" />
 
-</LinearLayout>
+    <RelativeLayout
+        android:id="@+id/myToolBar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:background="#222222" >
+
+        <TextView
+            android:id="@+id/testTV"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/btnToLVBottom"
+            android:background="#222222"
+            android:gravity="center_vertical"
+            android:lines="2"
+            android:minLines="1"
+            android:text="FoxBook: 南无阿弥陀佛"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp" />
+
+        <Button
+            android:id="@+id/btnToLVBottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/btnToLVTop"
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_media_next"
+            android:minWidth="50dp"
+            android:onClick="onBtnClick"
+            android:text="下翻"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp" />
+
+        <Button
+            android:id="@+id/btnToLVTop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/btnCopyInfo"
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_media_previous"
+            android:minWidth="50dp"
+            android:onClick="onBtnClick"
+            android:text="上翻"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp" />
+
+        <Button
+            android:id="@+id/btnCopyInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/btnToUTF8"
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_input_get"
+            android:minWidth="50dp"
+            android:onClick="onBtnClick"
+            android:text="复制"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp" />
+
+        <Button
+            android:id="@+id/btnToUTF8"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/btnSaveExit"
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_menu_directions"
+            android:minWidth="50dp"
+            android:onClick="onBtnClick"
+            android:text="转UTF8"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/btnSaveExit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_menu_save"
+            android:minWidth="50dp"
+            android:onClick="onBtnClick"
+            android:text="保存"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp" />
+    </RelativeLayout>
+
+</RelativeLayout>

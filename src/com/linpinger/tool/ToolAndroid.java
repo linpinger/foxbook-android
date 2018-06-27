@@ -20,11 +20,38 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.widget.ListView;
 
 public class ToolAndroid {
 
 	public static boolean isEink() {
 		return "Onyx".equalsIgnoreCase(android.os.Build.BRAND) ;
+	}
+
+	public static int jump2ListViewPos(ListView lv, int position) { // positon有效值: -99=上翻一屏，-66=下翻一屏幕，-1=底部，0=头部，>0
+		// http://androiddoc.qiniudn.com/reference/android/widget/AdapterView.html#getCount()
+		int jumpPos = position ; // 目标位置
+		int nowFirstPos = lv.getFirstVisiblePosition() ; // 可见的第一个item所处位置
+		int nowLastPos  = lv.getLastVisiblePosition() ; // 可见的最后一个item所处位置
+		int itemCount = lv.getCount(); // adapter里面元素的数量，不一定等于可见数
+
+		if ( position >= itemCount ) { // 数量太大跳到底部
+			jumpPos = itemCount - 1;
+		} else if ( position == -99 ) { // 上一屏幕
+			jumpPos = nowFirstPos - ( nowLastPos - nowFirstPos );
+			if ( jumpPos < 0 ) {
+				jumpPos = 0;
+			}
+		} else if ( position == -66 ) {
+			jumpPos = nowLastPos; // 下一屏幕
+		} else if ( position == -1 ) {
+			jumpPos = itemCount - 1; // 底部
+		} else if ( position < 0) {
+			return nowFirstPos;
+		} // 其他>=0的直接跳了
+
+		lv.setSelection(jumpPos);
+		return jumpPos;
 	}
 
 	@SuppressLint("SdCardPath")
