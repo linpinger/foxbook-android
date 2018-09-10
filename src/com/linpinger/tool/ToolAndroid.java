@@ -2,6 +2,7 @@ package com.linpinger.tool;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -20,12 +21,24 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.view.View;
 import android.widget.ListView;
 
 public class ToolAndroid {
 
 	public static boolean isEink() {
 		return "Onyx".equalsIgnoreCase(android.os.Build.BRAND) ;
+	}
+
+	public static void c67ml_FullRefresh(View view) { // 全刷 for Boox C67ML Carta, RK3026Device.class, Mode=4, EpdController.invalidate(this, UpdateMode.GC);
+		try {
+			Class<Enum> ce = (Class<Enum>) Class.forName("android.view.View$EINK_MODE");
+			Method mtd = View.class.getMethod("requestEpdMode", new Class[] { ce });
+			mtd.invoke(view, new Object[] { Enum.valueOf(ce, "EPD_FULL") });
+			view.invalidate();
+		} catch (Exception e) {
+			System.err.println(e.toString());
+		}
 	}
 
 	public static int jump2ListViewPos(ListView lv, int position) { // positon有效值: -99=上翻一屏，-66=下翻一屏幕，-1=底部，0=头部，>0

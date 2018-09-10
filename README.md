@@ -18,7 +18,7 @@
 
 **源码及下载:**
 
--   [源码工程](https://github.com/linpinger/foxbook-android)
+-   [源码工程](https://github.com.linpinger.foxbook-android)
 
 -   [APK文件下载点1:sf.net](http://master.dl.sourceforge.net/project/foxtestphp/prj/FoxBook.apk)
 -   [APK文件下载点2:七牛](http://linpinger.qiniudn.com/prj/FoxBook.apk)
@@ -55,7 +55,12 @@
 - 按照它的操作，分析jar包，找到EpdController这个类依赖的所有类，然后将其他删除，就得到最小的依赖，果然编译通过，运行正常，整个APK包大了40K左右，可以接受
 - 如果能获取它的源码包，理论上应该还可以减得更小
 
+##2018-09-03: 作死版##
+- 这个版本将所有activity更换为fragment，只留个入口activity
+- 切换会更快，然而不可避免的会有大量bug产生，所以不放到升级里面去，要测试的在release标签里面下载
+
 **更新日志:**
+- 2018-09-03: 测试: activity 基本都换成了 fragment，解决一些修改造成的bug
 - 2018-06-24: 修改: 修改为自写界面，不使用ListActivity，不使用Actionbar，删除http及其他部分较少用到的代码
 - 2018-06-15: 修改: 分离更新代码，慢慢规范分类
 - 2018-06-13: 添加: 搜索页添加菜单：直接将剪贴板中的新增为新书，ebook阅读页，添加菜单复制本书信息到剪贴板，清理缓存移到设置末尾

@@ -7,12 +7,11 @@ import java.util.Map;
 
 import com.linpinger.tool.ToolBookJava;
 
-public abstract class Action_UpdateNovel {
+public class Action_UpdateNovel {
 
-	public final int LINEBASE = 100 ;  //基数表示从该数往上递增表示线程数以及显示消息的行号 
-	public final int downThread = 9 ; // 页面下载任务线程数
+//	public final int LINEBASE = 100 ;  //基数表示从该数往上递增表示线程数以及显示消息的行号 
+	private final int downThread = 9 ; // 页面下载任务线程数
 
-	public ArrayList<String> AMSG ;    // 方便更新所有fml
 	public ArrayList<String> ANAME ;   // 方便更新所有fml
 	private ArrayList<Long> ASIZE ;
 	private ArrayList<Integer> ALeftThread ;
@@ -20,16 +19,21 @@ public abstract class Action_UpdateNovel {
 	private int upchacount = 0; // 单fml,新增章节计数
 	private int leftThread = downThread ;
 
-	public abstract void onStatuChange(int msgWhat, String msgOBJ) ; // 抽象方法需由子类实现
+	public interface OnStatuChangeListener {
+		public void OnStatuChange(int threadIDX, String msgOBJ) ;
+	}
+	private OnStatuChangeListener oscl;
+	public void setOnStatuChangeListener(OnStatuChangeListener inListener) {
+		oscl = inListener;
+	}
 
 	public void UpdateAllFMLs(String[] fmls, File fileCookie) {
-		AMSG  = new ArrayList<String>(8);
 		ANAME = new ArrayList<String>(8);
 		ASIZE = new ArrayList<Long>(8);
 		ALeftThread = new ArrayList<Integer>(8);
 		ANewPageCount = new ArrayList<Integer>(8);
+		ArrayList<File> fileList = new ArrayList<File>(8);
 
-		int i = -1 ;
 		File fileFML ;
 		for ( String nowFML : fmls ) {
 			if ( ! nowFML.contains(".fml") ) {
@@ -39,14 +43,18 @@ public abstract class Action_UpdateNovel {
 			if ( ! fileFML.exists() ) {
 				continue;
 			}
-			AMSG.add("");
 			ANAME.add(fileFML.getName().replace(".fml", ""));
 			ASIZE.add(fileFML.length());
 			ALeftThread.add(downThread);
 			ANewPageCount.add(0);
+			fileList.add(fileFML);
+		}
 
+		// 分段防止初始化未完，已经开始更新造成的超出边界
+		int i = -1 ;
+		for ( File nowFile : fileList ) {
 			++i;
-			new Thread(new UpdateAllBook(new NovelManager(fileFML), fileCookie, i)).start();
+			new Thread(new UpdateAllBook(new NovelManager(nowFile), fileCookie, i)).start();
 		}
 	}
 
@@ -75,13 +83,13 @@ public abstract class Action_UpdateNovel {
 		public void run() {
 			if ( isUpdateBlankPagesFirst ) {
 				for (Map<String, Object> blankPage : nm.getPageList(99) ) {
-					onStatuChange(LINEBASE + this.threadIDX, "填空: " + (String)blankPage.get(NV.PageName));
+					oscl.OnStatuChange(this.threadIDX, "填空: " + (String)blankPage.get(NV.PageName));
 					nm.updatePage((Integer)blankPage.get(NV.BookIDX), (Integer)blankPage.get(NV.PageIDX));
 				}
 			}
 
 if ( isCompareShelf ) {
-			onStatuChange(LINEBASE + this.threadIDX, "下载书架...");
+	oscl.OnStatuChange(this.threadIDX, "下载书架...");
 
 			List<Map<String, Object>> nn = new NovelSite().compareShelfToGetNew(nm.getBookListForShelf(), cookiesFile);
 			if ( nn != null ) {
@@ -89,9 +97,9 @@ if ( isCompareShelf ) {
 				if ( 0 == nnSize ) {
 					if ( isUpFMLs ) {
 						long newLen = closeNM(nm) - (Long)ASIZE.get(this.threadIDX) ;
-						onStatuChange(LINEBASE + this.threadIDX, newLen + "B，●: 书架无更新");
+						oscl.OnStatuChange(this.threadIDX, newLen + "B，●: 书架无更新");
 					} else {
-						onStatuChange(LINEBASE + this.threadIDX, "完毕: 书架无更新");
+						oscl.OnStatuChange(this.threadIDX, "完毕: 书架无更新");
 					}
 					return ;
 				} else {
@@ -104,7 +112,7 @@ if ( isCompareShelf ) {
 						nowName = mm.get(NV.BookName).toString();
 						nowURL = mm.get(NV.BookURL).toString();
 
-						onStatuChange(LINEBASE + this.threadIDX, "更新: " + nowName);
+						oscl.OnStatuChange(this.threadIDX, "更新: " + nowName);
 
 						nowTTT = new Thread(new UpdateBook(nm, nowBookIDX, nowURL, nowName, true, threadIDX));
 						nowTTT.start();
@@ -121,9 +129,9 @@ if ( isCompareShelf ) {
 
 					if ( isUpFMLs ) {
 						long newLen = closeNM(nm) - (Long)ASIZE.get(this.threadIDX) ;
-						onStatuChange(LINEBASE + this.threadIDX, newLen + "B，●: 已更 " + nnSize + " 书");
+						oscl.OnStatuChange(this.threadIDX, newLen + "B，●: 已更 " + nnSize + " 书");
 					} else {
-						onStatuChange(LINEBASE + this.threadIDX, "完毕: " + nnSize + " 已更新");
+						oscl.OnStatuChange(this.threadIDX, "完毕: " + nnSize + " 已更新");
 					}
 
 					return ;
@@ -159,9 +167,9 @@ if ( isCompareShelf ) {
 
 			if ( isUpFMLs ) {
 				long newLen = closeNM(nm) - (Long)ASIZE.get(this.threadIDX) ;
-				onStatuChange(LINEBASE + this.threadIDX, newLen + "B，●: 共 " + upchacount + " 新章节") ;
+				oscl.OnStatuChange(this.threadIDX, newLen + "B，●: 共 " + upchacount + " 新章节") ;
 			} else {
-				onStatuChange(LINEBASE + this.threadIDX, "共 " + upchacount + " 新章节，全部更新完毕") ;
+				oscl.OnStatuChange(this.threadIDX, "共 " + upchacount + " 新章节，全部更新完毕") ;
 			}
 
 		}
@@ -203,7 +211,7 @@ if ( isCompareShelf ) {
 
 		@Override
 		public void run() {
-			onStatuChange(LINEBASE + this.threadIDX, bookname + ": 下载目录页");
+			oscl.OnStatuChange(this.threadIDX, bookname + ": 下载目录页");
 
 			String existList = nm.getPageListStr(bookIDX); // 得到旧 list
 			List<Map<String, Object>> linkList;
@@ -221,7 +229,7 @@ if ( isCompareShelf ) {
 			int newpagecount = newPages.size(); // 新章节数，便于统计
 
 			if (newpagecount == 0) {
-				onStatuChange(LINEBASE + this.threadIDX, bookname + ": 无新章节");
+				oscl.OnStatuChange(this.threadIDX, bookname + ": 无新章节");
 
 				if ( ! bDownPage ) { //添加这个主要想在有空白章节时更新一下
 					return;
@@ -232,7 +240,7 @@ if ( isCompareShelf ) {
 				} else {
 					upchacount += newpagecount;
 				}
-				onStatuChange(LINEBASE + this.threadIDX, bookname + ": 新章节数: " + String.valueOf(newpagecount));
+				oscl.OnStatuChange(this.threadIDX, bookname + ": 新章节数: " + String.valueOf(newpagecount));
 			}
 
 			List<Map<String, Object>> nbl = nm.addBookBlankPageList(newPages, bookIDX);
@@ -274,14 +282,14 @@ if ( isCompareShelf ) {
 				int nowCount = 0;
 				for (Map<String, Object> blankPage : nbl){
 					++nowCount;
-					onStatuChange(LINEBASE + this.threadIDX, bookname + ": 下载章节: " + nowCount + " / " + newpagecount) ;
+					oscl.OnStatuChange(this.threadIDX, bookname + ": 下载章节: " + nowCount + " / " + newpagecount) ;
 					nm.updatePage(bookIDX, (Integer)blankPage.get(NV.PageIDX));
 				}
 			} // 单线程更新 end
 		} // bDownPage
 
-		onStatuChange(LINEBASE + this.threadIDX, bookname + ": 更新完毕");
-		onStatuChange(LINEBASE - 1, bookname + ": 更新完毕，刷新LV"); // handler.sendEmptyMessage(DO_REFRESHLIST); // 更新完毕，通知刷新
+		oscl.OnStatuChange(this.threadIDX, bookname + ": 更新完毕");
+		oscl.OnStatuChange(-9, bookname + ": 更新完毕，刷新LV"); // handler.sendEmptyMessage(DO_REFRESHLIST); // 更新完毕，通知刷新
 		} // run end
 	} // class UpdateBook end
 
@@ -311,7 +319,7 @@ if ( isCompareShelf ) {
 				} else {
 					nowLeftThread = leftThread;
 				}
-				onStatuChange(LINEBASE + this.threadIDX, nowLeftThread + ":" + thName + ":" + locCount + " / " + allCount);
+				oscl.OnStatuChange(this.threadIDX, nowLeftThread + ":" + thName + ":" + locCount + " / " + allCount);
 
 				nm.updatePage((Integer)tsk.get(NV.BookIDX), (Integer)tsk.get(NV.PageIDX));
 			}
@@ -324,7 +332,7 @@ if ( isCompareShelf ) {
 				nowLeftThread = leftThread;
 			}
 			if ( 0 == nowLeftThread ) { // 所有线程更新完毕
-				onStatuChange(LINEBASE + this.threadIDX, "已更新完所有空白章节>25") ;
+				oscl.OnStatuChange(this.threadIDX, "已更新完所有空白章节>25") ;
 			}
 		}
 	}

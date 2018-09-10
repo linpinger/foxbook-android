@@ -15,8 +15,8 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.view.View;
 
-//在Activity中使用 View.setOnClickListener 绑定点击事件，免得自己来判断
-public class Ext_View_FoxTextView extends View {
+// View.setOnClickListener 绑定点击事件，免得自己来判断
+public class View_FoxTextView extends View {
 
 	private FoxBroadcastReceiver bc_rcv;
 	private Context ctx ;
@@ -46,7 +46,7 @@ public class Ext_View_FoxTextView extends View {
 	private int lastTxtHashCode = 0 ;
 	private float lastMaxWidth = 0 ;
 
-	public Ext_View_FoxTextView(Context context) {
+	public View_FoxTextView(Context context) {
 		super(context);
 		ctx = context ;
 
@@ -116,14 +116,17 @@ public class Ext_View_FoxTextView extends View {
 		this.setInfoR();
 	}
 
-	public void setFontSize(float inFontSizePX) {
+	public View setFontSize(float inFontSizePX) {
 		fontSize = inFontSizePX;
+		return this;
 	}
-	public void setLineSpaceing(String inLS) {// "1.5f"
+	public View setLineSpaceing(String inLS) {// "1.5f"
 		lineSpaceing = Float.valueOf(inLS);
+		return this;
 	}
-	public void setPadding(String floatFontSizeMultiple) { // 0.5f
+	public View setPadding(String floatFontSizeMultiple) { // 0.5f
 		paddingMulti = Float.valueOf(floatFontSizeMultiple) ;
+		return this;
 	}
 
 	public boolean setUserFontPath(String fontPath) {

@@ -57,7 +57,6 @@
             android:background="@drawable/toolbar_button"
             android:drawableTop="@android:drawable/ic_menu_view"
             android:minWidth="60dp"
-            android:onClick="onBtnClick"
             android:text="显示"
             android:textColor="#FFFFFF"
             android:textSize="12dp" />
@@ -70,7 +69,6 @@
             android:background="@drawable/toolbar_button"
             android:drawableTop="@android:drawable/ic_menu_rotate"
             android:minWidth="60dp"
-            android:onClick="onBtnClick"
             android:text="切换"
             android:textColor="#FFFFFF"
             android:textSize="12dp" />
@@ -83,7 +81,6 @@
             android:background="@drawable/toolbar_button"
             android:drawableTop="@android:drawable/ic_input_add"
             android:minWidth="60dp"
-            android:onClick="onBtnClick"
             android:text="菜单"
             android:textColor="#FFFFFF"
             android:textSize="12dp" />

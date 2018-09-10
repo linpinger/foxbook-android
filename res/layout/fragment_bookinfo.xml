@@ -120,7 +120,6 @@
             android:background="@drawable/toolbar_button"
             android:drawableTop="@android:drawable/ic_menu_save"
             android:minWidth="60dp"
-            android:onClick="onBtnClick"
             android:text="保存"
             android:textColor="#FFFFFF"
             android:textSize="12dp" />
@@ -133,7 +132,6 @@
             android:background="@drawable/toolbar_button"
             android:drawableTop="@android:drawable/ic_input_get"
             android:minWidth="60dp"
-            android:onClick="onBtnClick"
             android:text="复制"
             android:textColor="#FFFFFF"
             android:textSize="12dp" />
@@ -146,7 +144,6 @@
             android:background="@drawable/toolbar_button"
             android:drawableTop="@android:drawable/ic_menu_edit"
             android:minWidth="60dp"
-            android:onClick="onBtnClick"
             android:text="粘贴"
             android:textColor="#FFFFFF"
             android:textSize="12dp" />
@@ -159,7 +156,6 @@
             android:background="@drawable/toolbar_button"
             android:drawableTop="@android:drawable/ic_menu_directions"
             android:minWidth="60dp"
-            android:onClick="onBtnClick"
             android:text="U2ID"
             android:textColor="#FFFFFF"
             android:textSize="12dp" />

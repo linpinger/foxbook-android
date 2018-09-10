@@ -5,8 +5,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.annotation.TargetApi;
-import android.app.Activity;
-import android.content.Intent;
+import android.app.Fragment;
+import android.content.Context;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -14,9 +14,11 @@ import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 import android.widget.PopupMenu.OnMenuItemClickListener;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 
@@ -31,56 +33,68 @@ import com.linpinger.novel.NovelManager;
 import com.linpinger.novel.SiteQiDian;
 import com.linpinger.tool.ToolAndroid;
 import com.linpinger.tool.ToolBookJava;
-/*
-Activity_PageList : msg IS_GETQIDIANURL -> Runnable:GetQidianURL : 选项: 快搜:qidian : aSearchBookOnQiDian, bookname, bookurl
-Activity_PageList : 预览按钮 : aSearchBookOnNet, bookname, bookurl
 
-Activity_QuickSearch : 选项菜单:sogou : BookName, searchEngine
-Activity_QuickSearch : 选项菜单:bing  : BookName, searchEngine
-Activity_QuickSearch : 选项菜单:yahoo : BookName, searchEngine
-*/
-public class Activity_SearchBook extends Activity {
+@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+public class Fragment_SearchBook extends Fragment {
+
+	public static Fragment_SearchBook newInstance(NovelManager novelMgr) {
+		Fragment_SearchBook fc = new Fragment_SearchBook();
+		fc.nm = novelMgr;
+		return fc;
+	}
+	public static Fragment_SearchBook newInstance(NovelManager novelMgr, String bookName) {
+		Fragment_SearchBook fc = new Fragment_SearchBook();
+		fc.nm = novelMgr;
+		Bundle bd = new Bundle();
+		bd.putInt(AC.action, AC.aListQDPages);
+		bd.putString(NV.BookName, bookName);
+		fc.setArguments(bd);
+		return fc;
+	}
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-//		this.setTheme(android.R.style.Theme_Holo_Light_DarkActionBar); // tmp: ActionBar
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_search);
-		mExitTime = System.currentTimeMillis();
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		ctx = container.getContext();
+		View v = inflater.inflate(R.layout.fragment_search, container, false); // 这个false很重要，不然会崩溃
 
-		init_views();
+		init_views(v);
 		init_handler();
 		init_button_actions();
 
 		setWebView_NotOpenInNewWin(); // 在当前webview里面跳转
 		loadDefaultHTML(); // 载入默认内容
 
-		this.nm = ((FoxApp)this.getApplication()).nm ;
-		
 		// 获取传入的数据
-		Intent itt = getIntent();
-		ittAction = itt.getIntExtra(AC.action, 0);
-		switch (ittAction) {
-		case AC.aListQDPages: // 搜索起点
-			book_name = itt.getStringExtra(NV.BookName);
-			et.setText(book_name);
-			(new Thread(new GetQidianURLFromBookName(book_name))).start() ;
-			break;
+		Bundle itt = getArguments();
+		if ( itt != null ) {
+			ittAction = itt.getInt(AC.action, 0);
+			switch (ittAction) {
+			case AC.aListQDPages: // 搜索起点
+				book_name = itt.getString(NV.BookName);
+				et.setText(book_name);
+				(new Thread(new GetQidianURLFromBookName(book_name))).start() ;
+				break;
+			}
 		}
 
+		return v;
 	} // onCreate end
 
 	void init_button_actions() {
 		btn_finish.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
-				exitMe();
+				if ( wv.canGoBack() ) {
+					wv.goBack(); // goBack()表示返回webView的上一页面
+				} else {
+					onBackPressed();
+				}
 			}
 		});
 		btn_finish.setOnLongClickListener(new OnLongClickListener(){
 			@Override
 			public boolean onLongClick(View v) {
-				// TODO
+				onBackPressed();
 				return true;
 			}
 		});
@@ -103,12 +117,15 @@ public class Activity_SearchBook extends Activity {
 				book_url = wv.getUrl();
 				if ( null != book_url ) {
 					foxtip(book_name + " <" + book_url + ">");
-					ToolAndroid.setClipText(tmpClipBoardText, getApplicationContext());
-					Intent intent = new Intent(Activity_SearchBook.this, Activity_PageList.class);
-					intent.putExtra(AC.action, AC.aSearchBookOnSite);
-					intent.putExtra(NV.BookURL, book_url);
-					intent.putExtra(NV.BookName, book_name);
-					startActivity(intent);
+					ToolAndroid.setClipText(tmpClipBoardText, ctx);
+
+					Bundle bd = new Bundle();
+
+					bd.putInt(AC.action, AC.aSearchBookOnSite);
+					bd.putString(NV.BookURL, book_url);
+					bd.putString(NV.BookName, book_name);
+
+					startFragment( Fragment_PageList.newInstance(nm, bd) );
 				} else { //什么时候会是null？
 					foxtip("错误: 当前页面地址为空");
 				}
@@ -140,7 +157,7 @@ public class Activity_SearchBook extends Activity {
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	void createPopupMenuSearch(View view) { // 搜索/浏览：弹出菜单
-		PopupMenu popW = new PopupMenu(this, view);
+		PopupMenu popW = new PopupMenu(ctx, view);
 		Menu m = popW.getMenu();
 	
 		m.add("下载起点Epub");
@@ -181,7 +198,7 @@ public class Activity_SearchBook extends Activity {
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	void createPopupMenuPreview(View view) { // 预览/快搜:弹出菜单
-		PopupMenu popW = new PopupMenu(this, view);
+		PopupMenu popW = new PopupMenu(ctx, view);
 		Menu m = popW.getMenu();
 	
 		m.add("快速搜索:雅虎");
@@ -194,28 +211,16 @@ public class Activity_SearchBook extends Activity {
 			@Override
 			public boolean onMenuItemClick(MenuItem mi) {
 				String mt = mi.getTitle().toString();
+				book_name = et.getText().toString();
+
 				if ( mt.equalsIgnoreCase("快速搜索:起点") ) {
-					book_name = et.getText().toString(); // 快搜:起点
 					(new Thread(new GetQidianURLFromBookName(book_name))).start() ;
-				} else if ( mt.equalsIgnoreCase("快速搜索:Bing") ) { // 快搜:Bing
-					book_name = et.getText().toString();
-					Intent itb = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
-					itb.putExtra(NV.BookName, book_name);
-					itb.putExtra(AC.searchEngine, AC.SE_BING);
-					startActivity(itb);
+				} else if ( mt.equalsIgnoreCase("快速搜索:Bing") ) {
+					startFragment( Fragment_QuickSearch.newInstance(nm, AC.SE_BING, book_name) );
 				} else if ( mt.equalsIgnoreCase("快速搜索:搜狗") ) {
-					book_name = et.getText().toString(); // 快搜:搜狗
-					Intent intent = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
-					intent.putExtra(NV.BookName, book_name);
-					intent.putExtra(AC.searchEngine, AC.SE_SOGOU);
-					startActivity(intent);
+					startFragment( Fragment_QuickSearch.newInstance(nm, AC.SE_SOGOU, book_name) );
 				} else if ( mt.equalsIgnoreCase("快速搜索:雅虎") ) {
-					book_name = et.getText().toString(); // 快搜:雅虎
-					Intent ityh = new Intent(Activity_SearchBook.this, Activity_QuickSearch.class);
-					ityh.putExtra(NV.BookName, book_name);
-					ityh.putExtra(AC.searchEngine, AC.SE_YAHOO);
-					startActivity(ityh);
-				} else if ( mt.equalsIgnoreCase("yyyy") ) {
+					startFragment( Fragment_QuickSearch.newInstance(nm, AC.SE_YAHOO, book_name) ); 
 				}
 				return true;
 			}
@@ -224,7 +229,7 @@ public class Activity_SearchBook extends Activity {
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	void createPopupMenuOther(View view) { // 剪贴板/其他: 弹出菜单
-		PopupMenu popW = new PopupMenu(this, view);
+		PopupMenu popW = new PopupMenu(ctx, view);
 		Menu m = popW.getMenu();
 	
 		m.add("复制临时全书信息");
@@ -235,32 +240,12 @@ public class Activity_SearchBook extends Activity {
 			public boolean onMenuItemClick(MenuItem mi) {
 				String mt = mi.getTitle().toString();
 				if ( mt.equalsIgnoreCase("复制临时全书信息") ) {
-					ToolAndroid.setClipText(tmpClipBoardText, getApplicationContext());
+					ToolAndroid.setClipText(tmpClipBoardText, ctx);
 					foxtip("剪贴板:\n" + tmpClipBoardText);
 				}
 				return true;
 			}
 		});
-	}
-
-	@Override
-	public void onBackPressed() { // 返回键被按
-		if ((System.currentTimeMillis() - mExitTime) > 2000) {
-			if ( wv.canGoBack() ) {
-				foxtip("后退中...");
-				wv.goBack(); // goBack()表示返回webView的上一页面
-			} else {
-				foxtip("再按一次退出搜索");
-				mExitTime = System.currentTimeMillis();
-			}
-		} else {
-			exitMe();
-		}
-	}
-
-	private void exitMe() {
-		setResult(RESULT_OK);
-		finish();
 	}
 
 	public class GetQidianURLFromBookName implements Runnable {
@@ -285,7 +270,7 @@ public class Activity_SearchBook extends Activity {
 
 	private String funcCopyURL() {
 		String ua = wv.getUrl();
-		ToolAndroid.setClipText(ua, this);
+		ToolAndroid.setClipText(ua, ctx);
 		foxtip("剪贴板:\n" + ua);
 		return ua;
 	}
@@ -294,7 +279,7 @@ public class Activity_SearchBook extends Activity {
 		String ub = wv.getUrl();
 		if (ub.contains(".qidian.com/")) {
 			String qidianID = new SiteQiDian().getBookID_FromURL(ub);
-			ToolAndroid.download("http://download.qidian.com/epub/" + qidianID + ".epub", qidianID + ".epub", this);
+			ToolAndroid.download("http://download.qidian.com/epub/" + qidianID + ".epub", qidianID + ".epub", ctx);
 			foxtip("开始下载: " + qidianID + ".epub");
 		} else {
 			foxtip("非起点URL:\n" + ub);
@@ -302,7 +287,7 @@ public class Activity_SearchBook extends Activity {
 	}
 
 	private void foxtip(String sinfo) { // Toast消息
-		Toast.makeText(getApplicationContext(), sinfo, Toast.LENGTH_SHORT).show();
+		Toast.makeText(ctx, sinfo, Toast.LENGTH_SHORT).show();
 	}
 
 	public void copyCurrentMainSiteStr() {
@@ -322,14 +307,14 @@ public class Activity_SearchBook extends Activity {
 			System.err.println(e.toString());
 		}
 		String siteStr = " site:" + urlHost ;
-		ToolAndroid.setClipText(siteStr, this);
+		ToolAndroid.setClipText(siteStr, ctx);
 		foxtip("剪贴板:\n" + siteStr);
 	}
 
 	void fucClickButtonSearch() { // 点击搜索按钮
 		book_name = et.getText().toString();
 		if ( book_name.length() == 0 ) { // 当未输入书名，粘贴剪贴板
-			tmpClipBoardText = ToolAndroid.getClipText(getApplicationContext());
+			tmpClipBoardText = ToolAndroid.getClipText(ctx);
 			if ( ! tmpClipBoardText.contains("FoxBook>") ) {
 				foxtip("剪贴板中的内容格式不对哟\n先粘贴到搜索栏好了\n长按本按钮有惊喜哟");
 				book_name = tmpClipBoardText;
@@ -349,7 +334,7 @@ public class Activity_SearchBook extends Activity {
 	}
 
 	void funcAddBookFromClip() {
-		String nowfbs = ToolAndroid.getClipText(this);
+		String nowfbs = ToolAndroid.getClipText(ctx);
 		if ( ! nowfbs.contains("FoxBook>") ) {
 			foxtip("剪贴板中的内容格式不对哟\n长按本按钮有惊喜哟");
 			return;
@@ -365,10 +350,9 @@ public class Activity_SearchBook extends Activity {
 				nowBookInfo.put(NV.BookAuthor, xx[2]);
 				nm.setBookInfo(nowBookInfo, nBookIDX);
 			}
-			Intent itti = new Intent(Activity_SearchBook.this, Activity_BookInfo.class);
-			itti.putExtra(NV.BookIDX, nBookIDX);
-			startActivity(itti);
-			exitMe();
+			
+			startFragment( Fragment_BookInfo.newInstance(nm, nBookIDX) );
+			onBackPressed();
 		} else {
 			foxtip("信息不完整，不包含名字和地址\n" + nowfbs);
 		}
@@ -398,11 +382,13 @@ public class Activity_SearchBook extends Activity {
 					case IS_GETQIDIANURL:
 						String lcQidianURL = (String)msg.obj;
 						if ( 0 != lcQidianURL.length() ) {
-							Intent intentQD = new Intent(Activity_SearchBook.this, Activity_PageList.class);
-							intentQD.putExtra(AC.action, AC.aSearchBookOnQiDian);
-							intentQD.putExtra(NV.BookURL, lcQidianURL);
-							intentQD.putExtra(NV.BookName, book_name);
-							startActivity(intentQD);
+							Bundle bd = new Bundle();
+
+							bd.putInt(AC.action, AC.aSearchBookOnQiDian);
+							bd.putString(NV.BookURL, lcQidianURL);
+							bd.putString(NV.BookName, book_name);
+
+							startFragment( Fragment_PageList.newInstance(nm, bd) );
 						} else {
 							foxtip("在起点上未搜索到该书名");
 						}
@@ -412,13 +398,13 @@ public class Activity_SearchBook extends Activity {
 			}
 		});
 	}
-	void init_views() {
-		wv   = (WebView)  findViewById(R.id.webView1);
-		btn_finish = (Button) findViewById(R.id.btnFinish);
-		et   = (EditText) findViewById(R.id.editText1); // bookname
-		btn_search = (Button) findViewById(R.id.button1);
-		btn_pre    = (Button) findViewById(R.id.button2);
-		btn_other  = (Button) findViewById(R.id.button3);
+	void init_views(View v) {
+		wv   = (WebView)  v.findViewById(R.id.webView1);
+		btn_finish = (Button) v.findViewById(R.id.btnFinish);
+		et   = (EditText) v.findViewById(R.id.editText1); // bookname
+		btn_search = (Button) v.findViewById(R.id.button1);
+		btn_pre    = (Button) v.findViewById(R.id.button2);
+		btn_other  = (Button) v.findViewById(R.id.button3);
 		
 	}
 
@@ -429,7 +415,6 @@ public class Activity_SearchBook extends Activity {
 
 	private String tmpClipBoardText = "";
 	private int ittAction = 0 ; // 传入的数据
-	private long mExitTime ;
 
 	private WebView wv;
 	private Button btn_finish;
@@ -442,4 +427,25 @@ public class Activity_SearchBook extends Activity {
 
 	private static Handler handler;
 
+	private OnFinishListener lsn;
+	public Fragment setOnFinishListener(OnFinishListener ofl) {
+		lsn = ofl;
+		return this;
+	}
+	@Override
+	public void onDestroy() {
+		if ( lsn != null) {
+			lsn.OnFinish();
+		}
+		super.onDestroy();
+	}
+
+	private void onBackPressed() {
+		getActivity().onBackPressed();
+	}
+	void startFragment(Fragment fragmt) {
+//		getFragmentManager().beginTransaction().replace(android.R.id.content, fragmt).addToBackStack(null).commit();
+		getFragmentManager().beginTransaction().hide(this).add(android.R.id.content, fragmt).addToBackStack(null).commit(); // Fragment里面启动Fragment用这个
+	} // 返回功能调用Activity的onBackPressed: getActivity().onBackPressed();
+	private Context ctx;
 }

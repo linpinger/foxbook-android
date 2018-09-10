@@ -52,12 +52,6 @@
             android:summaryOff="下载每个目录，较耗流量"
             android:summaryOn="较节省时间，流量，需有cookie"
             android:title="更新前比较书架" />
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="isSaveWhenOpenY"
-            android:summaryOff="不显示且不保存"
-            android:summaryOn="显示且保存"
-            android:title="非默认路径的选项菜单" />
     </PreferenceCategory>
     <PreferenceCategory android:title="阅读页设置" >
         <CheckBoxPreference

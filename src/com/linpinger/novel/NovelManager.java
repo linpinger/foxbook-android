@@ -54,7 +54,7 @@ public class NovelManager {
 			this.bookStoreType = NovelManager.TXT ;
 			this.shelf = new StorTxt().load(this.shelfFile);
 		}
-		System.out.println("NM:储存类型=" + this.bookStoreType);
+		System.out.println("NM: 打开: " + shelfFile.getName());
 	}
 
 	public void setSaveFormat(int inSaveFormat) {
@@ -213,6 +213,43 @@ public class NovelManager {
 		return data ;
 	}
 
+	public int getBookCount() {
+		return this.shelf.size();
+	}
+	public List<Map<String, Object>> getPageListWithTitle() { // 列出所有章节，书名也单独列出，通过isTitle判断是否书名行，1=是, 0=否
+		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(20);
+		Map<String, Object> item;
+		
+		int bookIDX = -1 ;
+		int pageIDX ;
+		String bookName ;
+		for (Novel book : this.shelf) {
+			++ bookIDX;
+			bookName = book.getInfo().get(NV.BookName).toString();
+			pageIDX = -1 ;
+			for ( Map<String, Object> page : book.getChapters() ) {
+				++ pageIDX;
+				item = new HashMap<String, Object>(6);
+				if ( 0 == pageIDX ) {
+					Map<String, Object> itemTile = new HashMap<String, Object>(2);
+					itemTile.put(NV.BookName, bookName);
+					itemTile.put("isTitle", "1");
+					data.add(itemTile);
+				}
+				item.put("isTitle", "0");
+				item.put(NV.PageName, page.get(NV.PageName));
+				item.put(NV.BookName, bookName);
+				item.put(NV.PageURL, page.get(NV.PageURL));
+				item.put(NV.BookIDX, bookIDX);
+				item.put(NV.PageIDX, pageIDX);
+				item.put(NV.Size, page.get(NV.Size));
+
+				data.add(item);
+			}
+		}
+
+		return data;
+	}
 	public List<Map<String, Object>> getPageList(int sMode) { // 与BookID无关
 		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(20);
 		Map<String, Object> item;
@@ -338,7 +375,11 @@ public class NovelManager {
 		this.shelf.get(bookIDX).getChapters().get(pageIDX).putAll(page);
 	}
 	synchronized public void setPageContent(String content, int bookIDX, int pageIDX) { // synchronized
-		Map<String, Object> hm = this.shelf.get(bookIDX).getChapters().get(pageIDX);
+		List<Map<String, Object>> pages = this.shelf.get(bookIDX).getChapters();
+		if ( pageIDX >= pages.size() ) { // 越界了
+			return ;
+		}
+		Map<String, Object> hm = pages.get(pageIDX);
 		hm.put(NV.Content, content);
 		hm.put(NV.Size, content.length());
 	}
@@ -564,8 +605,12 @@ public class NovelManager {
 
 	public int updatePage(int bookIDX, int pageIDX) { // 写入对象，更新用
 		Novel book = this.shelf.get(bookIDX);
+		List<Map<String, Object>> pages = book.getChapters();
+		if ( pageIDX >= pages.size() ) { // 越界了
+			return 0;
+		}
 		String pageFullURL = ToolBookJava.getFullURL(book.getInfo().get(NV.BookURL).toString()
-				, book.getChapters().get(pageIDX).get(NV.PageURL).toString());
+				, pages.get(pageIDX).get(NV.PageURL).toString());
 		String text = this.updatePage(pageFullURL);
 
 		this.setPageContent(text, bookIDX, pageIDX);

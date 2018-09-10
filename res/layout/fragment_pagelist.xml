@@ -22,14 +22,51 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
-            android:layout_toLeftOf="@+id/btnToLVBottom"
+            android:layout_toLeftOf="@+id/btnAddBook"
             android:background="#222222"
             android:gravity="center_vertical"
             android:lines="2"
             android:minLines="1"
+            android:paddingLeft="9dp"
             android:text="FoxBook: 南无阿弥陀佛"
             android:textColor="#FFFFFF"
             android:textSize="13sp" />
+
+        <Button
+            android:id="@+id/btnAddBook"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/btnCleanBook"
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_input_add"
+            android:minWidth="50dp"
+            android:text="添书"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp" />
+
+        <Button
+            android:id="@+id/btnCleanBook"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/btnCleanBookND"
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_menu_delete"
+            android:minWidth="50dp"
+            android:text="删除"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp" />
+
+        <Button
+            android:id="@+id/btnCleanBookND"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/btnToLVBottom"
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_notification_clear_all"
+            android:minWidth="50dp"
+            android:text="清空"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp" />
 
         <Button
             android:id="@+id/btnToLVBottom"
@@ -39,7 +76,6 @@
             android:background="@drawable/toolbar_button"
             android:drawableTop="@android:drawable/ic_media_next"
             android:minWidth="50dp"
-            android:onClick="onBtnClick"
             android:text="下翻"
             android:textColor="#FFFFFF"
             android:textSize="12dp" />
@@ -48,52 +84,11 @@
             android:id="@+id/btnToLVTop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toLeftOf="@+id/btnCopyInfo"
+            android:layout_alignParentRight="true"
             android:background="@drawable/toolbar_button"
             android:drawableTop="@android:drawable/ic_media_previous"
             android:minWidth="50dp"
-            android:onClick="onBtnClick"
             android:text="上翻"
-            android:textColor="#FFFFFF"
-            android:textSize="12dp" />
-
-        <Button
-            android:id="@+id/btnCopyInfo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toLeftOf="@+id/btnToUTF8"
-            android:background="@drawable/toolbar_button"
-            android:drawableTop="@android:drawable/ic_input_get"
-            android:minWidth="50dp"
-            android:onClick="onBtnClick"
-            android:text="复制"
-            android:textColor="#FFFFFF"
-            android:textSize="12dp" />
-
-        <Button
-            android:id="@+id/btnToUTF8"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toLeftOf="@+id/btnSaveExit"
-            android:background="@drawable/toolbar_button"
-            android:drawableTop="@android:drawable/ic_menu_directions"
-            android:minWidth="50dp"
-            android:onClick="onBtnClick"
-            android:text="转UTF8"
-            android:textColor="#FFFFFF"
-            android:textSize="12dp"
-            android:visibility="gone" />
-
-        <Button
-            android:id="@+id/btnSaveExit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:background="@drawable/toolbar_button"
-            android:drawableTop="@android:drawable/ic_menu_save"
-            android:minWidth="50dp"
-            android:onClick="onBtnClick"
-            android:text="保存"
             android:textColor="#FFFFFF"
             android:textSize="12dp" />
     </RelativeLayout>

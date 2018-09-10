@@ -6,47 +6,66 @@ import java.util.List;
 import java.util.Map;
 
 import com.linpinger.novel.NV;
+import com.linpinger.novel.NovelManager;
 import com.linpinger.tool.ToolAndroid;
 import com.linpinger.tool.ToolBookJava;
 
-import android.app.Activity;
-import android.content.Intent;
+import android.annotation.TargetApi;
+import android.app.Fragment;
+import android.content.Context;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
-// Activity_PageList : 单击列表
+@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+public class Fragment_QuickSearch extends Fragment {
 
-public class Activity_QuickSearch extends Activity {
+	public static Fragment_QuickSearch newInstance(NovelManager novelMgr, int typeOfSE, String bookName) {
+		Fragment_QuickSearch frgmt = new Fragment_QuickSearch();
+		frgmt.nm = novelMgr;
+		Bundle bd = new Bundle();
+		bd.putInt(AC.searchEngine, typeOfSE);
+		bd.putString(NV.BookName, bookName);
+		frgmt.setArguments(bd);
+		return frgmt;
+	}
+	public static Fragment_QuickSearch newInstance(NovelManager novelMgr, Bundle bd) {
+		Fragment_QuickSearch frgmt = new Fragment_QuickSearch();
+		frgmt.nm = novelMgr;
+		frgmt.setArguments(bd);
+		return frgmt;
+	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) { // 入口
-//		requestWindowFeature(Window.FEATURE_NO_TITLE);
-//		this.setTheme(android.R.style.Theme_Holo_Light_NoActionBar); // 无ActionBar
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_quicksearch);
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		ctx = container.getContext();
+		View v = inflater.inflate(R.layout.fragment_quicksearch, container, false); // 这个false很重要，不然会崩溃
 
-		info = (TextView)this.findViewById(R.id.testTV);
-		lv = (ListView)this.findViewById(R.id.testLV); // 获取LV
+		info = (TextView)v.findViewById(R.id.testTV);
+		lv = (ListView)v.findViewById(R.id.testLV); // 获取LV
 		if ( ! ToolAndroid.isEink() ) {
 			lv.setBackgroundColor(Color.parseColor("#EEFAEE"));
 		}
 
-		Intent itt = getIntent();
-		book_name = itt.getStringExtra(NV.BookName); // 必需
-		SE_TYPE = itt.getIntExtra(AC.searchEngine, 1) ;
+		Bundle bd = this.getArguments();
+		book_name = bd.getString(NV.BookName); // 必需
+		SE_TYPE = bd.getInt(AC.searchEngine, 1) ;
 		if ( SE_TYPE == AC.SE_NONE ) { // 非搜索引擎
-			seURL = itt.getStringExtra(NV.BookURL);
+			seURL = bd.getString(NV.BookURL);
 			foxtipL("搜索: " + book_name + "  点此返回，普通页面地址:\n" + seURL);
 		} else {
 			foxtipL("搜索: " + book_name + "  点击这里返回");
@@ -82,6 +101,7 @@ public class Activity_QuickSearch extends Activity {
 		init_handler() ; // 初始化一个handler 用于处理后台线程的消息
 		initViewAction() ; // 初始化 点击 的行为
 
+		return v;
 	}
 
 	void initViewAction() {
@@ -99,18 +119,28 @@ public class Activity_QuickSearch extends Activity {
 				book_url = (String) book.get(NV.BookURL);
 				
 				if ( clickX > lv.getWidth() * 0.8 ) { // 右边1/5处: 表示进入信息页，需要手工选择链接
-					Intent ittR = new Intent(Activity_QuickSearch.this, Activity_QuickSearch.class); // Test打开副本
-					ittR.putExtra(AC.action, AC.aSearchBookOnSite);
-					ittR.putExtra(NV.BookName, book_name);
-					ittR.putExtra(AC.searchEngine, AC.SE_NONE);
-					ittR.putExtra(NV.BookURL, ToolBookJava.getFullURL(seURL, book_url));
-					startActivity(ittR);
+					String nowFullURL = ToolBookJava.getFullURL(seURL, book_url);
+//					ToolAndroid.setClipText(nowFullURL, ctx);
+//					foxtip("网址已复制到剪贴板\n" + nowFullURL);
+
+					Bundle bd = new Bundle();
+
+					bd.putInt(AC.action, AC.aSearchBookOnSite);
+					bd.putString(NV.BookName, book_name);
+					bd.putInt(AC.searchEngine, AC.SE_NONE);
+					bd.putString(NV.BookURL, nowFullURL);
+
+					startFragment( Fragment_QuickSearch.newInstance(nm, bd) );
 				} else {
-					Intent itt = new Intent(Activity_QuickSearch.this, Activity_PageList.class); //
-					itt.putExtra(AC.action, AC.aSearchBookOnSite);
-					itt.putExtra(NV.BookURL, book_url);
-					itt.putExtra(NV.BookName, book_name);
-					startActivity(itt);
+//					ToolAndroid.setClipText(book_url, ctx);
+//					foxtip("网址已复制到剪贴板\n" + book_url);
+					Bundle bd = new Bundle();
+
+					bd.putInt(AC.action, AC.aSearchBookOnSite);
+					bd.putString(NV.BookURL, book_url);
+					bd.putString(NV.BookName, book_name);
+
+					startFragment( Fragment_PageList.newInstance(nm, bd) );
 				}
 				foxtipL("搜索: " + book_name + "\n" + book_url);
 			}
@@ -126,7 +156,7 @@ public class Activity_QuickSearch extends Activity {
 	} // initViewAction end
 
 	private void refreshLVAdapter() {
-		adapter = new SimpleAdapter(this, data,
+		adapter = new SimpleAdapter(ctx, data,
 				android.R.layout.simple_list_item_2, new String[] { NV.BookName, NV.BookURL },
 				new int[] { android.R.id.text1, android.R.id.text2 });
 		lv.setAdapter(adapter);
@@ -143,10 +173,31 @@ public class Activity_QuickSearch extends Activity {
 		};
 	}
 
+	private OnFinishListener lsn;
+	public Fragment setOnFinishListener(OnFinishListener ofl) {
+		lsn = ofl;
+		return this;
+	}
+	@Override
+	public void onDestroy() {
+		if ( lsn != null) {
+			lsn.OnFinish();
+		}
+		super.onDestroy();
+	}
+	private void onBackPressed() {
+		getActivity().onBackPressed();
+	}
+//	private void foxtip(String sinfo) { // Toast消息
+//		Toast.makeText(ctx, sinfo, Toast.LENGTH_SHORT).show();
+//	}
 	private void foxtipL(String sinfo) {
 		info.setText(sinfo);
-//		info.setVisibility(View.VISIBLE);
 	}
+	void startFragment(Fragment fragmt) {
+//		getFragmentManager().beginTransaction().replace(android.R.id.content, fragmt).addToBackStack(null).commit();
+		getFragmentManager().beginTransaction().hide(this).add(android.R.id.content, fragmt).addToBackStack(null).commit(); // Fragment里面启动Fragment用这个
+	} // 返回功能调用Activity的onBackPressed: getActivity().onBackPressed();
 
 	private float clickX = 0 ; // 用来确定点击横坐标以实现不同LV不同区域点击效果
 	private ListView lv ;
@@ -156,9 +207,12 @@ public class Activity_QuickSearch extends Activity {
 	private Handler handler;
 	private static int IS_REFRESH = 5 ;
 
+	private NovelManager nm;
 	private String book_name = "" ;
 	private String book_url = "" ;
 
 	private int SE_TYPE = 1; // 搜索引擎
 	private String seURL = "" ;
+
+	private Context ctx;
 }

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <ListView
+        android:id="@android:id/list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/myToolBar"
+        android:layout_alignParentTop="true" />
+
+    <RelativeLayout
+        android:id="@+id/myToolBar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:background="#222222" >
+
+        <TextView
+            android:id="@+id/testTV"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/btnToLVBottom"
+            android:background="#222222"
+            android:gravity="center_vertical"
+            android:lines="2"
+            android:minLines="1"
+            android:paddingLeft="9dp"
+            android:text="《 设置"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/btnToLVBottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/btnToLVTop"
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_media_next"
+            android:minWidth="60dp"
+            android:text="下翻"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/btnToLVTop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/toolbar_button"
+            android:drawableTop="@android:drawable/ic_media_previous"
+            android:minWidth="60dp"
+            android:text="上翻"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp"
+            android:visibility="gone" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

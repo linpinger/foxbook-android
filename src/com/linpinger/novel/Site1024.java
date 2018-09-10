@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 public class Site1024 extends NovelSite {
 	public HashMap<String, Object> getContentTitle(String html) { // 处理得到1024文本版的内容: title, content
-		// Used by: Activity_EBook_Viewer , Activity_ShowPage4Eink 
+		// Used by: Fragment_EBook_Viewer , Activity_ShowPage4Eink 
 		HashMap<String, Object> oM = new HashMap<String, Object>();
 
 		// 标题
