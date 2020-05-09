@@ -1,5 +1,6 @@
 package com.linpinger.foxbook;
 
+import java.io.File;
 import java.util.Map;
 
 import org.json.JSONArray;
@@ -179,24 +180,48 @@ public class Fragment_BookInfo extends BackHandledFragment {
 	}
 
 	private String getYueDuURL(String iBookName) {
-		String jsonPath = "/sdcard/YueDu/myBookShelf.json";
-		String jsonStr = ToolJava.readText(jsonPath, "utf-8");
-		if ( ! jsonStr.contains("bookInfoBean")) {
-			foxtip("文件可能不存在:\n" + jsonPath);
-			return "";
-		}
-		try {
-			JSONArray bList = new JSONArray(jsonStr);
-			JSONObject info ;
-			for (int i = 0; i < bList.length(); i++) {
-				info = bList.getJSONObject(i).getJSONObject("bookInfoBean"); // bookInfoBean:name,author,chapterUrl,noteUrl
-				if ( info.getString("name").equalsIgnoreCase(iBookName) ) {
-					foxtip("找到: " + iBookName + " By: " + info.getString("author") + "\n" + info.getString("chapterUrl"));
-					return info.getString("chapterUrl");
+		String json3Path = "/sdcard/bookshelf.json";
+		File json3File = new File(json3Path);
+		if ( json3File.exists() ) { // 3.x
+			String json3Str = ToolJava.readText(json3Path, "utf-8");
+			try {
+				JSONArray bList = new JSONArray(json3Str);
+				JSONObject info;
+				for (int i = 0; i < bList.length(); i++) {
+					info = bList.getJSONObject(i); // name,author,tocUrl
+					if (info.getString("name").equalsIgnoreCase(iBookName)) {
+						foxtip("找到: " + iBookName + " By: "
+								+ info.getString("author") + "\n"
+								+ info.getString("tocUrl"));
+						return info.getString("tocUrl");
+					}
 				}
+			} catch (Exception e) {
+				System.err.println(e.toString());
 			}
-		} catch (Exception e) {
-			System.err.println(e.toString());
+		} else { // 2.x
+			String json2Path = "/sdcard/YueDu/myBookShelf.json";
+			File json2File = new File(json2Path);
+			if ( json2File.exists() ) {
+				foxtip("文件可能不存在:\n" + json2Path);
+				return "";
+			}
+			String json2Str = ToolJava.readText(json2Path, "utf-8");
+			try {
+				JSONArray bList = new JSONArray(json2Str);
+				JSONObject info;
+				for (int i = 0; i < bList.length(); i++) {
+					info = bList.getJSONObject(i).getJSONObject("bookInfoBean"); // bookInfoBean:name,author,chapterUrl,noteUrl
+					if (info.getString("name").equalsIgnoreCase(iBookName)) {
+						foxtip("找到: " + iBookName + " By: "
+								+ info.getString("author") + "\n"
+								+ info.getString("chapterUrl"));
+						return info.getString("chapterUrl");
+					}
+				}
+			} catch (Exception e) {
+				System.err.println(e.toString());
+			}
 		}
 		return "";
 	}
