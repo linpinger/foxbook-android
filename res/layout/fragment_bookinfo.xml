@@ -140,7 +140,7 @@
             android:id="@+id/btnPasteFocus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toLeftOf="@+id/btnGetQDidFromURL"
+            android:layout_toLeftOf="@+id/btnOther"
             android:background="@drawable/toolbar_button"
             android:drawableTop="@android:drawable/ic_menu_edit"
             android:minWidth="60dp"
@@ -149,14 +149,14 @@
             android:textSize="12dp" />
 
         <Button
-            android:id="@+id/btnGetQDidFromURL"
+            android:id="@+id/btnOther"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:background="@drawable/toolbar_button"
-            android:drawableTop="@android:drawable/ic_menu_directions"
+            android:drawableTop="@android:drawable/ic_input_add"
             android:minWidth="60dp"
-            android:text="U2ID"
+            android:text="其他"
             android:textColor="#FFFFFF"
             android:textSize="12dp" />
     </RelativeLayout>

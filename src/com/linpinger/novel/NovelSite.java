@@ -24,9 +24,51 @@ public class NovelSite {
 	public static final int SiteWutuxs = 42;
 	public static final int SiteMeegoq = 43;
 
+	public static List<Map<String, Object>> getSearchResultHref(String html, String KeyWord) { // String KeyWord = "三界血歌" ;
+		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(64);
+		Map<String, Object> item;
+
+		// meegoq
+		String reislist = "(?smi)<section class=\"lastest\">(.*?)</section>";
+		String relistitem = "(?smi)<li>(.*?)</li>";
+		String itemintrourl = "(?smi)<span class=\"n2\"><a href=\"([^\"]*)\"";
+		String itembookname = "(?smi)<span class=\"n2\"><a[^>]*>([^<]*)</a>";
+
+		String listStr = getMatch(html, reislist);
+		if ( ! "".equalsIgnoreCase(listStr) ) {
+			String itemStr = "";
+			String nowURL = "";
+			Matcher mat = Pattern.compile(relistitem).matcher(listStr);
+			while (mat.find()) {
+				itemStr = mat.group(1);
+				item = new HashMap<String, Object>(2);
+
+				nowURL = getMatch(itemStr, itemintrourl);
+				// //www.meegoq.com/info62275.html
+				// https://www.meegoq.com/book62275.html
+				if ( nowURL.startsWith("//www.meegoq.com/info") ) { nowURL = "https:" + nowURL.replace("/info", "/book"); } // 2019-11-12
+
+				item.put(NV.BookURL, nowURL);
+				item.put(NV.BookName, getMatch(itemStr, itembookname));
+				data.add(item);
+			}
+		}
+		return data;
+	}
+
 	public String getValue(String text, String label) {
 		String ret = "";
 		Matcher mat = Pattern.compile("(?smi)<" + label + ">(.*?)</" + label + ">").matcher(text);
+		while (mat.find()) {
+			ret = mat.group(1);
+			break;
+		}
+		return ret;
+	}
+
+	public static String getMatch(String text, String iREstr) {
+		String ret = "";
+		Matcher mat = Pattern.compile(iREstr).matcher(text);
 		while (mat.find()) {
 			ret = mat.group(1);
 			break;

@@ -8,6 +8,7 @@ import java.util.Map;
 import com.linpinger.misc.BackHandledFragment;
 import com.linpinger.novel.NV;
 import com.linpinger.novel.NovelManager;
+import com.linpinger.novel.NovelSite;
 import com.linpinger.tool.ToolAndroid;
 import com.linpinger.tool.ToolBookJava;
 
@@ -66,9 +67,9 @@ public class Fragment_QuickSearch extends BackHandledFragment {
 		SE_TYPE = bd.getInt(AC.searchEngine, 1) ;
 		if ( SE_TYPE == AC.SE_NONE ) { // 非搜索引擎
 			seURL = bd.getString(NV.BookURL);
-			foxtipL("搜索: " + book_name + "  点此返回，普通页面地址:\n" + seURL);
+			foxtipL("搜索: " + book_name + "  点此返回，列表左侧目录页，右侧普通页，普通页面地址:\n" + seURL);
 		} else {
-			foxtipL("搜索: " + book_name + "  点击这里返回");
+			foxtipL("搜索: " + book_name + "  点此返回，列表左侧目录页，右侧普通页");
 		}
 		
 		try {
@@ -82,6 +83,9 @@ public class Fragment_QuickSearch extends BackHandledFragment {
 			case AC.SE_BING:
 				seURL = "http://cn.bing.com/search?q=" + URLEncoder.encode(book_name, "UTF-8") ;
 				break;
+			case AC.SE_MEEGOQ:
+				seURL = "https://www.meegoq.com/search.htm?keyword=" + URLEncoder.encode(book_name, "UTF-8");
+				break;
 			}
 		} catch (Exception e) {
 			System.err.println(e.toString());
@@ -91,6 +95,8 @@ public class Fragment_QuickSearch extends BackHandledFragment {
 			public void run(){
 				if ( SE_TYPE == AC.SE_NONE ) {
 					data = ToolBookJava.getSearchEngineHref( ToolBookJava.downhtml(seURL) , "");
+				} else if ( SE_TYPE == AC.SE_MEEGOQ ) { // 下载并处理页面
+					data = NovelSite.getSearchResultHref( ToolBookJava.downhtml(seURL) , book_name);
 				} else {
 					data = ToolBookJava.getSearchEngineHref( ToolBookJava.downhtml(seURL) , book_name); // 搜索引擎网页分析放在这里
 				}

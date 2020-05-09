@@ -15,11 +15,16 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.PopupMenu.OnMenuItemClickListener;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class Fragment_BookInfo extends BackHandledFragment {
@@ -125,16 +130,42 @@ public class Fragment_BookInfo extends BackHandledFragment {
 					}
 				}
 				break;
-			case R.id.btnGetQDidFromURL:
-				String url_now = edt_burl.getText().toString();
-				if ( url_now.contains(".qidian.com/") ) {
-					edt_qdid.setText(new SiteQiDian().getBookID_FromURL(url_now));
-				} else {
-					foxtip("URL不包含 .qidian.com/");
-				}
+			case R.id.btnOther:
+				createPopupMenu();
 				break;
 			} // switch end
 		} // onClick End
+	}
+
+	void createPopupMenu() { // 弹出菜单 btnOther
+		PopupMenu popW = new PopupMenu(ctx, btnOther);
+		Menu m = popW.getMenu();
+
+		m.add("从URL获取起点ID");
+		m.add("快速搜索: meegoq");
+	
+		popW.show();
+		popW.setOnMenuItemClickListener(new OnMenuItemClickListener(){
+			@Override
+			public boolean onMenuItemClick(MenuItem mi) {
+				String mt = mi.getTitle().toString();
+
+				if ( mt.equalsIgnoreCase("从URL获取起点ID") ) {
+					String url_now = edt_burl.getText().toString();
+					if ( url_now.contains(".qidian.com/") ) {
+						edt_qdid.setText(new SiteQiDian().getBookID_FromURL(url_now));
+					} else {
+						foxtip("URL不包含 .qidian.com/");
+					}
+				} else if ( mt.equalsIgnoreCase("快速搜索: meegoq") ) {
+					String book_name = edt_bname.getText().toString();
+					startFragment( Fragment_QuickSearch.newInstance(nm, AC.SE_MEEGOQ, book_name) );
+				} else {
+					foxtipL(mt);
+				}
+				return true;
+			}
+		});
 	}
 
 	private void init_controls(View v) { // 初始化各控件
@@ -146,13 +177,15 @@ public class Fragment_BookInfo extends BackHandledFragment {
 		edt_qdid    = (EditText) v.findViewById(R.id.edt_qdid);
 		edt_burl    = (EditText) v.findViewById(R.id.edt_burl);
 		edt_delurl  = (EditText) v.findViewById(R.id.edt_delurl);
+		
+		btnOther = (Button) v.findViewById(R.id.btnOther);
 
 		onViewClickListener cl = new onViewClickListener();
 		tv.setOnClickListener(cl);
 		v.findViewById(R.id.btnSave).setOnClickListener(cl);
 		v.findViewById(R.id.btnCopyFocus).setOnClickListener(cl);
 		v.findViewById(R.id.btnPasteFocus).setOnClickListener(cl);
-		v.findViewById(R.id.btnGetQDidFromURL).setOnClickListener(cl);
+		btnOther.setOnClickListener(cl);
 	}
 
 	private void foxtip(String sinfo) { // Toast消息
@@ -169,6 +202,7 @@ public class Fragment_BookInfo extends BackHandledFragment {
 	private EditText edt_bname, edt_bauthor, edt_isend, edt_qdid, edt_burl, edt_delurl;
 
 	Context ctx;
+	private Button btnOther;
 
 	private OnFinishListener lsn;
 	public Fragment setOnFinishListener(OnFinishListener ofl) {

@@ -27,4 +27,6 @@ public interface AC {
 	public static final int SE_SOGOU = 1;
 	public static final int SE_YAHOO = 2;
 	public static final int SE_BING = 3;
+	
+	public static final int SE_MEEGOQ = 51;
 }
