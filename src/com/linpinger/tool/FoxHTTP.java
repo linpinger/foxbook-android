@@ -157,6 +157,10 @@ public class FoxHTTP {
                 out.close();
             }
 
+            if ( 403 == conn.getResponseCode() ) { // 处理403错误
+            	return conn.getURL().toString().getBytes();
+            }
+
             // 判断返回的是否是gzip数据
             OutputStream outStream;
             if ( isSaveToFile ) {

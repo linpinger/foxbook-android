@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import com.linpinger.misc.BackHandledFragment;
 import com.linpinger.novel.NV;
 import com.linpinger.novel.NovelManager;
+import com.linpinger.novel.NovelSite;
 import com.linpinger.novel.SiteQiDian;
 import com.linpinger.tool.ToolAndroid;
 import com.linpinger.tool.ToolJava;
@@ -19,6 +20,8 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -149,7 +152,14 @@ public class Fragment_BookInfo extends BackHandledFragment {
 		m.add("从URL获取起点ID");
 		m.add("导入阅读URL");
 		m.add("快速搜索: meegoq");
-	
+
+		m.add("书名转URL: xqqxs"); // meegoq, ymxxs, wutuxs, dajiadu, 13xxs, xqqxs
+		m.add("书名转URL: 13xxs");
+		m.add("书名转URL: ymxxs");
+		m.add("书名转URL: dajiadu");
+		m.add("书名转URL: wutuxs");
+		m.add("书名转URL: meegoq");
+
 		popW.show();
 		popW.setOnMenuItemClickListener(new OnMenuItemClickListener(){
 			@Override
@@ -171,6 +181,18 @@ public class Fragment_BookInfo extends BackHandledFragment {
 				} else if ( mt.equalsIgnoreCase("快速搜索: meegoq") ) {
 					String book_name = edt_bname.getText().toString();
 					startFragment( Fragment_QuickSearch.newInstance(nm, AC.SE_MEEGOQ, book_name) );
+				} else if ( mt.contains("书名转URL:") ) {
+					final String sBookName = edt_bname.getText().toString();
+					final String siteType = mt.split(" ")[1];
+
+					(new Thread() { public void run() {
+						String sURL = new NovelSite().searchBook(sBookName, siteType);
+						Message msg = Message.obtain();
+						msg.what = IS_SetBookURL;
+						msg.obj = sURL;
+						handler.sendMessage(msg);
+					}}).start();
+
 				} else {
 					foxtipL(mt);
 				}
@@ -261,6 +283,24 @@ public class Fragment_BookInfo extends BackHandledFragment {
 
 	Context ctx;
 	private Button btnOther;
+
+	private final int IS_SetBookURL = 23;
+	private Handler handler = new Handler(new Handler.Callback() {
+		@Override
+		public boolean handleMessage(Message msg) {
+			switch (msg.what) {
+			case IS_SetBookURL:
+				String bookURL = (String)msg.obj;
+				if ( ! bookURL.equalsIgnoreCase("") ) {
+					edt_burl.setText( bookURL );
+				} else {
+					foxtip("木有找到URL");
+				}
+				break;
+			}
+			return false;
+		}
+	});
 
 	private OnFinishListener lsn;
 	public Fragment setOnFinishListener(OnFinishListener ofl) {

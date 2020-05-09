@@ -1,6 +1,7 @@
 package com.linpinger.novel;
 
 import java.io.File;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -178,6 +179,107 @@ public class NovelSite {
 			}
 		}
 		return newPages;
+	}
+
+//	public String searchBook(String iBookName) {
+//		return searchBook(iBookName, "xqqxs"); // 调试用
+//	}
+	public String searchBook(String iBookName, String siteType) { // meegoq, ymxxs, wutuxs, dajiadu, 13xxs, xqqxs
+		String oURL = "";
+
+		String html = "";
+		boolean bMulti = false;
+		String reStr = "";
+		try {
+			if ( siteType.equalsIgnoreCase("meegoq") ) {
+				html = new FoxHTTP( "https://www.meegoq.com/search.htm?keyword=" + URLEncoder.encode(iBookName, "UTF-8") ).getHTML();
+				reStr = "(?smi)\"n2\"><a href=\"([^\"]+?)\">([^<]+?)<"; // url, name
+			} else if ( siteType.equalsIgnoreCase("ymxxs") ) {
+				html = new FoxHTTP( "https://www.ymxxs.com/search.htm?keyword=" + URLEncoder.encode(iBookName, "UTF-8") ).getHTML();
+				reStr = "(?smi)\"n2\"><a[^>]+?>([^<]+?)<.*?\"c2\"><a href=\"([^\"]+?/)[0-9]+?.html\"[^>]*?>"; // name, url
+			} else if ( siteType.equalsIgnoreCase("wutuxs") ) {
+				html = new FoxHTTP("http://www.wutuxs.com/modules/article/search.php").getHTML("GBK", "searchtype=articlename&searchkey=" + URLEncoder.encode(iBookName, "GBK"));
+				if ( html.contains(">全文阅读<") ) {
+					reStr = "(?smi)href=\"([^\"]+?)\" title=\"(.*?)全文阅读\">全文阅读<"; // url, name
+				} else {
+					bMulti = true;
+					reStr = "(?smi)\"odd\"><a href=\"([^\"]+?)\">([^<]+?)</a>"; // url, name
+				}
+			} else if ( siteType.equalsIgnoreCase("dajiadu") ) {
+				html = new FoxHTTP("https://www.dajiadu8.com/modules/article/searchab.php").getHTML("GBK", "searchtype=articlename&searchkey=" + URLEncoder.encode(iBookName, "GBK") + "&Submit=+%CB%D1+%CB%F7+");
+				if ( html.contains(">点击阅读<") ) {
+					reStr = "(?smi)<h1>([^<]+?)</h1>.*?href=\"([^\"]+?)\">点击阅读<"; // name, url
+				} else {
+					bMulti = true;
+					reStr = "(?smi)\"odd\"><a[^>]+?>([^<]+?)<.*?\"even\"><a href=\"([^\"]+?)\"[^>]+?>"; // name, url
+				}
+			} else if ( siteType.equalsIgnoreCase("13xxs") ) {
+				html = new FoxHTTP("http://www.13xxs.com/modules/article/search.php").getHTML("GBK", "searchtype=articlename&action=login&searchkey=" + URLEncoder.encode(iBookName, "GBK") );
+				if ( html.startsWith("http") ) { // 403
+					return html;
+				}
+				if ( html.contains("<div id=\"list\">") ) { // TOC // 403
+					reStr = "(?smi)og:novel:read_url\"[^\"]+?\"([^\"]+?)\"";
+				} else {
+					bMulti = true;
+					reStr = "(?smi)\"odd\">[^<]+?<a href=\"([^\"]+?)\">([^<]+?)</a>"; // url, name
+				}
+			} else if ( siteType.equalsIgnoreCase("xqqxs") ) {
+				html = new FoxHTTP("https://www.xqqxs.com/modules/article/search.php").getHTML("GBK", "searchtype=all&searchkey=" + URLEncoder.encode(iBookName, "GBK") + "&action=search&submit=");
+				if ( html.startsWith("http") ) { // 403
+					html = new FoxHTTP(html).getHTML();
+				}
+				if ( html.contains(">开始阅读<") ) { // 403
+					reStr = "(?smi)href=\"([^\"]+?)\" title=\"([^\"]+?)\"[^>]*?><span>开始阅读<"; // url,name
+				} else {
+					bMulti = true;
+					reStr = "(?smi)\"c_subject\"><a[^>]+?>([^<]*?)<span class=\"hottext\">([^<]*?)</span>([^<]*?)</a>.*?<a href=\"([^\"]+?)\"[^>]+?>目录</a>"; // nameA, nameB, nameC, url
+				}
+			}
+		} catch (Exception e) {
+			System.err.println(e.toString());
+		}
+
+		Matcher mat = Pattern.compile(reStr).matcher(html); // 结果匹配
+		while ( mat.find() ) {
+			if ( siteType.equalsIgnoreCase("meegoq") ) {
+				if ( iBookName.equalsIgnoreCase( mat.group(2) ) ) {
+					oURL = "https:" + mat.group(1).replace("/info", "/book");
+				}
+			} else if ( siteType.equalsIgnoreCase("ymxxs") ) {
+				if ( iBookName.equalsIgnoreCase( mat.group(1) ) ) {
+					oURL = "https:" + mat.group(2) + "index.html";
+				}
+			} else if ( siteType.equalsIgnoreCase("wutuxs") || siteType.equalsIgnoreCase("13xxs") ) {
+				if ( ! bMulti ) {
+					oURL = mat.group(1);
+				} else {
+					if ( iBookName.equalsIgnoreCase( mat.group(2) ) ) {
+						oURL = mat.group(1);
+					}
+				}
+			} else if ( siteType.equalsIgnoreCase("dajiadu") ) {
+				if ( ! bMulti ) {
+					oURL = mat.group(2);
+				} else {
+					if ( iBookName.equalsIgnoreCase( mat.group(1) ) ) {
+						oURL = mat.group(2);
+					}
+				}
+			} else if ( siteType.equalsIgnoreCase("xqqxs") ) {
+				if ( ! bMulti ) {
+					oURL = "https://www.xqqxs.com" + mat.group(1);
+				} else {
+					if ( iBookName.equalsIgnoreCase( mat.group(1) + mat.group(2) + mat.group(3) ) ) {
+						oURL = mat.group(4);
+					}
+//					System.err.println(mat.group(1) + mat.group(2) + mat.group(3) + "\n" + mat.group(4) + "\n");
+				}
+			} // else end
+// System.err.println(mat.group(1) + "\n" + mat.group(2) + "\n");
+		}
+
+		return oURL;
 	}
 
 	public List<Map<String, Object>> getTOC(String html) { // name,url[,len]
