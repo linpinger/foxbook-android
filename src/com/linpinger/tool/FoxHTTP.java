@@ -9,12 +9,14 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 public class FoxHTTP {
     private String nowURL = "";
     private HashMap<String, String> heads = new HashMap<String, String>(); // HTTP 头部字段
+    private Map<String, List<String>> resHeads ; // 响应头
 
     private boolean isPOST = false; // 默认为GET
     private byte[] PostData = null;
@@ -31,8 +33,13 @@ public class FoxHTTP {
         setDefHead();
     }
 
-    public void setHead(String iKey, String iValue) {
+    public FoxHTTP setHead(String iKey, String iValue) {
         heads.put(iKey, iValue);
+        return this;
+    }
+
+    public Map<String, List<String>> getRespondHeads() {
+    	return resHeads;
     }
 
     public String getHTML() {
@@ -140,7 +147,7 @@ public class FoxHTTP {
                     strBuf.append("--").append(BOUNDARY).append("\r\n");  // 多一个\n会使nanohttpd崩溃的亲
                     strBuf.append("Content-Disposition: form-data; name=\"" + inputName + "\"; filename=\"" + filename + "\"\r\n");
                     strBuf.append("Content-Type: application/octet-stream\r\n\r\n");
-                    out.write(strBuf.toString().getBytes()); // todo: 转码么
+                    out.write(strBuf.toString().getBytes("UTF-8")); // 转码么?
 
                     InputStream inTP = new FileInputStream(file);
                     int bytes = 0;
@@ -148,7 +155,7 @@ public class FoxHTTP {
                     while ((bytes = inTP.read(bufferOut)) != -1)
                         out.write(bufferOut, 0, bytes);
                     inTP.close();
-                    byte[] endData = ("\r\n--" + BOUNDARY + "--\r\n").getBytes();
+                    byte[] endData = ("\r\n--" + BOUNDARY + "\r\nContent-Disposition: form-data; name=\"e\"\r\n\r\nUTF-8\r\n--" + BOUNDARY + "--\r\n").getBytes("UTF-8");
                     out.write(endData);
                 } else {
                     out.write(PostData);
@@ -160,6 +167,8 @@ public class FoxHTTP {
             if ( 403 == conn.getResponseCode() ) { // 处理403错误
             	return conn.getURL().toString().getBytes();
             }
+
+            resHeads = conn.getHeaderFields(); // 获取响应头
 
             // 判断返回的是否是gzip数据
             OutputStream outStream;
@@ -209,7 +218,7 @@ public class FoxHTTP {
     }
 
     private void setDefHead() { // 默认Head
-        heads.put("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0");
+        heads.put("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0");
         heads.put("Accept", "*/*");
         heads.put("Accept-Encoding", "*");
     }

@@ -120,17 +120,14 @@ public class NovelSite {
 			return null ;
 
 		String html = "";
-		FoxHTTP cHTTP = new FoxHTTP(urlShelf);
-		cHTTP.setHead("Cookie", cookie);
+		FoxHTTP cHTTP = new FoxHTTP(urlShelf).setHead("Cookie", cookie);
 		if (siteType == NovelSite.SiteXxBiquge) {
 			html = cHTTP.getHTML("UTF-8");
 
-			cHTTP = new FoxHTTP(urlShelf + "?page=2");
-			cHTTP.setHead("Cookie", cookie);
+			cHTTP = new FoxHTTP(urlShelf + "?page=2").setHead("Cookie", cookie);
 			html += cHTTP.getHTML("UTF-8");
 
-			cHTTP = new FoxHTTP(urlShelf + "?page=3");
-			cHTTP.setHead("Cookie", cookie);
+			cHTTP = new FoxHTTP(urlShelf + "?page=3").setHead("Cookie", cookie);
 			html += cHTTP.getHTML("UTF-8");
 		} else if (siteType == NovelSite.SiteMeegoq) {
 			html = cHTTP.getHTML("UTF-8");

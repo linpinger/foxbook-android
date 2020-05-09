@@ -301,9 +301,8 @@ public class Fragment_SearchBook extends BackHandledFragment {
 			foxtip("开始下载: " + qidianID + ".epub");
 
 			(new Thread() { public void run() {
-				FoxHTTP eHTTP = new FoxHTTP(eBookURL);
-				eHTTP.setHead("Accept-Encoding", "gzip, deflate"); // 2019-11-17: 下载起点epub需要加该HTTP头字段
-				long fLen = eHTTP.saveFile(SAVEPATH);
+			   	// 2019-11-17: 下载起点epub需要加该HTTP头字段
+				long fLen = new FoxHTTP(eBookURL).setHead("Accept-Encoding", "gzip, deflate").saveFile(SAVEPATH);
 
 				Message msg = Message.obtain();
 				msg.what = IS_SHOWTIP;
