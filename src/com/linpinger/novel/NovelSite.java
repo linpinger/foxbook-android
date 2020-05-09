@@ -22,6 +22,7 @@ public class NovelSite {
 	public static final int SiteBiquge = 29;
 	public static final int SiteDajiadu = 41;
 	public static final int SiteWutuxs = 42;
+	public static final int SiteMeegoq = 43;
 
 	public String getValue(String text, String label) {
 		String ret = "";
@@ -73,9 +74,9 @@ public class NovelSite {
 			urlShelf = "https://www.xbiquge6.com/bookcase.php" ;
 			reShelf = "(?smi)\"s2\"><a href=\"([^\"]+)\"[^>]*>([^<]*)<.*?\"s4\"><a href=\"([^\"]+)\"";
 			cookie = getValue(xml, "rawxbiquge6").replace("\r", "").replace("\n", "");
-		} else if ( bookURL.contains(".biquge.com.tw") ) {
+		} else if ( bookURL.contains(".biquyun.com") ) {
 			siteType = NovelSite.SiteBiquge;
-			urlShelf = "http://www.biquge.com.tw/modules/article/bookcase.php";
+			urlShelf = "https://www.biquyun.com/modules/article/bookcase.php";
 			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"([^\"]*)\"[^>]*>([^<]*)<";
 			cookie = getValue(xml, "rawbiquge").replace("\r", "").replace("\n", "");
 		} else if ( bookURL.contains(".dajiadu.net") ) {
@@ -93,6 +94,11 @@ public class NovelSite {
 			urlShelf = "http://www.wutuxs.com/modules/article/bookcase.php";
 			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
 			cookie = getValue(xml, "rawwutuxs").replace("\r", "").replace("\n", "");
+		} else if ( bookURL.contains(".meegoq.com") ) {
+			siteType = NovelSite.SiteMeegoq;
+			urlShelf = "https://www.meegoq.com/u/";
+			reShelf = "(?smi)<li>.*?href=\"([^\"]*/info[0-9]*.html)\"[^>]*>([^<]*)<.*?href=\"([^\"]*/[0-9]*_[0-9]*.html)\"[^>]*>([^<]*)<";
+			cookie = getValue(xml, "rawmeegoq").replace("\r", "").replace("\n", "");
 			// 正则分析网页，合成 得到 书地址, 书名, 新章节地址, 新章节名
 		}
 
@@ -106,8 +112,8 @@ public class NovelSite {
 			html = html + ToolBookJava.downhtml(urlShelf, "UTF-8", "GET", cookie) ;
 			html = html + ToolBookJava.downhtml(urlShelf + "?page=2", "UTF-8", "GET", cookie) ;
 			html = html + ToolBookJava.downhtml(urlShelf + "?page=3", "UTF-8", "GET", cookie) ;
-		} else if (siteType == NovelSite.SiteWutuxs) {
-			html = ToolBookJava.downhtml(urlShelf, "gbk", "GET", cookie) ;
+		} else if (siteType == NovelSite.SiteMeegoq) {
+			html = ToolBookJava.downhtml(urlShelf, "UTF-8", "GET", cookie) ;
 		} else {
 			html = ToolBookJava.downhtml(urlShelf, "gbk", "GET", cookie) ;
 //			html = ToolBookJava.downhtml(urlShelf, "gbk", "GET", ToolBookJava.cookie2Field(cookie)) ;
@@ -129,6 +135,7 @@ public class NovelSite {
 			case NovelSite.SiteBiquge:
 			case NovelSite.SiteXxBiquge:
 			case NovelSite.Site13xxs:
+			case NovelSite.SiteMeegoq:
 				shelfBook.put(mat.group(2), mat.group(3));
 				break;
 			}

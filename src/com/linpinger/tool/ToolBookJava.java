@@ -204,7 +204,7 @@ public class ToolBookJava {
 			if ("GET" != PostData) {
 				conn.setDoOutput(true);
 				conn.setRequestMethod("POST");
-				if ( inURL.contains(".szy.cn/") || inURL.contains(".taobao.com/") ) { // 掌通家园，ip.taobao.com
+				if ( inURL.contains(".szy.cn/") || inURL.contains(".taobao.com/") || inURL.contains(".weekey.cn") ) { // 掌通家园，ip.taobao.com
 					conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
 				} else {
 					conn.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
@@ -216,6 +216,8 @@ public class ToolBookJava {
 
 			if ( inURL.contains("oschina.net") ) {
 				conn.setRequestProperty("User-Agent", "RssReader/11.11"); // 2019-1-17
+			} else if ( inURL.contains("api.dingdingkaike.com/Wap/") ) { // 2019-09-24
+				conn.setRequestProperty("User-Agent", "Mozilla/5.0");
 			} else {
 				conn.setRequestProperty("User-Agent", "ZhuiShuShenQi/3.26 Java/1.6.0_55"); // Android自带头部和IE8头部会导致yahoo搜索结果链接为追踪链接
 			}

@@ -20,7 +20,8 @@ public class ToolJava {
 		Properties pro = new Properties();
 		try {
 			FileInputStream inputFile = new FileInputStream(cfgFilePath);
-			pro.load(inputFile);
+//			pro.load(inputFile);
+			pro.load(new InputStreamReader(inputFile, "UTF-8"));
 			inputFile.close();
 		} catch ( Exception e ) {
 			System.err.println(e.toString());
