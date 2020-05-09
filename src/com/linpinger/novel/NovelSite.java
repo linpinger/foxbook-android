@@ -23,6 +23,7 @@ public class NovelSite {
 	public static final int SiteDajiadu = 41;
 	public static final int SiteWutuxs = 42;
 	public static final int SiteMeegoq = 43;
+	public static final int SiteYmxxs = 44;
 
 	public String getValue(String text, String label) {
 		String ret = "";
@@ -61,6 +62,11 @@ public class NovelSite {
 			reShelf = "(?smi)<li>.*?href=\"([^\"]*/info[0-9]*.html)\"[^>]*>([^<]*)<.*?href=\"([^\"]*/[0-9]*_[0-9]*.html)\"[^>]*>([^<]*)<";
 			cookie = getValue(xml, "meegoq").replace("\r", "").replace("\n", "");
 			// 正则分析网页，合成 得到 书地址, 书名, 新章节地址, 新章节名
+		} else if ( bookURL.contains(".ymxxs.com") ) { // 类似meegoq
+			siteType = NovelSite.SiteYmxxs;
+			urlShelf = "https://www.ymxxs.com/u/";
+			reShelf = "(?smi)<li>.*?href=\"([^\"]*/text_[0-9]*.html)\"[^>]*>([^<]*)<.*?\"c\"><a href=\"([^\"]*.html)\"[^>]*>([^<]*)<";
+			cookie = getValue(xml, "ymxxs").replace("\r", "").replace("\n", "");
 		} else if ( bookURL.contains(".wutuxs.com") ) {
 			siteType = NovelSite.SiteWutuxs;
 			urlShelf = "https://www.wutuxs.com/modules/article/bookcase.php";
@@ -124,9 +130,12 @@ public class NovelSite {
 			html += cHTTP.getHTML("UTF-8");
 		} else if (siteType == NovelSite.SiteMeegoq) {
 			html = cHTTP.getHTML("UTF-8");
+		} else if (siteType == NovelSite.SiteYmxxs) {
+			html = cHTTP.getHTML("UTF-8");
 		} else {
 			html = cHTTP.getHTML("gbk");
 		}
+//String log = "URL: " + urlShelf + "\nCookie: " + cookie + "\nHTML: \n" + html;
 		if ( html.length() < 5 )
 			return null ;
 
@@ -145,11 +154,13 @@ public class NovelSite {
 			case NovelSite.SiteXxBiquge:
 			case NovelSite.Site13xxs:
 			case NovelSite.SiteMeegoq:
+			case NovelSite.SiteYmxxs:
 				shelfBook.put(mat.group(2), mat.group(3));
+//log += "\nBookName: " + mat.group(2) + "\nNewPageURL: " + mat.group(3);
 				break;
 			}
 		}
-
+//ToolJava.writeText(log, "/sdcard/99_sync/FoxDebug.log");
 		List<Map<String, Object>> newPages = new ArrayList<Map<String, Object>>(10);
 		String nowBookName, nowPageList;
 		for(Map<String, Object> mm : booksInfo) {

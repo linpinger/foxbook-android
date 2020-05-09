@@ -205,7 +205,7 @@ public class FoxHTTP {
     }
 
     private void setDefHead() { // 默认Head
-        heads.put("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:70.0) Gecko/20100101 Firefox/70.0");
+        heads.put("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0");
         heads.put("Accept", "*/*");
         heads.put("Accept-Encoding", "*");
     }
