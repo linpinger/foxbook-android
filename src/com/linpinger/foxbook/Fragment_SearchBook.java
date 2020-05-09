@@ -326,14 +326,14 @@ public class Fragment_SearchBook extends BackHandledFragment {
 		book_name = et.getText().toString();
 		if ( book_name.length() == 0 ) { // 当未输入书名，粘贴剪贴板
 			tmpClipBoardText = ToolAndroid.getClipText(ctx);
-			if ( ! tmpClipBoardText.contains("FoxBook>") && tmpClipBoardText.length() < 15 ) { // 剪贴板中的字数小于15
-				foxtip("剪贴板中的内容格式不对哟\n先粘贴到搜索栏好了\n长按本按钮有惊喜哟");
-				book_name = tmpClipBoardText;
-				et.setText(book_name);
-			} else {
+			if ( tmpClipBoardText.contains("FoxBook>") ) {
 				foxtip("剪贴板中包含FoxBook>\n可以按+号按钮来快速添加书哟");
 				String xx[] = tmpClipBoardText.split(">");
 				book_name = xx[1];
+				et.setText(book_name);
+			} else {
+				foxtip("剪贴板中的内容格式不对哟\n先粘贴到搜索栏好了\n长按本按钮有惊喜哟");
+				book_name = tmpClipBoardText;
 				et.setText(book_name);
 			}
 		}

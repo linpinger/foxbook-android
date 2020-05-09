@@ -69,7 +69,7 @@ public class ToolBookJava {
 		// 查到数组aHTML中等于BaseLineURL的行号，并删除1到该行号的所有元素
 		int EndIdx = 0 ;
 		String nowURL ;
-		for (int nowIdx = 0; nowIdx < linkSize; nowIdx++) {
+		for (int nowIdx = linkSize - 1; nowIdx >= 0; nowIdx--) { // 2019-09-04: 倒序查找
 			nowURL = listURLName.get(nowIdx).get(NV.PageURL).toString();
 			if ( BaseLineURL.equalsIgnoreCase(nowURL) ) {
 				EndIdx = nowIdx ;

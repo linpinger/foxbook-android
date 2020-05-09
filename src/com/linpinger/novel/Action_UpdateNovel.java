@@ -94,7 +94,10 @@ public class Action_UpdateNovel {
 if ( isCompareShelf ) {
 	oscl.OnStatuChange(this.threadIDX, "下载书架...");
 
-			List<Map<String, Object>> nn = new NovelSite().compareShelfToGetNew(nm.getBookListForShelf(), cookiesFile);
+	List<Map<String, Object>> bl4s = nm.getBookListForShelf();
+	if ( bl4s.size() > 0 ) {
+
+			List<Map<String, Object>> nn = new NovelSite().compareShelfToGetNew(bl4s, cookiesFile);
 			if ( nn != null ) {
 				int nnSize = nn.size() ;
 				if ( 0 == nnSize ) {
@@ -140,6 +143,9 @@ if ( isCompareShelf ) {
 					return ;
 				}
 			}
+	} else {
+		System.err.println("木有获取到书籍列表");
+	}
 } // isCompareShelf End
 
 			List<Thread> threadList = new ArrayList<Thread>(30);
