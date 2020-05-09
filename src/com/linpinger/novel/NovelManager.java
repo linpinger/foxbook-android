@@ -8,8 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.linpinger.tool.FoxHTTP;
 import com.linpinger.tool.FoxZipReader;
-import com.linpinger.tool.ToolBookJava;
 import com.linpinger.tool.ToolJava;
 
 public class NovelManager {
@@ -351,12 +351,28 @@ public class NovelManager {
 		}
 	}
 
+	public String simplifyDelList(String DelList) { // 精简 DelList
+		int nLastItem = 9;
+		DelList = DelList.replace("\r", "").replace("\n\n", "\n");
+		String[] xx = DelList.split("\n");
+		if (xx.length < (nLastItem + 2)) {
+			return DelList;
+		}
+		int MaxLineCount = xx.length - nLastItem;
+
+		StringBuilder newList = new StringBuilder(4096);
+		for (int i = 0; i < 9; i++) {
+			newList.append(xx[MaxLineCount + i]).append("\n");
+		}
+		return newList.toString();
+	}
+
 	public void simplifyAllDelList(){ // 精简所有书的DelURL
 		String delStr ;
 		for (Novel book : this.shelf) {
 			delStr = book.getInfo().get(NV.DelURL).toString();
 			if ( delStr.length() > 128 ) {
-				delStr = ToolBookJava.simplifyDelList(delStr);
+				delStr = simplifyDelList(delStr);
 				book.getInfo().put(NV.DelURL, delStr);
 			}
 		}
@@ -602,7 +618,7 @@ public class NovelManager {
 
 			oPage = new HashMap<String, Object>(8);
 			oPage.putAll(nPage);
-			oPage.put(NV.PageFullURL, ToolBookJava.getFullURL(bookURL, nowPageURL) );
+			oPage.put(NV.PageFullURL, FoxHTTP.getFullURL(bookURL, nowPageURL) );
 			oPage.put(NV.BookIDX, inBookIDX);
 			oPage.put(NV.PageIDX, pageIDX);
 			oList.add(oPage);
@@ -616,7 +632,7 @@ public class NovelManager {
 		if ( pageIDX >= pages.size() ) { // 越界了
 			return 0;
 		}
-		String pageFullURL = ToolBookJava.getFullURL(book.getInfo().get(NV.BookURL).toString()
+		String pageFullURL = FoxHTTP.getFullURL(book.getInfo().get(NV.BookURL).toString()
 				, pages.get(pageIDX).get(NV.PageURL).toString());
 		String text = this.updatePage(pageFullURL);
 
@@ -627,11 +643,11 @@ public class NovelManager {
 		String text = "";
 		String html = "" ;
 
-		if ( pageFullURL.contains("druid.if.qidian.com/") ) {
-			html = ToolBookJava.downhtml(pageFullURL, "utf-8"); // 下载json
-			text = new SiteQiDian().getContent_Android7(html);
+		if ( SiteQiDian.isQidanContentURL_Touch7_Ajax(pageFullURL) ) {
+			html = new FoxHTTP(pageFullURL).getHTML("utf-8"); // 下载json
+			text = new SiteQiDian().getContent_Touch7_Ajax(html);
 		} else {
-			html = ToolBookJava.downhtml(pageFullURL); // 下载url
+			html = new FoxHTTP(pageFullURL).getHTML(); // 下载url
 			text = new NovelSite().getContent(html);       // 分析得到text
 		}
 

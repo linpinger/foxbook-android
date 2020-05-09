@@ -5,7 +5,7 @@ import android.preference.PreferenceManager;
 import java.util.HashMap;
 import java.io.File;
 
-import com.linpinger.tool.ToolBookJava;
+import com.linpinger.tool.FoxHTTP;
 import com.linpinger.tool.ToolJava;
 
 
@@ -37,17 +37,18 @@ public class FoxUpdatePkg {
 		String newSHA1 = (String)remoteVer.get("sha1");
 		int oldVer = getVersion(mContext); // 本程序日期
 		if ( newVer <= oldVer ) { return 0 ; }
-		if ( newURL == "" )
-			ToolBookJava.saveHTTPFile(urlAPK, apkPATH);
-		else
-			ToolBookJava.saveHTTPFile(newURL, apkPATH) ;
+		if ( newURL == "" ) { newURL = urlAPK; }
+
+		new FoxHTTP(newURL).saveFile(apkPATH);
+
 		String realSHA1 = ToolJava.getFileHash(new File(apkPATH), "SHA1") ;
 		if ( newSHA1.compareToIgnoreCase(realSHA1) != 0 ) { return 0 ; } // sha1值不对
 		return newVer;
 	}
 
 	private HashMap<String, Object> getRemoteVersion() {
-		String foxVer = ToolBookJava.downhtml(urlVersion) ;
+		String foxVer = new FoxHTTP(urlVersion).getHTML() ;
+		
 		// String foxVer = "foxbook-android>20140519>89317>F8639E58AA84A4F7C9E2152E8A6016AAF7EC534D>http://linpinger.qiniudn.com/prj/FoxBook.apk\n" ;
 		String xx[] = foxVer.replace("\n", "").replace("\r", "").split(">");
 		HashMap<String, Object> item = new HashMap<String, Object>();

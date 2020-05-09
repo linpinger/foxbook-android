@@ -10,8 +10,8 @@ import com.linpinger.novel.NV;
 import com.linpinger.novel.NovelManager;
 import com.linpinger.novel.NovelSite;
 import com.linpinger.novel.SiteQiDian;
+import com.linpinger.tool.FoxHTTP;
 import com.linpinger.tool.ToolAndroid;
-import com.linpinger.tool.ToolBookJava;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -239,7 +239,7 @@ public class Fragment_PageList extends BackHandledFragment {
 					arg.putInt(NV.BookIDX, bookIDX);
 					arg.putInt(NV.PageIDX, -1);
 					arg.putString(NV.PageName, page.get(NV.PageName).toString() );
-					arg.putString(NV.PageFullURL, ToolBookJava.getFullURL( nm.getBookInfo(bookIDX).get(NV.BookURL).toString(), page.get(NV.PageURL).toString()) );
+					arg.putString(NV.PageFullURL, FoxHTTP.getFullURL( nm.getBookInfo(bookIDX).get(NV.BookURL).toString(), page.get(NV.PageURL).toString()) );
 					break;
 				case AC.aListQDPages:
 				case AC.aSearchBookOnQiDian:
@@ -247,14 +247,14 @@ public class Fragment_PageList extends BackHandledFragment {
 					arg.putInt(NV.BookIDX, bookIDX);
 					arg.putInt(NV.PageIDX, -1);
 					arg.putString(NV.PageName, page.get(NV.PageName).toString() );
-					arg.putString(NV.PageFullURL, new SiteQiDian().getContentFullURL_Android7(page.get(NV.PageURL).toString()) );
+					arg.putString(NV.PageFullURL, page.get(NV.PageURL).toString() );
 					break;
 				case AC.aSearchBookOnSite:
 					arg.putInt(AC.action, AC.aShowPageOnNet);
 					arg.putInt(NV.BookIDX, bookIDX);
 					arg.putInt(NV.PageIDX, -1);
 					arg.putString(NV.PageName, page.get(NV.PageName).toString() );
-					arg.putString(NV.PageFullURL, ToolBookJava.getFullURL( searchBookURL, page.get(NV.PageURL).toString()) );
+					arg.putString(NV.PageFullURL, FoxHTTP.getFullURL( searchBookURL, page.get(NV.PageURL).toString()) );
 					break;
 				default:
 					break;
@@ -438,12 +438,12 @@ public class Fragment_PageList extends BackHandledFragment {
 		}
 		@Override
 		public void run() {
-			if ( tocURL.contains(".if.qidian.com") ) // 在线查看，站点是起点手机时
+			if ( SiteQiDian.isQidanTOCURL_Touch7_Ajax(tocURL) ) // 在线查看，站点是起点手机时
 				ittAction = AC.aListQDPages;
 			if ( ittAction == AC.aListQDPages | ittAction == AC.aSearchBookOnQiDian )
-				data = new SiteQiDian().getTOC_Android7( ToolBookJava.downhtml(tocURL, "utf-8") );
+				data = new SiteQiDian().getTOC_Touch7_Ajax( new FoxHTTP(tocURL).getHTML("UTF-8") );
 			if ( ittAction == AC.aListSitePages | ittAction == AC.aSearchBookOnSite )
-				data = new NovelSite().getTOC( ToolBookJava.downhtml(tocURL) ); // PageName PageURL
+				data = new NovelSite().getTOC( new FoxHTTP(tocURL).getHTML() ); // PageName PageURL
 
 			handler.sendEmptyMessage(IS_RenderListView);
 		}

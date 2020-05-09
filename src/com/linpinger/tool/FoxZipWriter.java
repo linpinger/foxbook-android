@@ -10,7 +10,7 @@ import java.util.zip.ZipOutputStream;
 
 public class FoxZipWriter {
 	private FileOutputStream fos;
-	protected ZipOutputStream zos;
+	private ZipOutputStream zos;
 
 	public FoxZipWriter(File oZipFile) {
 		try {

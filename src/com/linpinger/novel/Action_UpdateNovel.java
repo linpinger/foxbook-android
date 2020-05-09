@@ -2,10 +2,11 @@ package com.linpinger.novel;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.linpinger.tool.ToolBookJava;
+import com.linpinger.tool.FoxHTTP;
 
 public class Action_UpdateNovel {
 
@@ -218,23 +219,25 @@ if ( isCompareShelf ) {
 			}
 		}
 
+
+
 		@Override
 		public void run() {
 			oscl.OnStatuChange(this.threadIDX, bookname + ": 下载目录页");
 
 			String existList = nm.getPageListStr(bookIDX); // 得到旧 list
 			List<Map<String, Object>> linkList;
-			if ( bookurl.contains(".if.qidian.com") ) {
-				linkList = new SiteQiDian().getTOC_Android7(ToolBookJava.downhtml(bookurl, "utf-8"));
+			if ( SiteQiDian.isQidanTOCURL_Touch7_Ajax(bookurl) ) {
+				linkList = new SiteQiDian().getTOC_Touch7_Ajax( new FoxHTTP(bookurl).getHTML("UTF-8") );
 			} else {
-				linkList = new NovelSite().getTOC(ToolBookJava.downhtml(bookurl)); // 分析获取 list 所有章节
+				linkList = new NovelSite().getTOC( new FoxHTTP(bookurl).getHTML() ); // 分析获取 list 所有章节
 				if ( existList.length() > 3 ) {
 					if ( nm.getBookInfo(bookIDX).get(NV.BookAuthor).toString().length() > 1 ) // 无作者名，表示为新书
-						linkList = ToolBookJava.getLastNPage(linkList, 55); // 获取 list 最后55章
+						linkList = getLastNPage(linkList, 55); // 获取 list 最后55章
 				}
 			}
 
-			List<Map<String, Object>> newPages = ToolBookJava.compare2GetNewPages(linkList, existList) ;
+			List<Map<String, Object>> newPages = compare2GetNewPages(linkList, existList) ;
 			int newpagecount = newPages.size(); // 新章节数，便于统计
 
 			if (newpagecount == 0) {
@@ -346,4 +349,53 @@ if ( isCompareShelf ) {
 		}
 	}
 
+	// 取倒数几个元素，被上面这个调用
+	public List<Map<String, Object>> getLastNPage(List<Map<String, Object>> inArrayList, int lastNpage) {
+		int aSize = inArrayList.size();
+		if (aSize <= lastNpage || lastNpage <= 0) {
+			return inArrayList;
+		}
+		List<Map<String, Object>> outList = new ArrayList<Map<String, Object>>(100);
+		for (int nowIdx = aSize - lastNpage; nowIdx < aSize; nowIdx++) {
+			outList.add((HashMap<String, Object>) (inArrayList.get(nowIdx)));
+		}
+		return outList;
+	}
+
+	public List<Map<String, Object>> compare2GetNewPages(List<Map<String, Object>> listURLName, String DelList) {
+		int linkSize = listURLName.size();
+		if ( 0 == linkSize ) // aHTML为空(可能网页下载有问题)
+			return listURLName ;
+		if ( ! DelList.contains("|") ) // 当DelList为空，返回原数组
+			return listURLName ;
+
+		// 获取 DelList 第一行的 URL : BaseLineURL
+		int fFF = DelList.indexOf("|");
+		String BaseLineURL = DelList.substring(1 + DelList.lastIndexOf("\n", fFF), fFF);
+
+		// 查到数组aHTML中等于BaseLineURL的行号，并删除1到该行号的所有元素
+		int EndIdx = 0 ;
+		String nowURL ;
+		for (int nowIdx = linkSize - 1; nowIdx >= 0; nowIdx--) { // 2019-09-04: 倒序查找
+			nowURL = listURLName.get(nowIdx).get(NV.PageURL).toString();
+			if ( BaseLineURL.equalsIgnoreCase(nowURL) ) {
+				EndIdx = nowIdx ;
+				break ;
+			}
+		}
+		for (int nowIdx = EndIdx; nowIdx >= 0; nowIdx--) {
+			listURLName.remove(nowIdx);
+		}
+		linkSize = listURLName.size();
+
+		// 对比剩余的aHTML和DelList，得到新的aNewRet并返回
+		List<Map<String, Object>> aNewRet = new ArrayList<Map<String, Object>>(30);
+		for (int nowIdx = 0; nowIdx < linkSize; nowIdx++) {
+			nowURL = listURLName.get(nowIdx).get(NV.PageURL).toString();
+			if ( ! DelList.contains("\n" + nowURL + "|") )
+				aNewRet.add(listURLName.get(nowIdx));
+		}
+
+		return aNewRet ;
+	}
 }

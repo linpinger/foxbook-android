@@ -1,16 +1,19 @@
 package com.linpinger.foxbook;
 
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.linpinger.misc.BackHandledFragment;
 import com.linpinger.novel.NV;
 import com.linpinger.novel.NovelManager;
 import com.linpinger.novel.NovelSite;
+import com.linpinger.tool.FoxHTTP;
 import com.linpinger.tool.ToolAndroid;
-import com.linpinger.tool.ToolBookJava;
 
 import android.annotation.TargetApi;
 import android.app.Fragment;
@@ -94,11 +97,11 @@ public class Fragment_QuickSearch extends BackHandledFragment {
 		(new Thread(){
 			public void run(){
 				if ( SE_TYPE == AC.SE_NONE ) {
-					data = ToolBookJava.getSearchEngineHref( ToolBookJava.downhtml(seURL) , "");
+					data = getSearchEngineHref( new FoxHTTP(seURL).getHTML() , "");
 				} else if ( SE_TYPE == AC.SE_MEEGOQ ) { // 下载并处理页面
-					data = NovelSite.getSearchResultHref( ToolBookJava.downhtml(seURL) , book_name);
+					data = getSearchResultHref( new FoxHTTP(seURL).getHTML() , book_name);
 				} else {
-					data = ToolBookJava.getSearchEngineHref( ToolBookJava.downhtml(seURL) , book_name); // 搜索引擎网页分析放在这里
+					data = getSearchEngineHref( new FoxHTTP(seURL).getHTML() , book_name); // 搜索引擎网页分析放在这里
 				}
 				handler.sendEmptyMessage(IS_REFRESH);
 			}
@@ -108,6 +111,92 @@ public class Fragment_QuickSearch extends BackHandledFragment {
 		initViewAction() ; // 初始化 点击 的行为
 
 		return v;
+	}
+
+	public List<Map<String, Object>> getSearchEngineHref(String html, String KeyWord) { // String KeyWord = "三界血歌" ;
+		boolean isNormalSite = false ;
+		if ( "".equalsIgnoreCase(KeyWord) ) {
+			isNormalSite = true;
+		}
+		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(64);
+		Map<String, Object> item;
+
+		html = html.replace("\t", "");
+		html = html.replace("\r", "");
+		html = html.replace("\n", "");
+		html = html.replaceAll("(?i)<!--[^>]+-->", "");
+		html = html.replace("<em>", "");
+		html = html.replace("</em>", "");
+		html = html.replace("<b>", "");
+		html = html.replace("</b>", "");
+		html = html.replace("<strong>", "");
+		html = html.replace("</strong>", "");
+
+		// 获取链接 并存入结构中
+		Matcher mat = Pattern.compile("(?smi)href *= *[\"']?([^>\"']+)[\"']?[^>]*> *([^<]+)<").matcher(html);
+		while (mat.find()) {
+			if (2 == mat.groupCount()) {
+				if ( ! isNormalSite ) {
+					if (mat.group(1).length() < 5)
+						continue;
+					if (!mat.group(1).startsWith("http"))
+						continue;
+					if (mat.group(1).contains("www.sogou.com/web"))
+						continue;
+					if (!mat.group(2).contains(KeyWord))
+						continue;
+				}
+
+				item = new HashMap<String, Object>(2);
+				item.put(NV.BookURL, mat.group(1));
+				item.put(NV.BookName, mat.group(2));
+				data.add(item);
+			}
+		}
+
+		return data;
+	}
+
+	public List<Map<String, Object>> getSearchResultHref(String html, String KeyWord) { // String KeyWord = "三界血歌" ;
+		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(64);
+		Map<String, Object> item;
+
+		// meegoq
+		String reislist = "(?smi)<section class=\"lastest\">(.*?)</section>";
+		String relistitem = "(?smi)<li>(.*?)</li>";
+		String itemintrourl = "(?smi)<span class=\"n2\"><a href=\"([^\"]*)\"";
+		String itembookname = "(?smi)<span class=\"n2\"><a[^>]*>([^<]*)</a>";
+
+		String listStr = getMatch(html, reislist);
+		if ( ! "".equalsIgnoreCase(listStr) ) {
+			String itemStr = "";
+			String nowURL = "";
+			Matcher mat = Pattern.compile(relistitem).matcher(listStr);
+			while (mat.find()) {
+				itemStr = mat.group(1);
+				item = new HashMap<String, Object>(2);
+
+				nowURL = getMatch(itemStr, itemintrourl);
+				// //www.meegoq.com/info62275.html
+				// https://www.meegoq.com/book62275.html
+				if ( nowURL.startsWith("//www.meegoq.com/info") ) { nowURL = "https:" + nowURL.replace("/info", "/book"); } // 2019-11-12
+
+				item.put(NV.BookURL, nowURL);
+				item.put(NV.BookName, getMatch(itemStr, itembookname));
+				data.add(item);
+			}
+		}
+		return data;
+	}
+
+	public String getMatch(String text, String iREstr) {
+		String ret = "";
+		Matcher mat = Pattern.compile(iREstr).matcher(text);
+		while (mat.find()) {
+			ret = mat.group(1);
+			break;
+		}
+		return ret;
 	}
 
 	void initViewAction() {
@@ -125,7 +214,7 @@ public class Fragment_QuickSearch extends BackHandledFragment {
 				book_url = (String) book.get(NV.BookURL);
 				
 				if ( clickX > lv.getWidth() * 0.8 ) { // 右边1/5处: 表示进入信息页，需要手工选择链接
-					String nowFullURL = ToolBookJava.getFullURL(seURL, book_url);
+					String nowFullURL = FoxHTTP.getFullURL(seURL, book_url);
 //					ToolAndroid.setClipText(nowFullURL, ctx);
 //					foxtip("网址已复制到剪贴板\n" + nowFullURL);
 

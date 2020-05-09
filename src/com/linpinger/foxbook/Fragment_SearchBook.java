@@ -32,8 +32,8 @@ import com.linpinger.misc.BackHandledFragment;
 import com.linpinger.novel.NV;
 import com.linpinger.novel.NovelManager;
 import com.linpinger.novel.SiteQiDian;
+import com.linpinger.tool.FoxHTTP;
 import com.linpinger.tool.ToolAndroid;
-import com.linpinger.tool.ToolBookJava;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class Fragment_SearchBook extends BackHandledFragment {
@@ -269,8 +269,9 @@ public class Fragment_SearchBook extends BackHandledFragment {
 		}
 		@Override
 		public void run() {
-			String json = ToolBookJava.downhtml(new SiteQiDian().getSearchURL_Android7(this.bookname), "utf-8");
-			List<Map<String, Object>> qds = new SiteQiDian().getSearchBookList_Android7(json);
+			SiteQiDian qd = new SiteQiDian();
+			String json = new FoxHTTP( qd.getSearchURL_Android7(this.bookname) ).getHTML("UTF-8") ;
+			List<Map<String, Object>> qds = qd.getSearchBookList_Android7(json);
 			if ( qds.get(0).get(NV.BookName).toString().equalsIgnoreCase(this.bookname) ) { // 第一个结果就是目标书
 				book_url = qds.get(0).get(NV.BookURL).toString();
 			}
@@ -293,8 +294,23 @@ public class Fragment_SearchBook extends BackHandledFragment {
 		String ub = wv.getUrl();
 		if (ub.contains(".qidian.com/")) {
 			String qidianID = new SiteQiDian().getBookID_FromURL(ub);
+			final String eBookURL = "http://download.qidian.com/epub/" + qidianID + ".epub";
+			final String SAVEPATH= "/sdcard/99_sync/" + qidianID + ".epub";
+
 			ToolAndroid.download("http://download.qidian.com/epub/" + qidianID + ".epub", qidianID + ".epub", ctx);
 			foxtip("开始下载: " + qidianID + ".epub");
+
+			(new Thread() { public void run() {
+				FoxHTTP eHTTP = new FoxHTTP(eBookURL);
+				eHTTP.setHead("Accept-Encoding", "gzip, deflate"); // 2019-11-17: 下载起点epub需要加该HTTP头字段
+				long fLen = eHTTP.saveFile(SAVEPATH);
+
+				Message msg = Message.obtain();
+				msg.what = IS_SHOWTIP;
+				msg.obj = SAVEPATH + " 下载完毕，大小: " + fLen ;
+				handler.sendMessage(msg);
+			}}).start();
+			
 		} else {
 			foxtip("非起点URL:\n" + ub);
 		}
@@ -419,6 +435,9 @@ public class Fragment_SearchBook extends BackHandledFragment {
 							foxtip("在起点上未搜索到该书名");
 						}
 						break;
+					case IS_SHOWTIP:
+						foxtip( (String)msg.obj );
+						break;
 				}
 				return false;
 			}
@@ -450,6 +469,7 @@ public class Fragment_SearchBook extends BackHandledFragment {
 	private Button btn_other ;
 
 	private final int IS_GETQIDIANURL = 8;
+	private final int IS_SHOWTIP = 1;
 
 	private static Handler handler;
 

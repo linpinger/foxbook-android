@@ -1,10 +1,5 @@
 package com.linpinger.tool;
 
-import java.io.File;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Properties;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.DownloadManager;
@@ -13,15 +8,18 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.ListView;
+
+import java.io.File;
+import java.lang.reflect.Method;
+import java.util.Properties;
 
 public class ToolAndroid {
 
@@ -115,25 +113,55 @@ public class ToolAndroid {
 		}
 	}
 
-	// 获取wifi的ip,name,其他信息
-	public static HashMap<String, String> getWifiInfo(Context context) { // ip,name,info | null=无WIFI
-		HashMap<String, String> hm = new HashMap<String, String>();
-		ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);  
-		NetworkInfo info = cm.getActiveNetworkInfo();
-		if ( info != null && info.isAvailable() ) {
-			WifiManager wifimanage = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);// 获取WifiManager
-//			if (!wifimanage.isWifiEnabled())
-//				wifimanage.setWifiEnabled(true);
-			WifiInfo wifiinfo = wifimanage.getConnectionInfo();
-			hm.put("ip", intToIp(wifiinfo.getIpAddress()) );
-			String wifiId = wifiinfo != null ? wifiinfo.getSSID() : null;
-			hm.put("name", wifiId );
-			hm.put("info", wifiinfo.toString());
-			return hm;
-		} else {
-			return null ; //"无WIFI" ;
+	public static String getWifiName(Context context) {
+		String ssid = "";
+		WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);// 获取WifiManager
+		if ( null != wm ) {
+			WifiInfo wi = wm.getConnectionInfo();
+			int nid = wi.getNetworkId();
+
+			for( WifiConfiguration wc : wm.getConfiguredNetworks() ) {
+				if (wc.networkId == nid) {
+					ssid = wc.SSID;
+					break;
+				}
+			}
 		}
+
+		if ( null == ssid ) { ssid = "木有获取到"; }
+		return ssid;
 	}
+
+	public static String getWifiIP(Context context) {
+		String wip = "";
+		WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);// 获取WifiManager
+		if ( null != wm ) {
+			WifiInfo wi = wm.getConnectionInfo();
+			wip = intToIp(wi.getIpAddress());
+		}
+		if ( null == wip ) { wip = "0.0.0.0"; }
+		return wip;
+	}
+
+//	// 获取wifi的ip,name,其他信息
+//	public static HashMap<String, String> getWifiInfo(Context context) { // ip,name,info | null=无WIFI
+//		HashMap<String, String> hm = new HashMap<String, String>();
+//		ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+//		NetworkInfo info = cm.getActiveNetworkInfo();
+//		if ( info != null && info.isAvailable() ) {
+//			WifiManager wifimanage = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);// 获取WifiManager
+////			if (!wifimanage.isWifiEnabled())
+////				wifimanage.setWifiEnabled(true);
+//			WifiInfo wifiinfo = wifimanage.getConnectionInfo();
+//			hm.put("ip", intToIp(wifiinfo.getIpAddress()) );
+//			String wifiId = wifiinfo != null ? wifiinfo.getSSID() : null;
+//			hm.put("name", wifiId );
+//			hm.put("info", wifiinfo.toString());
+//			return hm;
+//		} else {
+//			return null ; //"无WIFI" ;
+//		}
+//	}
 
 //	public static String getLocalIpAddress() {
 //		try { // 遍历网络接口

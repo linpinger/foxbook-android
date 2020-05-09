@@ -7,7 +7,7 @@ import android.os.Bundle;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class BackHandledFragment extends Fragment {
-	protected BackHandledInterface mBackHandledInterface;
+	private BackHandledInterface mBackHandledInterface;
 
 	// 所有继承BackHandledFragment的子类都将在这个方法中实现物理Back键按下后的逻辑
 	public boolean onBackPressed(){
@@ -20,7 +20,7 @@ public class BackHandledFragment extends Fragment {
 		if (!(getActivity() instanceof BackHandledInterface)) {
 			throw new ClassCastException("Hosting Activity must implement BackHandledInterface");
 		} else {
-			this.mBackHandledInterface = (BackHandledInterface) getActivity();
+			mBackHandledInterface = (BackHandledInterface) getActivity();
 		}
 	}
 

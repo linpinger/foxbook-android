@@ -14,7 +14,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class FoxZipReader {
-	protected ZipFile zf ;
+	private ZipFile zf ;
 
 	public static String getUtf8TextFromZip(File zFile, String itemFileName) {
 		FoxZipReader z = new FoxZipReader(zFile);
