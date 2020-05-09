@@ -72,6 +72,17 @@ public class FoxZipWriter {
 		}
 	}
 
+	public void putDir(String dirNameInZip) { //  建立文件夹条目
+		ZipEntry entry = new ZipEntry(dirNameInZip);
+		try {
+			zos.putNextEntry(entry);
+			zos.flush();
+			zos.closeEntry();
+		} catch (Exception e) {
+			System.err.println(e.toString());
+		}
+	}
+
 	public void close() {
 		try {
 			zos.close();

@@ -202,7 +202,7 @@ public class Fragment_BookInfo extends BackHandledFragment {
 		} else { // 2.x
 			String json2Path = "/sdcard/YueDu/myBookShelf.json";
 			File json2File = new File(json2Path);
-			if ( json2File.exists() ) {
+			if ( ! json2File.exists() ) {
 				foxtip("文件可能不存在:\n" + json2Path);
 				return "";
 			}

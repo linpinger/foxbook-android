@@ -12,7 +12,7 @@ import com.linpinger.tool.ToolJava;
 
 public class Stor {
 
-	public String getValue(String text, String label) {
+	public static String getValue(String text, String label) {
 		String ret = "";
 		Matcher mat = Pattern.compile("(?smi)<" + label + ">(.*?)</" + label + ">").matcher(text);
 		while (mat.find()) {

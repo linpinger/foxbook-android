@@ -54,7 +54,30 @@ public class NovelSite {
 		String reShelf = "";
 		String cookie = "";
 		String bookURL = (String) booksInfo.get(0).get(NV.BookURL);
-		if ( bookURL.contains(".13xs.com")) {
+
+		if ( bookURL.contains(".meegoq.com") ) {
+			siteType = NovelSite.SiteMeegoq;
+			urlShelf = "https://www.meegoq.com/u/";
+			reShelf = "(?smi)<li>.*?href=\"([^\"]*/info[0-9]*.html)\"[^>]*>([^<]*)<.*?href=\"([^\"]*/[0-9]*_[0-9]*.html)\"[^>]*>([^<]*)<";
+			cookie = getValue(xml, "meegoq").replace("\r", "").replace("\n", "");
+			// 正则分析网页，合成 得到 书地址, 书名, 新章节地址, 新章节名
+		} else if ( bookURL.contains(".wutuxs.com") ) {
+			siteType = NovelSite.SiteWutuxs;
+			urlShelf = "https://www.wutuxs.com/modules/article/bookcase.php";
+			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
+			cookie = getValue(xml, "wutuxs").replace("\r", "").replace("\n", "");
+		} else if ( bookURL.contains(".xsbiquge.com") ) {
+			siteType = NovelSite.SiteXxBiquge;
+			urlShelf = "https://www.xsbiquge.com/bookcase.php" ;
+			reShelf = "(?smi)\"s2\"><a href=\"([^\"]+)\"[^>]*>([^<]*)<.*?\"s4\"><a href=\"([^\"]+)\"";
+			cookie = getValue(xml, "xsbiquge").replace("\r", "").replace("\n", "");
+		} else if ( bookURL.contains(".dajiadu8.com") ) {
+			siteType = NovelSite.SiteDajiadu;
+			urlShelf = "https://www.dajiadu8.com/modules/article/bookcase.php";
+			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)&index.*?\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
+			cookie = getValue(xml, "dajiadu8").replace("\r", "").replace("\n", "");
+
+		} else if ( bookURL.contains(".13xs.com")) {
 			siteType = NovelSite.Site13xs;
 			urlShelf = "http://www.13xs.com/shujia.aspx";
 			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)&index.*?\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
@@ -69,37 +92,16 @@ public class NovelSite {
 			urlShelf = "http://www.xqqxs.com/modules/article/bookcase.php?delid=604" ;
 			reShelf = "(?smi)<tr>.*?&indexflag=(.*?)\"[^>]*>([^<]*)<.*?[^>]<a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
 			cookie = getValue(xml, "rawxqqxs").replace("\r", "").replace("\n", "");
-		} else if ( bookURL.contains(".xbiquge6.com") ) {
-			siteType = NovelSite.SiteXxBiquge;
-			urlShelf = "https://www.xbiquge6.com/bookcase.php" ;
-			reShelf = "(?smi)\"s2\"><a href=\"([^\"]+)\"[^>]*>([^<]*)<.*?\"s4\"><a href=\"([^\"]+)\"";
-			cookie = getValue(xml, "rawxbiquge6").replace("\r", "").replace("\n", "");
 		} else if ( bookURL.contains(".biquyun.com") ) {
 			siteType = NovelSite.SiteBiquge;
 			urlShelf = "https://www.biquyun.com/modules/article/bookcase.php";
 			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"([^\"]*)\"[^>]*>([^<]*)<";
 			cookie = getValue(xml, "rawbiquge").replace("\r", "").replace("\n", "");
-		} else if ( bookURL.contains(".dajiadu.net") ) {
-			siteType = NovelSite.SiteDajiadu;
-			urlShelf = "https://www.dajiadu.net/modules/article/bookcase.php";
-			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)&index.*?\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
-			cookie = getValue(xml, "rawdajiadu").replace("\r", "").replace("\n", "");
 		} else if ( bookURL.contains(".piaotian.com") ) {
 			siteType = NovelSite.SitePiaotian;
 			urlShelf = "https://www.piaotian.com/modules/article/bookcase.php";
 			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
 			cookie = getValue(xml, "rawpiaotian").replace("\r", "").replace("\n", "");
-		} else if ( bookURL.contains(".wutuxs.com") ) {
-			siteType = NovelSite.SiteWutuxs;
-			urlShelf = "http://www.wutuxs.com/modules/article/bookcase.php";
-			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
-			cookie = getValue(xml, "rawwutuxs").replace("\r", "").replace("\n", "");
-		} else if ( bookURL.contains(".meegoq.com") ) {
-			siteType = NovelSite.SiteMeegoq;
-			urlShelf = "https://www.meegoq.com/u/";
-			reShelf = "(?smi)<li>.*?href=\"([^\"]*/info[0-9]*.html)\"[^>]*>([^<]*)<.*?href=\"([^\"]*/[0-9]*_[0-9]*.html)\"[^>]*>([^<]*)<";
-			cookie = getValue(xml, "rawmeegoq").replace("\r", "").replace("\n", "");
-			// 正则分析网页，合成 得到 书地址, 书名, 新章节地址, 新章节名
 		}
 
 		if ( NovelSite.SiteNobody == siteType )

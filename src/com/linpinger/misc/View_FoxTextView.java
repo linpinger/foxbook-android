@@ -240,7 +240,7 @@ public class View_FoxTextView extends View {
 		canvas.drawText(infoR, cw - padding - infoRLen , infoY, p); // 右侧时间 电量
 		// 左侧信息
 		if ( 0 == nowPageNum ) { // 首页
-			canvas.drawText("1 / " + nowPageCount + "  " + firstPageInfoL, padding, infoY, p);
+			canvas.drawText("  1 / " + nowPageCount + "  " + firstPageInfoL, padding, infoY, p);
 			// canvas.drawText("本章共 " + nowPageCount + " 页    " + firstPageInfoL, padding, ch - padding / 2, p);
 		} else { // 非首页，截断过长标题
 			String newInfoL = ( nowPageNum + 1 ) + " / " + nowPageCount + "  " + infoL ;
@@ -248,7 +248,7 @@ public class View_FoxTextView extends View {
 			String addStr = "";
 			if ( infoLen < newInfoL.length() )
 				addStr = "…" ;
-			canvas.drawText(newInfoL.substring(0, infoLen) + addStr, padding, infoY, p);
+			canvas.drawText("  " + newInfoL.substring(0, infoLen) + addStr, padding, infoY, p);
 		}
 //		p.setColor(Color.BLACK); // 颜色
 	} // onDraw结束

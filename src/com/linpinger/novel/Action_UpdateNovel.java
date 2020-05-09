@@ -271,6 +271,8 @@ if ( isCompareShelf ) {
 						aList[i] = nBaseCount ;
 				}
 
+				List<Thread> threadList = new ArrayList<Thread>();
+				Thread nowT;
 				List<Map<String, Object>> subList ;
 				int startPoint = 0 ;
 				for ( int i = 0; i < downThread; i++ ) {
@@ -286,9 +288,18 @@ if ( isCompareShelf ) {
 					subList = new ArrayList<Map<String, Object>>(aList[i]);
 					for ( int n = startPoint; n < startPoint + aList[i]; n++ )
 						subList.add(nbl.get(n));
-					(new Thread(new FoxTaskDownPage(subList, nm, threadIDX, isUpFMLs), "T" + i)).start() ;
+					nowT = new Thread(new FoxTaskDownPage(subList, nm, threadIDX, isUpFMLs), "T" + i) ;
+					threadList.add(nowT);
+					nowT.start();
 
 					startPoint += aList[i] ;
+				}
+				for ( Thread nowThread : threadList ) {
+					try {
+						nowThread.join();
+					} catch (Exception ex) {
+						System.out.println("等待线程错误: " + ex.toString());
+					}
 				}
 			} else { // 单线程循环更新页面
 				int nowCount = 0;
