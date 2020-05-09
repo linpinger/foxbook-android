@@ -5,12 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.linpinger.misc.BackHandledFragment;
 import com.linpinger.novel.NV;
 import com.linpinger.novel.NovelManager;
 import com.linpinger.tool.ToolAndroid;
 
 import android.annotation.TargetApi;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -29,7 +29,7 @@ import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-public class Fragment_EBook_Viewer extends Fragment {
+public class Fragment_EBook_Viewer extends BackHandledFragment {
 
 	public final int ZIP = 26 ;			// 普通zip文件
 	public final int ZIP1024 = 1024 ;	// 1024 html 打包的zip
@@ -165,13 +165,13 @@ public class Fragment_EBook_Viewer extends Fragment {
 		public void onClick(View v) {
 			switch ( v.getId() ) {
 			case R.id.testTV:
-				onBackPressed();
+				back();
 				break;
 			case R.id.btnSaveExit:
 				if ( ! settings.getBoolean("isSaveAsFML", true) )
 					nm.setSaveFormat(NovelManager.SQLITE3);
 				nm.close();
-				onBackPressed();
+				back();
 				System.exit(0);
 				break;
 			case R.id.btnCopyInfo:
@@ -192,7 +192,7 @@ public class Fragment_EBook_Viewer extends Fragment {
 			case R.id.btnToUTF8:
 				if ( eBookType == TXT || eBookType == TXTQIDIAN) { // 显示
 					nm.exportAsTxt(new File(eBookFile.getPath().replace(".txt", "") + "_UTF8.txt")); // Txt GBK->UTF-8
-					onBackPressed();
+					back();
 					System.exit(0);
 				} else {
 					foxtipL("骚年哟，当前不是txt");
@@ -202,19 +202,12 @@ public class Fragment_EBook_Viewer extends Fragment {
 		}
 	}
 
-	private void onBackPressed() {
-		getActivity().onBackPressed();
-	}
 	private void foxtip(String sinfo) { // Toast消息
 		Toast.makeText(ctx, sinfo, Toast.LENGTH_SHORT).show();
 	}
 	private void foxtipL(String sinfo) {
 		tv.setText(sinfo);
 	}
-	void startFragment(Fragment fragmt) {
-//		getFragmentManager().beginTransaction().replace(android.R.id.content, fragmt).addToBackStack(null).commit();
-		getFragmentManager().beginTransaction().hide(this).add(android.R.id.content, fragmt).addToBackStack(null).commit(); // Fragment里面启动Fragment用这个
-	} // 返回功能调用Activity的onBackPressed: getActivity().onBackPressed();
 	
 	private Context ctx;
 }

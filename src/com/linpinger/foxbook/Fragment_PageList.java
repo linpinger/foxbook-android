@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.linpinger.misc.BackHandledFragment;
 import com.linpinger.novel.NV;
 import com.linpinger.novel.NovelManager;
 import com.linpinger.novel.NovelSite;
@@ -42,7 +43,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-public class Fragment_PageList extends Fragment {
+public class Fragment_PageList extends BackHandledFragment {
 	private NovelManager nm;
 
 	SharedPreferences settings;
@@ -146,6 +147,7 @@ public class Fragment_PageList extends Fragment {
 			v.findViewById(R.id.btnAddBook).setVisibility(View.GONE); // 隐藏按钮
 			isOnLine = false ;
 			data = nm.getBookPageList( bookIDX ); // 获取页面列表
+			handler.sendEmptyMessage(IS_RenderListView);
 			Map<String, Object> info = nm.getBookInfo(bookIDX);
 
 			foxtipL(info.get(NV.BookName) + " : " + info.get(NV.BookURL));
@@ -155,6 +157,7 @@ public class Fragment_PageList extends Fragment {
 			v.findViewById(R.id.btnCleanBookND).setVisibility(View.GONE);
 			isOnLine = false ;
 			data = nm.getPageList(1);
+			handler.sendEmptyMessage(IS_RenderListView);
 			foxtipL(nm.getShelfFile().getName() + " 共 " + String.valueOf(data.size()) + " 章");
 			break;
 		case AC.aListLess1KPages:
@@ -162,6 +165,7 @@ public class Fragment_PageList extends Fragment {
 			v.findViewById(R.id.btnCleanBookND).setVisibility(View.GONE);
 			isOnLine = false ;
 			data = nm.getPageList(999);
+			handler.sendEmptyMessage(IS_RenderListView);
 			foxtipL(nm.getShelfFile().getName() + " 共 " + String.valueOf(data.size()) + " 章");
 			break;
 		case AC.aListSitePages:
@@ -188,7 +192,6 @@ public class Fragment_PageList extends Fragment {
 		default:
 			break;
 		}
-		renderListView();
 
 		onViewClickListener cl = new onViewClickListener();
 		tv.setOnClickListener(cl);
@@ -346,7 +349,7 @@ public class Fragment_PageList extends Fragment {
 				}
 
 				updateLocalData(bookIDX) ; // 更新data数据
-				renderListView();
+				handler.sendEmptyMessage(IS_RenderListView);
 			}
 		});
 		builder.create().show();
@@ -367,7 +370,7 @@ public class Fragment_PageList extends Fragment {
 		public void onClick(View v) {
 			switch ( v.getId() ) {
 			case R.id.testTV:
-				onBackPressed();
+				back();
 				break;
 			case R.id.btnAddBook:
 				if ( ittAction == AC.aListQDPages |ittAction == AC.aSearchBookOnQiDian | ittAction == AC.aSearchBookOnSite ) {
@@ -379,7 +382,7 @@ public class Fragment_PageList extends Fragment {
 
 						startFragment( Fragment_BookInfo.newInstance(nm, nBookIDX) );
 						foxtip("已添加: " + searchBookName + " : " + searchBookURL);
-						onBackPressed();
+						back();
 					} else {
 						foxtipL("信息不完整@新增 : " + searchBookName + " <" + searchBookURL + ">");
 					}
@@ -405,7 +408,7 @@ public class Fragment_PageList extends Fragment {
 				data.clear();
 				adapter.notifyDataSetChanged();
 				foxtip("已删除所有并更新记录");
-				onBackPressed();
+				back();
 				break;
 			case R.id.btnCleanBookND:
 				if ( ittAction == AC.aSearchBookOnQiDian | ittAction == AC.aSearchBookOnSite
@@ -416,7 +419,7 @@ public class Fragment_PageList extends Fragment {
 				if ( ittAction == AC.aListBookPages )
 					nm.clearBook(bookIDX, false);
 				foxtip("已删除所有");
-				onBackPressed();
+				back();
 				break;
 			case R.id.btnToLVBottom:
 				ToolAndroid.jump2ListViewPos(lv, -66) ;
@@ -441,14 +444,12 @@ public class Fragment_PageList extends Fragment {
 				data = new SiteQiDian().getTOC_Android7( ToolBookJava.downhtml(tocURL, "utf-8") );
 			if ( ittAction == AC.aListSitePages | ittAction == AC.aSearchBookOnSite )
 				data = new NovelSite().getTOC( ToolBookJava.downhtml(tocURL) ); // PageName PageURL
+
 			handler.sendEmptyMessage(IS_RenderListView);
 		}
 	}
 
 	private void renderListView() { // 刷新LV
-		if ( ! isOnLine && data.size() == 0 ) { // 当记录删除完后，结束
-			onBackPressed();
-		}
 		switch (ittAction) {
 		case AC.aListBookPages:
 		case AC.aListAllPages:
@@ -476,8 +477,16 @@ public class Fragment_PageList extends Fragment {
 			public void handleMessage(Message msg) {
 				if ( msg.what == IS_UPDATEPAGE ) // 更新章节完毕
 					foxtipL("更新完毕 : " + (String)msg.obj );
-				if ( msg.what == IS_RenderListView ) // 下载目录完毕
-					renderListView();
+				if ( msg.what == IS_RenderListView ) { // 下载目录完毕
+					if ( data.size() == 0 ) {
+						foxtip("列表是空的哟");
+						if ( ! isOnLine ) {
+							back();
+						}
+					} else {
+						renderListView();
+					}
+				}
 			}
 		};
 	}
@@ -515,12 +524,6 @@ public class Fragment_PageList extends Fragment {
 	private void foxtipL(String sinfo) {
 		tv.setText(sinfo);
 	}
-	private void onBackPressed() {
-		getActivity().onBackPressed();
-	}
-	void startFragment(Fragment fragmt) {
-		// getFragmentManager().beginTransaction().replace(android.R.id.content, fragmt).addToBackStack(null).commit();
-		getFragmentManager().beginTransaction().hide(this).add(android.R.id.content, fragmt).addToBackStack(null).commit(); // Fragment里面启动Fragment用这个
-	} // 返回功能调用Activity的onBackPressed: getActivity().onBackPressed();
+
 	private Context ctx;
 }

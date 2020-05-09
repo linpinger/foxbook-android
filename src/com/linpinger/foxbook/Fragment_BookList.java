@@ -5,15 +5,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.linpinger.misc.BackHandledFragment;
 import com.linpinger.novel.Action_UpdateNovel;
 import com.linpinger.novel.Action_UpdateNovel.OnStatuChangeListener;
 import com.linpinger.novel.NV;
 import com.linpinger.novel.NovelManager;
-import com.linpinger.novel.SiteQiDian;
 import com.linpinger.tool.ToolAndroid;
+
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -46,7 +46,7 @@ import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
-public class Fragment_BookList extends Fragment {
+public class Fragment_BookList extends BackHandledFragment {
 
 	private float clickX = 0 ; // 用来确定点击横坐标以实现不同LV不同区域点击效果
 	private NovelManager nm ;
@@ -69,7 +69,7 @@ public class Fragment_BookList extends Fragment {
 	private final int DO_REFRESH_TIP = 4;
 	private final int IS_NEWVER = 5;
 	private final int DO_REFRESH_SETTITLE = 6 ;
-	private final int DO_UPDATEFINISH = 7;
+//	private final int DO_UPDATEFINISH = 7;
 
 	private boolean switchShelfLock = false;
 //	private long mExitTime;
@@ -145,8 +145,19 @@ public class Fragment_BookList extends Fragment {
 			foxtip("貌似没有书哦，那偶自己打开搜索好了");
 			startFragment( Fragment_SearchBook.newInstance(nm).setOnFinishListener(oflsn) );
 		}
+
 		return v;
 	} // onCreate end
+
+	void showListLess1KPages() {
+		int xCount = nm.getLess1KCount();
+		if ( xCount == 0 ) {
+			foxtip("木有字数少于1K的章节");
+		} else {
+			startFragment( Fragment_PageList.newInstance(nm, AC.aListLess1KPages).setOnFinishListener(oflsn) );
+			foxtip("有 " + xCount + " 章节短于1K");
+		}
+	}
 
 	void init_LV_Touch() {
 		lv.setOnTouchListener(new OnTouchListener(){
@@ -208,8 +219,7 @@ public class Fragment_BookList extends Fragment {
 		v.findViewById(R.id.btnSeeAll).setOnLongClickListener(new OnLongClickListener(){
 			@Override
 			public boolean onLongClick(View v) {
-				startFragment( Fragment_PageList.newInstance(nm, AC.aListLess1KPages).setOnFinishListener(oflsn) );
-				foxtip("已显示字数少于1K的章节");
+				showListLess1KPages();
 				return true;
 			}
 		});
@@ -242,7 +252,11 @@ public class Fragment_BookList extends Fragment {
 				foxtipL("其他菜单或按钮");
 				break;
 			case R.id.btnSeeAll: // 所有章节
-				startFragment( Fragment_PageList.newInstance(nm, AC.aListAllPages).setOnFinishListener(oflsn) );
+				if ( nm.getPageCount() == 0 ) {
+					foxtip("一章都木有哟");
+				} else {
+					startFragment( Fragment_PageList.newInstance(nm, AC.aListAllPages).setOnFinishListener(oflsn) );
+				}
 				break;
 			case R.id.btnSwitch:
 				foxtipL("切换书架");
@@ -304,8 +318,7 @@ public class Fragment_BookList extends Fragment {
 				} else if ( mt.equalsIgnoreCase("搜索/添加小说") ) {
 					startFragment( Fragment_SearchBook.newInstance(nm).setOnFinishListener(oflsn) );
 				} else if ( mt.equalsIgnoreCase("显示字数少于1K的章节") ) {
-					startFragment( Fragment_PageList.newInstance(nm, AC.aListLess1KPages).setOnFinishListener(oflsn) );
-					foxtip("已显示字数少于1K的章节");
+					showListLess1KPages();
 				} else if ( mt.equalsIgnoreCase("更新本软件") ) {
 					foxtipL("开始更新版本...");
 					(new Thread(){
@@ -462,7 +475,6 @@ public class Fragment_BookList extends Fragment {
 		.setItems(new String[] { "更新本书",
 				"更新本书目录",
 				"在线查看",
-				"搜索:起点",
 				"搜索:bing",
 				"复制书名",
 				"编辑本书信息",
@@ -481,32 +493,20 @@ public class Fragment_BookList extends Fragment {
 				case 2: // 在线查看
 					startFragment( Fragment_PageList.newInstance(nm, AC.aListSitePages, bookIDX).setOnFinishListener(oflsn) );
 					break;
-				case 3: // 搜索:起点
-					String lcQidianID = nm.getBookInfo(bookIDX).get(NV.QDID).toString();
-
-					if ( null == lcQidianID | 0 == lcQidianID.length() | lcQidianID == "0" ) {
-						startFragment( Fragment_SearchBook.newInstance(nm, lcName).setOnFinishListener(oflsn) );
-					} else { // 存在起点ID
-						String lcQidianURL = new SiteQiDian().getTOCURL_Android7(lcQidianID) ;
-
-						Bundle ittQD = new Bundle();
-						ittQD.putInt(AC.action, AC.aListQDPages);
-						ittQD.putInt(NV.BookIDX, bookIDX);
-						ittQD.putString(NV.TmpString, lcQidianURL);
-						Fragment_PageList.newInstance(nm, ittQD).setOnFinishListener(oflsn);
-					}
+				case 3: // 搜索:bing
+//					startFragment( Fragment_QuickSearch.newInstance(nm, AC.SE_BING, lcName).setOnFinishListener(oflsn) );
+					ToolAndroid.setClipText(lcName, ctx);
+					foxtipL("搜索: " + lcName);
+					startFragment( Fragment_SearchBook.newInstance(nm).setOnFinishListener(oflsn) );
 					break;
-				case 4: // 搜索:bing
-					startFragment( Fragment_QuickSearch.newInstance(nm, AC.SE_BING, lcName).setOnFinishListener(oflsn) );
-					break;
-				case 5: // 复制书名
+				case 4: // 复制书名
 					ToolAndroid.setClipText(lcName, ctx);
 					foxtip("已复制到剪贴板: " + lcName);
 					break;
-				case 6: // 编辑本书信息
+				case 5: // 编辑本书信息
 					startFragment( Fragment_BookInfo.newInstance(nm, bookIDX).setOnFinishListener(oflsn) );
 					break;
-				case 7: // 删除本书
+				case 6: // 删除本书
 					nm.deleteBook(bookIDX);
 					refresh_BookList();
 					foxtip("已删除: " + lcName);
@@ -528,17 +528,6 @@ public class Fragment_BookList extends Fragment {
 		handler = new Handler(new Handler.Callback() {
 			public boolean handleMessage(Message msg) {
 				switch (msg.what) {
-				case DO_UPDATEFINISH:
-					foxtipL((String)msg.obj);
-					int xCount = nm.getLess1KCount();
-					if ( xCount > 0 ) {
-						foxtipL(xCount + ":" + (String)msg.obj);
-						foxtip("有 " + xCount + " 章节短于1K");
-
-						// 显示短章节
-						startFragment( Fragment_PageList.newInstance(nm, AC.aListLess1KPages).setOnFinishListener(oflsn) );
-					}
-					break;
 				case DO_SETTITLE:
 					foxtipL((String)msg.obj);
 					break;
@@ -595,9 +584,6 @@ public class Fragment_BookList extends Fragment {
 		tv.setText(sinfo);
 	}
 
-	void startFragment(Fragment fragmt) {
-		getFragmentManager().beginTransaction().hide(this).add(android.R.id.content, fragmt).addToBackStack(null).commit();
-	}
 	private Context ctx;
 	private Button btnOther;
 	private boolean isSaveBeforeExit = true ;

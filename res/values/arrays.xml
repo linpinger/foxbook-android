@@ -33,11 +33,11 @@
     </array>
     <array name="upgradeSite_Entries">
         <item>(国外) github</item>
-        <item>(国内) oschina </item>
+        <item>(国内) cnblogs </item>
     </array>
     <array name="upgradeSite_Values">
         <item>github</item>
-        <item>oschina</item>
+        <item>cnblogs</item>
     </array>
 
 </resources>

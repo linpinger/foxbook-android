@@ -1,4 +1,4 @@
-package com.linpinger.foxbook;
+package com.linpinger.misc;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.view.View;
 
-// View.setOnClickListener 绑定点击事件，免得自己来判断
+//在Activity中使用 View.setOnClickListener 绑定点击事件，免得自己来判断
 public class View_FoxTextView extends View {
 
 	private FoxBroadcastReceiver bc_rcv;

@@ -2,12 +2,12 @@ package com.linpinger.foxbook;
 
 import java.util.Map;
 
+import com.linpinger.misc.BackHandledFragment;
 import com.linpinger.novel.NV;
 import com.linpinger.novel.NovelManager;
 import com.linpinger.tool.ToolAndroid;
 
 import android.annotation.TargetApi;
-import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
@@ -20,7 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-public class Fragment_PageInfo extends Fragment {
+public class Fragment_PageInfo extends BackHandledFragment {
 
 	public static Fragment_PageInfo newInstance(NovelManager nvMgr, int inBookIDX, int inPageIDX) {
 		Fragment_PageInfo fc = new Fragment_PageInfo();
@@ -87,7 +87,7 @@ public class Fragment_PageInfo extends Fragment {
 		public void onClick(View v) {
 			switch ( v.getId() ) {
 			case R.id.testTV:
-				onBackPressed();
+				back();
 				break;
 			case R.id.btnSave:
 				Map<String, Object> info = nm.getBlankPage();
@@ -97,7 +97,7 @@ public class Fragment_PageInfo extends Fragment {
 				info.put(NV.Size, pi_content.getText().toString().length());
 				nm.setPage(info, bookIDX, pageIDX);
 
-				onBackPressed();
+				back();
 				break;
 			case R.id.btnCopyFocus:
 				String toCopy = "";
@@ -118,10 +118,6 @@ public class Fragment_PageInfo extends Fragment {
 				break;
 			}
 		}
-	}
-
-	private void onBackPressed() {
-		getActivity().onBackPressed();
 	}
 
 	private void foxtip(String sinfo) { // Toast消息

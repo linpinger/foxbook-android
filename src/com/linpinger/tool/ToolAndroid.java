@@ -1,7 +1,6 @@
 package com.linpinger.tool;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Properties;
@@ -105,14 +104,8 @@ public class ToolAndroid {
 				System.out.println("错误: FoxBook配置文件不存在，无法导入");
 				return false;
 			}
-			Properties pro = new Properties();
-			try {
-				FileInputStream inputFile = new FileInputStream(cfgFile);
-				pro.load(inputFile);
-				inputFile.close();
-			} catch ( Exception e ) {
-				System.err.println(e.toString());
-			}
+			Properties pro = ToolJava.loadConfig( cfgFile.getPath() );
+
 			Editor ed = ps.edit();
 			ed.putFloat("fontsize", Float.valueOf(pro.getProperty("fontsize")));
 			ed.putFloat("paddingMultip", Float.valueOf(pro.getProperty("paddingMultip")));
@@ -226,7 +219,15 @@ public class ToolAndroid {
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static String getClipText(Context ctx) {
-		return ((ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE)).getPrimaryClip().getItemAt(0).getText().toString();
+		// return ((ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE)).getPrimaryClip().getItemAt(0).getText().toString();
+		String retS = "";
+		CharSequence xx = ((ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE)).getPrimaryClip().getItemAt(0).getText();
+		if ( xx != null ) {
+			retS = xx.toString();
+		} else {
+			System.err.println("- 剪贴板获取了空对象: " + ctx.getClass().getName() );
+		}
+		return retS;
 	}
 
 }

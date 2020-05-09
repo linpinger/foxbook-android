@@ -522,6 +522,13 @@ public class NovelManager {
 		}
 	}
 
+	public int getPageCount() { // 获取书架中的章节数
+		int count = 0 ;
+		for (Novel book : this.shelf) {
+			count = count + book.getChapters().size();
+		}
+		return count;
+	}
 	public int getLess1KCount(){
 		int count = 0 ;
 		for (Novel book : this.shelf) {

@@ -35,13 +35,6 @@ public class Fragment_Setting extends PreferenceFragment {
 		addPreferencesFromResource(R.xml.preferences); // 若是自定义布局，必须包含ID为"@android:id/list"的ListView
 	}
 
-	private Activity thisActivity;
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		thisActivity = activity;
-	}
-
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ctx = container.getContext();
@@ -61,7 +54,7 @@ public class Fragment_Setting extends PreferenceFragment {
 		tv.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
-				onBackPressed();
+				back();
 			}
 		});
 
@@ -96,9 +89,7 @@ public class Fragment_Setting extends PreferenceFragment {
 		this.findPreference("cleanCache").setOnPreferenceClickListener(new OnPreferenceClickListener(){
 			@Override
 			public boolean onPreferenceClick(Preference pf) {
-				boolean isCleanSuccess = ToolJava.deleteDir( thisActivity.getCacheDir() );
-				foxtip("已清理缓存，成功：" + isCleanSuccess);
-				onBackPressed();
+				cleanAppCache();
 				return true;
 			}
 		});
@@ -126,6 +117,15 @@ public class Fragment_Setting extends PreferenceFragment {
 			}
 		});
 		return v;
+	}
+
+	void cleanAppCache() {
+		if ( ToolJava.deleteDir( ctx.getCacheDir() ) ) {
+			foxtip("已成功清理缓存");
+			back();
+		} else {
+			foxtip("清理缓存失败");
+		}
 	}
 
 	public void selectFile() {
@@ -161,17 +161,16 @@ public class Fragment_Setting extends PreferenceFragment {
 	private void foxtip(String sinfo) { // Toast消息
 		Toast.makeText(ctx, sinfo, Toast.LENGTH_SHORT).show();
 	}
-	//	private void foxtipL(String sinfo) {
-	//		tv.setText(sinfo);
-	//	}
-	private void onBackPressed() {
+
+	private void back() {
 		getActivity().onBackPressed();
 	}
-
 //	void startFragment(Fragment fragmt) {
 //		getFragmentManager().beginTransaction().hide(this).add(android.R.id.content, fragmt).addToBackStack(null).commit();
 //	}
+
 	Context ctx;
 	private TextView tv;
 	private ListView lv;
+
 }

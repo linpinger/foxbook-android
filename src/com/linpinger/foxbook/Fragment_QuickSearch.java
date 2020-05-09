@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.linpinger.misc.BackHandledFragment;
 import com.linpinger.novel.NV;
 import com.linpinger.novel.NovelManager;
 import com.linpinger.tool.ToolAndroid;
@@ -28,11 +29,10 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-public class Fragment_QuickSearch extends Fragment {
+public class Fragment_QuickSearch extends BackHandledFragment {
 
 	public static Fragment_QuickSearch newInstance(NovelManager novelMgr, int typeOfSE, String bookName) {
 		Fragment_QuickSearch frgmt = new Fragment_QuickSearch();
@@ -55,7 +55,7 @@ public class Fragment_QuickSearch extends Fragment {
 		ctx = container.getContext();
 		View v = inflater.inflate(R.layout.fragment_quicksearch, container, false); // 这个false很重要，不然会崩溃
 
-		info = (TextView)v.findViewById(R.id.testTV);
+		tv = (TextView)v.findViewById(R.id.testTV);
 		lv = (ListView)v.findViewById(R.id.testLV); // 获取LV
 		if ( ! ToolAndroid.isEink() ) {
 			lv.setBackgroundColor(Color.parseColor("#EEFAEE"));
@@ -146,10 +146,10 @@ public class Fragment_QuickSearch extends Fragment {
 			}
 		});
 
-		info.setOnClickListener(new OnClickListener(){
+		tv.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
-				onBackPressed();
+				back();
 			}
 		});
 
@@ -166,7 +166,7 @@ public class Fragment_QuickSearch extends Fragment {
 		handler = new Handler() {
 			public void handleMessage(Message msg) {
 				if ( msg.what == IS_REFRESH ) { // 下载完毕
-					info.setText( "D." + info.getText() );
+					tv.setText( "D." + tv.getText() );
 					refreshLVAdapter();
 				}
 			}
@@ -185,23 +185,17 @@ public class Fragment_QuickSearch extends Fragment {
 		}
 		super.onDestroy();
 	}
-	private void onBackPressed() {
-		getActivity().onBackPressed();
-	}
+
 //	private void foxtip(String sinfo) { // Toast消息
 //		Toast.makeText(ctx, sinfo, Toast.LENGTH_SHORT).show();
 //	}
 	private void foxtipL(String sinfo) {
-		info.setText(sinfo);
+		tv.setText(sinfo);
 	}
-	void startFragment(Fragment fragmt) {
-//		getFragmentManager().beginTransaction().replace(android.R.id.content, fragmt).addToBackStack(null).commit();
-		getFragmentManager().beginTransaction().hide(this).add(android.R.id.content, fragmt).addToBackStack(null).commit(); // Fragment里面启动Fragment用这个
-	} // 返回功能调用Activity的onBackPressed: getActivity().onBackPressed();
 
 	private float clickX = 0 ; // 用来确定点击横坐标以实现不同LV不同区域点击效果
 	private ListView lv ;
-	private TextView info;
+	private TextView tv;
 	SimpleAdapter adapter;
 	private List<Map<String, Object>> data;
 	private Handler handler;

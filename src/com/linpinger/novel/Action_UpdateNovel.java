@@ -36,11 +36,14 @@ public class Action_UpdateNovel {
 
 		File fileFML ;
 		for ( String nowFML : fmls ) {
+			System.out.println("A_UN: 检测: " + nowFML);
 			if ( ! nowFML.contains(".fml") ) {
+				System.err.println("A_UN: 不包含.fml: " + nowFML);
 				continue ;
 			}
 			fileFML = new File(nowFML);
 			if ( ! fileFML.exists() ) {
+				System.err.println("A_UN: 不存在: " + nowFML);
 				continue;
 			}
 			ANAME.add(fileFML.getName().replace(".fml", ""));

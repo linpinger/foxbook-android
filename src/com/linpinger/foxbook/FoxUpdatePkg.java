@@ -12,8 +12,8 @@ import com.linpinger.tool.ToolJava;
 public class FoxUpdatePkg {
 	private Context mContext;
 	private String apkPATH = "/sdcard/FoxBook.apk" ;
-	private String urlVersion = "http://linpinger.github.io/bin/foxbook-android/version";
-	private String urlAPK = "http://linpinger.github.io/bin/foxbook-android/FoxBook.apk";
+	private String urlVersion = "https://linpinger.github.io/bin/foxbook-android/version";
+	private String urlAPK = "https://files-cdn.cnblogs.com/files/linpinger/FoxBook.apk";
 
 	public FoxUpdatePkg(Context context) {
 		this.mContext = context;
@@ -21,12 +21,12 @@ public class FoxUpdatePkg {
 		// 根据设置选择升级线路，默认:github
 		String upline = PreferenceManager.getDefaultSharedPreferences(context).getString("upgrade_line", "github");
 		if (upline.equalsIgnoreCase("github") ) {
-			this.urlVersion = "http://linpinger.github.io/bin/foxbook-android/version" ;
-			this.urlAPK = "http://linpinger.github.io/bin/foxbook-android/FoxBook.apk" ;
+			this.urlVersion = "https://linpinger.github.io/bin/foxbook-android/version" ;
+			this.urlAPK = "https://files-cdn.cnblogs.com/files/linpinger/FoxBook.apk" ;
 		}
-		if (upline.equalsIgnoreCase("oschina") ) {
-			this.urlVersion = "http://linpinger.oschina.io/bin/foxbook-android/version" ;
-			this.urlAPK = "http://linpinger.qiniudn.com/prj/FoxBook.apk" ;
+		if (upline.equalsIgnoreCase("cnblogs") ) {
+			this.urlVersion = "https://files-cdn.cnblogs.com/files/linpinger/version" ;
+			this.urlAPK = "https://files-cdn.cnblogs.com/files/linpinger/FoxBook.apk" ;
 		}
 	}
 

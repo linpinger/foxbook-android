@@ -28,6 +28,7 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 
+import com.linpinger.misc.BackHandledFragment;
 import com.linpinger.novel.NV;
 import com.linpinger.novel.NovelManager;
 import com.linpinger.novel.SiteQiDian;
@@ -35,22 +36,22 @@ import com.linpinger.tool.ToolAndroid;
 import com.linpinger.tool.ToolBookJava;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-public class Fragment_SearchBook extends Fragment {
+public class Fragment_SearchBook extends BackHandledFragment {
 
 	public static Fragment_SearchBook newInstance(NovelManager novelMgr) {
 		Fragment_SearchBook fc = new Fragment_SearchBook();
 		fc.nm = novelMgr;
 		return fc;
 	}
-	public static Fragment_SearchBook newInstance(NovelManager novelMgr, String bookName) {
-		Fragment_SearchBook fc = new Fragment_SearchBook();
-		fc.nm = novelMgr;
-		Bundle bd = new Bundle();
-		bd.putInt(AC.action, AC.aListQDPages);
-		bd.putString(NV.BookName, bookName);
-		fc.setArguments(bd);
-		return fc;
-	}
+//	public static Fragment_SearchBook newInstance(NovelManager novelMgr, String bookName) {
+//		Fragment_SearchBook fc = new Fragment_SearchBook();
+//		fc.nm = novelMgr;
+//		Bundle bd = new Bundle();
+//		bd.putInt(AC.action, AC.aListQDPages);
+//		bd.putString(NV.BookName, bookName);
+//		fc.setArguments(bd);
+//		return fc;
+//	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -61,20 +62,24 @@ public class Fragment_SearchBook extends Fragment {
 		init_handler();
 		init_button_actions();
 
-		setWebView_NotOpenInNewWin(); // 在当前webview里面跳转
+		setWebView(); // 在当前webview里面跳转
 		loadDefaultHTML(); // 载入默认内容
 
 		// 获取传入的数据
-		Bundle itt = getArguments();
-		if ( itt != null ) {
-			ittAction = itt.getInt(AC.action, 0);
-			switch (ittAction) {
-			case AC.aListQDPages: // 搜索起点
-				book_name = itt.getString(NV.BookName);
-				et.setText(book_name);
-				(new Thread(new GetQidianURLFromBookName(book_name))).start() ;
-				break;
-			}
+//		Bundle itt = getArguments();
+//		if ( itt != null ) {
+//			ittAction = itt.getInt(AC.action, 0);
+//			switch (ittAction) {
+//			case AC.aListQDPages: // 搜索起点
+//				book_name = itt.getString(NV.BookName);
+//				et.setText(book_name);
+//				(new Thread(new GetQidianURLFromBookName(book_name))).start() ;
+//				break;
+//			}
+//		}
+
+		if ( ToolAndroid.getClipText(ctx).length() > 1 ) {
+			fucClickButtonSearch(); // 搜索剪贴板中的内容
 		}
 
 		return v;
@@ -84,17 +89,13 @@ public class Fragment_SearchBook extends Fragment {
 		btn_finish.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
-				if ( wv.canGoBack() ) {
-					wv.goBack(); // goBack()表示返回webView的上一页面
-				} else {
-					onBackPressed();
-				}
+				onBackPressed();
 			}
 		});
 		btn_finish.setOnLongClickListener(new OnLongClickListener(){
 			@Override
 			public boolean onLongClick(View v) {
-				onBackPressed();
+				back();
 				return true;
 			}
 		});
@@ -161,13 +162,15 @@ public class Fragment_SearchBook extends Fragment {
 		Menu m = popW.getMenu();
 	
 		m.add("下载起点Epub");
-		m.add("打开: 起点排行");
-		m.add("打开: 起点排行m");
-		m.add("打开: 百度");
+		m.add("使用说明");
 		m.add("设置: 允许JS");
 		m.add("设置: 不允许JS");
-		m.add("复制当前网址");
+		m.add("设置: 桌面UA");
+		m.add("设置: 手机UA");
 		m.add("复制site: xxx.com");
+		m.add("复制当前网址");
+		m.add("打开: 起点排行");
+		m.add("打开: 百度");
 	
 		popW.show();
 		popW.setOnMenuItemClickListener(new OnMenuItemClickListener(){
@@ -179,17 +182,25 @@ public class Fragment_SearchBook extends Fragment {
 				} else if ( mt.equalsIgnoreCase("复制当前网址") ) {
 					funcCopyURL();
 				} else if ( mt.equalsIgnoreCase("打开: 百度") ) {
-					wv.loadUrl("https://m.baidu.com");
-				} else if ( mt.equalsIgnoreCase("打开: 起点排行m") ) {
-					wv.loadUrl("http://m.qidian.com/rank/male");
+					wv.loadUrl("https://www.baidu.com");
 				} else if ( mt.equalsIgnoreCase("打开: 起点排行") ) {
 					wv.loadUrl("http://r.qidian.com");
 				} else if ( mt.equalsIgnoreCase("设置: 允许JS") ) {
 					wv.getSettings().setJavaScriptEnabled(true) ; // 允许JS
+					wv.reload();
 				} else if ( mt.equalsIgnoreCase("设置: 不允许JS") ) {
 					wv.getSettings().setJavaScriptEnabled(false) ; // 不允许JS
+					wv.reload();
+				} else if ( mt.equalsIgnoreCase("设置: 桌面UA") ) {
+					setUserAgent("desktop");
+					wv.reload();
+				} else if ( mt.equalsIgnoreCase("设置: 手机UA") ) {
+					setUserAgent("mobile");
+					wv.reload();
 				} else if ( mt.equalsIgnoreCase("下载起点Epub") ) {
 					funcDownQDEbook();
+				} else if ( mt.equalsIgnoreCase("使用说明") ) {
+					loadDefaultHTML(); // 载入默认内容
 				}
 				return true;
 			}
@@ -315,7 +326,7 @@ public class Fragment_SearchBook extends Fragment {
 		book_name = et.getText().toString();
 		if ( book_name.length() == 0 ) { // 当未输入书名，粘贴剪贴板
 			tmpClipBoardText = ToolAndroid.getClipText(ctx);
-			if ( ! tmpClipBoardText.contains("FoxBook>") ) {
+			if ( ! tmpClipBoardText.contains("FoxBook>") && tmpClipBoardText.length() < 15 ) { // 剪贴板中的字数小于15
 				foxtip("剪贴板中的内容格式不对哟\n先粘贴到搜索栏好了\n长按本按钮有惊喜哟");
 				book_name = tmpClipBoardText;
 				et.setText(book_name);
@@ -331,6 +342,18 @@ public class Fragment_SearchBook extends Fragment {
 		} catch (Exception e) {
 			System.err.println(e.toString());
 		}
+	}
+
+	void setUserAgent(String iType) {
+//		String oldUA = wv.getSettings().getUserAgentString();
+
+		String newUA = "foobar";
+		if ( iType.equalsIgnoreCase("mobile") ) {
+			newUA = "Mozilla/5.0 (Linux; Android 7.1.2; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/66.0.3359.158 Mobile Safari/537.36";
+		} else if ( iType.equalsIgnoreCase("desktop") ) {
+			newUA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.158 Safari/537.36";
+		}
+		wv.getSettings().setUserAgentString(newUA);
 	}
 
 	void funcAddBookFromClip() {
@@ -352,28 +375,28 @@ public class Fragment_SearchBook extends Fragment {
 			}
 			
 			startFragment( Fragment_BookInfo.newInstance(nm, nBookIDX) );
-			onBackPressed();
+			back();
 		} else {
 			foxtip("信息不完整，不包含名字和地址\n" + nowfbs);
 		}
 	}
 
-	void setWebView_NotOpenInNewWin() {
-			wv.setWebViewClient(new WebViewClient() { // 在当前webview里面跳转
-				public boolean shouldOverrideUrlLoading(WebView wb, String url) {
-					wb.loadUrl(url);
-					return true;
-				}
-			});
-	//		wv.getSettings().setDefaultTextEncodingName("UTF-8");
-		}
+	void setWebView() {
+		setUserAgent("desktop");
+		wv.setWebViewClient(new WebViewClient() { // 在当前webview里面跳转
+			public boolean shouldOverrideUrlLoading(WebView wb, String url) {
+				wb.loadUrl(url);
+				return true;
+			}
+		});
+	}
 
 	void loadDefaultHTML() { // 载入默认内容
 			String html = "<!DOCTYPE html>\n<html>\n<head>\t<META http-equiv=Content-Type content=\"text/html; charset=utf-8\">\n<title>萌萌哒说明</title>\n</head>\n<body bgcolor=\"#eefaee\">\n<center><h2>使用说明:</h2></center>\n\n<h3>使用搜索引擎搜索:</h3>\n<ul>\n<li>[输入要搜索的书名，]按搜索按钮，然后在这里会显示搜索引擎结果[长按搜索按钮，可以弹出菜单]</li>\n<li>点击链接直到目录页，然后按按钮“圈+”</li>\n</ul>\n\n<h3>使用快速搜索:</h3>\n<ul>\n<li>输入要搜索的书名</li>\n<li>长按“圈+”，在出来的菜单中选择一个搜索即可</li>\n</ul>\n\n<h3>添加剪贴板中书籍:</h3>\n<ul>\n<li>前提是剪贴板里已经有书籍信息</li>\n<li>按“+”按钮即可添加</li>\n<li>长按“+”，有其他功能</li>\n</ul>\n\n<p>　如果出现列表正常的话，按加号添加书，之后按保存按钮</p>\n<p>　然后回到主界面即可看到新添加的书</p>\n\n</body>\n</html>" ;
 			wv.loadData(html, "text/html; charset=UTF-8", null);
 	//		wv.loadUrl("about:blank");
-	//		wv.loadDataWithBaseURL("http://linpinger.github.io/?s=FoxBook_Android", "用法说明:", "text/html", "utf-8", "");
-		}
+	//		wv.loadDataWithBaseURL("https://linpinger.github.io/?s=FoxBook_Android", "用法说明:", "text/html", "utf-8", "");
+	}
 
 	void init_handler() {
 		handler = new Handler(new Handler.Callback() {
@@ -405,7 +428,6 @@ public class Fragment_SearchBook extends Fragment {
 		btn_search = (Button) v.findViewById(R.id.button1);
 		btn_pre    = (Button) v.findViewById(R.id.button2);
 		btn_other  = (Button) v.findViewById(R.id.button3);
-		
 	}
 
 	private NovelManager nm;
@@ -414,8 +436,9 @@ public class Fragment_SearchBook extends Fragment {
 	private String book_url = "";
 
 	private String tmpClipBoardText = "";
-	private int ittAction = 0 ; // 传入的数据
+//	private int ittAction = 0 ; // 传入的数据
 
+	private Context ctx;
 	private WebView wv;
 	private Button btn_finish;
 	private EditText et;
@@ -440,12 +463,15 @@ public class Fragment_SearchBook extends Fragment {
 		super.onDestroy();
 	}
 
-	private void onBackPressed() {
-		getActivity().onBackPressed();
+	@Override
+	public boolean onBackPressed() {
+		if ( wv.canGoBack() ) {
+			wv.goBack(); // goBack()表示返回webView的上一页面
+		} else {
+			back();
+		}
+		return true;
 	}
-	void startFragment(Fragment fragmt) {
-//		getFragmentManager().beginTransaction().replace(android.R.id.content, fragmt).addToBackStack(null).commit();
-		getFragmentManager().beginTransaction().hide(this).add(android.R.id.content, fragmt).addToBackStack(null).commit(); // Fragment里面启动Fragment用这个
-	} // 返回功能调用Activity的onBackPressed: getActivity().onBackPressed();
-	private Context ctx;
+
+
 }

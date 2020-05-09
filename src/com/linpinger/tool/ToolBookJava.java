@@ -26,115 +26,6 @@ import com.linpinger.novel.NV;
 
 public class ToolBookJava {
 
-/*
-	public static String simplifyDelList2(String DelList) { // 精简 DelList
-		int qi = 0;
-		int zhi = 0;
-		if (DelList.contains("起止=")) {
-			Matcher mat = Pattern.compile("(?i)起止=([0-9\\-]+),([0-9\\-]+)").matcher(DelList);
-			while (mat.find()) {
-				qi = Integer.valueOf(mat.group(1));
-				zhi = Integer.valueOf(mat.group(2));
-			}
-		}
-		DelList = DelList.replace("\r", "").replace("\n\n", "\n");
-		String[] xx = DelList.split("\n");
-		if (xx.length < 15) {
-			return DelList;
-		}
-		int MaxLineCount = xx.length - 9;
-
-		StringBuffer newList = new StringBuffer(1024);
-		for (int i = 0; i < 9; i++) {
-			newList.append(xx[MaxLineCount + i]).append("\n");
-		}
-		if (zhi > 0) {
-			return "起止=" + qi + "," + String.valueOf(zhi + MaxLineCount - 1) + "\n" + newList.toString();
-		} else {
-			return "起止=" + qi + "," + String.valueOf(zhi + MaxLineCount) + "\n" + newList.toString();
-		}
-	}
-*/
-
-
-/*
-	public static List compare2GetNewPages2(List<Map<String, Object>> xx, String existList) {
-		existList = existList.toLowerCase();
-		int xxSize = xx.size();
-		if (existList.contains("起止=")) { // 根据 起止 过滤一下 xx
-			Matcher mat = Pattern.compile("(?i)起止=([0-9-]+),([0-9-]+)").matcher(existList);
-			int qz_1 = 0;
-			int qz_2 = 0;
-			while (mat.find()) {
-				qz_1 = Integer.valueOf(mat.group(1));
-				qz_2 = Integer.valueOf(mat.group(2));
-			}
-
-			ArrayList<Map<String, Object>> nXX = new ArrayList<Map<String, Object>>(30);
-			// 下面的初始值及判断顺序最好不要随便变动
-			int sIdx = 0;
-			int eIdx = xxSize;
-			int leftIdx = 0;
-			if (qz_2 > 0) {
-				sIdx = qz_2;
-				leftIdx = eIdx - sIdx;
-			}
-			if (qz_1 < 0) {
-				eIdx = eIdx + qz_1;
-				leftIdx = leftIdx + qz_1;
-			}
-			if (leftIdx > 0) {
-				int nSIdx = 0;
-				for (int i = 0; i < leftIdx; i++) {
-					nSIdx = sIdx + i;
-					nXX.add(xx.get(nSIdx));
-				}
-				xx = nXX;
-			} else { // 章节数量为负
-				if (55 == xxSize) {
-					String jj[] = existList.split("\n");
-					if (jj.length > 2) { // 截取已删除记录中第一条之后的记录，如果新章节>55可能会悲剧
-						String sToBeComp = jj[jj.length - 2];
-						ArrayList<Map<String, Object>> nX2 = new ArrayList<Map<String, Object>>(30);
-						Iterator itr = xx.iterator();
-						String nowurl = "";
-						boolean bFillArray = false;
-						while (itr.hasNext()) {
-							HashMap<String, Object> mm = (HashMap<String, Object>) itr.next();
-							nowurl = mm.get("url").toString().toLowerCase();
-							if (sToBeComp.contains(nowurl)) {
-								bFillArray = true;
-								nX2.add(mm);
-							} else {
-								if (bFillArray) {
-									nX2.add(mm);
-								}
-							}
-						}
-						xx = nX2;
-					} else {
-						System.out.println("error: jj < 2 : " + jj.length);
-					}
-				} else {  // 下面放的代码是没有新章节的处理方法
-					return new ArrayList<HashMap<String, Object>>();
-				}
-			}
-		}
-
-		// 比较得到新章节
-		String nowURL;
-		ArrayList<HashMap<String, Object>> newPages = new ArrayList<HashMap<String, Object>>();
-		Iterator<Map<String, Object>> itr = xx.iterator();
-		while (itr.hasNext()) {
-			HashMap<String, Object> mm = (HashMap<String, Object>) itr.next();
-			nowURL = (String) mm.get("url");
-			if (!existList.contains(nowURL.toLowerCase() + "|")) { // 新章节
-				newPages.add(mm);
-			}
-		}
-		return newPages;
-	}
-*/
 	public static String simplifyDelList(String DelList) { // 精简 DelList
 		int nLastItem = 9;
 		DelList = DelList.replace("\r", "").replace("\n\n", "\n");
@@ -200,37 +91,6 @@ public class ToolBookJava {
 
 		return aNewRet ;
 	}
-
-
-/*
-	public static String simplifyDelList2(String DelList) { // 精简 DelList
-		int qi = 0;
-		int zhi = 0;
-		if (DelList.contains("起止=")) {
-			Matcher mat = Pattern.compile("(?i)起止=([0-9\\-]+),([0-9\\-]+)").matcher(DelList);
-			while (mat.find()) {
-				qi = Integer.valueOf(mat.group(1));
-				zhi = Integer.valueOf(mat.group(2));
-			}
-		}
-		DelList = DelList.replace("\r", "").replace("\n\n", "\n");
-		String[] xx = DelList.split("\n");
-		if (xx.length < 15) {
-			return DelList;
-		}
-		int MaxLineCount = xx.length - 9;
-
-		StringBuffer newList = new StringBuffer(1024);
-		for (int i = 0; i < 9; i++) {
-			newList.append(xx[MaxLineCount + i]).append("\n");
-		}
-		if (zhi > 0) {
-			return "起止=" + qi + "," + String.valueOf(zhi + MaxLineCount - 1) + "\n" + newList.toString();
-		} else {
-			return "起止=" + qi + "," + String.valueOf(zhi + MaxLineCount) + "\n" + newList.toString();
-		}
-	}
-*/
 
 	public static List<Map<String, Object>> getSearchEngineHref(String html, String KeyWord) { // String KeyWord = "三界血歌" ;
 		boolean isNormalSite = false ;
@@ -342,7 +202,6 @@ public class ToolBookJava {
 			URL url = new URL(inURL);
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			if ("GET" != PostData) {
-//				System.out.println("I am Posting ...");
 				conn.setDoOutput(true);
 				conn.setRequestMethod("POST");
 				if ( inURL.contains(".szy.cn/") || inURL.contains(".taobao.com/") ) { // 掌通家园，ip.taobao.com
@@ -355,10 +214,11 @@ public class ToolBookJava {
 			if ( null != iCookie )
 				conn.setRequestProperty("Cookie", iCookie);
 
-			if (inURL.contains(".13xs."))
-				conn.setRequestProperty("User-Agent", "ZhuiShuShenQi/3.26"); // 2015-10-27: qqxs使用加速宝，带Java的头会被和谐
-			else
+			if ( inURL.contains("oschina.net") ) {
+				conn.setRequestProperty("User-Agent", "RssReader/11.11"); // 2019-1-17
+			} else {
 				conn.setRequestProperty("User-Agent", "ZhuiShuShenQi/3.26 Java/1.6.0_55"); // Android自带头部和IE8头部会导致yahoo搜索结果链接为追踪链接
+			}
 
 			if (!inURL.contains("files.qidian.com")) // 2015-4-16: qidian txt 使用cdn加速，如果头里有gzip就会返回错误的gz数据
 				conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
@@ -419,25 +279,10 @@ public class ToolBookJava {
 		Matcher mat = Pattern.compile("(?smi)\t[0-9]*\t([^\t]*)\t([^\r\n]*)").matcher(iCookie);
 		while (mat.find()) {
 			oStr = oStr + mat.group(1) + "=" + mat.group(2) + "; " ;
-//			System.out.println(mat.group(1) + "=" + mat.group(2));
 		}
 		return oStr ;
 	}
 
-	/**
-	 * 上传文件
-	 * @param urlStr
-	 * @param fileMap
-	 * @return
-	 */
-	// String filepath = "Q:\\zPrj\\fb.zip";
-	// String urlStr = "http://linpinger.eicp.net:58080/cgi-bin/ff.lua";
-	// Map<String, String> textMap = new HashMap<String, String>();
-	// textMap.put("name", "testname");
-	// Map<String, String> fileMap = new HashMap<String, String>();
-	// fileMap.put("f", filepath);
-	// String ret = formUpload(urlStr, fileMap);
-	// System.out.println(ret);
 	public static String formUpload(String urlStr, Map<String, String> fileMap) {
 		// http://blog.csdn.net/wangpeng047/article/details/38303865
 		String res = "";

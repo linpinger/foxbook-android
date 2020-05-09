@@ -1,6 +1,10 @@
 package com.linpinger.foxbook;
 
 import java.io.File;
+
+import com.linpinger.misc.BackHandledFragment;
+import com.linpinger.misc.BackHandledInterface;
+
 import android.os.Build;
 import android.os.Bundle;
 import android.annotation.TargetApi;
@@ -10,7 +14,9 @@ import android.content.Intent;
 import android.view.Window;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-public class Activity_Main extends Activity {
+public class Activity_Main extends Activity implements BackHandledInterface {
+
+	private BackHandledFragment mBackHandedFragment;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,17 +48,25 @@ public class Activity_Main extends Activity {
 
 	@Override
 	public void onBackPressed() {
-		int fmc = getFragmentManager().getBackStackEntryCount() ;
-		if ( fmc == 1 ) {
-			getFragmentManager().popBackStack();
-			super.onBackPressed();
-		} else if ( fmc > 1 ) {
-			getFragmentManager().popBackStack();
-		} else if ( fmc == 0 ) {
-			super.onBackPressed();
-		} else {
-			System.exit(0);
+
+		if (mBackHandedFragment == null || !mBackHandedFragment.onBackPressed()) { // 这两个顺序不要调，会导致自定义返回的错误
+			int fmc = getFragmentManager().getBackStackEntryCount() ;
+			System.out.println("Activity_Main: onBackPressed(): Fragment left: " + fmc);
+//			Toast.makeText(this, "Left: " + fmc, Toast.LENGTH_SHORT).show();
+			if (fmc <= 1) { // 1个是主碎片
+//				super.onBackPressed();
+				finish();
+//				System.exit(0);
+			} else {
+				getFragmentManager().popBackStack();
+			}
 		}
+
+	}
+
+	@Override
+	public void setSelectedFragment(BackHandledFragment selectedFragment) {
+		this.mBackHandedFragment = selectedFragment;
 	}
 
 	void startFragment(Fragment fragmt) {

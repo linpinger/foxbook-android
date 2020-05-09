@@ -19,7 +19,8 @@ public class FoxEpubWriter {
 
 	private String BookName = "狐狸之书";
 	private String BookCreator = "爱尔兰之狐";
-	private String CSS="h2,h3,h4 { text-align: center; }\n\n@font-face { font-family: \"hei\"; src: local(\"Zfull-GB\"); }\n.content { font-family: \"hei\"; }\n";
+//	private String CSS="h2,h3,h4 { text-align: center; }\n\n@font-face { font-family: \"hei\"; src: local(\"Zfull-GB\"); }\n.content { font-family: \"hei\"; }\n";
+	private String CSS="h2,h3,h4 { text-align: center; }\n\nbody{ font-size: 1.1em; }\n";
 
 	private final String DefNameNoExt = "FoxMake"; //默认文件名
 	private String BookUUID = UUID.randomUUID().toString();

@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.linpinger.misc.BackHandledFragment;
+import com.linpinger.misc.View_FoxTextView;
 import com.linpinger.novel.NV;
 import com.linpinger.novel.NovelManager;
 import com.linpinger.novel.Site1024;
@@ -17,7 +19,6 @@ import com.linpinger.tool.ToolAndroid;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -45,7 +46,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-public class Fragment_ShowPage4Eink extends Fragment {
+public class Fragment_ShowPage4Eink extends BackHandledFragment {
 
 	public static Fragment_ShowPage4Eink newInstance(NovelManager novelMgr, Bundle iArgs) {
 		Fragment_ShowPage4Eink fc = new Fragment_ShowPage4Eink();
@@ -111,7 +112,7 @@ public class Fragment_ShowPage4Eink extends Fragment {
 					if ( cX >= vx * 0.6666 ) { // 右上角1/3宽处
 						showConfigPopupWindow(v);
 					} else if (cX <= vx * 0.333) { // 左上角
-						onBackPressed();
+						back();
 					} else {
 						mv.clickPrev(); // 上中
 					}
@@ -130,7 +131,7 @@ public class Fragment_ShowPage4Eink extends Fragment {
 						mv.setNextText() ; // 下一章
 						mv.postInvalidate();
 					} else if (cX <= vx * 0.333) { // 左上角
-						onBackPressed();
+						back();
 					} else { // 上中
 						mv.setPrevText(); // 上一章
 						mv.postInvalidate();
@@ -669,20 +670,13 @@ public class Fragment_ShowPage4Eink extends Fragment {
 	OnLongClickListener olcl_exit = new OnLongClickListener() { // 专门用于长按退出
 		@Override
 		public boolean onLongClick(View arg0) {
-			onBackPressed();
+			back();
 			return true;
 		}
 	};
 
 	private void foxtip(String sinfo) { // Toast消息
 		Toast.makeText(ctx, sinfo, Toast.LENGTH_SHORT).show();
-	}
-	private void onBackPressed() {
-		getActivity().onBackPressed();
-	}
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	void startFragment(Fragment fragmt) {
-		getFragmentManager().beginTransaction().hide(this).add(android.R.id.content, fragmt).addToBackStack(null).commit();
 	}
 
 	Handler handler = new Handler() {

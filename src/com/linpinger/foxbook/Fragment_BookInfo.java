@@ -2,10 +2,12 @@ package com.linpinger.foxbook;
 
 import java.util.Map;
 
+import com.linpinger.misc.BackHandledFragment;
 import com.linpinger.novel.NV;
 import com.linpinger.novel.NovelManager;
 import com.linpinger.novel.SiteQiDian;
 import com.linpinger.tool.ToolAndroid;
+
 import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.content.Context;
@@ -20,7 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-public class Fragment_BookInfo extends Fragment {
+public class Fragment_BookInfo extends BackHandledFragment {
 
 	public static Fragment_BookInfo newInstance(NovelManager nvMgr, int inBookIDX) {
 		Fragment_BookInfo fc = new Fragment_BookInfo();
@@ -67,7 +69,7 @@ public class Fragment_BookInfo extends Fragment {
 		public void onClick(View v) {
 			switch ( v.getId() ) {
 			case R.id.testTV:
-				onBackPressed();
+				back();
 				break;
 			case R.id.btnSave:
 				Map<String, Object> info = nm.getBlankBookInfo();
@@ -79,7 +81,7 @@ public class Fragment_BookInfo extends Fragment {
 				info.put(NV.BookStatu, Integer.valueOf(edt_isend.getText().toString()));
 				nm.setBookInfo(info, bookIDX);
 		
-				onBackPressed();
+				back();
 				break;
 			case R.id.btnCopyFocus:
 				String toCopy = "";
@@ -159,9 +161,7 @@ public class Fragment_BookInfo extends Fragment {
 	private void foxtipL(String sinfo) {
 		tv.setText(sinfo);
 	}
-	private void onBackPressed() {
-		getActivity().onBackPressed();
-	}
+
 	private TextView tv;
 	private NovelManager nm;
 	private int bookIDX = -1;

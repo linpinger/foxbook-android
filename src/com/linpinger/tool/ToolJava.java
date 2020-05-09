@@ -9,10 +9,35 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ToolJava {
+
+	// { Properties读取，写入
+	public static Properties loadConfig(String cfgFilePath) {
+		Properties pro = new Properties();
+		try {
+			FileInputStream inputFile = new FileInputStream(cfgFilePath);
+			pro.load(inputFile);
+			inputFile.close();
+		} catch ( Exception e ) {
+			System.err.println(e.toString());
+		}
+		return pro;
+	}
+
+	public static void saveConfig(Properties pro, String cfgFilePath) {
+		try {
+			FileOutputStream outputFile = new FileOutputStream(cfgFilePath, false);
+			pro.store(outputFile, "");
+			outputFile.close();
+		} catch ( Exception e ) {
+			System.err.println(e.toString());
+		}
+	}
+	// } Properties读取，写入
 
 	// { 通用文本读取，写入
 	// 优先使用这个读取文本，快点，变量大小可以调整一下以达到最好的速度
@@ -31,7 +56,7 @@ public class ToolJava {
 			// 下面这个效率稍低，但可以控制换行符
 			String line = null;
 			while ((line = br.readLine()) != null) {
-			retStr.append(line).append("\n");
+				retStr.append(line).append("\n");
 			}
 */
 			br.close();
@@ -49,7 +74,6 @@ public class ToolJava {
 	}
 	// 写入指定编码，速度快点
 	public static void writeText(String iStr, String filePath, String oFileEncoding, boolean bAppend) {
-//		boolean bAppend = false;
 		try {
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath, bAppend), oFileEncoding));
 			bw.write(iStr);
@@ -190,18 +214,6 @@ UTF8 : 3 : 224-239 128-191 128-191
 
 	// } 通用文本读取，写入
 
-
-//	public static void createTxtFile(File txtFile, String cc) { // 创建Txt文件
-//		try {
-//			txtFile.createNewFile();
-//			FileOutputStream outImgStream = new FileOutputStream(txtFile);
-//			outImgStream.write(cc.getBytes("UTF-8"));
-//			outImgStream.close();
-//		} catch (Exception e) {
-//			System.err.println(e.toString());
-//		}
-//	}
-
 	public static boolean deleteDir(File dir) {
 		if (dir.isDirectory()) {
 			String[] children = dir.list(); // 递归删除目录中的子目录下
@@ -219,105 +231,6 @@ UTF8 : 3 : 224-239 128-191 128-191
 		}
 		return bDeleted;
 	}
-
-	/**
-	 * 根据路径删除指定的目录或文件，无论存在与否
-	 *
-	 * @param sPath 要删除的目录或文件
-	 * @return 删除成功返回 true，否则返回 false。
-	 */
-//	public static boolean DeleteFolder(String sPath) {
-//		boolean flag = false;
-//		File file = new File(sPath);
-//		// 判断目录或文件是否存在
-//		if (!file.exists()) {  // 不存在返回 false
-//			return flag;
-//		} else {
-//			// 判断是否为文件
-//			if (file.isFile()) {  // 为文件时调用删除文件方法
-//				return deleteFile(sPath);
-//			} else {  // 为目录时调用删除目录方法
-//				return deleteDirectory(sPath);
-//			}
-//		}
-//	}
-
-	/**
-	 * 删除单个文件
-	 *
-	 * @param sPath 被删除文件的文件名
-	 * @return 单个文件删除成功返回true，否则返回false
-	 */
-//	public static boolean deleteFile(String sPath) {
-//		boolean flag = false;
-//		File file = new File(sPath);
-//		// 路径为文件且不为空则进行删除
-//		if (file.isFile() && file.exists()) {
-//			file.delete();
-//			flag = true;
-//		}
-//		return flag;
-//	}
-
-	/**
-	 * 删除目录（文件夹）以及目录下的文件
-	 *
-	 * @param sPath 被删除目录的文件路径
-	 * @return 目录删除成功返回true，否则返回false
-	 */
-//	public static boolean deleteDirectory(String sPath) {
-//		//如果sPath不以文件分隔符结尾，自动添加文件分隔符
-//		if (!sPath.endsWith(File.separator)) {
-//			sPath = sPath + File.separator;
-//		}
-//		File dirFile = new File(sPath);
-//		//如果dir对应的文件不存在，或者不是一个目录，则退出
-//		if (!dirFile.exists() || !dirFile.isDirectory()) {
-//			return false;
-//		}
-//		boolean flag = true;
-//		//删除文件夹下的所有文件(包括子目录)
-//		File[] files = dirFile.listFiles();
-//		for (int i = 0; i < files.length; i++) {
-//			//删除子文件
-//			if (files[i].isFile()) {
-//				flag = deleteFile(files[i].getAbsolutePath());
-//				if (!flag) {
-//					break;
-//				}
-//			} //删除子目录
-//			else {
-//				flag = deleteDirectory(files[i].getAbsolutePath());
-//				if (!flag) {
-//					break;
-//				}
-//			}
-//		}
-//		if (!flag) {
-//			return false;
-//		}
-//		//删除当前目录
-//		if (dirFile.delete()) {
-//			return true;
-//		} else {
-//			return false;
-//		}
-//	}
-
-//	public static void copyFileSlow(File fromFile, File toFile) { // 这个复制方法比较慢
-//		try {
-//			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(fromFile));
-//			BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(toFile));
-//			byte[] buf = new byte[1048576]; // 1M
-//			int nn ;
-//			while ( ( nn = bis.read(buf, 0, 1048576)) != -1 )
-//				bos.write(buf, 0, nn);
-//			bis.close();
-//			bos.close();
-//		} catch (Exception e) {
-//			System.err.println(e.toString());
-//		}
-//	}
 
 	public static long copyFile(File fromFile, File toFile) { // 使用channel复制更快，尤其是大文件更明显
 		FileInputStream fis = null;

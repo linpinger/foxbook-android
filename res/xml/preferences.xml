@@ -117,7 +117,7 @@
             android:entries="@array/upgradeSite_Entries"
             android:entryValues="@array/upgradeSite_Values"
             android:key="upgrade_line"
-            android:summary="默认github，可选oschina"
+            android:summary="默认github，可选cnblogs"
             android:title="升级线路" />
     </PreferenceCategory>
 
