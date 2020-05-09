@@ -2,11 +2,15 @@ package com.linpinger.foxbook;
 
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import com.linpinger.misc.BackHandledFragment;
 import com.linpinger.novel.NV;
 import com.linpinger.novel.NovelManager;
 import com.linpinger.novel.SiteQiDian;
 import com.linpinger.tool.ToolAndroid;
+import com.linpinger.tool.ToolJava;
 
 import android.annotation.TargetApi;
 import android.app.Fragment;
@@ -142,6 +146,7 @@ public class Fragment_BookInfo extends BackHandledFragment {
 		Menu m = popW.getMenu();
 
 		m.add("从URL获取起点ID");
+		m.add("导入阅读URL");
 		m.add("快速搜索: meegoq");
 	
 		popW.show();
@@ -157,6 +162,11 @@ public class Fragment_BookInfo extends BackHandledFragment {
 					} else {
 						foxtip("URL不包含 .qidian.com/");
 					}
+				} else if ( mt.equalsIgnoreCase("导入阅读URL") ) {
+					String newURL = getYueDuURL(edt_bname.getText().toString());
+					if ( ! newURL.equalsIgnoreCase("") ) {
+						edt_burl.setText(newURL);
+					}
 				} else if ( mt.equalsIgnoreCase("快速搜索: meegoq") ) {
 					String book_name = edt_bname.getText().toString();
 					startFragment( Fragment_QuickSearch.newInstance(nm, AC.SE_MEEGOQ, book_name) );
@@ -166,6 +176,29 @@ public class Fragment_BookInfo extends BackHandledFragment {
 				return true;
 			}
 		});
+	}
+
+	private String getYueDuURL(String iBookName) {
+		String jsonPath = "/sdcard/YueDu/myBookShelf.json";
+		String jsonStr = ToolJava.readText(jsonPath, "utf-8");
+		if ( ! jsonStr.contains("bookInfoBean")) {
+			foxtip("文件可能不存在:\n" + jsonPath);
+			return "";
+		}
+		try {
+			JSONArray bList = new JSONArray(jsonStr);
+			JSONObject info ;
+			for (int i = 0; i < bList.length(); i++) {
+				info = bList.getJSONObject(i).getJSONObject("bookInfoBean"); // bookInfoBean:name,author,chapterUrl,noteUrl
+				if ( info.getString("name").equalsIgnoreCase(iBookName) ) {
+					foxtip("找到: " + iBookName + " By: " + info.getString("author") + "\n" + info.getString("chapterUrl"));
+					return info.getString("chapterUrl");
+				}
+			}
+		} catch (Exception e) {
+			System.err.println(e.toString());
+		}
+		return "";
 	}
 
 	private void init_controls(View v) { // 初始化各控件
