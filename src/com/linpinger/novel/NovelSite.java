@@ -14,12 +14,12 @@ import com.linpinger.tool.ToolJava;
 
 public class NovelSite {
 	public static final int SiteNobody = 0;
-	public static final int Site13xs = 13;
+//	public static final int Site13xs = 13;
 	public static final int Site13xxs = 14;
 	public static final int SiteXQqxs = 15;
-	public static final int SitePiaotian = 16;
+//	public static final int SitePiaotian = 16;
 	public static final int SiteXxBiquge = 24;
-	public static final int SiteBiquge = 29;
+//	public static final int SiteBiquge = 29;
 	public static final int SiteDajiadu = 41;
 	public static final int SiteWutuxs = 42;
 	public static final int SiteMeegoq = 43;
@@ -82,22 +82,24 @@ public class NovelSite {
 			urlShelf = "https://www.dajiadu8.com/modules/article/bookcase.php";
 			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)&index.*?\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
 			cookie = getValue(xml, "dajiadu8").replace("\r", "").replace("\n", "");
-
+/*
 		} else if ( bookURL.contains(".13xs.com")) {
 			siteType = NovelSite.Site13xs;
 			urlShelf = "http://www.13xs.com/shujia.aspx";
 			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)&index.*?\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
 			cookie = getValue(xml, "13xs");
+*/
 		} else if ( bookURL.contains(".13xxs.com") ) {
 			siteType = NovelSite.Site13xxs;
 			urlShelf = "http://www.13xxs.com/modules/article/bookcase.php?classid=0";
 			reShelf = "(?smi)<tr>.*?href=\"([^\"]*)\"[^>]*>([^<]*)<.*?href=\"[^\"]*/([0-9]*.html)\"[^>]*>([^<]*)<";
-			cookie = getValue(xml, "raw13xxs").replace("\r", "").replace("\n", "");
+			cookie = getValue(xml, "13xxs").replace("\r", "").replace("\n", "");
 		} else if ( bookURL.contains(".xqqxs.com") ) {
 			siteType = NovelSite.SiteXQqxs;
-			urlShelf = "http://www.xqqxs.com/modules/article/bookcase.php?delid=604" ;
+			urlShelf = "https://www.xqqxs.com/modules/article/bookcase.php?delid=604" ;
 			reShelf = "(?smi)<tr>.*?&indexflag=(.*?)\"[^>]*>([^<]*)<.*?[^>]<a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
-			cookie = getValue(xml, "rawxqqxs").replace("\r", "").replace("\n", "");
+			cookie = getValue(xml, "xqqxs").replace("\r", "").replace("\n", "");
+/*
 		} else if ( bookURL.contains(".biquyun.com") ) {
 			siteType = NovelSite.SiteBiquge;
 			urlShelf = "https://www.biquyun.com/modules/article/bookcase.php";
@@ -108,6 +110,7 @@ public class NovelSite {
 			urlShelf = "https://www.piaotian.com/modules/article/bookcase.php";
 			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
 			cookie = getValue(xml, "rawpiaotian").replace("\r", "").replace("\n", "");
+*/
 		}
 
 		if ( NovelSite.SiteNobody == siteType )
@@ -143,14 +146,14 @@ public class NovelSite {
 		Matcher mat = Pattern.compile(reShelf).matcher(html);
 		while (mat.find()) {
 			switch (siteType) {
-			case NovelSite.Site13xs:
-			case NovelSite.SiteDajiadu:
-			case NovelSite.SitePiaotian:
-			case NovelSite.SiteXQqxs:
+//			case NovelSite.Site13xs:
+//			case NovelSite.SitePiaotian:
 			case NovelSite.SiteWutuxs:
+			case NovelSite.SiteXQqxs:
+			case NovelSite.SiteDajiadu:
 				shelfBook.put(mat.group(2), mat.group(3) + ".html");
 				break;
-			case NovelSite.SiteBiquge:
+//			case NovelSite.SiteBiquge:
 			case NovelSite.SiteXxBiquge:
 			case NovelSite.Site13xxs:
 			case NovelSite.SiteMeegoq:
