@@ -279,6 +279,53 @@ public class NovelSite {
 		return oURL;
 	}
 
+	public List<Map<String, Object>> getTOCLast(String html) { // name,url[,len]
+		int lastCount = 80; // 取倒数80个链接
+
+		List<Map<String, Object>> lks = new ArrayList<Map<String, Object>>(80);
+		List<Map<String, Object>> ldata = new ArrayList<Map<String, Object>>(100);
+		Map<String, Object> item;
+
+		// 获取链接 并存入结构中
+		Matcher mat = Pattern.compile("(?smi)href *= *[\"']?([^>\"']+)[^>]*> *([^<]+)<").matcher(html);
+		while (mat.find()) {
+			if (2 == mat.groupCount()) {
+				if ( mat.group(1).contains("javascript:")) { continue; } // 过滤js链接
+				item = new HashMap<String, Object>(3);
+				item.put(NV.PageURL, mat.group(1));
+				item.put(NV.PageName, mat.group(2));
+				ldata.add(item);
+			}
+		}
+
+		int lastIDX = ldata.size() - 1 ;
+		int firstIDX = lastIDX - lastCount;
+		int firstURLLen = ldata.get(firstIDX).get(NV.PageURL).toString().length();
+		int firstURLLenB = firstURLLen + 1; // URL长度余量
+
+		int nowLen = 0;
+		boolean bAdded = false;
+		for (int nowIdx = firstIDX; nowIdx <= lastIDX; nowIdx++) {
+			nowLen = ldata.get(nowIdx).get(NV.PageURL).toString().length();
+			if ( bAdded ) {
+				if ( nowLen != firstURLLenB ) {
+					break;
+				}
+			} else {
+				if ( nowLen != firstURLLen ) {
+					if ( nowLen != firstURLLenB ) {
+						break;
+					} else {
+						bAdded = true;
+					}
+				}
+			}
+			lks.add( ldata.get(nowIdx) );
+		}
+
+		return lks;
+	}
+
 	public List<Map<String, Object>> getTOC(String html) { // name,url[,len]
 		if (html.length() < 100) { //网页木有下载下来
 			return new ArrayList<Map<String, Object>>(1);

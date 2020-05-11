@@ -2,7 +2,6 @@ package com.linpinger.novel;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -230,11 +229,15 @@ if ( isCompareShelf ) {
 			if ( SiteQiDian.isQidanTOCURL_Touch7_Ajax(bookurl) ) {
 				linkList = new SiteQiDian().getTOC_Touch7_Ajax( new FoxHTTP(bookurl).getHTML("UTF-8") );
 			} else {
-				linkList = new NovelSite().getTOC( new FoxHTTP(bookurl).getHTML() ); // 分析获取 list 所有章节
 				if ( existList.length() > 3 ) {
-					if ( nm.getBookInfo(bookIDX).get(NV.BookAuthor).toString().length() > 1 ) // 无作者名，表示为新书
-						linkList = getLastNPage(linkList, 55); // 获取 list 最后55章
+					linkList = new NovelSite().getTOCLast(new FoxHTTP(bookurl).getHTML());
+				} else {
+					linkList = new NovelSite().getTOC(new FoxHTTP(bookurl).getHTML()); // 分析获取 list 所有章节
 				}
+//				if ( existList.length() > 3 ) {
+//					if ( nm.getBookInfo(bookIDX).get(NV.BookAuthor).toString().length() > 1 ) // 无作者名，表示为新书
+//						linkList = getLastNPage(linkList, 55); // 获取 list 最后55章
+//				}
 			}
 
 			List<Map<String, Object>> newPages = compare2GetNewPages(linkList, existList) ;
@@ -360,6 +363,7 @@ if ( isCompareShelf ) {
 		}
 	}
 
+/*
 	// 取倒数几个元素，被上面这个调用
 	public List<Map<String, Object>> getLastNPage(List<Map<String, Object>> inArrayList, int lastNpage) {
 		int aSize = inArrayList.size();
@@ -372,7 +376,7 @@ if ( isCompareShelf ) {
 		}
 		return outList;
 	}
-
+*/
 	public List<Map<String, Object>> compare2GetNewPages(List<Map<String, Object>> listURLName, String DelList) {
 		int linkSize = listURLName.size();
 		if ( 0 == linkSize ) // aHTML为空(可能网页下载有问题)
