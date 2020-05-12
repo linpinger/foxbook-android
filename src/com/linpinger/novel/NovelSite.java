@@ -282,6 +282,10 @@ public class NovelSite {
 	public List<Map<String, Object>> getTOCLast(String html) { // name,url[,len]
 		int lastCount = 80; // 取倒数80个链接
 
+		if (html.length() < 100) { //网页木有下载下来
+			return new ArrayList<Map<String, Object>>(1);
+		}
+
 		List<Map<String, Object>> lks = new ArrayList<Map<String, Object>>(80);
 		List<Map<String, Object>> ldata = new ArrayList<Map<String, Object>>(100);
 		Map<String, Object> item;
