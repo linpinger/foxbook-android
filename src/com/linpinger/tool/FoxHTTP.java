@@ -64,6 +64,21 @@ public class FoxHTTP {
         return htmlBuf2Str( goGO(), htmlCharSet);
     }
 
+    public static boolean testHtmlOK(String html) {
+        boolean isOK = false;
+        if ( html.length() > 3 ) {
+            String lowCase = html.toLowerCase();
+            if ( lowCase.contains("</html>") ) { // html 下载完毕
+                isOK = true;
+            } else {
+                if ( ! lowCase.contains("doctype") ) { // json
+                    isOK = true;
+                }
+            }
+        }
+        return isOK;
+    }
+
     private String htmlBuf2Str(byte[] buf, String htmlCharSet) { // 根据下载的buf，获取正确编码的Str
         try {
             if (buf == null) { return ""; }
@@ -71,8 +86,12 @@ public class FoxHTTP {
             String html = "";
             if (htmlCharSet == "") {
                 html = new String(buf, "gbk");
-                if (html.matches("(?smi).*<meta[^>]*charset=[\"]?(utf8|utf-8)[\"]?.*")) // 探测编码
-                    html = new String(buf, "utf-8");
+                if ( testHtmlOK(html) ) {
+                    if (html.matches("(?smi).*<meta[^>]*charset=[\"]?(utf8|utf-8)[\"]?.*")) // 探测编码
+                        html = new String(buf, "utf-8");
+                } else { // 网页下载不完整，直接返回空字串
+                    return "";
+                }
             } else {
                 html = new String(buf, htmlCharSet);
             }

@@ -142,6 +142,8 @@ if ( isCompareShelf ) {
 
 					return ;
 				}
+			} else {
+				oscl.OnStatuChange(this.threadIDX, "警告: 书架下载失败");
 			}
 	} else {
 		System.err.println("木有获取到书籍列表");

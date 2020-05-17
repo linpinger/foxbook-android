@@ -445,6 +445,9 @@ public class NovelSite {
 
 	// 将page页的html转换为文本，通用规则
 	public String getContent(String html){
+		if ( html.equalsIgnoreCase("") ) {
+			return "";
+		}
 		// 规律 novel 应该是由<div>包裹着的最长的行
 		// 有些变态网站没有body标签，而java没找到<body时，replaceAll会遍历整个html，速度很慢
 		if (html.matches("(?smi).*<body.*")) {
