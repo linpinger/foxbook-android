@@ -20,8 +20,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|right"
-            android:layout_marginBottom="24dp"
-            android:layout_marginRight="24dp"
+            android:layout_marginBottom="48dp"
+            android:layout_marginRight="48dp"
             android:background="@drawable/float_button"
             android:contentDescription="更新所有"
             android:src="@android:drawable/ic_popup_sync" />

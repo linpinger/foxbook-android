@@ -30,6 +30,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.view.Gravity;
+import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -501,6 +502,24 @@ public class Fragment_ShowPage4Eink extends BackHandledFragment {
 		public void clickNext() {
 			super.clickNext();
 			if ( isEink ) { ToolAndroid.c67ml_FullRefresh(this); }
+		}
+
+		@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
+		@Override
+		public boolean onGenericMotionEvent(MotionEvent event) {
+			if (0 != (event.getSource() & InputDevice.SOURCE_CLASS_POINTER)) {  // 2020-05-24: 鼠标滚轮事件的响应
+				switch (event.getAction()) {
+					case MotionEvent.ACTION_SCROLL:
+						//获得垂直坐标上的滚动方向,也就是滚轮向下滚
+						if( event.getAxisValue(MotionEvent.AXIS_VSCROLL) < 0.0f){
+							clickNext();
+						} else{ //获得垂直坐标上的滚动方向,也就是滚轮向上滚
+							clickPrev();
+						}
+						return true;
+				}
+			}
+			return super.onGenericMotionEvent(event);
 		}
 	}
 
