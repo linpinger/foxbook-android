@@ -445,7 +445,7 @@ public class Fragment_BookList extends BackHandledFragment {
 								foxtipL("更新所有");
 								isUpdateBlankPagesFirst = settings.getBoolean("isUpdateBlankPagesFirst", isUpdateBlankPagesFirst);
 								isCompareShelf = settings.getBoolean("isCompareShelf", isCompareShelf); // 更新前比较书架
-								new Thread(aun.new UpdateAllBook(nm, cookiesFile, isUpdateBlankPagesFirst, isCompareShelf)).start();
+								new Thread(aun.new UpdateAllBook(nm, cookiesFile.getPath(), isUpdateBlankPagesFirst, isCompareShelf)).start();
 							}
 						}
 						break;

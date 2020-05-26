@@ -574,6 +574,16 @@ public class NovelManager {
 		return pos + " / " + all ;
 	}
 
+	public String getDelStrLastLine(String DelStr) {
+		String lastLine = "" ;
+		for (String ll : DelStr.split("\n") ) {
+			if ( ll.contains("|")) {
+				lastLine = ll;
+			}
+		}
+		return lastLine;
+	}
+
 	public List<Map<String, Object>> getBookListForShelf() { // 比较网站书架用
 		List<Map<String, Object>> oo = new ArrayList<Map<String, Object>>();
 		Map<String, Object> obook ;

@@ -27,7 +27,7 @@ public class Action_UpdateNovel {
 		oscl = inListener;
 	}
 
-	public void UpdateAllFMLs(String[] fmls, File fileCookie) {
+	public void UpdateAllFMLs(String[] fmls, String fileCookie) {
 		ANAME = new ArrayList<String>(8);
 		ASIZE = new ArrayList<Long>(8);
 		ALeftThread = new ArrayList<Integer>(8);
@@ -63,19 +63,19 @@ public class Action_UpdateNovel {
 
 	public class UpdateAllBook implements Runnable {
 		NovelManager nm ;
-		File cookiesFile;
+		String cookiesFile;
 		private boolean isUpFMLs = true ; // 是否更新所有的fmls模式
 		int threadIDX = 0 ;
 		private boolean isUpdateBlankPagesFirst = true;
 		boolean isCompareShelf = true; // 更新前比较书架
 
-		public UpdateAllBook(NovelManager inNM, File fileCookie, int inThreadIDX) { // 更新多个fmls
+		public UpdateAllBook(NovelManager inNM, String fileCookie, int inThreadIDX) { // 更新多个fmls
 			this.isUpFMLs = true ;
 			this.nm = inNM;
 			this.cookiesFile = fileCookie;
 			this.threadIDX = inThreadIDX ;
 		}
-		public UpdateAllBook(NovelManager inNM, File fileCookie, boolean isUpdateBlankPgFirst, boolean isCmpShelf) { // 更新单个fml
+		public UpdateAllBook(NovelManager inNM, String fileCookie, boolean isUpdateBlankPgFirst, boolean isCmpShelf) { // 更新单个fml
 			this.isUpFMLs = false ;
 			this.nm = inNM;
 			this.cookiesFile = fileCookie;

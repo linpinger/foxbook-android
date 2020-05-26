@@ -5,7 +5,9 @@ import android.annotation.TargetApi;
 import android.app.DownloadManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
@@ -22,6 +24,14 @@ import java.lang.reflect.Method;
 import java.util.Properties;
 
 public class ToolAndroid {
+
+	public static void startFoxBook(File fmlFile, Context ctx) {
+		String fbClassName =  "com.linpinger.foxbook" ;
+		Intent foxbook = new Intent();
+		foxbook.setComponent(new ComponentName(fbClassName, fbClassName + ".Activity_Main"));
+		foxbook.setData( Uri.fromFile(fmlFile) );
+		ctx.startActivity(foxbook);
+	}
 
 	public static boolean isEink() {
 		return "Onyx".equalsIgnoreCase(android.os.Build.BRAND) ;

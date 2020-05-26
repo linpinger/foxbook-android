@@ -15,110 +15,80 @@ import com.linpinger.tool.ToolJava;
 
 public class NovelSite {
 	public static final int SiteNobody = 0;
-//	public static final int Site13xs = 13;
 	public static final int Site13xxs = 14;
 	public static final int SiteXQqxs = 15;
-//	public static final int SitePiaotian = 16;
 	public static final int SiteXxBiquge = 24;
-//	public static final int SiteBiquge = 29;
 	public static final int SiteDajiadu = 41;
 	public static final int SiteWutuxs = 42;
 	public static final int SiteMeegoq = 43;
 	public static final int SiteYmxxs = 44;
 
-	public String getValue(String text, String label) {
-		String ret = "";
-		Matcher mat = Pattern.compile("(?smi)<" + label + ">(.*?)</" + label + ">").matcher(text);
-		while (mat.find()) {
-			ret = mat.group(1);
-			break;
-		}
-		return ret;
-	}
-
-	// 获取有新章的书列表,　返回的数组元素: bookid, bookname, bookurl
-	public List<Map<String, Object>> compareShelfToGetNew(List<Map<String, Object>> booksInfo, File cookiesXmlFile) {
-		// 保存有cookie的文件名: FoxBook.cookie，格式: xml:  <cookies><13xs>cookieStr</13xs><biquge>cookieStr</biquge></cookies>
-		// 下载书架网页, 需要 书架地址，cookie
-		// 正则分析网页，合成 得到 书地址, 书名, 新章节地址, 新章节名
-		// 得到 bookid, bookname, bookurl, pageUrlList
-		// 比较书籍的 新章节地址是否在 pageUrlList 中，否就加入返回列表中
-
-//		List<Map<String, Object>> booksInfo = nm.getBookListForShelf(); // 获取需要的信息
-		String xml = "";
-		if ( ! cookiesXmlFile.exists() )
-			return null ;
-		else
-			xml = ToolJava.readText(cookiesXmlFile.getPath(), "UTF-8");
-
+	public HashMap<String, Object> getSiteCFG(String bookURL) {
 		int siteType = NovelSite.SiteNobody;
 		String urlShelf = "";
 		String reShelf = "";
 		String cookie = "";
-		String bookURL = (String) booksInfo.get(0).get(NV.BookURL);
 
 		if ( bookURL.contains(".meegoq.com") ) {
 			siteType = NovelSite.SiteMeegoq;
 			urlShelf = "https://www.meegoq.com/u/";
 			reShelf = "(?smi)<li>.*?href=\"([^\"]*/info[0-9]*.html)\"[^>]*>([^<]*)<.*?href=\"([^\"]*/[0-9]*_[0-9]*.html)\"[^>]*>([^<]*)<";
-			cookie = getValue(xml, "meegoq").replace("\r", "").replace("\n", "");
-			// 正则分析网页，合成 得到 书地址, 书名, 新章节地址, 新章节名
+			cookie = "meegoq";
+			// 正则分析网页: 书地址, 书名, 新章节地址, 新章节名
 		} else if ( bookURL.contains(".ymxxs.com") ) { // 类似meegoq
 			siteType = NovelSite.SiteYmxxs;
 			urlShelf = "https://www.ymxxs.com/u/";
 			reShelf = "(?smi)<li>.*?href=\"([^\"]*/text_[0-9]*.html)\"[^>]*>([^<]*)<.*?\"c\"><a href=\"([^\"]*.html)\"[^>]*>([^<]*)<";
-			cookie = getValue(xml, "ymxxs").replace("\r", "").replace("\n", "");
+			cookie = "ymxxs";
 		} else if ( bookURL.contains(".wutuxs.com") ) {
 			siteType = NovelSite.SiteWutuxs;
 			urlShelf = "https://www.wutuxs.com/modules/article/bookcase.php";
 			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
-			cookie = getValue(xml, "wutuxs").replace("\r", "").replace("\n", "");
+			cookie = "wutuxs";
 		} else if ( bookURL.contains(".xsbiquge.com") ) {
 			siteType = NovelSite.SiteXxBiquge;
 			urlShelf = "https://www.xsbiquge.com/bookcase.php" ;
-			reShelf = "(?smi)\"s2\"><a href=\"([^\"]+)\"[^>]*>([^<]*)<.*?\"s4\"><a href=\"([^\"]+)\"";
-			cookie = getValue(xml, "xsbiquge").replace("\r", "").replace("\n", "");
+			reShelf = "(?smi)\"s2\"><a href=\"([^\"]+)\"[^>]*>([^<]*)<.*?\"s4\"><a href=\"([^\"]+)\"[^>]*>([^<]*)<";
+			cookie = "xsbiquge";
 		} else if ( bookURL.contains(".dajiadu8.com") ) {
 			siteType = NovelSite.SiteDajiadu;
 			urlShelf = "https://www.dajiadu8.com/modules/article/bookcase.php";
 			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)&index.*?\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
-			cookie = getValue(xml, "dajiadu8").replace("\r", "").replace("\n", "");
-/*
-		} else if ( bookURL.contains(".13xs.com")) {
-			siteType = NovelSite.Site13xs;
-			urlShelf = "http://www.13xs.com/shujia.aspx";
-			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)&index.*?\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
-			cookie = getValue(xml, "13xs");
-*/
+			cookie = "dajiadu8";
 		} else if ( bookURL.contains(".13xxs.com") ) {
 			siteType = NovelSite.Site13xxs;
 			urlShelf = "http://www.13xxs.com/modules/article/bookcase.php?classid=0";
 			reShelf = "(?smi)<tr>.*?href=\"([^\"]*)\"[^>]*>([^<]*)<.*?href=\"[^\"]*/([0-9]*.html)\"[^>]*>([^<]*)<";
-			cookie = getValue(xml, "13xxs").replace("\r", "").replace("\n", "");
+			cookie = "13xxs";
 		} else if ( bookURL.contains(".xqqxs.com") ) {
 			siteType = NovelSite.SiteXQqxs;
 			urlShelf = "https://www.xqqxs.com/modules/article/bookcase.php?delid=604" ;
 			reShelf = "(?smi)<tr>.*?&indexflag=(.*?)\"[^>]*>([^<]*)<.*?[^>]<a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
-			cookie = getValue(xml, "xqqxs").replace("\r", "").replace("\n", "");
-/*
-		} else if ( bookURL.contains(".biquyun.com") ) {
-			siteType = NovelSite.SiteBiquge;
-			urlShelf = "https://www.biquyun.com/modules/article/bookcase.php";
-			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"([^\"]*)\"[^>]*>([^<]*)<";
-			cookie = getValue(xml, "rawbiquge").replace("\r", "").replace("\n", "");
-		} else if ( bookURL.contains(".piaotian.com") ) {
-			siteType = NovelSite.SitePiaotian;
-			urlShelf = "https://www.piaotian.com/modules/article/bookcase.php";
-			reShelf = "(?smi)<tr>.*?(aid=[^\"]*)\"[^>]*>([^<]*)<.*?<td class=\"odd\"><a href=\"[^\"]*cid=([0-9]*)\"[^>]*>([^<]*)<";
-			cookie = getValue(xml, "rawpiaotian").replace("\r", "").replace("\n", "");
-*/
+			cookie = "xqqxs";
 		}
 
-		if ( NovelSite.SiteNobody == siteType )
-			return null;
-		if ( cookie.length() < 9 )
-			return null ;
+		HashMap<String, Object> ts = new HashMap<String, Object>(9);
+		ts.put("SiteType", siteType);
+		ts.put("ShelfURL", urlShelf);
+		ts.put("ShelfRE", reShelf);
+		ts.put("CookieLabel", cookie);
+		return ts;
+	}
 
+	public HashMap<String, String> getSiteShelf(String bookURL, String cookiePath) { // 返回map: 书名 -> 新章节地址|新章节名
+		if ( ! new File(cookiePath).exists() ) { return null; } // cookie文件不存在就滚
+
+		// 根据站点URL获取配置
+		HashMap<String, Object> sc = getSiteCFG(bookURL);
+		int siteType    = Integer.parseInt(sc.get("SiteType").toString());
+		if ( siteType == NovelSite.SiteNobody ) { return null; }
+		String urlShelf = sc.get("ShelfURL").toString();
+		String reShelf  = sc.get("ShelfRE").toString();
+		String xml = ToolJava.readText(cookiePath, "UTF-8");
+		String cookie   = Stor.getValue(xml, sc.get("CookieLabel").toString()).replace("\r", "").replace("\n", "");
+		if ( cookie.length() < 9 ){ return null ; }
+
+		// 根据配置，下载书架html
 		String html = "";
 		FoxHTTP cHTTP = new FoxHTTP(urlShelf).setHead("Cookie", cookie);
 		if (siteType == NovelSite.SiteXxBiquge) {
@@ -136,51 +106,60 @@ public class NovelSite {
 		} else {
 			html = cHTTP.getHTML("gbk");
 		}
-//String log = "URL: " + urlShelf + "\nCookie: " + cookie + "\nHTML: \n" + html;
-		if ( html.length() < 5 )
-			return null ;
+		if ( html.length() < 5 ) { return null ; }
 
-		HashMap<String, String> shelfBook = new HashMap<String, String>(20); // 书名 -> 新章节地址
+		// 生成map: 书名 -> 新章节地址|新章节名
+		HashMap<String, String> shelfBook = new HashMap<String, String>(28); // 书名 -> 新章节地址
 		Matcher mat = Pattern.compile(reShelf).matcher(html);
 		while (mat.find()) {
 			switch (siteType) {
-//			case NovelSite.Site13xs:
-//			case NovelSite.SitePiaotian:
-			case NovelSite.SiteWutuxs:
-			case NovelSite.SiteXQqxs:
-			case NovelSite.SiteDajiadu:
-				shelfBook.put(mat.group(2), mat.group(3) + ".html");
-				break;
-//			case NovelSite.SiteBiquge:
-			case NovelSite.SiteXxBiquge:
-			case NovelSite.Site13xxs:
-			case NovelSite.SiteMeegoq:
-			case NovelSite.SiteYmxxs:
-				shelfBook.put(mat.group(2), mat.group(3));
-//log += "\nBookName: " + mat.group(2) + "\nNewPageURL: " + mat.group(3);
-				break;
+				case NovelSite.SiteWutuxs:
+				case NovelSite.SiteXQqxs:
+				case NovelSite.SiteDajiadu:
+					shelfBook.put(mat.group(2), mat.group(3) + ".html|" + mat.group(4));
+					break;
+				case NovelSite.SiteXxBiquge:
+				case NovelSite.Site13xxs:
+				case NovelSite.SiteMeegoq:
+				case NovelSite.SiteYmxxs:
+					shelfBook.put(mat.group(2), mat.group(3) + "|" + mat.group(4));
+					break;
 			}
 		}
+
+		return shelfBook;
+	}
+
+	// 获取有新章的书列表,　返回的数组元素: bookid, bookname, bookurl
+	public List<Map<String, Object>> compareShelfToGetNew(List<Map<String, Object>> booksInfo, String cookiePath) {
+		// 保存有cookie的文件名: FoxBook.cookie，格式: xml:  <cookies><13xs>cookieStr</13xs><biquge>cookieStr</biquge></cookies>
+		// 下载书架网页, 需要 书架地址，cookie
+		// 正则分析网页，合成 得到 书地址, 书名, 新章节地址, 新章节名
+		// 得到 bookid, bookname, bookurl, pageUrlList
+		// 比较书籍的 新章节地址是否在 pageUrlList 中，否就加入返回列表中
+
+//		List<Map<String, Object>> booksInfo = nm.getBookListForShelf(); // 获取需要的信息
+
+		String bookURL = (String) booksInfo.get(0).get(NV.BookURL); // 第一本的BookURL标识为站点
+
+		HashMap<String, String> shelfBook = getSiteShelf(bookURL, cookiePath); // 返回map: 书名 -> 新章节地址|新章节名
+		if ( null == shelfBook ) { return null; }
+
 //ToolJava.writeText(log, "/sdcard/99_sync/FoxDebug.log");
 		List<Map<String, Object>> newPages = new ArrayList<Map<String, Object>>(10);
 		String nowBookName, nowPageList;
 		for(Map<String, Object> mm : booksInfo) {
 			nowBookName = mm.get(NV.BookName).toString();
 			nowPageList = mm.get(NV.DelURL).toString(); // 这里的DelURL内容: 已删除+未读列表
-			if ( siteType == NovelSite.SiteWutuxs ) {
-				if ( ! nowPageList.contains("/" + shelfBook.get(nowBookName) + "|") )
-					newPages.add(mm);
-			} else {
-				if ( ! nowPageList.contains("\n" + shelfBook.get(nowBookName) + "|") )
-					newPages.add(mm);
+
+			if ( ! nowPageList.contains( shelfBook.get(nowBookName).split("|")[0] + "|") ) {
+				newPages.add(mm);
 			}
+
 		}
 		return newPages;
 	}
 
-//	public String searchBook(String iBookName) {
-//		return searchBook(iBookName, "xqqxs"); // 调试用
-//	}
 	public String searchBook(String iBookName, String siteType) { // meegoq, ymxxs, wutuxs, dajiadu, 13xxs, xqqxs
 		String oURL = "";
 
