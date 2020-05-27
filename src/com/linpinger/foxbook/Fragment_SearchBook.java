@@ -161,7 +161,6 @@ public class Fragment_SearchBook extends BackHandledFragment {
 		PopupMenu popW = new PopupMenu(ctx, view);
 		Menu m = popW.getMenu();
 	
-		m.add("下载起点Epub");
 		m.add("使用说明");
 		m.add("设置: 允许JS");
 		m.add("设置: 不允许JS");
@@ -197,8 +196,6 @@ public class Fragment_SearchBook extends BackHandledFragment {
 				} else if ( mt.equalsIgnoreCase("设置: 手机UA") ) {
 					setUserAgent("mobile");
 					wv.reload();
-				} else if ( mt.equalsIgnoreCase("下载起点Epub") ) {
-					funcDownQDEbook();
 				} else if ( mt.equalsIgnoreCase("使用说明") ) {
 					loadDefaultHTML(); // 载入默认内容
 				}
@@ -288,31 +285,6 @@ public class Fragment_SearchBook extends BackHandledFragment {
 		ToolAndroid.setClipText(ua, ctx);
 		foxtip("剪贴板:\n" + ua);
 		return ua;
-	}
-
-	private void funcDownQDEbook() {
-		String ub = wv.getUrl();
-		if (ub.contains(".qidian.com/")) {
-			String qidianID = new SiteQiDian().getBookID_FromURL(ub);
-			final String eBookURL = "http://download.qidian.com/epub/" + qidianID + ".epub";
-			final String SAVEPATH= "/sdcard/99_sync/" + qidianID + ".epub";
-
-			ToolAndroid.download("http://download.qidian.com/epub/" + qidianID + ".epub", qidianID + ".epub", ctx);
-			foxtip("开始下载: " + qidianID + ".epub");
-
-			(new Thread() { public void run() {
-			   	// 2019-11-17: 下载起点epub需要加该HTTP头字段
-				long fLen = new FoxHTTP(eBookURL).setHead("Accept-Encoding", "gzip, deflate").saveFile(SAVEPATH);
-
-				Message msg = Message.obtain();
-				msg.what = IS_SHOWTIP;
-				msg.obj = SAVEPATH + " 下载完毕，大小: " + fLen ;
-				handler.sendMessage(msg);
-			}}).start();
-			
-		} else {
-			foxtip("非起点URL:\n" + ub);
-		}
 	}
 
 	private void foxtip(String sinfo) { // Toast消息

@@ -29,15 +29,15 @@ public class ToolJava {
 		return pro;
 	}
 
-	public static void saveConfig(Properties pro, String cfgFilePath) {
-		try {
-			FileOutputStream outputFile = new FileOutputStream(cfgFilePath, false);
-			pro.store(outputFile, "");
-			outputFile.close();
-		} catch ( Exception e ) {
-			System.err.println(e.toString());
-		}
-	}
+//	public static void saveConfig(Properties pro, String cfgFilePath) {
+//		try {
+//			FileOutputStream outputFile = new FileOutputStream(cfgFilePath, false);
+//			pro.store(outputFile, "");
+//			outputFile.close();
+//		} catch ( Exception e ) {
+//			System.err.println(e.toString());
+//		}
+//	}
 	// } Properties读取，写入
 
 	// { 通用文本读取，写入
@@ -275,7 +275,7 @@ UTF8 : 3 : 224-239 128-191 128-191
 	}
 
 	// 将 IP 转为 广播ip: 例如: 192.168.1.22 -> 192.168.1.255
-	public static String ip2bip(String iIPStr) {
+	public static String ip2bip(String iIPStr) { // only: Tool
 		String ipHead = "";
 		String RE = "^([0-9]*\\.[0-9]*\\.[0-9]*)\\.([0-9]*)$";
 		Matcher m = Pattern.compile(RE).matcher(iIPStr);
@@ -294,7 +294,7 @@ UTF8 : 3 : 224-239 128-191 128-191
 	 * @param algorithm 所请求算法的名称  for example: MD5, SHA1, SHA-256, SHA-384, SHA-512 etc.
 	 * @return
 	 */
-	public static String getFileHash(File file, String algorithm) {
+	public static String getFileHash(File file, String algorithm) { // only: FB
 		if (!file.exists() || !file.isFile())
 			return "";
 
@@ -325,21 +325,5 @@ UTF8 : 3 : 224-239 128-191 128-191
 		}
 	}
 
-	public static byte[] long2ByteArray(long res) {
-		byte[] buffer = new byte[8];
-		for (int i = 0; i < 8; i++) {
-			int offset = 64 - (i + 1) * 8;
-			buffer[i] = (byte) ((res >> offset) & 0xff);
-		}
-		return buffer;
-	}
-
-	public static long byteArray2Long(byte[] b){
-		long values = 0;
-		for (int i = 0; i < 8; i++) {
-			values <<= 8; values|= (b[i] & 0xff);
-		}
-		return values;
-	}
 
 }

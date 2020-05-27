@@ -115,7 +115,7 @@ public class FoxHTTP {
             System.err.println("下载数组为null, URL: " + nowURL);
             return 0;
         } else {
-            return ToolJava.byteArray2Long(ret);
+            return byteArray2Long(ret);
         }
     }
 
@@ -222,7 +222,7 @@ public class FoxHTTP {
             if ( ! isSaveToFile ) {
                 buf = ((ByteArrayOutputStream)outStream).toByteArray();
             } else {
-                buf = ToolJava.long2ByteArray(allLen);
+                buf = long2ByteArray(allLen);
             }
             outStream.close();
         } catch ( Exception e ) {
@@ -250,6 +250,23 @@ public class FoxHTTP {
             System.err.println(e.toString());
         }
         return allURL;
+    }
+
+    public byte[] long2ByteArray(long res) {
+        byte[] buffer = new byte[8];
+        for (int i = 0; i < 8; i++) {
+            int offset = 64 - (i + 1) * 8;
+            buffer[i] = (byte) ((res >> offset) & 0xff);
+        }
+        return buffer;
+    }
+
+    public long byteArray2Long(byte[] b){
+        long values = 0;
+        for (int i = 0; i < 8; i++) {
+            values <<= 8; values|= (b[i] & 0xff);
+        }
+        return values;
     }
 
 } // end of class

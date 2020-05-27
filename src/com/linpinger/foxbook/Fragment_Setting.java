@@ -1,6 +1,7 @@
 package com.linpinger.foxbook;
 
 import java.io.File;
+import java.util.Properties;
 
 import com.linpinger.tool.ToolAndroid;
 import com.linpinger.tool.ToolJava;
@@ -9,6 +10,8 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
@@ -103,7 +106,7 @@ public class Fragment_Setting extends PreferenceFragment {
 		this.findPreference("exportEinkCFG").setOnPreferenceClickListener(new OnPreferenceClickListener(){
 			@Override
 			public boolean onPreferenceClick(Preference pf) {
-				ToolAndroid.myConfigImportExPort(ctx, true);
+				myConfigImportExPort(ctx, true);
 				foxtip("已导出到 FoxBook.cfg");
 				return true;
 			}
@@ -111,7 +114,7 @@ public class Fragment_Setting extends PreferenceFragment {
 		this.findPreference("importEinkCFG").setOnPreferenceClickListener(new OnPreferenceClickListener(){
 			@Override
 			public boolean onPreferenceClick(Preference pf) {
-				ToolAndroid.myConfigImportExPort(ctx, false);
+				myConfigImportExPort(ctx, false);
 				foxtip("已从 FoxBook.cfg 导入");
 				return true;
 			}
@@ -119,6 +122,36 @@ public class Fragment_Setting extends PreferenceFragment {
 		return v;
 	}
 
+	public boolean myConfigImportExPort(Context ctx, boolean isExport) { // 导入导出阅读页配置，这个调整起来还是有点麻烦的
+		SharedPreferences ps = PreferenceManager.getDefaultSharedPreferences(ctx);
+		File cfgFile = new File("/sdcard/FoxBook.cfg" );
+
+		if ( isExport ) { // 导出: DefaultSharedPreferences -> Properties
+			StringBuffer oStr = new StringBuffer();
+			oStr.append("fontsize=").append(ps.getFloat("fontsize", 36.0f)).append("\n")
+				.append("paddingMultip=").append(ps.getFloat("paddingMultip", 0.5f)).append("\n")
+				.append("lineSpaceingMultip=").append(ps.getFloat("lineSpaceingMultip", 1.5f)).append("\n")
+				.append("myBGcolor=").append(ps.getString("myBGcolor", "green")).append("\n")
+				.append("\n");
+			ToolJava.renameIfExist(cfgFile);
+			ToolJava.writeText(oStr.toString(), cfgFile.getPath() );
+			return true ;
+		} else { // 导入: DefaultSharedPreferences <- Properties
+			if ( ! cfgFile.exists() ) {
+				System.out.println("错误: FoxBook配置文件不存在，无法导入");
+				return false;
+			}
+			Properties pro = ToolJava.loadConfig( cfgFile.getPath() );
+
+			Editor ed = ps.edit();
+			ed.putFloat("fontsize", Float.valueOf(pro.getProperty("fontsize")));
+			ed.putFloat("paddingMultip", Float.valueOf(pro.getProperty("paddingMultip")));
+			ed.putFloat("lineSpaceingMultip", Float.valueOf(pro.getProperty("lineSpaceingMultip")));
+			ed.putString("myBGcolor", pro.getProperty("myBGcolor"));
+			return ed.commit();
+		}
+	}
+	
 	void cleanAppCache() {
 		if ( ToolJava.deleteDir( ctx.getCacheDir() ) ) {
 			foxtip("已成功清理缓存");

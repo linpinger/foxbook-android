@@ -106,7 +106,7 @@ public class Fragment_BookList extends BackHandledFragment {
 
 // GUI 布局显示完毕
 //		mExitTime = System.currentTimeMillis(); // 当前时间，便于两次退出
-		this.wDir = ToolAndroid.getDefaultDir(settings);
+		this.wDir = getDefaultDir(settings);
 		this.cookiesFile = new File(wDir, "FoxBook.cookie");
 
 		File inShelfFile; // 传入的路径(db3/fml文件)
@@ -464,6 +464,24 @@ public class Fragment_BookList extends BackHandledFragment {
 	//		0, 0, 1, 0, 0,      
 	//		0, 0, 0, 1, 0 };
 		} // initQuickButton end
+
+	public File getDefaultDir(SharedPreferences settings) {
+		File defDir = new File(settings.getString("defaultDir", "/sdcard/FoxBook/"));
+		if ( defDir.exists() ) {
+			if ( defDir.isFile() )
+				System.err.println( "默认存储路径，是文件: " + defDir.getPath() );
+			if ( defDir.isDirectory())
+				System.out.println( "默认存储路径，是目录: " + defDir.getPath() );
+			return defDir ;
+		} else { // 文件夹不存在
+			if ( ! defDir.mkdir() ) { // 建立失败
+				System.err.println( "默认存储路径不存在，新建失败，返回: /sdcard/" );
+				return new File("/sdcard/");
+			}
+		}
+		System.out.println( "默认存储绝对路径: " + defDir.getAbsolutePath() );
+		return defDir ;
+	}
 
 	private void lvItemLongClickDialog(final Map<String, Object> book) { // 长击LV条目弹出的对话框
 		final String lcURL = book.get(NV.BookURL).toString();

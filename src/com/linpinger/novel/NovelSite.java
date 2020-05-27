@@ -106,6 +106,7 @@ public class NovelSite {
 		} else {
 			html = cHTTP.getHTML("gbk");
 		}
+//ToolJava.writeText("# 书架: Len=(" + String.valueOf(html.length()) + ") " + urlShelf + "\n", "/sdcard/99_sync/FoxDebug.log", "utf-8", true);
 		if ( html.length() < 5 ) { return null ; }
 
 		// 生成map: 书名 -> 新章节地址|新章节名
@@ -125,6 +126,7 @@ public class NovelSite {
 					shelfBook.put(mat.group(2), mat.group(3) + "|" + mat.group(4));
 					break;
 			}
+//ToolJava.writeText("- " + mat.group(2) + " : " + shelfBook.get(mat.group(2)).toString() + "\n", "/sdcard/99_sync/FoxDebug.log", "utf-8", true);
 		}
 
 		return shelfBook;
@@ -145,15 +147,17 @@ public class NovelSite {
 		HashMap<String, String> shelfBook = getSiteShelf(bookURL, cookiePath); // 返回map: 书名 -> 新章节地址|新章节名
 		if ( null == shelfBook ) { return null; }
 
-//ToolJava.writeText(log, "/sdcard/99_sync/FoxDebug.log");
 		List<Map<String, Object>> newPages = new ArrayList<Map<String, Object>>(10);
 		String nowBookName, nowPageList;
 		for(Map<String, Object> mm : booksInfo) {
 			nowBookName = mm.get(NV.BookName).toString();
 			nowPageList = mm.get(NV.DelURL).toString(); // 这里的DelURL内容: 已删除+未读列表
 
-			if ( ! nowPageList.contains( shelfBook.get(nowBookName).split("|")[0] + "|") ) {
-				newPages.add(mm);
+			if ( shelfBook.containsKey(nowBookName) ) { // 先检查key是否存在，不然会崩
+				if ( ! nowPageList.contains( shelfBook.get(nowBookName).split("\\|")[0] + "|") ) {
+//ToolJava.writeText("- 新: " + nowBookName + " : " + shelfBook.get(nowBookName)  + "\n", "/sdcard/99_sync/FoxDebug.log", "utf-8", true);
+					newPages.add(mm);
+				}
 			}
 
 		}
