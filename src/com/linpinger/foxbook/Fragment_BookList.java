@@ -234,10 +234,36 @@ public class Fragment_BookList extends BackHandledFragment {
 		btnOther.setOnLongClickListener(new OnLongClickListener(){
 			@Override
 			public boolean onLongClick(View v) {
-				startFragment( Fragment_SearchBook.newInstance(nm).setOnFinishListener(oflsn) );
+				int newBookIDX = funcAddBookFromClip();
+				if ( newBookIDX < 0 ) {
+					startFragment( Fragment_SearchBook.newInstance(nm).setOnFinishListener(oflsn) );
+				} else { // 添加成功，刷新lv，并进入编辑界面
+					refresh_BookList(); // 刷新LV中的数据
+					startFragment( Fragment_BookInfo.newInstance(nm, newBookIDX) );
+				}
 				return true;
 			}
 		});
+	}
+
+	int funcAddBookFromClip() { // 剪贴板有FoxBook>并添加成功返回bookIDX，否则-1
+		String nowfbs = ToolAndroid.getClipText(ctx);
+		if ( ! nowfbs.contains("FoxBook>") ) { return -1; }
+
+		String xx[] = nowfbs.split(">");
+		if ( "" != xx[1] && "" != xx[4] ) { // name, url
+			int nBookIDX = -1 ;
+			nBookIDX = nm.addBook(xx[1], xx[4], xx[3]); // 新增，并获取返回bookidx
+			if ( nBookIDX < 0 ) { return -1; }
+			if ( "" != xx[2] ) { // 作者
+				Map<String, Object> nowBookInfo = nm.getBookInfo(nBookIDX);
+				nowBookInfo.put(NV.BookAuthor, xx[2]);
+				nm.setBookInfo(nowBookInfo, nBookIDX);
+			}
+			return nBookIDX;
+		}
+		foxtip("信息不完整，不包含名字和地址\n" + nowfbs);
+		return -1;
 	}
 
 	private class onViewClickListener implements View.OnClickListener { // 单击

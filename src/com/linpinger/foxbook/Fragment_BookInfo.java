@@ -155,10 +155,10 @@ public class Fragment_BookInfo extends BackHandledFragment {
 
 		m.add("书名转URL: xqqxs"); // meegoq, ymxxs, wutuxs, dajiadu, 13xxs, xqqxs
 		m.add("书名转URL: 13xxs");
-		m.add("书名转URL: ymxxs");
 		m.add("书名转URL: dajiadu");
-		m.add("书名转URL: wutuxs");
 		m.add("书名转URL: meegoq");
+		m.add("书名转URL: wutuxs");
+		m.add("书名转URL: ymxxs");
 
 		popW.show();
 		popW.setOnMenuItemClickListener(new OnMenuItemClickListener(){
