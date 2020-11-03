@@ -9,13 +9,29 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
-import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ToolJava {
 
+	public static String getNREMatch(String iStr, String iRE, String oSpliter, int outFieldCount) {
+		Matcher mat = Pattern.compile(iRE).matcher(iStr);
+		String oStr = "";
+		while (mat.find()) {
+			oStr = mat.group(1);
+			for (int i = 2; i < outFieldCount + 1; i++) {
+				oStr += oSpliter + mat.group(i);
+			}
+		}
+		return oStr;
+	}
+
+	public static String getOneREMatch(String iStr, String iRE) { // (?smi)\"(http[^\"]*)\"
+		return getNREMatch(iStr, iRE, "\n", 1);
+	}
+
 	// { Properties读取，写入
+/*
 	public static Properties loadConfig(String cfgFilePath) {
 		Properties pro = new Properties();
 		try {
@@ -28,7 +44,7 @@ public class ToolJava {
 		}
 		return pro;
 	}
-
+*/
 //	public static void saveConfig(Properties pro, String cfgFilePath) {
 //		try {
 //			FileOutputStream outputFile = new FileOutputStream(cfgFilePath, false);
@@ -233,6 +249,26 @@ UTF8 : 3 : 224-239 128-191 128-191
 		return bDeleted;
 	}
 
+	public static boolean copyDir(File fromDir, File toDir) {
+		if ( fromDir.isDirectory() ) { // 递归复制
+			if ( ! toDir.exists() ) { if ( ! toDir.mkdirs() ) { return false; } }
+			File nowTarF ;
+			for ( File nowSrcF : fromDir.listFiles() ) { // 本目录下的所有
+				nowTarF = new File(toDir, nowSrcF.getName());
+				if ( nowSrcF.isDirectory() ) {
+					if ( ! nowTarF.exists() ) { if ( ! nowTarF.mkdirs() ) { return false; } }
+					if ( ! copyDir(nowSrcF, nowTarF) ) { return false; }
+				}
+				if ( nowSrcF.isFile() ) { if ( nowSrcF.length() != copyFile(nowSrcF, nowTarF) ) { return false; } }
+			}
+			return true;
+		}
+
+		if ( fromDir.isFile() ) { if ( fromDir.length() == copyFile(fromDir, toDir) ) { return true; } }
+
+		return false;
+	}
+
 	public static long copyFile(File fromFile, File toFile) { // 使用channel复制更快，尤其是大文件更明显
 		FileInputStream fis = null;
 		FileOutputStream fos = null;
@@ -272,6 +308,19 @@ UTF8 : 3 : 224-239 128-191 128-191
 			return tarFile.renameTo(newFile);
 		}
 		return true;
+	}
+	public static boolean renameAFile(File srcFile, File tarFile) { // 重命名/移动 一个文件到文件/文件夹
+		if ( tarFile.isDirectory() ) {
+			if ( srcFile.isDirectory() ) {
+				return srcFile.renameTo(tarFile);
+			}
+			File endFile = new File(tarFile, srcFile.getName());
+			renameIfExist(endFile);
+			return srcFile.renameTo(endFile);
+		} else {
+			renameIfExist(tarFile);
+			return srcFile.renameTo(tarFile);
+		}
 	}
 
 	// 将 IP 转为 广播ip: 例如: 192.168.1.22 -> 192.168.1.255

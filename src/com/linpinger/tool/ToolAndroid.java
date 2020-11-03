@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.os.Environment;
 import android.view.View;
 import android.widget.ListView;
 
@@ -88,6 +89,11 @@ public class ToolAndroid {
 //	}
 
 
+	// 将获取的int转为真正的ip地址,参考的网上的，修改了下
+	private static String intToIp(int i){
+		return ( i & 0xFF) + "." + ((i >> 8 ) & 0xFF) + "." + ((i >> 16 ) & 0xFF) + "." + ((i >> 24 ) & 0xFF ) ;
+	}
+
 	public static String getWifiIP(Context context) { // only: Tool
 		String wip = "";
 		WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);// 获取WifiManager
@@ -99,30 +105,97 @@ public class ToolAndroid {
 		return wip;
 	}
 
-	// 将获取的int转为真正的ip地址,参考的网上的，修改了下
-	private static String intToIp(int i){
-		return ( i & 0xFF) + "." + ((i >> 8 ) & 0xFF) + "." + ((i >> 16 ) & 0xFF) + "." + ((i >> 24 ) & 0xFF ) ;
+	public static String getWifiName(Context context) {
+		WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);// 获取WifiManager
+		if ( null != wm ) { return wm.getConnectionInfo().getSSID(); } else { return ""; }
+	}
+/*
+	public String getWifiName9(Context context) {
+		String ssid = "";
+		WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);// 获取WifiManager
+		if ( null != wm ) {
+			WifiInfo wi = wm.getConnectionInfo();
+			int nid = wi.getNetworkId();
+
+			if ( null == wm.getConfiguredNetworks() ) { return "木有获取到"; }
+			for( WifiConfiguration wc : wm.getConfiguredNetworks() ) {
+				if (wc.networkId == nid) {
+					ssid = wc.SSID;
+					break;
+				}
+			}
+		}
+
+		if ( null == ssid ) { ssid = "木有获取到"; }
+		return ssid;
+	}
+*/
+	public static String getMyVersionName(Context ctx) {
+		String oStr = "";
+		try {
+			oStr = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionName;
+		} catch (Exception e) {
+			System.err.println(e.toString());
+		}
+		return oStr;
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	public static void download(String iURL, String saveName, String saveDir, Context ctx) { // only: Tool
-		DownloadManager downloadManager = (DownloadManager)ctx.getSystemService(Context.DOWNLOAD_SERVICE);
-		DownloadManager.Request request = new DownloadManager.Request(Uri.parse(iURL));
-		request.setDestinationInExternalPublicDir(saveDir, saveName);
-		request.setTitle("下载: " + saveName);
-		request.setDescription(saveName);
-		// request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
-		request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-		// request.setMimeType("application/cn.trinea.download.file");
-		downloadManager.enqueue(request);
+	public static String download(String iURL, String saveName, String saveDir, Context ctx) { // only: Tool
+		if( Build.VERSION.SDK_INT >= 26 ){ // Android Q 10.0
+			saveDir = Environment.DIRECTORY_DOWNLOADS;
+		}
+		try {
+			DownloadManager downloadManager = (DownloadManager) ctx.getSystemService(Context.DOWNLOAD_SERVICE);
+			DownloadManager.Request request = new DownloadManager.Request(Uri.parse(iURL));
+			request.setDestinationInExternalPublicDir(saveDir, saveName);
+			request.setTitle("下载: " + saveName);
+			request.setDescription(saveName);
+			// request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
+			request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+			// request.setMimeType("application/cn.trinea.download.file");
+			downloadManager.enqueue(request);
+		} catch (Exception e) {
+			System.err.println("- download: " + e.toString() );
+		}
+		return saveDir;
 	}
 
+	public static void startAPP(String pkgName, Context ctx) {
+		startAPP(pkgName, "", null, null, ctx);
+	}
+//	public static void startAPP(String pkgName, String className, Context ctx) { // "com.ghisler.android.TotalCommander", "com.ghisler.android.TotalCommander.TotalCommander"
+//		startAPP(pkgName, className, null, null, ctx);
+//	}
+	public static void startAPP(String pkgName, String className, Uri data, String iMIME, Context ctx) {
+		Intent itt ;
+		if ( "".equalsIgnoreCase(pkgName) ) { // 打开文件
+			itt = new Intent(Intent.ACTION_VIEW).setDataAndType(data, iMIME);
+		} else { // 打开应用
+			if ("".equalsIgnoreCase(className)) { // 后面如果className空着，查询以获取itt
+				itt = ctx.getPackageManager().getLaunchIntentForPackage(pkgName);  // 非模式窗口，推荐使用这个
+			} else {
+				itt = new Intent().setComponent(new ComponentName(pkgName, className)); // 模式窗口
+				if ( ! pkgName.contains(".linpinger.") ) {
+					itt.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // 非模式
+				}
+			}
+		}
+
+		if ( data != null ) { itt.setDataAndType(data, iMIME); }
+
+		try {
+			ctx.startActivity(itt); // 这货可能崩
+		} catch(Exception e) {
+			System.err.println( e.toString() );
+		}
+	}
+
+	public static void startFile(Uri data, String iMIME, Context ctx) {
+		startAPP("", "", data, iMIME, ctx);
+	}
 	public static void startFoxBook(File fmlFile, Context ctx) { // only: Tool
-		String fbClassName =  "com.linpinger.foxbook" ;
-		Intent foxbook = new Intent();
-		foxbook.setComponent(new ComponentName(fbClassName, fbClassName + ".Activity_Main"));
-		foxbook.setData( Uri.fromFile(fmlFile) );
-		ctx.startActivity(foxbook);
+		startAPP("com.linpinger.foxbook", "com.linpinger.foxbook.Activity_Main", Uri.fromFile(fmlFile), null, ctx);
 	}
 
 }

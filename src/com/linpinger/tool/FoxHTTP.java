@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -239,7 +240,7 @@ public class FoxHTTP {
     private void setDefHead() { // 默认Head
         heads.put("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0");
         heads.put("Accept", "*/*");
-        heads.put("Accept-Encoding", "*");
+        heads.put("Accept-Encoding", "identity"); // old: "*" 抖音Live会检查这个
     }
 
     public static String getFullURL(String baseURL, String subURL) { // 获取完整路径
@@ -250,6 +251,20 @@ public class FoxHTTP {
             System.err.println(e.toString());
         }
         return allURL;
+    }
+    public static String getURLFileName(String fullURL) { // 获取filename.ext "http://127.0.0.1:8080/dira/dirb/filename.ext?a=b&c=d&falskd#aaa=b"
+        String retStr = fullURL;
+        try {
+            if ( fullURL.contains("%") ) {
+                fullURL = URLDecoder.decode(fullURL, "UTF-8");
+            }
+            URL bb = new URL(fullURL);
+            File aa = new File(bb.getPath());
+            retStr = aa.getName();
+        } catch (Exception e) {
+            System.err.println(e.toString());
+        }
+        return retStr;
     }
 
     public byte[] long2ByteArray(long res) {

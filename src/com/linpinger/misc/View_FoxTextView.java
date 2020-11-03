@@ -81,6 +81,13 @@ public class View_FoxTextView extends View {
 		return 0;
 	}
 
+	public String getScreenText() { // For: TTS
+		String oStr = "";
+		for (int i = startLineNum; i <= endLineNum; ++i) {
+			oStr += lines.get(i) + "\n";
+		}
+		return oStr;
+	}
 	public void clickPrev() {
 		if ( nowPageNum == 0) { // 第一页，翻上一章
 			if ( 0 == setPrevText() ) // 上一章
@@ -146,6 +153,8 @@ public class View_FoxTextView extends View {
 //canvas.drawColor(Color.parseColor("#EFF8D6")); // 绿色
 //Bitmap bg = BitmapFactory.decodeResource(getResources(), R.drawable.parchment_paper);
 //canvas.drawBitmap(bg, new Rect(0,0,bg.getWidth(),bg.getHeight()), new Rect(0,0, cw, ch), p);
+	int startLineNum = 0; // For: TTS
+	int endLineNum = 0;
 	@Override
 	protected void onDraw(Canvas canvas) {
 		// super.onDraw(canvas);
@@ -198,8 +207,8 @@ public class View_FoxTextView extends View {
 		int nowPageCount = (int) Math.ceil( lineCount / Double.valueOf((String.valueOf(linePerScreen) + ".0")) ); // 屏数
 		if (nowPageNum == -6) // 向上翻，回到尾部
 			nowPageNum = nowPageCount - 1 ;
-		int startLineNum = nowPageNum * linePerScreen ; // 0base:包含 
-		int endLineNum = ( nowPageNum + 1 ) * linePerScreen - 1 ; // 0base:包含
+		startLineNum = nowPageNum * linePerScreen ; // 0base:包含
+		endLineNum = ( nowPageNum + 1 ) * linePerScreen - 1 ; // 0base:包含
 		if ( endLineNum >= lineCount - 1 ) {
 			endLineNum = lineCount - 1;
 			isLastPage = true ; // 表示要向下翻页了
