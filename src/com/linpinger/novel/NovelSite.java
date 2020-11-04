@@ -164,7 +164,8 @@ public class NovelSite {
 		return newPages;
 	}
 
-	public String searchBook(String iBookName, String siteType) { // meegoq, ymxxs, wutuxs, dajiadu, 13xxs, xqqxs
+	public final static String mSearchSiteList[] = { "dajiadu", "13xxs", "xqqxs", "wutuxs", "meegoq", "ymxxs", "read8", "miaobige" } ; // NovelSite().searchBook
+	public String searchBook(String iBookName, String siteType) {
 		String oURL = "";
 
 		String html = "";
@@ -215,6 +216,12 @@ public class NovelSite {
 					bMulti = true;
 					reStr = "(?smi)\"c_subject\"><a[^>]+?>([^<]*?)<span class=\"hottext\">([^<]*?)</span>([^<]*?)</a>.*?<a href=\"([^\"]+?)\"[^>]+?>目录</a>"; // nameA, nameB, nameC, url
 				}
+			} else if ( siteType.equalsIgnoreCase("miaobige") ) {
+				html = new FoxHTTP("https://www.imiaobige.com/search.html").getHTML("UTF-8", "searchkey=" + URLEncoder.encode(iBookName, "UTF-8"));
+				reStr = "(?smi)<dl>.*?<h3><a href=\"/novel/([0-9]+).html\">([^<]+)</a>";
+			} else if ( siteType.equalsIgnoreCase("read8") ) {
+				html = new FoxHTTP("https://www.read8.org/s.php?ie=gbk&q="+ URLEncoder.encode(iBookName, "GBK")).getHTML("GBK");
+				reStr = "(?smi)\"bookname\"><a href=\"(/novel/[0-9]+/[0-9]+/)\">([^<]+)</a>";
 			}
 		} catch (Exception e) {
 			System.err.println(e.toString());
@@ -255,6 +262,14 @@ public class NovelSite {
 					}
 //					System.err.println(mat.group(1) + mat.group(2) + mat.group(3) + "\n" + mat.group(4) + "\n");
 				}
+			} else if ( siteType.equalsIgnoreCase("miaobige") ) {
+				if ( iBookName.equalsIgnoreCase( mat.group(2) ) ) {
+					oURL = "https://www.imiaobige.com/read/" + mat.group(1) + "/";
+				}
+			} else if ( siteType.equalsIgnoreCase("read8") ) {
+				if ( iBookName.equalsIgnoreCase( mat.group(2) ) ) {
+					oURL = "https://www.read8.org" + mat.group(1) ;
+				}
 			} // else end
 // System.err.println(mat.group(1) + "\n" + mat.group(2) + "\n");
 		}
@@ -263,7 +278,11 @@ public class NovelSite {
 	}
 
 	public List<Map<String, Object>> getTOCLast(String html) { // name,url[,len]
-		int lastCount = 80; // 取倒数80个链接
+		return getTOCLast(html, 80);
+	}
+
+	public List<Map<String, Object>> getTOCLast(String html, int lastCount) { // name,url[,len]
+		// int lastCount = 80; // 取倒数80个链接
 
 		if (html.length() < 100) { //网页木有下载下来
 			return new ArrayList<Map<String, Object>>(1);

@@ -1,6 +1,7 @@
 package com.linpinger.foxbook;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.Map;
 
 import org.json.JSONArray;
@@ -153,12 +154,7 @@ public class Fragment_BookInfo extends BackHandledFragment {
 		m.add("导入阅读URL");
 		m.add("快速搜索: meegoq");
 
-		m.add("书名转URL: xqqxs"); // meegoq, ymxxs, wutuxs, dajiadu, 13xxs, xqqxs
-		m.add("书名转URL: 13xxs");
-		m.add("书名转URL: dajiadu");
-		m.add("书名转URL: meegoq");
-		m.add("书名转URL: wutuxs");
-		m.add("书名转URL: ymxxs");
+		for ( String iName : NovelSite.mSearchSiteList ) { m.add("书名转URL: " + iName); }
 
 		popW.show();
 		popW.setOnMenuItemClickListener(new OnMenuItemClickListener(){
@@ -187,10 +183,7 @@ public class Fragment_BookInfo extends BackHandledFragment {
 
 					(new Thread() { public void run() {
 						String sURL = new NovelSite().searchBook(sBookName, siteType);
-						Message msg = Message.obtain();
-						msg.what = IS_SetBookURL;
-						msg.obj = sURL;
-						handler.sendMessage(msg);
+						handler.obtainMessage(IS_SetBookURL, sURL).sendToTarget();
 					}}).start();
 
 				} else {
@@ -284,23 +277,23 @@ public class Fragment_BookInfo extends BackHandledFragment {
 	Context ctx;
 	private Button btnOther;
 
-	private final int IS_SetBookURL = 23;
-	private Handler handler = new Handler(new Handler.Callback() {
+	final int IS_SetBookURL = 23;
+	Handler handler = new Handler(new WeakReference<Handler.Callback>(new Handler.Callback() {
 		@Override
 		public boolean handleMessage(Message msg) {
 			switch (msg.what) {
 			case IS_SetBookURL:
 				String bookURL = (String)msg.obj;
-				if ( ! bookURL.equalsIgnoreCase("") ) {
+				if ( bookURL.contains("http") ) {
 					edt_burl.setText( bookURL );
 				} else {
-					foxtip("木有找到URL");
+					foxtip("木有找到URL:\n(" + bookURL + ")");
 				}
 				break;
 			}
-			return false;
+			return true;
 		}
-	});
+	}).get());
 
 	private OnFinishListener lsn;
 	public Fragment setOnFinishListener(OnFinishListener ofl) {

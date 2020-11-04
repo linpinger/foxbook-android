@@ -23,6 +23,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 
 import java.lang.String;
+import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.List;
@@ -59,7 +60,6 @@ public class Fragment_SearchBook extends BackHandledFragment {
 		View v = inflater.inflate(R.layout.fragment_search, container, false); // 这个false很重要，不然会崩溃
 
 		init_views(v);
-		init_handler();
 		init_button_actions();
 
 		setWebView(); // 在当前webview里面跳转
@@ -273,10 +273,7 @@ public class Fragment_SearchBook extends BackHandledFragment {
 				book_url = qds.get(0).get(NV.BookURL).toString();
 			}
 
-			Message msg = Message.obtain();
-			msg.what = IS_GETQIDIANURL;
-			msg.obj = book_url;
-			handler.sendMessage(msg);
+			handler.obtainMessage(IS_GETQIDIANURL, book_url).sendToTarget();
 		}			
 	}
 
@@ -388,32 +385,7 @@ public class Fragment_SearchBook extends BackHandledFragment {
 	//		wv.loadDataWithBaseURL("https://linpinger.github.io/?s=FoxBook_Android", "用法说明:", "text/html", "utf-8", "");
 	}
 
-	void init_handler() {
-		handler = new Handler(new Handler.Callback() {
-			public boolean handleMessage(Message msg) {
-				switch (msg.what) {
-					case IS_GETQIDIANURL:
-						String lcQidianURL = (String)msg.obj;
-						if ( 0 != lcQidianURL.length() ) {
-							Bundle bd = new Bundle();
 
-							bd.putInt(AC.action, AC.aSearchBookOnQiDian);
-							bd.putString(NV.BookURL, lcQidianURL);
-							bd.putString(NV.BookName, book_name);
-
-							startFragment( Fragment_PageList.newInstance(nm, bd) );
-						} else {
-							foxtip("在起点上未搜索到该书名");
-						}
-						break;
-					case IS_SHOWTIP:
-						foxtip( (String)msg.obj );
-						break;
-				}
-				return false;
-			}
-		});
-	}
 	void init_views(View v) {
 		wv   = (WebView)  v.findViewById(R.id.webView1);
 		btn_finish = (Button) v.findViewById(R.id.btnFinish);
@@ -439,10 +411,6 @@ public class Fragment_SearchBook extends BackHandledFragment {
 	private Button btn_pre ;
 	private Button btn_other ;
 
-	private final int IS_GETQIDIANURL = 8;
-	private final int IS_SHOWTIP = 1;
-
-	private static Handler handler;
 
 	private OnFinishListener lsn;
 	public Fragment setOnFinishListener(OnFinishListener ofl) {
@@ -467,5 +435,31 @@ public class Fragment_SearchBook extends BackHandledFragment {
 		return true;
 	}
 
+	final int IS_GETQIDIANURL = 8;
+	final int IS_SHOWTIP = 1;
+	Handler handler = new Handler(new WeakReference<Handler.Callback>(new Handler.Callback() {
+		@Override
+		public boolean handleMessage(Message msg) {
+			switch (msg.what) {
+				case IS_GETQIDIANURL:
+					String lcQidianURL = (String)msg.obj;
+					if ( 0 != lcQidianURL.length() ) {
+						Bundle bd = new Bundle();
+						bd.putInt(AC.action, AC.aSearchBookOnQiDian);
+						bd.putString(NV.BookURL, lcQidianURL);
+						bd.putString(NV.BookName, book_name);
+
+						startFragment( Fragment_PageList.newInstance(nm, bd) );
+					} else {
+						foxtip("在起点上未搜索到该书名");
+					}
+					break;
+				case IS_SHOWTIP:
+					foxtip( (String)msg.obj );
+					break;
+			}
+			return true;
+		}
+	}).get());
 
 }

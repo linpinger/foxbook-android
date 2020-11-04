@@ -1,6 +1,7 @@
 package com.linpinger.foxbook;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,31 +49,66 @@ import android.view.View.OnTouchListener;
 @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
 public class Fragment_BookList extends BackHandledFragment {
 
-	private float clickX = 0 ; // 用来确定点击横坐标以实现不同LV不同区域点击效果
-	private NovelManager nm ;
+	Context ctx;
+	Button btnOther;
+	boolean isSaveBeforeExit = true ;
+
+	float clickX = 0 ; // 用来确定点击横坐标以实现不同LV不同区域点击效果
+	NovelManager nm ;
 	File wDir ;			// 工作目录
 	File cookiesFile ;	// 保存有cookie的文件名: FoxBook.cookie
 
 	// 设置: 
 	SharedPreferences settings;
-	private String beforeSwitchShelf = "orderby_count_desc" ; // 和 arrays.xml中的beforeSwitchShelf_Values 对应
-	private boolean isUpdateBlankPagesFirst = true; // 更新前先检测是否有空白章节
-	private boolean isCompareShelf = true ;		// 更新前比较书架
+	String beforeSwitchShelf = "orderby_count_desc" ; // 和 arrays.xml中的beforeSwitchShelf_Values 对应
+	boolean isUpdateBlankPagesFirst = true; // 更新前先检测是否有空白章节
+	boolean isCompareShelf = true ;		// 更新前比较书架
 
 	ListView lv;
 	TextView tv;
 	List<Map<String, Object>> data;
 
-	private static Handler handler;
-	private final int DO_SETTITLE = 1;
-	private final int DO_REFRESHLIST = 3;
-	private final int DO_REFRESH_TIP = 4;
-	private final int IS_NEWVER = 5;
-	private final int DO_REFRESH_SETTITLE = 6 ;
-//	private final int DO_UPDATEFINISH = 7;
+	final int DO_SETTITLE = 1;
+	final int DO_REFRESHLIST = 3;
+	final int DO_REFRESH_TIP = 4;
+	final int IS_NEWVER = 5;
+	final int DO_REFRESH_SETTITLE = 6 ;
+//	final int DO_UPDATEFINISH = 7;
 
-	private boolean switchShelfLock = false;
-//	private long mExitTime;
+	Handler handler = new Handler(new WeakReference<Handler.Callback>(new Handler.Callback() {
+		public boolean handleMessage(Message msg) {
+			switch (msg.what) {
+			case DO_SETTITLE:
+				foxtipL((String)msg.obj);
+				break;
+			case DO_REFRESHLIST:
+				refresh_BookList();
+				break;
+			case DO_REFRESH_TIP :
+				refresh_BookList();
+				foxtip((String) msg.obj);
+				break;
+			case DO_REFRESH_SETTITLE :
+				refresh_BookList();
+				foxtipL((String) msg.obj);
+				break;
+			case IS_NEWVER:
+				foxtipL((String)msg.obj);
+				try {
+					Intent i = new Intent(Intent.ACTION_VIEW);
+					i.setDataAndType(Uri.fromFile(new File("/sdcard/FoxBook.apk")), "application/vnd.android.package-archive"); 
+					startActivity(i);
+				} catch(Exception e) {
+					e.toString();
+				}
+				break;
+			}
+			return true;
+		}
+	}).get());
+
+	boolean switchShelfLock = false;
+//	long mExitTime;
 
 	Action_UpdateNovel aun = new Action_UpdateNovel();
 
@@ -124,17 +160,13 @@ public class Fragment_BookList extends BackHandledFragment {
 		this.nm = new NovelManager(inShelfFile);
 		foxtipL( inShelfFile.getName() + " : " + nm.getBookCount() );
 
-		init_handler(); // 初始化一个handler 用于处理后台线程的消息
 		refresh_BookList();
 
 		aun.setOnStatuChangeListener(new OnStatuChangeListener(){
 			@Override
 			public void OnStatuChange(int threadIDX, String msgOBJ) {
 				if ( threadIDX >= 0 ) { // 多线程更新FMLs
-					Message msg = Message.obtain();
-					msg.what = DO_SETTITLE;
-					msg.obj = msgOBJ;
-					handler.sendMessage(msg);
+					handler.obtainMessage(DO_SETTITLE, msgOBJ).sendToTarget();
 				} else { // 刷新LV
 					handler.sendEmptyMessage(DO_REFRESHLIST); // 更新完毕，通知刷新
 				}
@@ -239,6 +271,7 @@ public class Fragment_BookList extends BackHandledFragment {
 					startFragment( Fragment_SearchBook.newInstance(nm).setOnFinishListener(oflsn) );
 				} else { // 添加成功，刷新lv，并进入编辑界面
 					refresh_BookList(); // 刷新LV中的数据
+					ToolAndroid.jump2ListViewPos(lv, -1); // 跳到LV底部
 					startFragment( Fragment_BookInfo.newInstance(nm, newBookIDX) );
 				}
 				return true;
@@ -289,25 +322,20 @@ public class Fragment_BookList extends BackHandledFragment {
 				if ( switchShelfLock ) {
 					foxtip("还在切换中...");
 				} else {
-					(new Thread(){
-						public void run(){
-							switchShelfLock = true;
-							beforeSwitchShelf = settings.getString("beforeSwitchShelf", beforeSwitchShelf);
-							if ( ! beforeSwitchShelf.equalsIgnoreCase("none") ) { // 切换前先排序
-								if ( beforeSwitchShelf.equalsIgnoreCase("orderby_count_desc") )
-									nm.sortBooks(true);
-								if ( beforeSwitchShelf.equalsIgnoreCase("orderby_count_asc") )
-									nm.sortBooks(false);
-								nm.simplifyAllDelList();
-							}
-							String nowPath = nm.switchShelf(true).getName();
-							switchShelfLock = false;
-							Message msg = Message.obtain();
-							msg.what = DO_REFRESH_SETTITLE;
-							msg.obj = nowPath + " : " + nm.getBookCount();
-							handler.sendMessage(msg);
+					(new Thread() { public void run() {
+						switchShelfLock = true;
+						beforeSwitchShelf = settings.getString("beforeSwitchShelf", beforeSwitchShelf);
+						if ( ! beforeSwitchShelf.equalsIgnoreCase("none") ) { // 切换前先排序
+							if ( beforeSwitchShelf.equalsIgnoreCase("orderby_count_desc") )
+								nm.sortBooks(true);
+							if ( beforeSwitchShelf.equalsIgnoreCase("orderby_count_asc") )
+								nm.sortBooks(false);
+							nm.simplifyAllDelList();
 						}
-					}).start();
+						String nowPath = nm.switchShelf(true).getName();
+						switchShelfLock = false;
+						handler.obtainMessage(DO_REFRESH_SETTITLE, nowPath + " : " + nm.getBookCount()).sendToTarget();
+					}}).start();
 				}
 				break;
 			}
@@ -347,20 +375,14 @@ public class Fragment_BookList extends BackHandledFragment {
 					showListLess1KPages();
 				} else if ( mt.equalsIgnoreCase("更新本软件") ) {
 					foxtipL("开始更新版本...");
-					(new Thread(){
-						public void run(){
-							int newver = new FoxUpdatePkg(ctx).FoxCheckUpdate() ;
-							Message msg = Message.obtain();
-							if ( newver > 0 ) {
-								msg.what = IS_NEWVER;
-								msg.obj = newver + ":新版本" ;
-							} else {
-								msg.what = DO_SETTITLE;
-								msg.obj = "无新版本" ;
-							}
-							handler.sendMessage(msg);
+					(new Thread() { public void run() {
+						int newver = new FoxUpdatePkg(ctx).FoxCheckUpdate() ;
+						if ( newver > 0 ) {
+							handler.obtainMessage(IS_NEWVER, newver + ":新版本").sendToTarget();
+						} else {
+							handler.obtainMessage(DO_SETTITLE, "无新版本").sendToTarget();
 						}
-					}).start();
+					}}).start();
 				} else if ( mt.equalsIgnoreCase("不保存退出") ) {
 					isSaveBeforeExit = false;
 					onDestroy();
@@ -369,45 +391,29 @@ public class Fragment_BookList extends BackHandledFragment {
 					(new Thread(){ public void run(){
 						nm.sortBooks(true);
 						nm.simplifyAllDelList();
-						Message msg = Message.obtain();
-						msg.what = DO_REFRESH_TIP;
-						msg.obj = "已按页面页数倒序重排好书籍";
-						handler.sendMessage(msg);
-					} }).start();
+						handler.obtainMessage(DO_REFRESH_TIP, "已按页面页数倒序重排好书籍").sendToTarget();
+					}}).start();
 				} else if ( mt.equalsIgnoreCase("按页数顺序排列") ) {
 					foxtipL("顺序排序");
 					(new Thread(){ public void run(){
-							nm.sortBooks(false);
-							nm.simplifyAllDelList();
-							Message msg = Message.obtain();
-							msg.what = DO_REFRESH_TIP;
-							msg.obj = "已按页面页数顺序重排好书籍";
-							handler.sendMessage(msg);
-						} }).start();
+						nm.sortBooks(false);
+						nm.simplifyAllDelList();
+						handler.obtainMessage(DO_REFRESH_TIP, "已按页面页数顺序重排好书籍").sendToTarget();
+					}}).start();
 				} else if ( mt.equalsIgnoreCase("全部转为EPUB") ) {
 					foxtipL("开始转换成EPUB...");
-					(new Thread(){
-						public void run(){
-							File oFile = new File(wDir, "fox.epub");
-							nm.exportAsEpub(oFile);
-							Message msg = Message.obtain();
-							msg.what = DO_SETTITLE;
-							msg.obj = "全部转换完毕: " + oFile.getPath();
-							handler.sendMessage(msg);
-						}
-					}).start();
+					(new Thread(){ public void run(){
+						File oFile = new File(wDir, "fox.epub");
+						nm.exportAsEpub(oFile);
+						handler.obtainMessage(DO_SETTITLE, "全部转换完毕: " + oFile.getPath()).sendToTarget();
+					}}).start();
 				} else if ( mt.equalsIgnoreCase("全部转为TXT") ) {
 					foxtipL("开始转换成TXT...");
-					(new Thread(){
-						public void run(){
-							File oFile = new File(wDir, "fox.txt");
-							nm.exportAsTxt(oFile);
-							Message msg = Message.obtain();
-							msg.what = DO_SETTITLE;
-							msg.obj = "全部转换完毕: " + oFile.getPath();
-							handler.sendMessage(msg);
-						}
-					}).start();
+					(new Thread(){ public void run(){
+						File oFile = new File(wDir, "fox.txt");
+						nm.exportAsTxt(oFile);
+						handler.obtainMessage(DO_SETTITLE, "全部转换完毕: " + oFile.getPath()).sendToTarget();
+					}}).start();
 				} else {
 					foxtipL(mt);
 				}
@@ -561,45 +567,11 @@ public class Fragment_BookList extends BackHandledFragment {
 		.create().show();
 	}
 
-	private void refresh_BookList() { // 刷新LV中的数据
+	void refresh_BookList() { // 刷新LV中的数据
 		data = nm.getBookList(); // 获取书籍列表
 		lv.setAdapter(new SimpleAdapter(ctx, data, R.layout.lv_item_booklist
 			, new String[] { NV.BookName, NV.PagesCount }
 			, new int[] { R.id.tvName, R.id.tvCount } )); // 设置listview的Adapter, 当data是原data时才能 adapter.notifyDataSetChanged();
-	}
-
-	private void init_handler() { // 初始化一个handler 用于处理后台线程的消息
-		handler = new Handler(new Handler.Callback() {
-			public boolean handleMessage(Message msg) {
-				switch (msg.what) {
-				case DO_SETTITLE:
-					foxtipL((String)msg.obj);
-					break;
-				case DO_REFRESHLIST:
-					refresh_BookList();
-					break;
-				case DO_REFRESH_TIP :
-					refresh_BookList();
-					foxtip((String) msg.obj);
-					break;
-				case DO_REFRESH_SETTITLE :
-					refresh_BookList();
-					foxtipL((String) msg.obj);
-					break;
-				case IS_NEWVER:
-					foxtipL((String)msg.obj);
-					try {
-						Intent i = new Intent(Intent.ACTION_VIEW);
-						i.setDataAndType(Uri.fromFile(new File("/sdcard/FoxBook.apk")), "application/vnd.android.package-archive"); 
-						startActivity(i);
-					} catch(Exception e) {
-						e.toString();
-					}
-					break;
-				}
-				return false;
-			}
-		});
 	}
 
 	OnFinishListener oflsn = new OnFinishListener(){
@@ -620,17 +592,13 @@ public class Fragment_BookList extends BackHandledFragment {
 		System.exit(0);
 	}
 
-	private void foxtip(String sinfo) { // Toast消息
+	void foxtip(String sinfo) { // Toast消息
 		Toast.makeText(ctx, sinfo, Toast.LENGTH_SHORT).show();
 	}
 
-	private void foxtipL(String sinfo) {
+	void foxtipL(String sinfo) {
 		tv.setText(sinfo);
 	}
-
-	private Context ctx;
-	private Button btnOther;
-	private boolean isSaveBeforeExit = true ;
 
 } // class end
 

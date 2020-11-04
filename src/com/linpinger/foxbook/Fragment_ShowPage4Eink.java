@@ -3,6 +3,7 @@ package com.linpinger.foxbook;
 import java.io.File;
 import java.io.LineNumberReader;
 import java.io.StringReader;
+import java.lang.ref.WeakReference;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -244,10 +245,7 @@ public class Fragment_ShowPage4Eink extends BackHandledFragment {
 					page.put(NV.Content, text);
 					page.put(NV.PageFullURL, fullPageURL);
 
-					Message msg = Message.obtain();
-					msg.what = IS_REFRESH;
-					msg.obj = page;
-					handler.sendMessage(msg);
+					handler.obtainMessage(IS_REFRESH, page).sendToTarget();
 				}
 			}).start();
 			break;
@@ -698,8 +696,9 @@ public class Fragment_ShowPage4Eink extends BackHandledFragment {
 		Toast.makeText(ctx, sinfo, Toast.LENGTH_SHORT).show();
 	}
 
-	Handler handler = new Handler() {
-		public void handleMessage(Message msg) {
+	Handler handler = new Handler(new WeakReference<Handler.Callback>(new Handler.Callback() {
+		@Override
+		public boolean handleMessage(Message msg) {
 			if ( msg.what == IS_REFRESH ) {
 				HashMap<String, String> page = (HashMap<String, String>)msg.obj;
 				String sText = page.get(NV.Content);
@@ -718,8 +717,9 @@ public class Fragment_ShowPage4Eink extends BackHandledFragment {
 				}
 				mv.postInvalidate();
 			}
+			return true;
 		}
-	};
+	}).get());
 
 	Context ctx;
 

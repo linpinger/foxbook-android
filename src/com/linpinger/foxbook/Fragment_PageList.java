@@ -1,5 +1,6 @@
 package com.linpinger.foxbook;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,10 +56,7 @@ public class Fragment_PageList extends BackHandledFragment {
 	private boolean isOnLine = true; // 是否在线
 
 	SimpleAdapter adapter;
-	private Handler handler;
 
-	private static int IS_UPDATEPAGE = 88;
-	private static int IS_RenderListView = 5;
 
 	private int ittAction = 0 ; // 传入的数据
 	private int bookIDX = -1 ;
@@ -132,8 +130,6 @@ public class Fragment_PageList extends BackHandledFragment {
 		});
 		init_LV_item_Click();
 		init_LV_item_Long_click(); // 初始化 长击 条目 的行为
-
-		init_handler() ; // 初始化一个handler 用于处理后台线程的消息
 
 		if ( nm == null ) {
 			foxtip("警告: nm == null");
@@ -331,16 +327,11 @@ public class Fragment_PageList extends BackHandledFragment {
 				} else if ( itemName.equalsIgnoreCase("更新本章") ) {
 					if ( bookIDX != -1 ) {
 						foxtipL("正在更新: " + lcName);
-						(new Thread(){
-							public void run(){
-								nm.updatePage(bookIDX, pageIDX);
-								updateLocalData(bookIDX) ; // 更新data数据
-								Message msg = Message.obtain();
-								msg.what = IS_UPDATEPAGE;
-								msg.obj = lcName ;
-								handler.sendMessage(msg);
-							}
-						}).start();
+						(new Thread() { public void run() {
+							nm.updatePage(bookIDX, pageIDX);
+							updateLocalData(bookIDX) ; // 更新data数据
+							handler.obtainMessage(IS_UPDATEPAGE, lcName).sendToTarget();
+						}}).start();
 					}
 				} else if ( itemName.equalsIgnoreCase("编辑本章") ) {
 					startFragment( Fragment_PageInfo.newInstance(nm, bookIDX, pageIDX) );
@@ -472,25 +463,6 @@ public class Fragment_PageList extends BackHandledFragment {
 		}
 	}
 
-	private void init_handler() { // 初始化一个handler 用于处理后台线程的消息
-		handler = new Handler() {
-			public void handleMessage(Message msg) {
-				if ( msg.what == IS_UPDATEPAGE ) // 更新章节完毕
-					foxtipL("更新完毕 : " + (String)msg.obj );
-				if ( msg.what == IS_RenderListView ) { // 下载目录完毕
-					if ( data.size() == 0 ) {
-						foxtip("列表是空的哟");
-						if ( ! isOnLine ) {
-							back();
-						}
-					} else {
-						renderListView();
-					}
-				}
-			}
-		};
-	}
-
 	void updateLocalData(int inBookIDX) {
 		switch (ittAction) { // 更新data数据
 		case AC.aListBookPages:
@@ -525,5 +497,29 @@ public class Fragment_PageList extends BackHandledFragment {
 		tv.setText(sinfo);
 	}
 
+	private static final int IS_UPDATEPAGE = 88;
+	private static final int IS_RenderListView = 5;
+	Handler handler = new Handler(new WeakReference<Handler.Callback>(new Handler.Callback() {
+		@Override
+		public boolean handleMessage(Message msg) {
+			switch ( msg.what ) {
+			case IS_UPDATEPAGE: // 更新章节完毕
+				foxtipL("更新完毕 : " + (String)msg.obj );
+				break;
+			case IS_RenderListView: // 下载目录完毕
+				if ( data.size() == 0 ) {
+					foxtip("列表是空的哟");
+					if ( ! isOnLine ) {
+						back();
+					}
+				} else {
+					renderListView();
+				}
+				break;
+			}
+			return true;
+		}
+	}).get());
+	
 	private Context ctx;
 }

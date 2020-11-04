@@ -1,5 +1,6 @@
 package com.linpinger.foxbook;
 
+import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,7 +12,6 @@ import java.util.regex.Pattern;
 import com.linpinger.misc.BackHandledFragment;
 import com.linpinger.novel.NV;
 import com.linpinger.novel.NovelManager;
-import com.linpinger.novel.NovelSite;
 import com.linpinger.tool.FoxHTTP;
 import com.linpinger.tool.ToolAndroid;
 
@@ -94,20 +94,17 @@ public class Fragment_QuickSearch extends BackHandledFragment {
 			System.err.println(e.toString());
 		}
 
-		(new Thread(){
-			public void run(){
-				if ( SE_TYPE == AC.SE_NONE ) {
-					data = getSearchEngineHref( new FoxHTTP(seURL).getHTML() , "");
-				} else if ( SE_TYPE == AC.SE_MEEGOQ ) { // 下载并处理页面
-					data = getSearchResultHref( new FoxHTTP(seURL).getHTML() , book_name);
-				} else {
-					data = getSearchEngineHref( new FoxHTTP(seURL).getHTML() , book_name); // 搜索引擎网页分析放在这里
-				}
-				handler.sendEmptyMessage(IS_REFRESH);
+		(new Thread() { public void run() {
+			if ( SE_TYPE == AC.SE_NONE ) {
+				data = getSearchEngineHref( new FoxHTTP(seURL).getHTML() , "");
+			} else if ( SE_TYPE == AC.SE_MEEGOQ ) { // 下载并处理页面
+				data = getSearchResultHref( new FoxHTTP(seURL).getHTML() , book_name);
+			} else {
+				data = getSearchEngineHref( new FoxHTTP(seURL).getHTML() , book_name); // 搜索引擎网页分析放在这里
 			}
-		}).start();
+			handler.sendEmptyMessage(IS_REFRESH);
+		}}).start();
 
-		init_handler() ; // 初始化一个handler 用于处理后台线程的消息
 		initViewAction() ; // 初始化 点击 的行为
 
 		return v;
@@ -257,16 +254,6 @@ public class Fragment_QuickSearch extends BackHandledFragment {
 		lv.setAdapter(adapter);
 	}
 
-	private void init_handler() { // 初始化一个handler 用于处理后台线程的消息
-		handler = new Handler() {
-			public void handleMessage(Message msg) {
-				if ( msg.what == IS_REFRESH ) { // 下载完毕
-					tv.setText( "D." + tv.getText() );
-					refreshLVAdapter();
-				}
-			}
-		};
-	}
 
 	private OnFinishListener lsn;
 	public Fragment setOnFinishListener(OnFinishListener ofl) {
@@ -293,8 +280,6 @@ public class Fragment_QuickSearch extends BackHandledFragment {
 	private TextView tv;
 	SimpleAdapter adapter;
 	private List<Map<String, Object>> data;
-	private Handler handler;
-	private static int IS_REFRESH = 5 ;
 
 	private NovelManager nm;
 	private String book_name = "" ;
@@ -302,6 +287,18 @@ public class Fragment_QuickSearch extends BackHandledFragment {
 
 	private int SE_TYPE = 1; // 搜索引擎
 	private String seURL = "" ;
+
+	private static final int IS_REFRESH = 5 ;
+	Handler handler = new Handler(new WeakReference<Handler.Callback>(new Handler.Callback() {
+		@Override
+		public boolean handleMessage(Message msg) {
+			if ( msg.what == IS_REFRESH ) { // 下载完毕
+				tv.setText( "D." + tv.getText() );
+				refreshLVAdapter();
+			}
+			return true;
+		}
+	}).get());
 
 	private Context ctx;
 }
