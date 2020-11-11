@@ -187,12 +187,12 @@ public class NovelSite {
 					reStr = "(?smi)\"odd\"><a href=\"([^\"]+?)\">([^<]+?)</a>"; // url, name
 				}
 			} else if ( siteType.equalsIgnoreCase("dajiadu") ) {
-				html = new FoxHTTP("https://www.dajiadu8.com/modules/article/searchab.php").getHTML("GBK", "searchtype=articlename&searchkey=" + URLEncoder.encode(iBookName, "GBK") + "&Submit=+%CB%D1+%CB%F7+");
-				if ( html.contains(">点击阅读<") ) {
-					reStr = "(?smi)<h1>([^<]+?)</h1>.*?href=\"([^\"]+?)\">点击阅读<"; // name, url
+				html = new FoxHTTP("https://www.dajiadu8.com/modules/article/search.php").getHTML("GBK", "searchkey=" + URLEncoder.encode(iBookName, "GBK") + "&an=%CB%D1%CB%F7");
+				if ( html.contains("listchapter") ) {
+					reStr = "(?smi)<img src=\"https://www.dajiadu8.com/files/article/image(/[0-9]+/[0-9]+/)[^\\.>]+\\.jpg\"[^>]+alt=\"" + iBookName + "\""; // url
 				} else {
 					bMulti = true;
-					reStr = "(?smi)\"odd\"><a[^>]+?>([^<]+?)<.*?\"even\"><a href=\"([^\"]+?)\"[^>]+?>"; // name, url
+					reStr = "(?smi)\"p1\"><a href=\"([^\"]+)\">([^<]+)</a>"; // url, name
 				}
 			} else if ( siteType.equalsIgnoreCase("13xxs") ) {
 				html = new FoxHTTP("http://www.13xxs.com/modules/article/search.php").getHTML("GBK", "searchtype=articlename&action=login&searchkey=" + URLEncoder.encode(iBookName, "GBK") );
@@ -246,12 +246,12 @@ public class NovelSite {
 					}
 				}
 			} else if ( siteType.equalsIgnoreCase("dajiadu") ) {
-				if ( ! bMulti ) {
-					oURL = mat.group(2);
-				} else {
-					if ( iBookName.equalsIgnoreCase( mat.group(1) ) ) {
-						oURL = mat.group(2);
+				if ( bMulti ) {
+					if ( iBookName.equalsIgnoreCase(mat.group(2)) ) {
+						oURL = mat.group(1);
 					}
+				} else {
+					oURL = "https://www.dajiadu8.com" + mat.group(1);
 				}
 			} else if ( siteType.equalsIgnoreCase("xqqxs") ) {
 				if ( ! bMulti ) {
@@ -329,6 +329,8 @@ public class NovelSite {
 			lks.add( ldata.get(nowIdx) );
 		}
 
+		if ( lks.size() > 0 ) { lks = filterURLDiff(lks); }
+
 		return lks;
 	}
 
@@ -336,10 +338,6 @@ public class NovelSite {
 		if (html.length() < 100) { //网页木有下载下来
 			return new ArrayList<Map<String, Object>>(1);
 		}
-		List<Map<String, Object>> ldata = new ArrayList<Map<String, Object>>(100);
-		Map<String, Object> item;
-		int nowurllen = 0;
-		HashMap<Integer, Integer> lencount = new HashMap<Integer, Integer>();
 
 		// 有些变态网站没有body标签，而java没找到 body 时， 会遍历整个网页，速度很慢
 		if (html.matches("(?smi).*<body.*")) {
@@ -358,6 +356,11 @@ public class NovelSite {
 			html = html.replaceAll("(?smi)<span[^>]*>", ""); // 起点<a></a>之间有span标签
 			html = html.replace("</span>", "");
 		}
+
+		List<Map<String, Object>> ldata = new ArrayList<Map<String, Object>>(100);
+		Map<String, Object> item;
+		int nowurllen = 0;
+		HashMap<Integer, Integer> lencount = new HashMap<Integer, Integer>();
 
 		// 获取链接 并存入结构中
 		Matcher mat = Pattern.compile("(?smi)href *= *[\"']?([^>\"']+)[^>]*> *([^<]+)<").matcher(html);
@@ -441,6 +444,8 @@ public class NovelSite {
 				ldata.remove(nowIdx);
 			}
 		}
+
+		if ( ldata.size() > 0 ) { ldata = filterURLDiff(ldata); }
 
 		return ldata;	
 	}
@@ -529,4 +534,55 @@ public class NovelSite {
 
 		return html;
 	}
+
+	// 2020-11-11: 遍历ldata，比较url以/开头或http开头的数量与ldata的数量差异以确定url是什么类型的,方便删除多余链接，主要针对miaobige
+	public List<Map<String, Object>> filterURLDiff(List<Map<String, Object>> ldata) {
+		int ldataSize = ldata.size();
+		int countURLStartWithSlash = 0;
+		int countURLStartWithHTTP = 0;
+		String nowURL = "";
+		for (int i = 0; i < ldataSize; i++) {
+			nowURL = ldata.get(i).get(NV.PageURL).toString();
+			if (nowURL.startsWith("/")) {
+				++countURLStartWithSlash;
+				continue;
+			}
+			if (nowURL.startsWith("http")) {
+				++countURLStartWithHTTP;
+				continue;
+			}
+		}
+		if ( countURLStartWithSlash + countURLStartWithHTTP > 0 ) { // 不都为0
+			int countURLOther = ldataSize - countURLStartWithSlash - countURLStartWithHTTP; // 其他链接数
+			if ( countURLOther == 0 ) {
+				if ( countURLStartWithHTTP > countURLStartWithSlash ) {
+					for (int i = ldataSize - 1; i >= 0; i--) { // 倒着删
+						if ( ldata.get(i).get(NV.PageURL).toString().startsWith("/") ) {
+							ldata.remove(i);
+						}
+					}
+				} else {
+					for (int i = ldataSize - 1; i >= 0; i--) { // 倒着删
+						if ( ldata.get(i).get(NV.PageURL).toString().startsWith("http") ) {
+							ldata.remove(i);
+						}
+					}
+				}
+//					System.err.println("- TODO: /链接数: " + countURLStartWithSlash);
+//					System.err.println("- TODO: http链接数: " + countURLStartWithHTTP);
+			} else {
+				System.err.println("- TODO: 其他异形链接数: " + countURLOther);
+			}
+		}
+		return ldata;
+	}
+
+//	public static void main(String[] args) {
+//		String html = ToolJava.readText("T:/index.html", "UTF-8");
+//		List<Map<String, Object>> xx = new NovelSite().getTOC(html);
+//		System.out.println("- 链接数量：" + xx.size());
+//		System.out.println( xx.get(0).get(NV.PageName) + " | " + xx.get(0).get(NV.PageURL) );
+//		System.out.println( xx.get(xx.size() - 1).get(NV.PageName) + " | " + xx.get(xx.size() - 1).get(NV.PageURL) );
+//	}
+
 }

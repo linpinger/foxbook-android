@@ -103,11 +103,11 @@
 
         <Preference
             android:key="exportEinkCFG"
-            android:summary="阅读页设置 to FoxBook.cfg"
+            android:summary="阅读页设置 to FoxBook.pro"
             android:title="导出阅读页设置" />
         <Preference
             android:key="importEinkCFG"
-            android:summary="阅读页设置 from FoxBook.cfg"
+            android:summary="阅读页设置 from FoxBook.pro"
             android:title="导入阅读页设置" />
     </PreferenceCategory>
     <PreferenceCategory android:title="其他设置" >

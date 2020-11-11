@@ -14,6 +14,28 @@ import java.util.regex.Pattern;
 
 public class ToolJava {
 
+/*
+	public static String[] string2Array(String iStrSplitByLn) { // 将文本按行分割，去除空行
+		return string2Array(iStrSplitByLn, "\n");
+	}
+	public static String[] string2Array(String iStr, String iSpliter) {
+		String[] ret ;
+		String aa = "" ;
+		for ( String line : iStr.split(iSpliter) ) {
+			if ( line.equalsIgnoreCase("") ) {
+				continue;
+			} else {
+				aa += iSpliter + line;
+			}
+		}
+		if ( ! aa.equalsIgnoreCase("") ) {
+			aa = aa.substring(iSpliter.length()) ; // 去除头部的\n
+		}
+		ret = aa.split(iSpliter) ;
+		return ret;
+	}
+*/
+
 	public static String getNREMatch(String iStr, String iRE, String oSpliter, int outFieldCount) {
 		Matcher mat = Pattern.compile(iRE).matcher(iStr);
 		String oStr = "";

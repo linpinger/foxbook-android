@@ -18,10 +18,12 @@
 
 **源码及下载:**
 
--   [源码工程](https://github.com.linpinger.foxbook-android)
+-   [源码工程](https://github.com/linpinger/foxbook-android)
+
+-   APK在源码的release下去下载，以下下载点更新慢或失效
 
 -   [APK文件下载点1:sf.net](http://master.dl.sourceforge.net/project/foxtestphp/prj/FoxBook.apk)
--   [APK文件下载点2:七牛](http://linpinger.qiniudn.com/prj/FoxBook.apk)
+-   [APK文件下载点2:无效](http://linpinger.qiniudn.com/prj/FoxBook.apk)
 
 **工程中包含的其他文件:**
 - 生成UMD格式电子书调用umd-builder JAVA版 <http://code.google.com/p/umd-builder/>
@@ -60,6 +62,7 @@
 - 切换会更快，然而不可避免的会有大量bug产生，所以不放到升级里面去，要测试的在release标签里面下载
 
 **更新日志:**
+- 2020-11-11: 修改: 同步并在编辑书信息添加两菜单
 - 2020-11-04: 修改: 同步并优化代码
 - 2020-11-03: 修改: 同步代码
 - 2020-11-02: 添加: 当长按菜单，检测剪贴板是否包含FoxBook字符串，是就增加新书，否就进入搜书界面

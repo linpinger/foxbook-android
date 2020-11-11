@@ -156,6 +156,9 @@ public class Fragment_BookInfo extends BackHandledFragment {
 
 		for ( String iName : NovelSite.mSearchSiteList ) { m.add("书名转URL: " + iName); }
 
+		m.add("删除已删除列表第一行");
+		m.add("精简已删除列表");
+
 		popW.show();
 		popW.setOnMenuItemClickListener(new OnMenuItemClickListener(){
 			@Override
@@ -185,13 +188,29 @@ public class Fragment_BookInfo extends BackHandledFragment {
 						String sURL = new NovelSite().searchBook(sBookName, siteType);
 						handler.obtainMessage(IS_SetBookURL, sURL).sendToTarget();
 					}}).start();
-
+				} else if ( mt.equalsIgnoreCase("精简已删除列表") ) {
+					edt_delurl.setText( nm.simplifyDelList( edt_delurl.getText().toString(), 5 ) );
+				} else if ( mt.equalsIgnoreCase("删除已删除列表第一行") ) {
+					edt_delurl.setText( mRemoveFirstLine( edt_delurl.getText().toString() ) );
 				} else {
 					foxtipL(mt);
 				}
 				return true;
 			}
 		});
+	}
+
+	String mRemoveFirstLine(String iStr) {
+		StringBuilder newList = new StringBuilder(4096);
+		int i = 0;
+		for ( String line : iStr.split("\n") ) {
+			if ( line.contains("|") ) {
+				++i;
+			}
+			if ( 1 == i ) { continue; }
+			newList.append(line).append("\n");
+		}
+		return newList.toString();
 	}
 
 	private String getYueDuURL(String iBookName) {

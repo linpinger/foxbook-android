@@ -15,17 +15,17 @@ import com.linpinger.tool.ToolJava;
 public class NovelManager {
 	public static final int SQLITE3 = 3;
 	public static final int FML = 24;
-	public static final int ZIP = 26;
-	public static final int ZIP1024 = 1024 ;
-	public static final int EPUB = 500 ;      // 普通 epub文件 处理方式待定
-	public static final int EPUBFOXMAKE = 506; //我生成的 epub
-	public static final int EPUBQIDIAN = 517; // 起点 epub
-	public static final int TXT = 200 ;       // 普通txt
-	public static final int TXTQIDIAN = 217 ; // 起点txt
+//	public static final int ZIP = 26;
+//	public static final int ZIP1024 = 1024 ;
+//	public static final int EPUB = 500 ;      // 普通 epub文件 处理方式待定
+//	public static final int EPUBFOXMAKE = 506; //我生成的 epub
+//	public static final int EPUBQIDIAN = 517; // 起点 epub
+//	public static final int TXT = 200 ;       // 普通txt
+//	public static final int TXTQIDIAN = 217 ; // 起点txt
 
 	private File shelfFile ;
 	private List<Novel> shelf ;
-	private int bookStoreType = 0;
+//	private int bookStoreType = 0;
 
 	private boolean sortBookDesc = true ;
 	private int saveFormat = NovelManager.FML ; // 默认保存格式
@@ -39,19 +39,19 @@ public class NovelManager {
 
 		String nameLow = this.shelfFile.getName().toLowerCase();
 		if ( nameLow.endsWith(".fml") ) {
-			this.bookStoreType = NovelManager.FML ;
+//			this.bookStoreType = NovelManager.FML ;
 			this.shelf = new Stor().load(this.shelfFile);
 		} else if ( nameLow.endsWith(".db3") ) {
-			this.bookStoreType = NovelManager.SQLITE3 ;
+//			this.bookStoreType = NovelManager.SQLITE3 ;
 			// Todo: 根据系统类型，选择不同的平台导入方式，需要反射来loadClass
 			this.shelf = new StorDB3().load(this.shelfFile);
 		} else if ( nameLow.endsWith(".zip") ) {
 			loadZip(this.shelfFile);
 		} else if ( nameLow.endsWith(".epub") ) {
-			this.bookStoreType = NovelManager.EPUB ;
+//			this.bookStoreType = NovelManager.EPUB ;
 			this.shelf = new StorEpub().load(this.shelfFile);
 		} else if ( nameLow.endsWith(".txt") ) {
-			this.bookStoreType = NovelManager.TXT ;
+//			this.bookStoreType = NovelManager.TXT ;
 			this.shelf = new StorTxt().load(this.shelfFile);
 		}
 		System.out.println("NM: 打开: " + shelfFile.getName());
@@ -146,7 +146,7 @@ public class NovelManager {
 	}
 
 	private void loadZip(File inShelfFile) {
-		this.bookStoreType = NovelManager.ZIP ;
+//		this.bookStoreType = NovelManager.ZIP ;
 		this.shelf = new ArrayList<Novel>(1);
 		int tmpZipBookIDX = this.addBook(inShelfFile.getName(), "zip://" + inShelfFile.getName(), "0");
 		List<Map<String, Object>> chapters = new ArrayList<Map<String, Object>>();
@@ -198,6 +198,18 @@ public class NovelManager {
 		return pages.indexOf(page);
 	}
 
+	public int isBookNameExist(String iBookName) { // 判断书名是否存在，不存在返回-1，否则返回bookIDX
+		int ret = -1;
+		int nowBookIDX = -1 ;
+		for (Novel book : this.shelf) {
+			++ nowBookIDX ;
+			if ( iBookName.equalsIgnoreCase( book.getInfo().get(NV.BookName).toString()) ) {
+				ret = nowBookIDX;
+				break;
+			}
+		}
+		return ret;
+	}
 	public List<Map<String, Object>> getBookList(){ // 获取书籍列表
 		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(20);
 		Map<String, Object> item;
@@ -352,17 +364,18 @@ public class NovelManager {
 	}
 
 	public String simplifyDelList(String DelList) { // 精简 DelList
-		int nLastItem = 9;
+		return simplifyDelList(DelList, 9);
+	}
+	public String simplifyDelList(String DelList, int nLastItem) { // 精简 DelList
 		DelList = DelList.replace("\r", "").replace("\n\n", "\n");
 		String[] xx = DelList.split("\n");
 		if (xx.length < (nLastItem + 2)) {
 			return DelList;
 		}
-		int MaxLineCount = xx.length - nLastItem;
 
 		StringBuilder newList = new StringBuilder(4096);
-		for (int i = 0; i < 9; i++) {
-			newList.append(xx[MaxLineCount + i]).append("\n");
+		for (int i = xx.length - nLastItem; i < xx.length; i++) {
+			newList.append(xx[i]).append("\n");
 		}
 		return newList.toString();
 	}
