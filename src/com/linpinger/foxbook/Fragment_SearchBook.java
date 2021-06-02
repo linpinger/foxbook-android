@@ -213,7 +213,6 @@ public class Fragment_SearchBook extends BackHandledFragment {
 		m.add("快速搜索:搜狗");
 		m.add("快速搜索:起点");
 		m.add("快速搜索:Bing");
-		m.add("快速搜索: meegoq");
 	
 		popW.show();
 		popW.setOnMenuItemClickListener(new OnMenuItemClickListener(){
@@ -230,8 +229,6 @@ public class Fragment_SearchBook extends BackHandledFragment {
 					startFragment( Fragment_QuickSearch.newInstance(nm, AC.SE_SOGOU, book_name) );
 				} else if ( mt.equalsIgnoreCase("快速搜索:雅虎") ) {
 					startFragment( Fragment_QuickSearch.newInstance(nm, AC.SE_YAHOO, book_name) );
-				} else if ( mt.equalsIgnoreCase("快速搜索: meegoq") ) {
-					startFragment( Fragment_QuickSearch.newInstance(nm, AC.SE_MEEGOQ, book_name) );
 				}
 				return true;
 			}

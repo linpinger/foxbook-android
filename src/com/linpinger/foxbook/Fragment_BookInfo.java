@@ -152,7 +152,6 @@ public class Fragment_BookInfo extends BackHandledFragment {
 
 		m.add("从URL获取起点ID");
 		m.add("导入阅读URL");
-		m.add("快速搜索: meegoq");
 
 		for ( String iName : NovelSite.mSearchSiteList ) { m.add("书名转URL: " + iName); }
 
@@ -177,9 +176,6 @@ public class Fragment_BookInfo extends BackHandledFragment {
 					if ( ! newURL.equalsIgnoreCase("") ) {
 						edt_burl.setText(newURL);
 					}
-				} else if ( mt.equalsIgnoreCase("快速搜索: meegoq") ) {
-					String book_name = edt_bname.getText().toString();
-					startFragment( Fragment_QuickSearch.newInstance(nm, AC.SE_MEEGOQ, book_name) );
 				} else if ( mt.contains("书名转URL:") ) {
 					final String sBookName = edt_bname.getText().toString();
 					final String siteType = mt.split(" ")[1];
@@ -214,7 +210,7 @@ public class Fragment_BookInfo extends BackHandledFragment {
 	}
 
 	private String getYueDuURL(String iBookName) {
-		String json3Path = "/sdcard/bookshelf.json";
+		String json3Path = "/sdcard/Android/data/io.legado.app.release/files/bookshelf.json";
 		File json3File = new File(json3Path);
 		if ( json3File.exists() ) { // 3.x
 			String json3Str = ToolJava.readText(json3Path, "utf-8");

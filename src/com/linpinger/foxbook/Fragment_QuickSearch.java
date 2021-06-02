@@ -86,9 +86,6 @@ public class Fragment_QuickSearch extends BackHandledFragment {
 			case AC.SE_BING:
 				seURL = "http://cn.bing.com/search?q=" + URLEncoder.encode(book_name, "UTF-8") ;
 				break;
-			case AC.SE_MEEGOQ:
-				seURL = "https://www.meegoq.com/search.htm?keyword=" + URLEncoder.encode(book_name, "UTF-8");
-				break;
 			}
 		} catch (Exception e) {
 			System.err.println(e.toString());
@@ -97,8 +94,6 @@ public class Fragment_QuickSearch extends BackHandledFragment {
 		(new Thread() { public void run() {
 			if ( SE_TYPE == AC.SE_NONE ) {
 				data = getSearchEngineHref( new FoxHTTP(seURL).getHTML() , "");
-			} else if ( SE_TYPE == AC.SE_MEEGOQ ) { // 下载并处理页面
-				data = getSearchResultHref( new FoxHTTP(seURL).getHTML() , book_name);
 			} else {
 				data = getSearchEngineHref( new FoxHTTP(seURL).getHTML() , book_name); // 搜索引擎网页分析放在这里
 			}
@@ -151,38 +146,6 @@ public class Fragment_QuickSearch extends BackHandledFragment {
 			}
 		}
 
-		return data;
-	}
-
-	public List<Map<String, Object>> getSearchResultHref(String html, String KeyWord) { // String KeyWord = "三界血歌" ;
-		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(64);
-		Map<String, Object> item;
-
-		// meegoq
-		String reislist = "(?smi)<section class=\"lastest\">(.*?)</section>";
-		String relistitem = "(?smi)<li>(.*?)</li>";
-		String itemintrourl = "(?smi)<span class=\"n2\"><a href=\"([^\"]*)\"";
-		String itembookname = "(?smi)<span class=\"n2\"><a[^>]*>([^<]*)</a>";
-
-		String listStr = getMatch(html, reislist);
-		if ( ! "".equalsIgnoreCase(listStr) ) {
-			String itemStr = "";
-			String nowURL = "";
-			Matcher mat = Pattern.compile(relistitem).matcher(listStr);
-			while (mat.find()) {
-				itemStr = mat.group(1);
-				item = new HashMap<String, Object>(2);
-
-				nowURL = getMatch(itemStr, itemintrourl);
-				// //www.meegoq.com/info62275.html
-				// https://www.meegoq.com/book62275.html
-				if ( nowURL.startsWith("//www.meegoq.com/info") ) { nowURL = "https:" + nowURL.replace("/info", "/book"); } // 2019-11-12
-
-				item.put(NV.BookURL, nowURL);
-				item.put(NV.BookName, getMatch(itemStr, itembookname));
-				data.add(item);
-			}
-		}
 		return data;
 	}
 

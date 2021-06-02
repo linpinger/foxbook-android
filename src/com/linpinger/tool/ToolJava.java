@@ -396,5 +396,27 @@ UTF8 : 3 : 224-239 128-191 128-191
 		}
 	}
 
+	public static String fileLen2Str(long iLen) {
+		String sLen = String.valueOf(iLen);
+		int sizeLen = sLen.length();
+		if ( iLen < 1000L ) {
+			return sLen;
+		} else if ( iLen < 1000000L ) { // K
+			return sLen.substring(0, sizeLen - 3) + "," + sLen.substring(sizeLen - 3);
+		} else if ( iLen < 1000000000L ) { // M
+			return sLen.substring(0, sizeLen - 6) + "," + sLen.substring(sizeLen - 6, sizeLen - 3) + "," + sLen.substring(sizeLen - 3);
+		} else if ( iLen < 1000000000000L ) { // G
+			return sLen.substring(0, sizeLen - 9) + "," + sLen.substring(sizeLen - 9, sizeLen - 6) + "," + sLen.substring(sizeLen - 6, sizeLen - 3) + "," + sLen.substring(sizeLen - 3);
+		}
+		return sLen;
+	}
+
+	public static void main(String[] args) {
+		long aa = 12345678901L;
+		System.out.println("- Fox输出: " + fileLen2Str(aa));
+//		String html = readText("T:/clip.html", "utf-8");
+//		String flvURL = getOneREMatch(html, "(?smi)\"rtmp_pull_url\":\"([^\"]+\\.flv)\".*\"recommend\"");
+//		System.out.println("- FlvURL: " + flvURL);
+	}
 
 }

@@ -164,7 +164,7 @@ public class NovelSite {
 		return newPages;
 	}
 
-	public final static String mSearchSiteList[] = { "dajiadu", "13xxs", "xqqxs", "wutuxs", "meegoq", "ymxxs", "read8", "miaobige" } ; // NovelSite().searchBook
+	public final static String mSearchSiteList[] = { "xqqxs", "dajiadu", "read8", "miaobige", "230book", "ymxxs", "9txs", "wutuxs" } ; // NovelSite().searchBook
 	public String searchBook(String iBookName, String siteType) {
 		String oURL = "";
 
@@ -172,12 +172,12 @@ public class NovelSite {
 		boolean bMulti = false;
 		String reStr = "";
 		try {
-			if ( siteType.equalsIgnoreCase("meegoq") ) {
-				html = new FoxHTTP( "https://www.meegoq.com/search.htm?keyword=" + URLEncoder.encode(iBookName, "UTF-8") ).getHTML();
-				reStr = "(?smi)\"n2\"><a href=\"([^\"]+?)\">([^<]+?)<"; // url, name
-			} else if ( siteType.equalsIgnoreCase("ymxxs") ) {
-				html = new FoxHTTP( "https://www.ymxxs.com/search.htm?keyword=" + URLEncoder.encode(iBookName, "UTF-8") ).getHTML();
+			if ( siteType.equalsIgnoreCase("ymxxs") ) {
+				html = new FoxHTTP( "http://www.yanmoxuan.net/search.htm?keyword=" + URLEncoder.encode(iBookName, "UTF-8") ).getHTML();
 				reStr = "(?smi)\"n2\"><a[^>]+?>([^<]+?)<.*?\"c2\"><a href=\"([^\"]+?/)[0-9]+?.html\"[^>]*?>"; // name, url
+			} else if ( siteType.equalsIgnoreCase("9txs") ) {
+				html = new FoxHTTP( "https://so.9txs.org/www/" ).getHTML("UTF-8", "searchkey=" + URLEncoder.encode(iBookName, "UTF-8"));
+				reStr = "(?smi)<a[^>]*\"bookname\"[^>]*href=\"([^\"]*).html\">([^<]*)<"; // url, name
 			} else if ( siteType.equalsIgnoreCase("wutuxs") ) {
 				html = new FoxHTTP("http://www.wutuxs.com/modules/article/search.php").getHTML("GBK", "searchtype=articlename&searchkey=" + URLEncoder.encode(iBookName, "GBK"));
 				if ( html.contains(">全文阅读<") ) {
@@ -194,16 +194,13 @@ public class NovelSite {
 					bMulti = true;
 					reStr = "(?smi)\"p1\"><a href=\"([^\"]+)\">([^<]+)</a>"; // url, name
 				}
-			} else if ( siteType.equalsIgnoreCase("13xxs") ) {
-				html = new FoxHTTP("http://www.13xxs.com/modules/article/search.php").getHTML("GBK", "searchtype=articlename&action=login&searchkey=" + URLEncoder.encode(iBookName, "GBK") );
-				if ( html.startsWith("http") ) { // 403
-					return html;
-				}
-				if ( html.contains("<div id=\"list\">") ) { // TOC // 403
+			} else if ( siteType.equalsIgnoreCase("230book") ) {
+				html = new FoxHTTP("https://www.230book.com/modules/article/search.php").getHTML("GBK", "searchkey=" + URLEncoder.encode(iBookName, "GBK") + "&searchtype=articlename");
+				if ( html.contains("og:novel:read_url") ) { // 单本
 					reStr = "(?smi)og:novel:read_url\"[^\"]+?\"([^\"]+?)\"";
 				} else {
 					bMulti = true;
-					reStr = "(?smi)\"odd\">[^<]+?<a href=\"([^\"]+?)\">([^<]+?)</a>"; // url, name
+					reStr = "(?smi)\"odd\"><a href=\"([^\"]+?)\">([^<]+?)</a>"; // url, name
 				}
 			} else if ( siteType.equalsIgnoreCase("xqqxs") ) {
 				html = new FoxHTTP("https://www.xqqxs.com/modules/article/search.php").getHTML("GBK", "searchtype=all&searchkey=" + URLEncoder.encode(iBookName, "GBK") + "&action=search&submit=");
@@ -214,13 +211,13 @@ public class NovelSite {
 					reStr = "(?smi)href=\"([^\"]+?)\" title=\"([^\"]+?)\"[^>]*?><span>开始阅读<"; // url,name
 				} else {
 					bMulti = true;
-					reStr = "(?smi)\"c_subject\"><a[^>]+?>([^<]*?)<span class=\"hottext\">([^<]*?)</span>([^<]*?)</a>.*?<a href=\"([^\"]+?)\"[^>]+?>目录</a>"; // nameA, nameB, nameC, url
+					reStr = "(?smi)\"c_subject\">.*?<span class=\"hot\">([^<]*?)</span>.*?<a href=\"([^\"]+?)\"[^>]+?>目录</a>"; // name, url
 				}
 			} else if ( siteType.equalsIgnoreCase("miaobige") ) {
 				html = new FoxHTTP("https://www.imiaobige.com/search.html").getHTML("UTF-8", "searchkey=" + URLEncoder.encode(iBookName, "UTF-8"));
-				reStr = "(?smi)<dl>.*?<h3><a href=\"/novel/([0-9]+).html\">([^<]+)</a>";
+				reStr = "(?smi)<dl>.*?<h3><a href=\".*?/novel/([0-9]+).html\">([^<]+)</a>";
 			} else if ( siteType.equalsIgnoreCase("read8") ) {
-				html = new FoxHTTP("https://www.read8.org/s.php?ie=gbk&q="+ URLEncoder.encode(iBookName, "GBK")).getHTML("GBK");
+				html = new FoxHTTP("https://www.read8.org/s123.php?ie=gbk&q="+ URLEncoder.encode(iBookName, "GBK")).getHTML("GBK");
 				reStr = "(?smi)\"bookname\"><a href=\"(/novel/[0-9]+/[0-9]+/)\">([^<]+)</a>";
 			}
 		} catch (Exception e) {
@@ -229,15 +226,11 @@ public class NovelSite {
 
 		Matcher mat = Pattern.compile(reStr).matcher(html); // 结果匹配
 		while ( mat.find() ) {
-			if ( siteType.equalsIgnoreCase("meegoq") ) {
-				if ( iBookName.equalsIgnoreCase( mat.group(2) ) ) {
-					oURL = "https:" + mat.group(1).replace("/info", "/book");
-				}
-			} else if ( siteType.equalsIgnoreCase("ymxxs") ) {
+			if ( siteType.equalsIgnoreCase("ymxxs") ) {
 				if ( iBookName.equalsIgnoreCase( mat.group(1) ) ) {
-					oURL = "https:" + mat.group(2) + "index.html";
+					oURL = "http:" + mat.group(2) + "index.html";
 				}
-			} else if ( siteType.equalsIgnoreCase("wutuxs") || siteType.equalsIgnoreCase("13xxs") ) {
+			} else if ( siteType.equalsIgnoreCase("wutuxs") || siteType.equalsIgnoreCase("230book") ) {
 				if ( ! bMulti ) {
 					oURL = mat.group(1);
 				} else {
@@ -257,8 +250,8 @@ public class NovelSite {
 				if ( ! bMulti ) {
 					oURL = "https://www.xqqxs.com" + mat.group(1);
 				} else {
-					if ( iBookName.equalsIgnoreCase( mat.group(1) + mat.group(2) + mat.group(3) ) ) {
-						oURL = mat.group(4);
+					if ( iBookName.equalsIgnoreCase( mat.group(1) ) ) {
+						oURL = mat.group(2);
 					}
 //					System.err.println(mat.group(1) + mat.group(2) + mat.group(3) + "\n" + mat.group(4) + "\n");
 				}
@@ -269,6 +262,10 @@ public class NovelSite {
 			} else if ( siteType.equalsIgnoreCase("read8") ) {
 				if ( iBookName.equalsIgnoreCase( mat.group(2) ) ) {
 					oURL = "https://www.read8.org" + mat.group(1) ;
+				}
+			} else if ( siteType.equalsIgnoreCase("9txs") ) {
+				if ( iBookName.equalsIgnoreCase(mat.group(2)) ) {
+					oURL = mat.group(1) + "/";
 				}
 			} // else end
 // System.err.println(mat.group(1) + "\n" + mat.group(2) + "\n");
@@ -577,12 +574,41 @@ public class NovelSite {
 		return ldata;
 	}
 
-//	public static void main(String[] args) {
-//		String html = ToolJava.readText("T:/index.html", "UTF-8");
-//		List<Map<String, Object>> xx = new NovelSite().getTOC(html);
-//		System.out.println("- 链接数量：" + xx.size());
-//		System.out.println( xx.get(0).get(NV.PageName) + " | " + xx.get(0).get(NV.PageURL) );
-//		System.out.println( xx.get(xx.size() - 1).get(NV.PageName) + " | " + xx.get(xx.size() - 1).get(NV.PageURL) );
-//	}
+	public String removeAD(String iText) {
+		iText = iText.replace("分享到：\n\n\n\n\n", "\n");
+
+		iText = iText.replaceAll("(?smi)(推荐|广个告|插一句|插播|求助下)[^\n<>]*(app|书源多|离线)[^\n<>]*(！|。)\n", "");
+		iText = iText.replaceAll("(?smi)[^\n<>]*(本书|关注|【|有一个微信公众号)[^\n]*(红包|现金)[^\n]*[！|!][ ]*\n", "");
+		iText = iText.replaceAll("(?smi)[^\n<>]*(本书|关注|【)[^\n<>]*(红包|现金)[^\n<>]*[！|!][ ]*", "");
+		iText = iText.replaceAll("(?smi)[^\n<>]*现金or点币[^\n]*(app)?[^\n]*[！：]*\n", "");
+		iText = iText.replaceAll("(?smi)大家好[^\n<>]*现金、点币[^\n]*公众号[^\n<>]*", "");
+
+		if ( iText.contains("您可以在百度里搜索") ) { // miaobige
+			iText = iText.replaceAll("(?smi)您可以在百度里搜索[^\n]*查找最新章节！\n", ""); // miaobige
+		}
+		if ( iText.contains("书友大本营") ) {
+			iText = iText.replaceAll("(?smi)[^\n<>]*微信公众号.书友大本营.[^\n<>]*\n", "");
+		}
+		if ( iText.contains("手机版阅读") ) {
+			iText = iText.replaceAll("(?smi)请记住本书[^\n]*手机版阅读网址：\n", "");
+		}
+		if ( iText.contains("小书亭") ) {
+			iText = iText.replaceAll("(?smi)书友们之前用的小书亭[^\n]*app[^\n<>]*\n", "");
+		}
+
+		iText = iText.replace("\n看书福利送你一个现金红包！关注vx公众即可领取！\n", "\n");
+		iText = iText.replace("\n看书还可领现金！\n", "\n");
+		iText = iText.replace("更新最快 手机端：:\n", "\n").replace("更新最快 电脑端::/\n", "\n");
+		iText = iText.replace("&amp;emsp;&amp;emsp;", "");
+		iText = iText.replace("  m\n", "\n").replace(" :（/\n", "\n").replace("  m\n", "\n");
+		iText = iText.replace("\n \n", "\n");
+		iText = iText.replace("\n\n        ", "\n");
+		iText = iText.replace("\n\n    ", "\n");
+		return iText.replace("<content>\n", "<content>");
+	}
+
+	public static void main(String[] args) {
+		System.out.println("★: " + new NovelSite().searchBook("信息全知者", "9txs") );
+	}
 
 }

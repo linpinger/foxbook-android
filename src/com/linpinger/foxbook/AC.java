@@ -28,5 +28,4 @@ public interface AC {
 	int SE_YAHOO = 2;
 	int SE_BING = 3;
 
-	int SE_MEEGOQ = 51;
 }
