@@ -46,7 +46,7 @@ public class StorEpub extends Stor {
 		case 2:
 			HashMap<String, Object> qhm = epub.getQiDianEpubInfo();
 			info.put(NV.BookName,   qhm.get("bookname"));
-			info.put(NV.BookURL,	new SiteQiDian().getTOCURL_Touch7_Ajax(qhm.get("qidianid").toString()));
+			info.put(NV.BookURL,	new SiteQiDian().getTOCURL_Touch8(qhm.get("qidianid").toString()));
 			info.put(NV.QDID,	   qhm.get("qidianid"));
 			info.put(NV.BookAuthor, qhm.get("author"));
 			break;
@@ -87,7 +87,7 @@ public class StorEpub extends Stor {
 
 				page = new HashMap<String, Object>();
 				page.put(NV.PageName, pageTitle);
-				page.put(NV.PageURL,  new SiteQiDian().getContentURL_Touch7_Ajax(hm.get("pageid").toString(), hm.get("bookid").toString()));
+				page.put(NV.PageURL,  new SiteQiDian().getContentURL_Touch8(hm.get("pageid").toString(), hm.get("bookid").toString()));
 				page.put(NV.Content,  pageText);
 				page.put(NV.Size,	 pageText.length());
 

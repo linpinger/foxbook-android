@@ -12,6 +12,110 @@ import org.json.JSONObject;
 
 public class SiteQiDian extends NovelSite {
 
+	// 2023-08-08: 旧版url大部分失效，换成新的桌面版地址
+	public String getTOCURL_Desk8(String bookID) {
+		return "https://www.qidian.com/book/" + bookID + "/";
+	}
+	public String getTOCURL_Touch8(String bookID) {
+		return "https://m.qidian.com/book/" + bookID + "/catalog/";
+	}
+
+	public static boolean isQidanTOCURL_Desk8(String iURL) {
+		return iURL.contains("www.qidian.com/book/");
+	}
+	public static boolean isQidanTOCURL_Touch8(String iURL) {
+		return iURL.contains("m.qidian.com/book/");
+	}
+	public List<Map<String, Object>> getTOC_Desk8(String html) { // name,url
+		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(128);
+
+		Map<String, Object> item;
+
+		// 获取链接 并存入结构中
+		Matcher mat = Pattern.compile("(?smi)<li [^>]+>[^<]*<a [^>]+ href=\"(//www.qidian.com/chapter/[^\"]+)\"[^>]+>([^<]+)</a>(.*?)</li>").matcher(html);
+		while (mat.find()) {
+			if (3 == mat.groupCount()) {
+				item = new HashMap<String, Object>(3);
+				item.put(NV.PageURL, "https:" + mat.group(1));
+				if ( mat.group(3).contains("chapter-locked")) {
+					data.add(item);
+					break;
+				} else {
+//					System.out.println("https:" + mat.group(1));
+					item.put(NV.PageName, mat.group(2));
+					data.add(item);
+				}
+			}
+		}
+
+		return data;
+	}
+	public List<Map<String, Object>> getTOC_Touch8(String html) { // name,url
+		Matcher matj = Pattern.compile("(?smi)\"application/json\">(.+)</script>").matcher(html); // 匹配得到json
+		String sJson = "";
+		while (matj.find()) {
+			sJson = matj.group(1);
+		}
+		Matcher matb = Pattern.compile("(?i)\"bookId\":\"([0-9]+)\",").matcher(sJson); // 匹配得到bookID
+		String bookID = "";
+		while (matb.find()) {
+			bookID = matb.group(1);
+		}
+
+		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(128);
+
+		Map<String, Object> item;
+
+		// 获取链接 并存入结构中
+		Matcher mat = Pattern.compile("(?smi)\"cN\":\"([^\"]+)\".*?\"id\":([0-9]+).*?\"sS\":([01])").matcher(sJson); // 匹配得到: 章节名，pageID, [01]
+		while (mat.find()) {
+			if (3 == mat.groupCount()) {
+				item = new HashMap<String, Object>(3);
+				item.put(NV.PageURL, getContentURL_Touch8(mat.group(2), bookID));
+				if (mat.group(3).equals("1")) {
+					item.put(NV.PageName, mat.group(1));
+					data.add(item);
+				} else {
+					item.put(NV.PageName, "VIP: " + mat.group(1));
+					data.add(item);
+					break;
+				}
+			}
+		}
+
+		return data;
+	}
+
+	public String getContentURL_Desk8(String pageID, String bookID) {
+		return "https://www.qidian.com/chapter/" + bookID + "/" + pageID + "/";
+	}
+	public String getContentURL_Touch8(String pageID, String bookID) {
+		return "/chapter/" + bookID + "/" + pageID + "/";
+	}
+
+	public static boolean isQidanContentURL_Desk8(String iURL) {
+		return iURL.contains("www.qidian.com/chapter/");
+	}
+
+	public String getContent_Desk8(String html) {
+		String text = html;
+
+		Matcher mat = Pattern.compile("(?smi)<main[^>]+>(.+?)</main>").matcher(html);
+		while (mat.find()) {
+			if (1 == mat.groupCount()) {
+				text = mat.group(1);
+			}
+		}
+
+		text = text.replace("<p>", "\n");
+		text = text.replace("　　", "");
+		text = text.replace("</p>", "\n");
+		text = text.replace("\n\n", "\n");
+
+		System.out.println(text);
+		return text;
+	}
+
 /*
 - 2019-11-17: m.qidian.com
 - free page ids
@@ -21,12 +125,19 @@ https://m.qidian.com/majax/chapter/getAllFreeChapterList?bookId=1015209014
 https://m.qidian.com/majax/chapter/getFreeContentMulti
 {"bookId":1015209014,"chapters":[462379605,462636481,462753627,462803131,462861268,462871451,462916356,463118304,463149196,463149344]}
  */
+
+/*
+
 	public String getTOCURL_Touch7_Ajax(String bookID) {
 		return "https://m.qidian.com/majax/book/category?bookId=" + bookID;
 	}
+
 	public static boolean isQidanTOCURL_Touch7_Ajax(String iURL) {
 		return iURL.contains("m.qidian.com/majax/book/category");
 	}
+
+
+
 	public List<Map<String, Object>> getTOC_Touch7_Ajax(String json) { // name,url
 		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(128);
 		try {
@@ -58,9 +169,11 @@ https://m.qidian.com/majax/chapter/getFreeContentMulti
 	public String getContentURL_Touch7_Ajax(String pageID, String bookID) {
 		return "https://m.qidian.com/majax/chapter/getChapterInfo?bookId=" + bookID + "&chapterId=" + pageID;
 	}
+
 	public static boolean isQidanContentURL_Touch7_Ajax(String iURL) {
 		return iURL.contains("m.qidian.com/majax/chapter/getChapterInfo");
 	}
+
 	public String getContent_Touch7_Ajax(String json) { // 2019-11-17: https://m.qidian.com/majax/chapter/getChapterInfo?bookId=1015209014&chapterId=462636481
 		String text = "";
 		try {
@@ -73,6 +186,7 @@ https://m.qidian.com/majax/chapter/getFreeContentMulti
 		return text;
 	}
 
+ */
 	/*
 	// 移动版目录地址: 可以用来获取lastPageID后的更新，为0获取所有
 	public String getTOCURL_Android7(String bookID) {
@@ -145,6 +259,7 @@ https://m.qidian.com/majax/chapter/getFreeContentMulti
 		return sQDID;
 	}
 
+
 	public String getSearchURL_Android7(String bookName) {
 		// 自动完成: http://druid.if.qidian.com/druid/Api/Search/AutoCompleteWithBookList?key=%E6%9C%AA%E6%9D%A5%E5%A4%A9%E7%8E%8B
 		// http://druid.if.qidian.com/druid/Api/Search/GetBookStoreWithBookList?type=-1&key=%E5%94%90%E6%9C%9D%E5%A5%BD%E5%9C%B0%E4%B8%BB
@@ -166,7 +281,7 @@ https://m.qidian.com/majax/chapter/getFreeContentMulti
 			for (int i = 0; i < cList; i++) {
 				item = new HashMap<String, Object>();
 				item.put(NV.BookName, slist.getJSONObject(i).getString("BookName"));
-				item.put(NV.BookURL, getTOCURL_Touch7_Ajax(String.valueOf(slist.getJSONObject(i).getInt("BookId"))));
+				item.put(NV.BookURL, getTOCURL_Desk8(String.valueOf(slist.getJSONObject(i).getInt("BookId"))));
 				data.add(item);
 			}
 		} catch (Exception e) {

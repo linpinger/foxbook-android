@@ -308,6 +308,7 @@ public class Fragment_SearchBook extends BackHandledFragment {
 
 	void fucClickButtonSearch() { // 点击搜索按钮
 		book_name = et.getText().toString();
+		String nowURL = "";
 		if ( book_name.length() == 0 ) { // 当未输入书名，粘贴剪贴板
 			tmpClipBoardText = ToolAndroid.getClipText(ctx);
 			if ( tmpClipBoardText.contains("FoxBook>") ) {
@@ -315,17 +316,27 @@ public class Fragment_SearchBook extends BackHandledFragment {
 				String xx[] = tmpClipBoardText.split(">");
 				book_name = xx[1];
 				et.setText(book_name);
+				try {
+					nowURL = "http://cn.bing.com/search?q=" + URLEncoder.encode(book_name, "UTF-8");
+				} catch (Exception e) {
+					System.err.println(e.toString());
+				}
+			} else if (tmpClipBoardText.contains("http")) {
+				nowURL = tmpClipBoardText;
 			} else {
 				foxtip("剪贴板中的内容格式不对哟\n先粘贴到搜索栏好了\n长按本按钮有惊喜哟");
 				book_name = tmpClipBoardText;
 				et.setText(book_name);
 			}
 		}
-		try {
-			wv.loadUrl("http://cn.bing.com/search?q=" + URLEncoder.encode(book_name, "UTF-8"));
-		} catch (Exception e) {
-			System.err.println(e.toString());
+		if ( nowURL.equalsIgnoreCase("") ) {
+			try {
+				nowURL = "http://cn.bing.com/search?q=" + URLEncoder.encode(book_name, "UTF-8");
+			} catch (Exception e) {
+				System.err.println(e.toString());
+			}
 		}
+		wv.loadUrl(nowURL);
 	}
 
 	void setUserAgent(String iType) {

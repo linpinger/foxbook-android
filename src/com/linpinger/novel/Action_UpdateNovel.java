@@ -228,8 +228,10 @@ if ( isCompareShelf ) {
 
 			String existList = nm.getPageListStr(bookIDX); // 得到旧 list
 			List<Map<String, Object>> linkList;
-			if ( SiteQiDian.isQidanTOCURL_Touch7_Ajax(bookurl) ) {
-				linkList = new SiteQiDian().getTOC_Touch7_Ajax( new FoxHTTP(bookurl).getHTML("UTF-8") );
+			if ( SiteQiDian.isQidanTOCURL_Desk8(bookurl) ) {
+				linkList = new SiteQiDian().getTOC_Desk8(new FoxHTTP(bookurl).getHTML("UTF-8"));
+			} else if ( SiteQiDian.isQidanTOCURL_Touch8(bookurl)) {
+				linkList = new SiteQiDian().getTOC_Touch8(new FoxHTTP(bookurl).getHTML("UTF-8"));
 			} else {
 				if ( existList.length() > 3 ) {
 					linkList = new NovelSite().getTOCLast(new FoxHTTP(bookurl).getHTML());

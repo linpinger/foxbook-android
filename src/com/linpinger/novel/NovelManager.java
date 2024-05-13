@@ -666,9 +666,9 @@ public class NovelManager {
 		String text = "";
 		String html = "" ;
 
-		if ( SiteQiDian.isQidanContentURL_Touch7_Ajax(pageFullURL) ) {
+		if ( SiteQiDian.isQidanContentURL_Desk8(pageFullURL) ) {
 			html = new FoxHTTP(pageFullURL).getHTML("utf-8"); // 下载json
-			text = new SiteQiDian().getContent_Touch7_Ajax(html);
+			text = new SiteQiDian().getContent_Desk8(html);
 		} else {
 			html = new FoxHTTP(pageFullURL).getHTML(); // 下载url
 			text = new NovelSite().getContent(html);       // 分析得到text

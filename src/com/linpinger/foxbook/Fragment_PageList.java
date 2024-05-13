@@ -273,6 +273,8 @@ public class Fragment_PageList extends BackHandledFragment {
 		Builder builder = new AlertDialog.Builder(ctx);
 		builder.setTitle("操作:" + data.get(posLongClick).get(NV.PageName).toString());
 		final ArrayList<String> menu = new ArrayList<String>();
+		menu.add("在线查看");
+		menu.add("更新本章");
 		menu.add("删除本章");
 		menu.add("删除本章并不写入Dellist");
 		if ( ittAction != AC.aListLess1KPages ) {
@@ -282,7 +284,7 @@ public class Fragment_PageList extends BackHandledFragment {
 			menu.add("删除本章及以下并不写入Dellist");
 		}
 		menu.add("编辑本章");
-		menu.add("更新本章");
+		menu.add("复制本章URL");
 		ListAdapter listdapter = new ArrayAdapter<String>(lv.getContext(), android.R.layout.simple_list_item_1, menu);
 
 		builder.setAdapter(listdapter, new DialogInterface.OnClickListener() {
@@ -335,6 +337,14 @@ public class Fragment_PageList extends BackHandledFragment {
 					}
 				} else if ( itemName.equalsIgnoreCase("编辑本章") ) {
 					startFragment( Fragment_PageInfo.newInstance(nm, bookIDX, pageIDX) );
+				} else if ( itemName.equalsIgnoreCase("复制本章URL") ) {
+					String fullPageURL = FoxHTTP.getFullURL( nm.getBookInfo(bookIDX).get(NV.BookURL).toString(), page.get(NV.PageURL).toString());
+					ToolAndroid.setClipText(fullPageURL, ctx);
+					foxtip("已复制到剪贴板:\n" + fullPageURL);
+				} else if ( itemName.equalsIgnoreCase("在线查看") ) {
+					String fullPageURL = FoxHTTP.getFullURL( nm.getBookInfo(bookIDX).get(NV.BookURL).toString(), page.get(NV.PageURL).toString());
+					ToolAndroid.setClipText(fullPageURL, ctx);
+					startFragment( Fragment_SearchBook.newInstance(nm) );
 				} else {
 					foxtip("一脸萌圈，还没实现这个菜单呐:\n" + itemName);
 				}
@@ -429,10 +439,10 @@ public class Fragment_PageList extends BackHandledFragment {
 		}
 		@Override
 		public void run() {
-			if ( SiteQiDian.isQidanTOCURL_Touch7_Ajax(tocURL) ) // 在线查看，站点是起点手机时
+			if ( SiteQiDian.isQidanTOCURL_Touch8(tocURL) ) // 在线查看，站点是起点手机时
 				ittAction = AC.aListQDPages;
 			if ( ittAction == AC.aListQDPages | ittAction == AC.aSearchBookOnQiDian )
-				data = new SiteQiDian().getTOC_Touch7_Ajax( new FoxHTTP(tocURL).getHTML("UTF-8") );
+				data = new SiteQiDian().getTOC_Touch8( new FoxHTTP(tocURL).getHTML("UTF-8") );
 			if ( ittAction == AC.aListSitePages | ittAction == AC.aSearchBookOnSite )
 				data = new NovelSite().getTOC( new FoxHTTP(tocURL).getHTML() ); // PageName PageURL
 

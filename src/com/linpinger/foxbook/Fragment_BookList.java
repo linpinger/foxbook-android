@@ -351,12 +351,12 @@ public class Fragment_BookList extends BackHandledFragment {
 		m.add("更新本软件");
 		m.add("全部转为TXT");
 		m.add("全部转为EPUB");
-		m.add("刷新列表");
 		m.add("显示字数少于1K的章节");
-		m.add("不保存退出");
+		m.add("刷新列表");
+		m.add("搜索/添加小说");
 		m.add("按页数顺序排列");
 		m.add("按页数倒序排列");
-		m.add("搜索/添加小说");
+		m.add("不保存退出");
 
 		popW.show();
 
@@ -522,26 +522,29 @@ public class Fragment_BookList extends BackHandledFragment {
 
 		new AlertDialog.Builder(ctx) //.setIcon(R.drawable.ic_launcher);
 		.setTitle("操作:" + lcName)
-		.setItems(new String[] { "更新本书",
+		.setItems(new String[] { "在线查看",
+				"更新本书",
 				"更新本书目录",
-				"在线查看",
 				"搜索:bing",
 				"复制书名",
+				"复制URL",
 				"编辑本书信息",
 				"删除本书" },
 				new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
 				switch (which) {
-				case 0: // 更新本书
+				case 1: // 更新本书
 					new Thread(aun.new UpdateBook(nm, bookIDX, lcURL, lcName, true)).start();
 					foxtip("正在更新: " + lcName);
 					break;
-				case 1: // 更新本书目录
+				case 2: // 更新本书目录
 					new Thread(aun.new UpdateBook(nm, bookIDX, lcURL, lcName, false)).start();
 					foxtip("正在更新目录: " + lcName);
 					break;
-				case 2: // 在线查看
-					startFragment( Fragment_PageList.newInstance(nm, AC.aListSitePages, bookIDX).setOnFinishListener(oflsn) );
+				case 0: // 在线查看
+//					startFragment( Fragment_PageList.newInstance(nm, AC.aListSitePages, bookIDX).setOnFinishListener(oflsn) );
+					ToolAndroid.setClipText(lcURL, ctx);
+					startFragment( Fragment_SearchBook.newInstance(nm).setOnFinishListener(oflsn) );
 					break;
 				case 3: // 搜索:bing
 //					startFragment( Fragment_QuickSearch.newInstance(nm, AC.SE_BING, lcName).setOnFinishListener(oflsn) );
@@ -551,12 +554,16 @@ public class Fragment_BookList extends BackHandledFragment {
 					break;
 				case 4: // 复制书名
 					ToolAndroid.setClipText(lcName, ctx);
-					foxtip("已复制到剪贴板: " + lcName);
+					foxtip("已复制到剪贴板:\n" + lcName);
 					break;
-				case 5: // 编辑本书信息
+				case 5: // 复制URL
+					ToolAndroid.setClipText(lcURL, ctx);
+					foxtip("已复制到剪贴板:\n" + lcURL);
+					break;
+				case 6: // 编辑本书信息
 					startFragment( Fragment_BookInfo.newInstance(nm, bookIDX).setOnFinishListener(oflsn) );
 					break;
-				case 6: // 删除本书
+				case 7: // 删除本书
 					nm.deleteBook(bookIDX);
 					refresh_BookList();
 					foxtip("已删除: " + lcName);

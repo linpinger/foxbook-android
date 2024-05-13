@@ -23,7 +23,7 @@ public class StorTxt extends Stor {
 			return importNormalTxt(inFile, txtEnCoding);
 
 		String sQidianid = inFile.getName().replace(".txt", ""); // 文件名
-		String sQidianURL = new SiteQiDian().getTOCURL_Touch7_Ajax(sQidianid); // URL
+		String sQidianURL = new SiteQiDian().getTOCURL_Touch8(sQidianid); // URL
 		String sBookName = sQidianid;
 
 		List<Novel> lst = new ArrayList<Novel>();
