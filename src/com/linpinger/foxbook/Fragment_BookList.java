@@ -190,6 +190,15 @@ public class Fragment_BookList extends BackHandledFragment {
 			foxtip("有 " + xCount + " 章节短于1K");
 		}
 	}
+	void showListMore1KPages() {
+		int xCount = nm.getMore1KCount(); 
+		if ( xCount == 0 ) {
+			foxtip("木有字数大于1K的章节");
+		} else {
+			startFragment( Fragment_PageList.newInstance(nm, AC.aListMore1KPages).setOnFinishListener(oflsn) );
+			foxtip("有 " + xCount + " 章节大于1K");
+		}
+	}
 
 	void init_LV_Touch() {
 		lv.setOnTouchListener(new OnTouchListener(){
@@ -251,7 +260,11 @@ public class Fragment_BookList extends BackHandledFragment {
 		v.findViewById(R.id.btnSeeAll).setOnLongClickListener(new OnLongClickListener(){
 			@Override
 			public boolean onLongClick(View v) {
-				showListLess1KPages();
+				if ( settings.getBoolean("isShowMoreOrLess1K", true) ) {
+					showListMore1KPages();
+				} else {
+					showListLess1KPages();
+				}
 				return true;
 			}
 		});
@@ -352,6 +365,7 @@ public class Fragment_BookList extends BackHandledFragment {
 		m.add("全部转为TXT");
 		m.add("全部转为EPUB");
 		m.add("显示字数少于1K的章节");
+		m.add("显示字数多于1K的章节");
 		m.add("刷新列表");
 		m.add("搜索/添加小说");
 		m.add("按页数顺序排列");
@@ -373,6 +387,8 @@ public class Fragment_BookList extends BackHandledFragment {
 					startFragment( Fragment_SearchBook.newInstance(nm).setOnFinishListener(oflsn) );
 				} else if ( mt.equalsIgnoreCase("显示字数少于1K的章节") ) {
 					showListLess1KPages();
+				} else if ( mt.equalsIgnoreCase("显示字数多于1K的章节") ) {
+					showListMore1KPages();
 				} else if ( mt.equalsIgnoreCase("更新本软件") ) {
 					foxtipL("开始更新版本...");
 					(new Thread() { public void run() {
@@ -528,6 +544,7 @@ public class Fragment_BookList extends BackHandledFragment {
 				"搜索:bing",
 				"复制书名",
 				"复制URL",
+				"拆分本书为FML",
 				"编辑本书信息",
 				"删除本书" },
 				new DialogInterface.OnClickListener() {
@@ -560,10 +577,15 @@ public class Fragment_BookList extends BackHandledFragment {
 					ToolAndroid.setClipText(lcURL, ctx);
 					foxtip("已复制到剪贴板:\n" + lcURL);
 					break;
-				case 6: // 编辑本书信息
+				case 6: // 拆分本书为FML
+					File oFile = new File(nm.getShelfFile().getParentFile(), book.get(NV.QDID).toString() + "_" + lcName + ".fml");
+					nm.exportBookAsFML(bookIDX, oFile);
+					foxtip("拆为:" + oFile.getName());
+					break;
+				case 7: // 编辑本书信息
 					startFragment( Fragment_BookInfo.newInstance(nm, bookIDX).setOnFinishListener(oflsn) );
 					break;
-				case 7: // 删除本书
+				case 8: // 删除本书
 					nm.deleteBook(bookIDX);
 					refresh_BookList();
 					foxtip("已删除: " + lcName);

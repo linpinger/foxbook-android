@@ -7,6 +7,7 @@ public interface AC {
 	int aListBookPages = 11 ;
 	int aListAllPages = 12 ;
 	int aListLess1KPages = 13 ;
+	int aListMore1KPages = 14 ;
 
 	int aListSitePages = 16;
 	int aListQDPages = 17;

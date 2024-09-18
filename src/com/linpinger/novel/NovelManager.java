@@ -108,6 +108,11 @@ public class NovelManager {
 	public void exportAsFML(File oFile) {
 		new Stor().save(this.shelf, oFile);
 	}
+	public void exportBookAsFML(int bookIDX, File oFile) {
+		List<Novel> lst = new ArrayList<Novel>();
+		lst.add(this.shelf.get(bookIDX));
+		new Stor().save(lst, oFile);
+	}
 	public void exportAsDB3(File oFile) {
 		new StorDB3().save(this.shelf, oFile);
 	}
@@ -281,7 +286,7 @@ public class NovelManager {
 			for ( Map<String, Object> page : book.getChapters() ) {
 				++ pageIDX;
 				item = new HashMap<String, Object>(6);
-				if ( 0 == pageIDX & 1 == sMode )
+				if ( 0 == pageIDX && ( 1 == sMode || 999 == sMode || 1001 == sMode) )
 					item.put(NV.PageName, "★" + bookName + "★" + page.get(NV.PageName));
 				else
 					item.put(NV.PageName, page.get(NV.PageName));
@@ -292,6 +297,8 @@ public class NovelManager {
 				item.put(NV.PageIDX, pageIDX);
 				CLen = Integer.valueOf(page.get(NV.Size).toString());
 				if ( 999 == sMode && CLen < 999 )
+					item.put(NV.Size, CLen);
+				else if ( 1001 == sMode && CLen > 1001 )
 					item.put(NV.Size, CLen);
 				else if ( 99 == sMode && CLen < 99 )
 					item.put(NV.Size, CLen);
@@ -568,7 +575,16 @@ public class NovelManager {
 		}
 		return count;
 	}
-
+	public int getMore1KCount(){
+		int count = 0 ;
+		for (Novel book : this.shelf) {
+			for (Map<String, Object> page : book.getChapters()) {
+				if ( Integer.valueOf(page.get(NV.Size).toString()) > 999 )
+					++count;
+			}
+		}
+		return count;
+	}
 	public String getPagePosAtShelfPages(int bookIDX, int pageIDX) {
 		int all = 0 ; // 页面总数
 		int pos = 0 ; // 页面在总页数的位置

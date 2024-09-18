@@ -164,6 +164,14 @@ public class Fragment_PageList extends BackHandledFragment {
 			handler.sendEmptyMessage(IS_RenderListView);
 			foxtipL(nm.getShelfFile().getName() + " 共 " + String.valueOf(data.size()) + " 章");
 			break;
+		case AC.aListMore1KPages:
+			v.findViewById(R.id.btnAddBook).setVisibility(View.GONE);
+			v.findViewById(R.id.btnCleanBookND).setVisibility(View.GONE);
+			isOnLine = false ;
+			data = nm.getPageList(1001);
+			handler.sendEmptyMessage(IS_RenderListView);
+			foxtipL(nm.getShelfFile().getName() + " 共 " + String.valueOf(data.size()) + " 章");
+			break;
 		case AC.aListSitePages:
 			v.findViewById(R.id.btnAddBook).setVisibility(View.GONE);
 			new Thread(new DownTOC( nm.getBookInfo(bookIDX).get(NV.BookURL).toString() )).start(); // 在线查看目录
@@ -221,6 +229,7 @@ public class Fragment_PageList extends BackHandledFragment {
 				case AC.aListBookPages:
 				case AC.aListAllPages:
 				case AC.aListLess1KPages:
+				case AC.aListMore1KPages:
 					arg.putInt(AC.action, AC.aShowPageInMem);
 					arg.putInt(NV.BookIDX, (Integer)page.get(NV.BookIDX));
 					arg.putInt(NV.PageIDX, (Integer)page.get(NV.PageIDX));
@@ -277,7 +286,7 @@ public class Fragment_PageList extends BackHandledFragment {
 		menu.add("更新本章");
 		menu.add("删除本章");
 		menu.add("删除本章并不写入Dellist");
-		if ( ittAction != AC.aListLess1KPages ) {
+		if ( ittAction != AC.aListLess1KPages && ittAction != AC.aListMore1KPages ) {
 			menu.add("删除本章及以上");
 			menu.add("删除本章及以上并不写入Dellist");
 			menu.add("删除本章及以下");
@@ -392,7 +401,7 @@ public class Fragment_PageList extends BackHandledFragment {
 				}
 				break;
 			case R.id.btnCleanBook:
-				if ( ittAction == AC.aListQDPages |ittAction == AC.aSearchBookOnQiDian | ittAction == AC.aSearchBookOnSite ) {
+				if ( ittAction == AC.aListQDPages |ittAction == AC.aSearchBookOnQiDian | ittAction == AC.aSearchBookOnSite | ittAction == AC.aListMore1KPages ) {
 					foxtipL("骚年，当前是网络模式，删除功能不可用哟"); // 当是网络时隐藏删除按钮
 					break;
 				}
@@ -413,7 +422,7 @@ public class Fragment_PageList extends BackHandledFragment {
 				break;
 			case R.id.btnCleanBookND:
 				if ( ittAction == AC.aSearchBookOnQiDian | ittAction == AC.aSearchBookOnSite
-				| ittAction == AC.aListAllPages | ittAction == AC.aListLess1KPages ) {
+				| ittAction == AC.aListAllPages | ittAction == AC.aListLess1KPages | ittAction == AC.aListMore1KPages ) {
 					foxtipL("骚年，当前是网络模式，删除功能不可用哟"); // 当是网络时隐藏删除按钮
 					break;
 				}
@@ -455,6 +464,7 @@ public class Fragment_PageList extends BackHandledFragment {
 		case AC.aListBookPages:
 		case AC.aListAllPages:
 		case AC.aListLess1KPages:
+		case AC.aListMore1KPages:
 			adapter = new SimpleAdapter(ctx, data, R.layout.lv_item_pagelist,
 					new String[] { NV.PageName, NV.Size }, new int[] { R.id.tvName, R.id.tvCount });
 			lv.setAdapter(adapter);
@@ -483,6 +493,9 @@ public class Fragment_PageList extends BackHandledFragment {
 			break;
 		case AC.aListLess1KPages:
 			data = nm.getPageList(999);
+			break;
+		case AC.aListMore1KPages:
+			data = nm.getPageList(1001);
 			break;
 		}
 	}

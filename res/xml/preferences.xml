@@ -26,6 +26,13 @@
     <PreferenceCategory android:title="BookList设置" >
         <CheckBoxPreference
             android:defaultValue="true"
+            android:key="isShowMoreOrLess1K"
+            android:summaryOff="当前:小于1K的章节"
+            android:summaryOn="当前:大于1K的章节"
+            android:title="长按菜单栏显示按钮，默认显示大于1K" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
             android:key="isClickItemRightAct"
             android:summaryOff="当前:无特殊动作"
             android:summaryOn="当前:弹出菜单"
